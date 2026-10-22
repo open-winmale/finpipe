@@ -2,7 +2,7 @@
 """Sync the packaged data catalog from the upstream source tree (maintainer-only).
 
 This tool is NOT needed at runtime: the Python package ships a frozen copy under
-src/openwm/_catalog/generated/. It is read-only against the upstream tree and
+src/finpipe/_catalog/generated/. It is read-only against the upstream tree and
 applies the project's publishing policy:
 
   - namespace whitelist  : only first-release in-scope data surfaces
@@ -11,8 +11,8 @@ applies the project's publishing policy:
                            paths removed (see .internal/MAINTENANCE.md)
 
 Outputs (deterministic; anchored to the upstream git rev):
-  src/openwm/_catalog/generated/inventory.json
-  src/openwm/_catalog/generated/metrics.json
+  src/finpipe/_catalog/generated/inventory.json
+  src/finpipe/_catalog/generated/metrics.json
 
 Usage:
   python3 tools/extract_from_scripts.py [--scripts-root PATH] [--check]
@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-OUT_DIR = REPO / "src" / "openwm" / "_catalog" / "generated"
+OUT_DIR = REPO / "src" / "finpipe" / "_catalog" / "generated"
 
 CATALOG_RE = re.compile(r"^\s*#\s*xs:catalog\s+(\{.*\})\s*$")
 SIG_RE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\s*=\s*func\s*\(([^)]*)\)")

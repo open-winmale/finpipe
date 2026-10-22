@@ -1,12 +1,12 @@
-# openwm
+# finpipe
 
 A 股个股数据 Python SDK。数据目录随包内置（离线可查全部接口合同），取数走云端 API，
 **安装后唯一外部依赖是你的 appid（client_id + client_secret）**——不依赖任何仓库或内部工程。
 
 ```python
-import openwm as wm
+import finpipe
 
-cli = wm.Client.from_env()          # 凭证：环境变量 OPENWM_CLIENT_ID / OPENWM_CLIENT_SECRET
+cli = finpipe.Client.from_env()          # 凭证：环境变量 FINPIPE_CLIENT_ID / FINPIPE_CLIENT_SECRET
 
 cli.kline.bars("600519", n=30)                      # 日 K（自动规范化）
 cli.statements.income("600519", years=5)            # 利润表（合并口径）
@@ -21,16 +21,16 @@ cli.bonus.query_list("600519", limit=10)            # 底层目录函数（类�
 ## 安装
 
 ```bash
-pip install openwm            # 或源码安装：pip install .
-pip install "openwm[dataframe]"   # 可选：pandas 支持（_df=True）
+pip install finpipe            # 或源码安装：pip install .
+pip install "finpipe[dataframe]"   # 可选：pandas 支持（_df=True）
 ```
 
 配置凭证（二选一）：
 
 ```bash
-export OPENWM_CLIENT_ID=...
-export OPENWM_CLIENT_SECRET=...
-# 或写入 ~/.openwm/credentials.env（KEY=VALUE 每行一条）
+export FINPIPE_CLIENT_ID=...
+export FINPIPE_CLIENT_SECRET=...
+# 或写入 ~/.finpipe/credentials.env（KEY=VALUE 每行一条）
 ```
 
 ## 数据范围（一期，9 个数据域）
@@ -63,4 +63,4 @@ export OPENWM_CLIENT_SECRET=...
 - 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；
   单次拉取上限 `Client(max_limit=500)` 可调
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
-- 运行测试：`pytest`（不联网）；`OPENWM_LIVE=1 pytest tests/test_live.py`（真实冒烟）
+- 运行测试：`pytest`（不联网）；`FINPIPE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

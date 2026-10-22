@@ -14,10 +14,10 @@ from typing import Any
 
 import requests
 
-from openwm.catalog import Catalog, load
+from finpipe.catalog import Catalog, load
 
 
-class OpenWMError(RuntimeError):
+class FinPipeError(RuntimeError):
     """带修复建议的统一错误。"""
 
 
@@ -30,12 +30,12 @@ def _to_dataframe(result: Any) -> Any:
     try:
         import pandas as pd  # optional dependency
     except ImportError as e:  # pragma: no cover
-        raise OpenWMError("_df=True 需要安装 pandas：pip install pandas") from e
+        raise FinPipeError("_df=True 需要安装 pandas：pip install pandas") from e
     if isinstance(result, list):
         return pd.DataFrame(result)
     if isinstance(result, dict):
         return pd.DataFrame([result])
-    raise OpenWMError(f"结果类型 {type(result).__name__} 无法转 DataFrame")
+    raise FinPipeError(f"结果类型 {type(result).__name__} 无法转 DataFrame")
 
 
 class Client:
@@ -65,20 +65,20 @@ class Client:
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None, **kw: Any) -> "Client":
         e = dict(os.environ if env is None else env)
-        cred_file = Path(e.get("OPENWM_CREDENTIALS", Path.home() / ".openwm" / "credentials.env"))
+        cred_file = Path(e.get("FINPIPE_CREDENTIALS", Path.home() / ".finpipe" / "credentials.env"))
         if cred_file.is_file():
             for line in cred_file.read_text(encoding="utf-8").splitlines():
                 line = line.strip().removeprefix("export ").strip()
                 if "=" in line and not line.startswith("#"):
                     k, _, v = line.partition("=")
                     e.setdefault(k.strip(), v.strip().strip('"').strip("'"))
-        base = e.get("OPENWM_BASE_URL") or e.get("OPEN_PLATFORM_BASE_URL")
-        cid = e.get("OPENWM_CLIENT_ID") or e.get("OPEN_PLATFORM_CLIENT_ID")
-        sec = e.get("OPENWM_CLIENT_SECRET") or e.get("OPEN_PLATFORM_CLIENT_SECRET")
+        base = e.get("FINPIPE_BASE_URL") or e.get("OPEN_PLATFORM_BASE_URL")
+        cid = e.get("FINPIPE_CLIENT_ID") or e.get("OPEN_PLATFORM_CLIENT_ID")
+        sec = e.get("FINPIPE_CLIENT_SECRET") or e.get("OPEN_PLATFORM_CLIENT_SECRET")
         if not cid or not sec:
-            raise OpenWMError(
-                "缺少凭证：设置 OPENWM_CLIENT_ID/OPENWM_CLIENT_SECRET"
-                "（或 OPEN_PLATFORM_*），或提供 ~/.openwm/credentials.env")
+            raise FinPipeError(
+                "缺少凭证：设置 FINPIPE_CLIENT_ID/FINPIPE_CLIENT_SECRET"
+                "（或 OPEN_PLATFORM_*），或提供 ~/.finpipe/credentials.env")
         return cls(base_url=base, client_id=cid, client_secret=sec, **kw)
 
     def _get_token(self) -> str:
@@ -98,7 +98,7 @@ class Client:
         data = doc.get("data") or doc
         token = data.get("access_token")
         if not token:
-            raise OpenWMError(f"OAuth 未返回 access_token：{json.dumps(doc, ensure_ascii=False)[:300]}")
+            raise FinPipeError(f"OAuth 未返回 access_token：{json.dumps(doc, ensure_ascii=False)[:300]}")
         self._token = token
         self._token_exp = time.time() + float(data.get("expires_in", 3600))
         return token
@@ -125,11 +125,11 @@ class Client:
             timeout=self.timeout,
         )
         if resp.status_code != 200:
-            raise OpenWMError(f"eval HTTP {resp.status_code}: {resp.text[:300]}")
+            raise FinPipeError(f"eval HTTP {resp.status_code}: {resp.text[:300]}")
         doc = resp.json()
         if not doc.get("success", True):
             err = doc.get("error") or {}
-            raise OpenWMError(
+            raise FinPipeError(
                 f"eval 失败: {err.get('code', '')} {err.get('message', json.dumps(doc)[:200])}")
         return doc
 
@@ -161,16 +161,16 @@ class Client:
         known = {p["name"] for p in params}
         unknown = set(kwargs) - known
         if unknown:
-            raise OpenWMError(f"{name}: 未知参数 {sorted(unknown)}；合法参数 {sorted(known)}")
+            raise FinPipeError(f"{name}: 未知参数 {sorted(unknown)}；合法参数 {sorted(known)}")
         for p in params:
             if p["name"] not in kwargs and "default" not in p and p.get("required"):
-                raise OpenWMError(f"{name}: 缺少必填参数 {p['name']}")
+                raise FinPipeError(f"{name}: 缺少必填参数 {p['name']}")
         if self.max_limit is not None:
             for p in params:
                 if p["name"] in ("limit", "lim") and p["type"] == "int":
                     v = kwargs.get(p["name"], p.get("default"))
                     if isinstance(v, int) and not isinstance(v, bool) and v > self.max_limit:
-                        raise OpenWMError(
+                        raise FinPipeError(
                             f"{name}: {p['name']}={v} 超过单次请求上限 {self.max_limit}"
                             "（防止单次拉取过大；可在 Client(max_limit=...) 调整，设 None 关闭）")
         args = []
@@ -198,7 +198,7 @@ class Client:
         """client.bonus.query_list(...) —— 友好 API 优先，其次类型化门面，最后通用门面。"""
         if ns.startswith("_"):
             raise AttributeError(ns)
-        from openwm.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+        from finpipe.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
         cls = FRIENDLY_NAMESPACES.get(ns)
         if cls is not None:
             return cls(self)

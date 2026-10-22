@@ -1,16 +1,16 @@
-"""Live 冒烟（默认跳过）：OPENWM_LIVE=1 且凭证可用时对 9 个数据域抽样真实调用。
+"""Live 冒烟（默认跳过）：FINPIPE_LIVE=1 且凭证可用时对 9 个数据域抽样真实调用。
 
 凭证发现顺序同 Client.from_env。运行：
-  OPENWM_LIVE=1 OPENWM_BASE_URL=... OPENWM_CLIENT_ID=... OPENWM_CLIENT_SECRET=... pytest tests/test_live.py
+  FINPIPE_LIVE=1 FINPIPE_BASE_URL=... FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=... pytest tests/test_live.py
 """
 import os
 
 import pytest
 
-from openwm.client import Client
+from finpipe.client import Client
 
 pytestmark = pytest.mark.skipif(
-    os.environ.get("OPENWM_LIVE") != "1", reason="OPENWM_LIVE!=1")
+    os.environ.get("FINPIPE_LIVE") != "1", reason="FINPIPE_LIVE!=1")
 
 
 @pytest.fixture(scope="module")

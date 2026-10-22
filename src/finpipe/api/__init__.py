@@ -7,7 +7,7 @@
   - 本层只是目录合同的薄翻译，全量 155 个底层函数仍可经 ``client.call("ns.fn", ...)`` 调用。
 
 使用：
-    cli = openwm.Client.from_env()
+    cli = finpipe.Client.from_env()
     cli.kline.bars("600519", n=30)
     cli.statements.income("600519", years=5)
     cli.notice.list("600519", window="3m")
@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:  # pragma: no cover
-    from openwm.client import Client
+    from finpipe.client import Client
 
 
 class _Api:
@@ -287,4 +287,4 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
 ]
 
 # 类型化门面（生成层）：目录命名空间的完整类型签名；运行时仍走 client.call()。
-from openwm.api._generated import NAMESPACES as GENERATED_NAMESPACES  # noqa: E402
+from finpipe.api._generated import NAMESPACES as GENERATED_NAMESPACES  # noqa: E402

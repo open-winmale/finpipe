@@ -18,8 +18,8 @@ import yaml
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
-from openwm.api import FRIENDLY_INDEX  # noqa: E402
-from openwm.catalog import catalog_dir  # noqa: E402
+from finpipe.api import FRIENDLY_INDEX  # noqa: E402
+from finpipe.catalog import catalog_dir  # noqa: E402
 
 DOMAINS = catalog_dir() / "domains"
 INVENTORY = json.loads((catalog_dir() / "generated" / "inventory.json").read_text(encoding="utf-8"))

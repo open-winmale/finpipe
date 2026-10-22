@@ -29,6 +29,11 @@ def test_typed_api_no_drift():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
+def test_openapi_no_drift():
+    r = _run(["tools/gen_openapi.py", "--check"])
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
 def test_extractor_check_no_drift():
     r = _run(["tools/extract_from_scripts.py", "--check"])
     out = r.stdout + r.stderr

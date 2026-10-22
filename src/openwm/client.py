@@ -195,13 +195,16 @@ class Client:
         return _to_dataframe(result) if _df else result
 
     def __getattr__(self, ns: str) -> Any:
-        """client.kline.bars(...) —— 友好 API 优先；其余命名空间回退通用门面。"""
+        """client.bonus.query_list(...) —— 友好 API 优先，其次类型化门面，最后通用门面。"""
         if ns.startswith("_"):
             raise AttributeError(ns)
-        from openwm.api import FRIENDLY_NAMESPACES
+        from openwm.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
         cls = FRIENDLY_NAMESPACES.get(ns)
         if cls is not None:
             return cls(self)
+        gcls = GENERATED_NAMESPACES.get(ns)
+        if gcls is not None:
+            return gcls(self)
         if ns not in self.catalog.namespaces():
             raise AttributeError(
                 f"命名空间 {ns!r} 不在目录中；可用友好入口 "

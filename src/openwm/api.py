@@ -108,7 +108,7 @@ class StatementsApi(_Api):
 
 
 class IndicatorApi(_Api):
-    """平台自产指标（$CODE）。单位注意：比率类为百分数（15.0=15%），行情涨跌类为小数。"""
+    """平台指标（按指标代码寻址）。单位注意：比率类为百分数（15.0=15%），行情涨跌类为小数。"""
 
     def get(self, symbol: str, code: str) -> Any:
         """取单个指标当前值，如 cli.indicator.get("600519", "$PE_TTM_LAST")。"""
@@ -250,8 +250,8 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("fundamentals", "statements", "income", "利润表", "rptdom.statement"),
     ("fundamentals", "statements", "cashflow", "现金流量表", "rptdom.statement"),
     ("fundamentals", "statements", "audit", "审计意见", "rptdom.statement_audit"),
-    ("fundamentals", "indicator", "get", "取单个指标", "$CODE eval"),
-    ("fundamentals", "indicator", "metrics", "批量取指标", "$CODE eval"),
+    ("fundamentals", "indicator", "get", "取单个指标", "指标代码直查"),
+    ("fundamentals", "indicator", "metrics", "批量取指标", "指标代码批量直查"),
     ("disclosure", "notice", "list", "单票公告列表", "notice.query_by_symbol"),
     ("disclosure", "notice", "by_category", "按类别查公告", "notice.query_by_category"),
     ("disclosure", "notice", "has_buyback", "窗口内有回购", "notice.signal_has_buyback"),
@@ -268,5 +268,5 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("disclosure", "dividend", "dps", "每股分红序列", "bonus.dps_rpt"),
     ("disclosure", "dividend", "yield_ttm", "TTM 股息率", "bonus.snapshot_yield_ttm"),
     ("disclosure", "dividend", "payout_ttm", "TTM 派息率", "bonus.snapshot_payout_ttm"),
-    ("reference", "info", "profile", "公司档案摘要", "$NAME 等档案指标"),
+    ("reference", "info", "profile", "公司档案摘要", "档案指标（$NAME 等）"),
 ]

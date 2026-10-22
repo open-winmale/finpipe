@@ -1,12 +1,12 @@
 id: fund.indicators
-version: 1.0.0
-cn: 自产指标层
+version: 1.1.0
+cn: 指标层
 kind: computed
 category: fundamentals
 priority: P0
-description: 平台 metric 层 `$CODE` 指标——用原始数据（行情/报表/股本/分红）由平台公式计算的
-  派生指标。这是与 raw 域的根本区别：数值不存在于任何披露文件中，由我们计算得出。
-  本域精修 L0 精选（约 95 个，按用途分组）；全量编目 2759 个见 catalog/generated/metrics.json。
+description: 平台公式计算的派生指标——数值不存在于任何披露文件中，由平台以行情/报表/股本/
+  分红等原始数据计算得出。L0 精选约 95 个按用途分组；全量 2197 个指标代码随包内数据目录分发
+  （generated/metrics.json）。
 data_origin: [平台计算]
 units:
   pct: 百分数（如 15.0 = 15%）
@@ -14,10 +14,9 @@ units:
   money: 亿元（_LAST 截面多为亿元，个别元，见指标 note）
 requires: {path: sys/metric, preloaded: true}
 notes:
-  - '$CODE 寻址：SAS 式（symbol:annual:sampling），如 $ROE（随财报光标）与 $ROE_TTM_LAST（最新截面）'
-  - '_LAST 后缀 = 最新截面值；无后缀版本随 XS 光标（AT/RANGE）取历史'
+  - 指标代码带 _LAST 后缀 = 最新截面值；不带后缀 = 随最新财报期取值
   - 单位负例：ROE 类指标比较请直接用指标值；自算比例时源数据 percent 为小数（0.15=15%），指标层 pct 为百分数（15.0=15%）——两者勿混
-  - 新旧会计准则适配（std_compat）在指标计算内部完成，输出口径已归一
+  - 新旧会计准则适配在指标计算内部完成，输出口径已归一
 metric_groups:
   - id: valuation
     cn: 估值

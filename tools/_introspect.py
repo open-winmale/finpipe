@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""共享内省：友好层方法 → 参数/说明/示例/返回 schema（gen_api_docs 与 gen_openapi 共用）。
+
+友好层注解为字符串形式（`from __future__ import annotations`），此处做轻量解析，
+支持的注解集合即 api/ 包中实际使用的：str/int/float/bool/list[str]/dict 及 `X | None`。
+"""
+from __future__ import annotations
+
+import inspect
+import re
+from dataclasses import dataclass
+
+_PY2JSON = {"str": "string", "int": "integer", "float": "number", "bool": "boolean",
+            "list": "array", "dict": "object", "list[str]": "array",
+            "dict[str, Any]": "object", "Any": "object"}
+
+# 示例值（按参数名；文档示例口径，非编造合同）
+EXAMPLE_VALUES = {
+    "adj": '"qfq"', "code": '"$PE_TTM_LAST"',
+    "codes": '["$PE_TTM_LAST", "$ROE_TTM_LAST"]',
+    "category": '"回购"', "begin": '"2026-01-01"', "end": '"2026-03-31"',
+    "kind": '"annual"', "keyword": '"回购"', "window": '"3m"',
+    "years": "3", "scope": '"合并"', "n": "30", "limit": "10",
+}
+
+# 返回说明兜底（FRIENDLY_INDEX 底层列不可回溯目录 shape 的核心接口）
+FALLBACK_RETURNS = {
+    ("indicator", "get"): "数值 · 单指标当前值",
+    ("indicator", "metrics"): "MAP · {code: 值}",
+    ("info", "profile"): "MAP · 档案（name/industry/style_industry/org_type/listing_date）",
+}
+
+_PARAM_RE = re.compile(r"^:param (\w+):\s*(.*)$")
+
+# JSON schema 类型映射（目录/returns_shape 用）
+SHAPE_TYPE = {"string": "string", "int": "integer", "int64": "integer",
+              "float": "number", "float64": "number", "bool": "boolean"}
+
+
+@dataclass
+class Param:
+    name: str
+    json_type: str      # string/integer/number/boolean/array/object
+    py_ann: str         # 原注解串
+    required: bool
+    default: str | None = None
+    desc: str = ""
+
+
+def parse_docstring(doc: str | None) -> tuple[str, str, dict[str, str]]:
+    """docstring → (summary 首行, body 其余文本, {param: desc})。"""
+    if not doc:
+        return "", "", {}
+    lines = doc.strip().splitlines()
+    summary = lines[0].strip()
+    params: dict[str, str] = {}
+    body: list[str] = []
+    for ln in lines[1:]:
+        m = _PARAM_RE.match(ln.strip())
+        if m:
+            params[m.group(1)] = m.group(2).strip()
+        elif ln.strip():
+            body.append(ln.strip())
+    return summary, "、".join(body) if body else "", params
+
+
+def _resolve(ann: object) -> tuple[str, str]:
+    s = ann if isinstance(ann, str) else getattr(ann, "__name__", str(ann))
+    s = s.strip()
+    t = _PY2JSON.get(s)
+    if t is None:
+        t = _PY2JSON.get(s.split("|", 1)[0].strip(), "object")
+    return t, s
+
+
+def method_params(cls: type, method: str) -> list[Param]:
+    """方法签名 → 业务参数列表（self/_raw/_df 等传输细节不进接口文档）。"""
+    fn = getattr(cls, method)
+    out: list[Param] = []
+    for name, p in inspect.signature(fn).parameters.items():
+        if name == "self" or name.startswith("_"):
+            continue
+        jt, py = _resolve(p.annotation)
+        has_default = p.default is not inspect.Parameter.empty
+        out.append(Param(name=name, json_type=jt, py_ann=py, required=not has_default,
+                         default=repr(p.default) if has_default else None))
+    descs = parse_docstring(inspect.getdoc(fn))[2]
+    if not descs:  # 参数说明写在类 docstring 时（如 StatementsApi）
+        descs = parse_docstring(inspect.getdoc(cls))[2]
+    for p in out:
+        p.desc = descs.get(p.name, "")
+    return out
+
+
+def method_doc(cls: type, method: str) -> tuple[str, str]:
+    return parse_docstring(inspect.getdoc(getattr(cls, method)))[:2]
+
+
+def method_example(ns: str, method: str, params: list[Param]) -> str:
+    """机械生成调用示例：symbol 位置传 "600519"，其余取示例值表，无示例值的必填参数以 … 占位。"""
+    parts: list[str] = []
+    if any(p.name == "symbol" for p in params):
+        parts.append('"600519"')
+    for p in params:
+        if p.name == "symbol":
+            continue
+        if p.name in EXAMPLE_VALUES:
+            parts.append(f"{p.name}={EXAMPLE_VALUES[p.name]}")
+        elif p.required:
+            parts.append(f"{p.name}=…")
+    return f"cli.{ns}.{method}({', '.join(parts)})"
+
+
+def underlying_fn(underlying: str) -> str | None:
+    """FRIENDLY_INDEX 底层列 → 可回溯的目录函数名；不可映射（$CODE eval 等）返回 None。"""
+    s = underlying.split("[")[0].strip()
+    return s if re.fullmatch(r"[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*", s) else None
+
+
+def shape_to_schema(shape: dict | None) -> dict:
+    """目录 returns_shape → JSON schema（OpenAPI 3.1 兼容）。"""
+    if not shape:
+        return {}
+    out: dict = {}
+    if shape.get("cn"):
+        out["description"] = shape["cn"]
+    kind = shape.get("kind")
+    if kind == "array":
+        out["type"] = "array"
+        items = shape.get("items") or {}
+        if items.get("fields"):
+            out["items"] = _fields_object(items["fields"])
+        elif items.get("type") in SHAPE_TYPE:
+            out["items"] = {"type": SHAPE_TYPE[items["type"]]}
+        return out
+    if kind == "object" and shape.get("fields"):
+        out.update(_fields_object(shape["fields"]))
+    return out
+
+
+def _fields_object(fields: list[dict]) -> dict:
+    props = {}
+    for f in fields:
+        t = SHAPE_TYPE.get(f.get("type", "any"))
+        prop: dict = {"type": t} if t else {}
+        if f.get("cn"):
+            prop["description"] = f["cn"]
+        props[f["name"]] = prop
+    return {"type": "object", "properties": props}

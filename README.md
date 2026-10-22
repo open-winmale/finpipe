@@ -72,7 +72,9 @@ export FINPIPE_CLIENT_SECRET=...
 
 ## 更多
 
-- [API 参考](docs/API.md)：四大类全量接口（参数 / 返回字段 / 单位口径 / 示例）
+- [API 参考](docs/API.md)：四大类 32 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
+- **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
+  Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（浏览器直接打开交互浏览）
 - 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；
   单次拉取上限 `Client(max_limit=500)` 可调
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策

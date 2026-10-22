@@ -24,6 +24,10 @@ FORBIDDEN_SUBSTRINGS = [
     "less.server",
     "skillhub-releases",
     "winmale/.skillhub",
+    # 内置体验 appid 的明文：仅允许以混淆 blob 存在于 src/finpipe/_experience.py，
+    # 任何跟踪文件出现明文（含 README/测试/示例）一律视为泄漏
+    "wm_open_y9jvhjnm49kl3el2",
+    "3e41394cda5b9bcaece12c59dcd2382b053bb6906434e60f",
 ]
 
 # 第三方产品/数据商引用：项目规范禁止出现（含竞品对标与数据来源点名）

@@ -76,7 +76,7 @@ class Client:
         if not cid or not sec:
             raise OpenWMError(
                 "缺少凭证：设置 OPENWM_CLIENT_ID/OPENWM_CLIENT_SECRET"
-                "（或 OPEN_PLATFORM_*），或提供 ~/.winmale/credentials.env")
+                "（或 OPEN_PLATFORM_*），或提供 ~/.openwm/credentials.env")
         return cls(base_url=base, client_id=cid, client_secret=sec, **kw)
 
     def _get_token(self) -> str:

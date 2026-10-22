@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "upstream_rev": "8ae96a4e",
+ "upstream_rev": "1821ad20",
  "domains": {
   "bonus": {
    "entry": "sys/bonus/init.xs",

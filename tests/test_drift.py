@@ -1,0 +1,33 @@
+"""漂移门禁测试：generated 与 scripts SoT 一致；domains 通过合同校验。
+
+scripts 仓不存在时跳过 extractor --check（CI 外环境）。
+"""
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+
+
+def _run(cmd: list[str]) -> subprocess.CompletedProcess:
+    return subprocess.run([sys.executable, *cmd], cwd=REPO,
+                          capture_output=True, text=True)
+
+
+def test_validate_catalog_green():
+    r = _run(["tools/validate_catalog.py"])
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_api_docs_no_drift():
+    r = _run(["tools/gen_api_docs.py", "--check"])
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_extractor_check_no_drift():
+    r = _run(["tools/extract_from_scripts.py", "--check"])
+    out = r.stdout + r.stderr
+    if "scripts repo not found" in out:
+        import pytest
+        pytest.skip("scripts 仓不可见，跳过 extractor 漂移检查")
+    assert r.returncode == 0, out

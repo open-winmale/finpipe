@@ -1,0 +1,86 @@
+"""数据目录装载/查询测试（不联网）。"""
+import openwm
+from openwm.catalog import load
+
+
+def test_load_and_stats():
+    cat = load()
+    s = cat.stats()
+    assert s["domains"] == 9, s
+    assert s["functions"] == 155, s
+    assert s["raw"] == 82 and s["computed"] == 73, s
+    assert s["metric_catalog_total"] == 2197, s
+    assert s["upstream_rev"], "inventory 应锚定 upstream rev"
+
+
+def test_function_contract():
+    fn = load().function("kline.query_bars")
+    assert fn["domain"] == "market.kline"
+    assert [p["name"] for p in fn["params"]] == ["sym", "limit"]
+    limit = fn["params"][1]
+    assert limit["type"] == "int" and limit["default"] == 120
+    assert fn["returns_shape"], "query_bars 应有字段级 returns_shape"
+    fields = {f["name"] for f in fn["returns_shape"]["items"]["fields"]}
+    assert {"date", "open", "close", "volume", "percent"} <= fields
+    assert fn["inventory_example"].startswith("kline.query_bars(")
+
+
+def test_raw_vs_computed_distinction():
+    cat = load()
+    # 原始：披露/直采
+    assert cat.function("kline.query_bars")["kind"] == "raw"
+    assert cat.function("bonus.query_list")["kind"] == "raw"
+    assert cat.function("forecast.yjyg_rows")["kind"] == "raw"
+    # 自产：计算派生
+    assert cat.function("bonus.snapshot_yield_ttm")["kind"] == "computed"
+    assert cat.function("kline.index_breadth_summary")["kind"] == "computed"
+    # 域缺省：指标域=computed，报表域=raw
+    assert cat.domain("fund.indicators")["kind"] == "computed"
+    assert cat.domain("fund.statements")["kind"] == "raw"
+
+
+def test_namespaces_and_metrics():
+    cat = load()
+    assert {"kline", "moneyflow", "notice", "filings", "forecast",
+            "bonus", "rptdom"} == cat.namespaces()
+    m = cat.metric("$PE_TTM_LAST")
+    assert m and m["cn"]
+    assert cat.metric("$NOT_EXIST") is None
+
+
+def test_scope_and_categories():
+    cat = load()
+    cats = {d["category"] for d in cat.domains.values()}
+    assert cats == {"market", "fundamentals", "disclosure", "reference"}
+    # 财报提取类域不发布
+    assert "fin.report" not in cat.domains
+    # 股本股东（store 域，无函数面）
+    assert cat.domain("corp.equity")["stores"] == ["biz.equity", "ref.info"]
+    assert cat.domain("corp.equity")["functions"] == []
+
+
+def test_curated_metric_groups_exist():
+    cat = load()
+    dom = cat.domain("fund.indicators")
+    groups = {g["id"] for g in dom["metric_groups"]}
+    assert {"valuation", "profitability", "growth", "dividend", "revenue_mix"} <= groups
+    for g in dom["metric_groups"]:
+        assert g["caliber"], f"指标组 {g['id']} 缺公式口径"
+        assert g["depends_on"], f"指标组 {g['id']} 缺依赖域"
+
+
+def test_package_version():
+    assert openwm.__version__
+
+
+def test_catalog_shipped_inside_package():
+    """独立性合同：目录数据必须随包分发（pip 安装后离线可用，不依赖仓库/内部工程）。"""
+    import openwm.catalog as catmod
+    from pathlib import Path
+    pkg_root = Path(catmod.__file__).resolve().parent
+    cdir = catmod.catalog_dir()
+    assert cdir == pkg_root / "_catalog"
+    assert (cdir / "schema" / "domain.schema.json").is_file()
+    assert len(list((cdir / "domains").glob("*.yaml"))) == 9
+    for g in ("inventory.json", "metrics.json"):
+        assert (cdir / "generated" / g).is_file()

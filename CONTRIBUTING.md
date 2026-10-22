@@ -1,6 +1,6 @@
 # 贡献指南与项目规范
 
-感谢关注 openwm。本文件同时是**内容规范**：违反任一条会被 CI 门禁拦截。
+感谢关注 finpipe。本文件同时是**内容规范**：违反任一条会被 CI 门禁拦截。
 
 ## 提交前门禁（全部必须通过）
 
@@ -21,17 +21,17 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 2. **禁止内部信息**：内网域名、基础设施路径、开发者机器路径、凭证字面量。
 3. **文档白名单**：对外文档只允许 README / LICENSE / CONTRIBUTING / docs/API.md / examples。
    方案、计划、路线图、内部流程文档一律不入库。
-4. **凭证纪律**：凭证只走环境变量或 `~/.openwm/credentials.env`（gitignore 已覆盖 `.env`），
+4. **凭证纪律**：凭证只走环境变量或 `~/.finpipe/credentials.env`（gitignore 已覆盖 `.env`），
    任何密钥字面量不得出现在代码、测试、文档中。
 
 ## 数据域与接口规范
 
-- 新增/修改数据域：在 `src/openwm/_catalog/domains/<域>.yaml` 操作，必须
+- 新增/修改数据域：在 `src/finpipe/_catalog/domains/<域>.yaml` 操作，必须
   bump 域 `version`（semver），并通过 `validate_catalog.py`（函数/指标码必须可回溯到
   `generated/` 清单，防编造）。
-- 生成物 `src/openwm/_catalog/generated/*.json` **禁止手改**：由维护者用
+- 生成物 `src/finpipe/_catalog/generated/*.json` **禁止手改**：由维护者用
   `tools/extract_from_scripts.py` 从上游同步（含命名空间白名单与文本净化策略）。
-- 友好 API（`src/openwm/api.py`）改动必须同步 `FRIENDLY_INDEX` 注册表
+- 友好 API（`src/finpipe/api.py`）改动必须同步 `FRIENDLY_INDEX` 注册表
   （`tests/test_api.py` 强制两者一致），方法首参统一 `symbol`。
 
 ## 许可政策

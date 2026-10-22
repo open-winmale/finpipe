@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openwm"
+name = "finpipe"
 version = "0.1.0"
 description = "A 股个股数据 Python SDK：随包内置机器可读数据目录 + 云端取数客户端（仅依赖 appid）"
 readme = "README.md"
@@ -24,15 +24,15 @@ dev = [
 dataframe = ["pandas>=1.5"]
 
 [project.urls]
-Homepage = "https://github.com/open-winmale/openwm"
-Documentation = "https://github.com/open-winmale/openwm/blob/main/docs/API.md"
-Issues = "https://github.com/open-winmale/openwm/issues"
+Homepage = "https://github.com/open-winmale/finpipe"
+Documentation = "https://github.com/open-winmale/finpipe/blob/main/docs/API.md"
+Issues = "https://github.com/open-winmale/finpipe/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-openwm = [
+finpipe = [
     "py.typed",
     "_catalog/schema/*.json",
     "_catalog/domains/*.yaml",
@@ -40,7 +40,7 @@ openwm = [
 ]
 
 [tool.mypy]
-files = ["src/openwm"]
+files = ["src/finpipe"]
 ignore_missing_imports = true
 check_untyped_defs = true
 

@@ -20,17 +20,17 @@ _PACKAGE_CATALOG = Path(__file__).resolve().parent / "_catalog"
 
 
 def catalog_dir() -> Path:
-    """定位随包分发的目录：OPENWM_CATALOG_DIR 覆盖（开发期指向仓内），默认包内 _catalog/。"""
-    env = os.environ.get("OPENWM_CATALOG_DIR")
+    """定位随包分发的目录：FINPIPE_CATALOG_DIR 覆盖（开发期指向仓内），默认包内 _catalog/。"""
+    env = os.environ.get("FINPIPE_CATALOG_DIR")
     if env:
         p = Path(env).expanduser().resolve()
         if (p / "domains").is_dir():
             return p
-        raise FileNotFoundError(f"OPENWM_CATALOG_DIR={env} 下没有 domains/")
+        raise FileNotFoundError(f"FINPIPE_CATALOG_DIR={env} 下没有 domains/")
     if (_PACKAGE_CATALOG / "domains").is_dir():
         return _PACKAGE_CATALOG
     raise FileNotFoundError(
-        "包内 _catalog/ 缺失（安装损坏？）；或设置 OPENWM_CATALOG_DIR 指向有效目录")
+        "包内 _catalog/ 缺失（安装损坏？）；或设置 FINPIPE_CATALOG_DIR 指向有效目录")
 
 
 class Catalog:

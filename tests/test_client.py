@@ -8,8 +8,8 @@ import json
 
 import pytest
 
-from openwm.catalog import load
-from openwm.client import Client, OpenWMError, _xs_literal
+from finpipe.catalog import load
+from finpipe.client import Client, FinPipeError, _xs_literal
 
 
 class FakeSession:
@@ -95,16 +95,16 @@ def test_auto_require_for_unpreloaded_ns(client):
 
 
 def test_param_validation(client):
-    with pytest.raises(OpenWMError, match="未知参数"):
+    with pytest.raises(FinPipeError, match="未知参数"):
         client.call("kline.query_bars", sym="600519", n=10)
-    with pytest.raises(OpenWMError, match="必填参数 sym"):
+    with pytest.raises(FinPipeError, match="必填参数 sym"):
         client.call("moneyflow.query_bars", limit=5)
     with pytest.raises(KeyError, match="未知函数"):
         client.call("kline.no_such_fn", sym="600519")
 
 
 def test_max_limit_caps_limit_params(client):
-    with pytest.raises(OpenWMError, match="超过单次请求上限 500"):
+    with pytest.raises(FinPipeError, match="超过单次请求上限 500"):
         client.call("kline.query_bars", sym="600519", limit=501)
     client.call("kline.query_bars", sym="600519", limit=500)  # 上限值本身放行
     c2 = Client(base_url="https://t", client_id="i", client_secret="s",
@@ -132,7 +132,7 @@ def test_namespace_facade(client):
     # L1 精简条目：回退 inventory 签名参数，可直接调用
     client.call("kline.fmt_snapshot_line", sym="600519")
     assert last_eval(client)["json"]["xs_lines"] == ['return kline.fmt_snapshot_line("600519")']
-    with pytest.raises(OpenWMError, match="未知参数"):
+    with pytest.raises(FinPipeError, match="未知参数"):
         client.call("kline.fmt_snapshot_line", code="600519")
 
 
@@ -140,7 +140,7 @@ def test_inventory_min_args_optional(client):
     # kline.query_bars_adj(sym, limit, adj) xs:catalog min_args=2 → adj 可选
     client.call("kline.query_bars_adj", sym="600519", limit=10)
     assert last_eval(client)["json"]["xs_lines"] == ['return kline.query_bars_adj("600519", 10)']
-    with pytest.raises(OpenWMError, match="必填参数 limit"):
+    with pytest.raises(FinPipeError, match="必填参数 limit"):
         client.call("kline.query_bars_adj", sym="600519")
 
 
@@ -171,5 +171,5 @@ def test_eval_error_surfaced(client):
             return super().post(url, **kw)
     c2 = Client(base_url="https://t", client_id="i", client_secret="s",
                 catalog=load(), session=FailSession())
-    with pytest.raises(OpenWMError, match="undefined: foo"):
+    with pytest.raises(FinPipeError, match="undefined: foo"):
         c2.call("kline.query_bars", sym="600519")

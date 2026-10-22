@@ -3,9 +3,9 @@ import inspect
 
 import pytest
 
-from openwm.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
-from openwm.catalog import load
-from openwm.client import Client, OpenWMError
+from finpipe.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+from finpipe.catalog import load
+from finpipe.client import Client, FinPipeError
 
 
 class FakeSession:
@@ -95,7 +95,7 @@ def test_typed_raw_passthrough(cli):
 
 
 def test_typed_max_limit_guard(cli):
-    with pytest.raises(OpenWMError, match="超过单次请求上限 500"):
+    with pytest.raises(FinPipeError, match="超过单次请求上限 500"):
         cli.bonus.query_list(sym="600519", limit=9999)
 
 

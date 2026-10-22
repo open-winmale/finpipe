@@ -3,9 +3,9 @@ import inspect
 
 import pytest
 
-from openwm.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES
-from openwm.catalog import load
-from openwm.client import Client, OpenWMError
+from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES
+from finpipe.catalog import load
+from finpipe.client import Client, FinPipeError
 
 
 class FakeSession:
@@ -113,6 +113,6 @@ def test_unknown_param_still_guards(cli):
     with pytest.raises(TypeError):
         cli.kline.bars("600519", bogus=1)
     # 通用 call() 层同守
-    from openwm.client import OpenWMError
-    with pytest.raises(OpenWMError, match="未知参数"):
+    from finpipe.client import FinPipeError
+    with pytest.raises(FinPipeError, match="未知参数"):
         cli.call("kline.query_bars", sym="600519", bogus=1)

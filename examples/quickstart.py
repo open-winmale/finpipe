@@ -1,12 +1,12 @@
-"""快速上手：5 分钟看懂 openwm 的四类数据。
+"""快速上手：5 分钟看懂 finpipe 的四类数据。
 
 运行前设置凭证：
-    export OPENWM_CLIENT_ID=... OPENWM_CLIENT_SECRET=...
+    export FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=...
     python examples/quickstart.py
 """
-import openwm as wm
+import finpipe
 
-cli = wm.Client.from_env()
+cli = finpipe.Client.from_env()
 SYMBOL = "600519"
 
 # ---- 市场行情 ----
@@ -45,6 +45,6 @@ profile = cli.info.profile(SYMBOL)
 print(f"{profile.get('name')} · {profile.get('industry')} · 上市 {profile.get('listing_date')}")
 
 # 进阶：DataFrame 与全量底层函数
-df = cli.kline.bars(SYMBOL, n=30, _df=True)     # 需 pip install "openwm[dataframe]"
+df = cli.kline.bars(SYMBOL, n=30, _df=True)     # 需 pip install "finpipe[dataframe]"
 print(f"DataFrame 形状：{df.shape}")
 row = cli.call("kline.query_last_live", sym=SYMBOL)   # 155 个底层函数通用入口

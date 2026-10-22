@@ -1,7 +1,25 @@
 # wm-finpipe
 
-A 股个股数据 Python SDK。**个人学习、研究等非商业使用完全免费**，注册即得充足免费额度；
-`pip install wm-finpipe` 装完就能取数，无需任何配置。
+[![CI](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
+[![Python](https://img.shields.io/pypi/pyversions/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
+[![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
+[![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/finpipe/py.typed)
+
+> **English TL;DR** — `wm-finpipe` is a source-available Python SDK for A-share market data:
+> k-line (3 adjustment modes), money flow, the three financial statements, 2,197 metric codes,
+> announcements, dividend history & high-dividend screeners. Ships a machine-readable offline
+> catalog, explicit unit conventions, a typed facade, and a zero-config trial appid
+> (`pip install wm-finpipe`, then `finpipe.Client()`). Free for non-commercial use;
+> commercial use requires a separate license. See the [English quick start](#english-quick-start).
+
+> **⚠️ 许可声明（请先阅读）**：本项目采用
+> [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
+> 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
+
+A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K 线与档案等部分接口已覆盖，
+详见目录）。注册即得充足免费额度；`pip install wm-finpipe` 装完就能取数，无需任何配置
+（安装包名为 `wm-finpipe`，代码中 `import finpipe`）。
 
 ```python
 import finpipe
@@ -23,8 +41,10 @@ cli.info.profile("600519")                              # 公司档案
 - **免费额度充足**——注册开放平台账号即得免费额度，个人学习、研究等非商业用途完全免费且
   足够使用（具体额度以开放平台为准）。
 - **开箱即用**——SDK 内置体验 appid，`Client()` 零配置即可取数；正式使用换成自己的 appid。
-- **目录随包、离线可查**——155 个底层函数、41 个核心接口、2197 个指标代码随 wheel 分发，
-  断网也能查全部接口合同；所有命名空间带类型签名（`py.typed`），IDE 直接补全。
+- **目录随包、离线可查**——155 个底层函数、44 个核心接口、2197 个指标代码随 wheel 分发，
+  断网也能查全部接口合同。类型支持说明：目录命名空间与生成层带类型签名（`py.typed`），
+  44 个核心接口的方法有显式签名；其余底层函数经动态委托访问，IDE 补全以目录为准
+  （`cat.search()` / [docs/API.md](docs/API.md) 可查全部合同）。
 - **口径显式、不混用**——每个函数标注「原始数据 / 指标」；单位统一（价格=元、量=手、
   涨跌幅=小数），率类口径逐项写明，避免把 3.96% 读成 0.04%。
 - **财报按最新会计准则归一**——新旧会计准则的科目差异在平台内部完成适配，输出口径一致，
@@ -175,6 +195,10 @@ export FINPIPE_CLIENT_SECRET=...
 
 数据经云端 API 运行时获取（代码与目录开源，数据不随包分发）。
 
+> **目录是如何来的？** 随包目录由维护者从上游数据平台同步并冻结进发布物
+> （schema 版本治理，详见 [CONTRIBUTING.md](CONTRIBUTING.md)），发布的是上游指标的**策展子集**。
+> 贡献者无需重建目录即可使用全部功能；如需新增数据域或指标，请提 issue。
+
 ## 使用限制（必读）
 
 本项目采用 [PolyForm Noncommercial License 1.0.0](LICENSE)：
@@ -185,9 +209,27 @@ export FINPIPE_CLIENT_SECRET=...
 
 商业授权请联系项目维护方。数据仅供研究参考，不构成任何投资建议。
 
+## English quick start
+
+```python
+import finpipe
+
+cli = finpipe.Client()                     # zero config: built-in trial appid
+
+bars = cli.kline.bars("600519", n=30)      # daily k-line (raw: price in CNY, volume in lots)
+yield_ttm = cli.dividend.yield_ttm("600519")   # TTM dividend yield (decimal: 0.0396 = 3.96%)
+cat = finpipe.load()
+hits = cat.search("股息")                   # offline catalog: search 2,197 metric codes
+```
+
+For non-commercial use the SDK is free (built-in trial appid, register for your own quota).
+Commercial use requires a license — see [License](#使用限制必读).
+Units: prices in CNY, volume in lots (A-share), price change as decimal (0.01 = 1%),
+metric ratios as percentages (15.0 = 15%).
+
 ## 更多
 
-- [API 参考](docs/API.md)：四大类 41 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
+- [API 参考](docs/API.md)：四大类 44 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
   Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（浏览器直接打开交互浏览）
 - 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；

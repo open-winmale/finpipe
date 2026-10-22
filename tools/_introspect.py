@@ -127,6 +127,33 @@ def underlying_fn(underlying: str) -> str | None:
     return s if re.fullmatch(r"[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*", s) else None
 
 
+# 友好层包装返回单个对象（底层是数组，取首行/None）；文档/OpenAPI 不能沿用数组 shape。
+SINGLE_OBJECT_METHODS = {
+    ("kline", "last"),
+    ("moneyflow", "last"),
+    ("dividend", "last"),
+}
+
+
+def return_shape_for(catalog: object, ns: str, method: str, underlying: str) -> dict | None:
+    """核心接口的返回 shape：目录 shape + 单对象包装修正。"""
+    fn_key = underlying_fn(underlying)
+    if not fn_key:
+        return None
+    try:
+        shape = catalog.function(fn_key).get("returns_shape")  # type: ignore[attr-defined]
+    except Exception:
+        return None
+    if (ns, method) in SINGLE_OBJECT_METHODS and shape and shape.get("kind") == "array":
+        items = shape.get("items") or {}
+        return {
+            "kind": "object",
+            "cn": f"{items.get('cn') or '结果'} 或 None（无数据）",
+            "fields": list(items.get("fields") or []),
+        }
+    return shape
+
+
 def shape_to_schema(shape: dict | None) -> dict:
     """目录 returns_shape → JSON schema（OpenAPI 3.1 兼容）。"""
     if not shape:

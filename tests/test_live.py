@@ -1,4 +1,4 @@
-"""Live 冒烟（默认跳过）：32 个核心接口全部真实调用 + 数值合理性断言。
+"""Live 冒烟（默认跳过）：44 个核心接口全部真实调用 + 数值合理性断言。
 
 运行：
   FINPIPE_LIVE=1 FINPIPE_BASE_URL=... FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=... \
@@ -173,25 +173,28 @@ def test_indicator_get_and_metrics(cli):
     batch = cli.indicator.metrics(MAIN, ["$PE_TTM_LAST", "$ROE_TTM_LAST", "$PB_LAST"])
     assert set(batch) == {"$PE_TTM_LAST", "$ROE_TTM_LAST", "$PB_LAST"}
     assert _is_num(batch["$PE_TTM_LAST"]) and batch["$PE_TTM_LAST"] > 0
+    # 指标层比率是小数（0.332 = 33.2%），不是 0.332 个百分点
+    assert _is_num(batch["$ROE_TTM_LAST"]) and 0 < batch["$ROE_TTM_LAST"] < 2
 
 
 # ---------------------------------------------------------------- 披露 disclosure
 def test_notice_list(cli):
     rows = cli.notice.list(MAIN, window="1y", limit=5)
     assert isinstance(rows, list) and rows
-    assert all(isinstance(r, dict) for r in rows)
+    assert all({"date", "title", "code", "type"} <= set(r) for r in rows), \
+        "notice.list() 应为扁平规范化行"
 
 
 def test_notice_by_category(cli):
     rows = cli.notice.by_category("回购", window="1m", limit=5)
     assert isinstance(rows, list)
-    assert all(isinstance(r, dict) for r in rows)
+    assert all({"date", "title"} <= set(r) for r in rows)
 
 
 def test_notice_find(cli):
     rows = cli.notice.find(MAIN, "2026-01-01", "2026-06-30", limit=5)
     assert isinstance(rows, list) and rows
-    assert all(isinstance(r, dict) for r in rows)
+    assert all({"date", "title"} <= set(r) for r in rows)
 
 
 def test_notice_signals(cli):
@@ -202,10 +205,10 @@ def test_notice_signals(cli):
 def test_notice_recent_and_on_date(cli):
     recent = cli.notice.recent("7d", limit=3)
     assert isinstance(recent, list) and recent
-    assert all(isinstance(r, dict) for r in recent)
+    assert all({"date", "title"} <= set(r) for r in recent)
     on = cli.notice.on_date("2026-10-21", limit=3)
     assert isinstance(on, list)
-    assert all(isinstance(r, dict) for r in on)
+    assert all({"date", "title"} <= set(r) for r in on)
 
 
 def test_filings_list_and_latest(cli):
@@ -246,6 +249,8 @@ def test_dividend_history_and_last(cli):
     assert isinstance(rows, list) and rows
     last = cli.dividend.last(MAIN)
     assert isinstance(last, dict)
+    assert {"announce", "ex_div", "dps", "total"} <= set(last)
+    assert last == cli.dividend.history(MAIN, limit=1)[0]
 
 
 def test_dividend_dps_and_ratios(cli):
@@ -263,6 +268,12 @@ def test_dividend_window_stats(cli):
     assert _is_num(st["dps"]) and st["dps"] > 0
     assert _is_num(st["total"]) and st["total"] > 0
     assert isinstance(st["count"], int) and st["count"] >= 1
+
+
+def test_dividend_screeners(cli):
+    assert isinstance(_call_or_xfail(cli.dividend.screen_quality, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.dividend.screen_high_yield, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.dividend.screen_undervalued_yield, MAIN), bool)
 
 
 def test_dividend_history_fields_and_range(cli):

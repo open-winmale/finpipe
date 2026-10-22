@@ -1,25 +1,25 @@
 # wm-finpipe
 
 [![CI](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
-[![Python](https://img.shields.io/pypi/pyversions/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
 [![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/finpipe/py.typed)
 
 > **English TL;DR** — `wm-finpipe` is a source-available Python SDK for A-share market data:
 > k-line (3 adjustment modes), money flow, the three financial statements, 2,197 metric codes,
 > announcements, dividend history & high-dividend screeners. Ships a machine-readable offline
-> catalog, explicit unit conventions, a typed facade, and a zero-config trial appid
-> (`pip install wm-finpipe`, then `finpipe.Client()`). Free for non-commercial use;
-> commercial use requires a separate license. See the [English quick start](#english-quick-start).
+> catalog, explicit unit conventions, a typed facade, and a zero-config trial AppID.
+> **Install from source** (PyPI release is pending): `git clone` the repo, `pip install .`,
+> then `finpipe.Client()`. Free for non-commercial use; commercial use requires a separate
+> license. See the [English quick start](#english-quick-start).
 
 > **⚠️ 许可声明（请先阅读）**：本项目采用
 > [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
 > 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
 
 A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K 线与档案等部分接口已覆盖，
-详见目录）。注册即得充足免费额度；`pip install wm-finpipe` 装完就能取数，无需任何配置
-（安装包名为 `wm-finpipe`，代码中 `import finpipe`）。
+详见目录）。注册即得充足免费额度；源码安装后即可取数，无需任何配置
+（代码中 `import finpipe`）。当前尚未发布到 PyPI，请使用「安装」一节的源码方式。
 
 ```python
 import finpipe
@@ -94,8 +94,9 @@ cli.info.profile("600519")                              # 公司档案
   收入构成。
 - **常用指标开箱即用**：PE/PB/PS/PCF、ROE/ROIC/杜邦分解、TTM 同比与多年年化、
   周转天数与现金周期、费用率、市值与年化收益。
-- **口径标注**：`_LAST` = 最新截面；指标比率类为百分数（15.0 = 15%），
-  与行情涨跌幅的小数口径分开说明。
+- **口径标注**：`_LAST` = 最新截面；指标层比率类为**小数**（0.332 = 33.2%），
+  与行情涨跌幅的小数口径一致；业绩预告的 `np_amp_*`/`np_yoy` 才是百分数（14.67 = 14.67%），
+  两者不要混用。
 - **经营与财务多口径**：合并/母公司、单期/多期/TTM、披露原值/派生指标；
   收入构成提供境内/境外收入占比与对应毛利率（产品线/业务分部口径一期未纳入）。
 
@@ -144,31 +145,39 @@ cli.info.profile("600519")                              # 公司档案
 | 会计准则 | 新旧准则已归一 | 平台内部适配 |
 | 价格 / 量 / 额 | 元 / 手 / 本币 | 港股、美股量=股 |
 | 涨跌幅 | 小数 | 0.01 = 1% |
-| 指标比率 | 百分数 | 15.0 = 15% |
+| 指标比率 | 小数 | 0.332 = 33.2%（ROE/毛利率/资产负债率等） |
+| 业绩预告同比 | 百分数 | 14.67 = 14.67%（仅 disc.events 的 yoy/amp 字段） |
 | 分红率 | 小数 | 0.0396 = 3.96% |
 | 时间窗口 | `7d`…`5y` 或天数 | 分红/公告；最大 5 年，未知 token 显式报错 |
 | 日期区间 | `begin` / `end` | 含端点，最多 5 年；覆盖不足会报错 |
 
 ## 安装
 
+当前尚未发布到 PyPI，请从源码安装：
+
 ```bash
-pip install wm-finpipe                 # 或源码安装：pip install .
-pip install "wm-finpipe[dataframe]"    # 可选：pandas 支持（_df=True）
+git clone https://github.com/open-winmale/finpipe.git
+cd finpipe
+pip install .                          # 基础安装
+pip install ".[dataframe]"             # 可选：pandas 支持（_df=True）
 ```
+
+开发/贡献者安装：`pip install -e ".[dev,dataframe]"`。  
+PyPI 发布后可直接 `pip install wm-finpipe`，届时会更新本节与 README 徽章。
 
 ## 免费额度与凭证
 
 **个人学习、研究等非商业使用完全免费**。注册开放平台账号即可获得免费额度，个人研究足够使用；
 具体额度以开放平台为准。商业使用需另行授权（见「使用限制」）。
 
-SDK 内置体验 appid，安装即用，但它是共享池、额度有限，仅供初次体验。正式使用建议申请
-自己的 appid（额度更充足）：
+SDK 内置体验 AppID，安装即用，但它是共享池、额度有限，仅供初次体验。正式使用建议申请
+自己的 AppID（额度更充足）：
 
 1. 打开 [赢麻了开放平台](https://open.winmale.com)，扫码微信登录注册；
 2. 点击右上角「我的」，进入「开放平台」；
 3. 左侧导航「我的应用」→「查看应用信息」，即可查看 `client_id` 与 api-key（即 `client_secret`）。
 
-拿到自己的 appid 后任选一种配置方式：
+拿到自己的 AppID 后任选一种配置方式：
 
 ```bash
 # 方式一：环境变量
@@ -179,7 +188,20 @@ export FINPIPE_CLIENT_SECRET=...
 ```
 
 也可以在代码中直接传入：`finpipe.Client(client_id=..., client_secret=...)`。
-不配置时自动使用内置体验 appid。
+不配置时自动使用内置体验 AppID。
+
+### 遇到 401 / 403 / 429 怎么办
+
+内置体验 AppID 是多人共享池，可能失效、被撤销或被限流。收到这些错误时请申请自己的 AppID：
+
+- **401 / 403** → SDK 抛 `AuthError`（带 `status` 与服务端 `code`，如 `POLICY_DENIED`）；
+- **429** → SDK 抛 `LimitError(code="rate_limited")`，消息会带 `Retry-After` 建议；
+- 错误消息本身已包含下面 3 步，程序里可直接 `except finpipe.AuthError` / `except finpipe.LimitError`。
+
+申请步骤：打开 [open.winmale.com](https://open.winmale.com) 微信扫码登录 → 右上角「我的」→
+「开放平台」→「我的应用」→「查看应用信息」→ 复制 `client_id` 与 api-key；然后按上面的
+环境变量或 `~/.finpipe/credentials.env` 配置。内置 AppID 只适合初次体验，正式研究请使用
+自己的 AppID。
 
 ## 数据范围（一期，9 个数据域）
 
@@ -222,16 +244,17 @@ cat = finpipe.load()
 hits = cat.search("股息")                   # offline catalog: search 2,197 metric codes
 ```
 
-For non-commercial use the SDK is free (built-in trial appid, register for your own quota).
+For non-commercial use the SDK is free (built-in trial AppID, register for your own quota).
 Commercial use requires a license — see [License](#使用限制必读).
 Units: prices in CNY, volume in lots (A-share), price change as decimal (0.01 = 1%),
-metric ratios as percentages (15.0 = 15%).
+metric ratios as decimal (0.332 = 33.2%); forecast yoy fields are percentages.
 
 ## 更多
 
 - [API 参考](docs/API.md)：四大类 44 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
-  Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（浏览器直接打开交互浏览）
+  Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；
+  Swagger UI 资源来自 CDN，若浏览器限制 `file://` 可在 docs 目录起 `python -m http.server`）
 - 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；
   单次拉取上限 `Client(max_limit=500)` 可调
 - 批量调用：`cli.call_batch("kline.query_bars", ["600519", "000001"])` 单次 HTTP 返回

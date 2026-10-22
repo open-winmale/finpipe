@@ -4,6 +4,16 @@ CatalogError 同时继承 KeyError，兼容既有 `except KeyError` 用法。
 """
 from __future__ import annotations
 
+# 401/403/429 的统一引导文案：错误消息里直接给出可执行的申请步骤，
+# 避免用户只看到原始 HTTP 状态而不知道下一步做什么。
+APPID_GUIDANCE = (
+    "申请自己的 AppID（额度更充足）：打开 https://open.winmale.com 微信扫码登录 → "
+    "右上角「我的」→「开放平台」→「我的应用」→「查看应用信息」，复制 client_id 与 api-key；"
+    "然后设置 FINPIPE_CLIENT_ID / FINPIPE_CLIENT_SECRET，"
+    "或写入 ~/.finpipe/credentials.env。"
+    "内置体验 AppID 是共享池、额度有限，可能失效或被限流。"
+)
+
 
 class FinPipeError(RuntimeError):
     """带修复建议的统一错误基类。"""
@@ -15,7 +25,11 @@ class FinPipeError(RuntimeError):
 
 
 class AuthError(FinPipeError):
-    """凭证缺失/无效/被拒（OAuth 或 401/403）。"""
+    """凭证缺失/无效/被拒（OAuth 400/401/403 或 eval 401/403）。
+
+    内置体验 AppID 失效、被撤销或用户凭证错误都会落到这里；消息包含申请
+    自己的 AppID 的步骤，程序可用 ``code`` / ``status`` 分类。
+    """
 
 
 class UsageError(FinPipeError):
@@ -23,7 +37,12 @@ class UsageError(FinPipeError):
 
 
 class LimitError(FinPipeError):
-    """请求体积超过客户端上限（max_limit）。"""
+    """请求体积/窗口超限，或服务端限流（HTTP 429）。
+
+    客户端 ``max_limit``/日期区间用 ``code="limit"``/``"range"``；
+    服务端限流用 ``code="rate_limited"`` 且 ``status=429``，消息包含
+    重试建议和申请自己的 AppID 的步骤。
+    """
 
 
 class TransportError(FinPipeError):

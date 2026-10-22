@@ -133,15 +133,28 @@ class _Api:
             raise AttributeError(name)  # indicator / info 等聚合层不提供目录委托
         qualified = f"{catalog_ns}.{name}"
         try:
-            client.catalog.function(qualified)
+            meta = client.catalog.function(qualified)
         except Exception:
             raise AttributeError(
                 f"{type(self).__name__!s}.{name} 不存在；请查目录："
                 f"cat.search({name!r}) 或 docs/API.md") from None
+        params = meta.get("params") or client.catalog.inventory_params(qualified)
+        param_names = [p["name"] for p in params]
         call = client.call
 
         def _delegate(*args: Any, **kwargs: Any) -> Any:
-            return call(qualified, *args, **kwargs)
+            if len(args) > len(param_names):
+                raise UsageError(
+                    f"{qualified}: 最多接受 {len(param_names)} 个位置参数，"
+                    f"收到 {len(args)} 个；参数顺序 {param_names}", code="params")
+            bound = dict(kwargs)
+            for pname, value in zip(param_names, args):
+                if pname in bound:
+                    raise UsageError(
+                        f"{qualified}: 参数 {pname!r} 同时以位置和关键字传入",
+                        code="params")
+                bound[pname] = value
+            return call(qualified, **bound)
 
         _delegate.__name__ = name
         _delegate.__qualname__ = f"{type(self).__name__}.{name}"
@@ -165,6 +178,9 @@ class KlineApi(_Api):
         if begin is not None or end is not None:
             if not (begin and end):
                 raise UsageError("begin 与 end 需同时提供", code="range")
+            if _raw:
+                raise UsageError("_raw=True 时不支持 begin/end（原始行无扁平日期字段）",
+                                 code="range")
             limit = min(int(n) if n is not None else (self._c.max_limit or 10000), 10000)
             fn = "kline.query_bars" if adj is None else "kline.query_bars_adj"
             kwargs: dict[str, Any] = {"sym": symbol, "limit": limit, "_raw": _raw}
@@ -228,6 +244,9 @@ class MoneyflowApi(_Api):
         if begin is not None or end is not None:
             if not (begin and end):
                 raise UsageError("begin 与 end 需同时提供", code="range")
+            if _raw:
+                raise UsageError("_raw=True 时不支持 begin/end（原始行无扁平日期字段）",
+                                 code="range")
             limit = min(int(n) if n is not None else (self._c.max_limit or 10000), 10000)
             rows = self._c.call("moneyflow.query_bars", sym=symbol, limit=limit, _raw=_raw)
             out = _filter_by_date(rows, begin, end, "date", limit)
@@ -319,7 +338,8 @@ class StatementsApi(_Api):
 
 
 class IndicatorApi(_Api):
-    """平台指标（按指标代码寻址）。单位注意：比率类为百分数（15.0=15%），行情涨跌类为小数。"""
+    """平台指标（按指标代码寻址）。单位注意：盈利/现金流/偿债等比率类为小数
+    （0.332 = 33.2%），行情涨跌幅同为小数；业绩预告的同比字段才是百分数。"""
 
     def get(self, symbol: str, code: str) -> Any:
         """取单个指标当前值，如 cli.indicator.get("600519", "$PE_TTM_LAST")。"""
@@ -344,8 +364,9 @@ class NoticeApi(_Api):
 
     def list(self, symbol: str, window: str = "3m", keyword: str = "",
              limit: int = 20, _raw: bool = False, _df: bool = False) -> Any:
-        """单票公告列表（日期/标题/类别/链接）。"""
-        return self._c.call("notice.query_by_symbol", sym=symbol, window=window,
+        """单票公告列表（date/title/type/url/pdf_url）。"""
+        days = _window_days(window)
+        return self._c.call("notice.query_by_symbol", sym=symbol, window=str(days),
                             type_regex=keyword, limit=limit, _raw=_raw, _df=_df)
 
     def recent(self, window: str = "7d", keyword: str = "", limit: int = 50,
@@ -355,14 +376,16 @@ class NoticeApi(_Api):
         :param window: 时间窗口，如 "7d"/"1m" 或天数
         :param keyword: 标题/类型正则（可空）
         """
-        return self._c.call("notice.query_recent", window=window, type_regex=keyword,
+        days = _window_days(window)
+        return self._c.call("notice.query_recent", window=str(days), type_regex=keyword,
                             limit=limit, _raw=_raw, _df=_df)
 
-    def by_category(self, category: str, window: str = "30d", limit: int = 20,
-                    _df: bool = False) -> Any:
+    def by_category(self, category: str, window: str = "1m", limit: int = 20,
+                    _raw: bool = False, _df: bool = False) -> Any:
         """按类别查公告（如 "回购"）。"""
+        days = _window_days(window)
         return self._c.call("notice.query_by_category", category=category,
-                            window=window, limit=limit, _df=_df)
+                            window=str(days), limit=limit, _raw=_raw, _df=_df)
 
     def find(self, symbol: str, begin: str, end: str, keyword: str = "",
              limit: int = 50, _raw: bool = False, _df: bool = False) -> Any:
@@ -377,18 +400,20 @@ class NoticeApi(_Api):
                             _raw=_raw, _df=_df)
 
     def on_date(self, date: str, keyword: str = "", limit: int = 50,
-                _df: bool = False) -> Any:
+                _raw: bool = False, _df: bool = False) -> Any:
         """指定日期的全市场公告（date 格式 YYYY-MM-DD）。"""
         return self._c.call("notice.query_on_date", date=date, type_regex=keyword,
-                            limit=limit, _df=_df)
+                            limit=limit, _raw=_raw, _df=_df)
 
     def has_buyback(self, symbol: str, window: str = "6m") -> bool:
         """窗口内是否有回购公告。"""
-        return bool(self._c.call("notice.signal_has_buyback", sym=symbol, window=window))
+        return bool(self._c.call("notice.signal_has_buyback", sym=symbol,
+                                 window=str(_window_days(window))))
 
     def has_reduction(self, symbol: str, window: str = "6m") -> bool:
         """窗口内是否有减持公告。"""
-        return bool(self._c.call("notice.signal_has_reduction", sym=symbol, window=window))
+        return bool(self._c.call("notice.signal_has_reduction", sym=symbol,
+                                 window=str(_window_days(window))))
 
 
 class FilingsApi(_Api):
@@ -503,9 +528,14 @@ class DividendApi(_Api):
         return self._c.call("bonus.query_list", sym=symbol, limit=limit,
                             _raw=_raw, _df=_df)
 
-    def last(self, symbol: str) -> Any:
-        """最近一次分红。"""
-        return self._c.call("bonus.query_last", sym=symbol)
+    def last(self, symbol: str, _raw: bool = False) -> Any:
+        """最近一次分红（announce/ex_date/pay/dps/total/content/sas/payout_ratio），无数据返回 None。
+
+        复用规范化历史序列取最新一行，字段与 ``history(limit=1)[0]`` 一致；
+        ``_raw=True`` 时返回 store 原始行。
+        """
+        rows = self._c.call("bonus.query_list", sym=symbol, limit=1, _raw=_raw)
+        return rows[0] if rows else None
 
     def dps(self, symbol: str) -> Any:
         """财报期每股分红（元/股）。"""
@@ -612,7 +642,7 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("disclosure", "forecast", "disclosure_history", "历史预约披露", "forecast.disclosure_rows"),
     ("disclosure", "forecast", "next_disclosure", "下次预约披露", "forecast.disclosure_next"),
     ("disclosure", "dividend", "history", "分红历史", "bonus.query_list"),
-    ("disclosure", "dividend", "last", "最近一次分红", "bonus.query_last"),
+    ("disclosure", "dividend", "last", "最近一次分红", "bonus.query_list"),
     ("disclosure", "dividend", "dps", "财报期每股分红", "bonus.dps_rpt"),
     ("disclosure", "dividend", "window_stats", "窗口分红统计", "bonus.query_*_window"),
     ("disclosure", "dividend", "yield_ttm", "TTM 股息率", "bonus.snapshot_yield_ttm"),

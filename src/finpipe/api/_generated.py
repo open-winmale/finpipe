@@ -260,7 +260,10 @@ class BonusNS(_Ns):
         return self._client.call("bonus.index_fields_analysis", _raw=_raw, _df=_df)
 
     def fmt_maps(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
-        """分红行规范化"""
+        """分红行规范化
+
+:returns: ARR · 规范化分红行
+        """
         return self._client.call("bonus.fmt_maps", rows=rows, _raw=_raw, _df=_df)
 
     def fmt_lines(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
@@ -795,7 +798,7 @@ class NoticeNS(_Ns):
 :param window: 时间窗
 :param type_regex: 类型正则
 
-:returns: ARR · 公告行（日期/标题/类别/链接）
+:returns: ARR · 公告行（date/title/type/url/pdf_url）
         """
         kw: dict[str, Any] = {"sym": sym}
         if window is not None:
@@ -811,7 +814,7 @@ class NoticeNS(_Ns):
 
 :param market: 缺省 cn
 
-:returns: ARR · 公告行
+:returns: ARR · 公告行（date/title/type/url/pdf_url）
         """
         kw: dict[str, Any] = {}
         if window is not None:
@@ -827,7 +830,7 @@ class NoticeNS(_Ns):
     def query_by_category(self, category: str, window: str | None = None, limit: int | None = None, market: str | None = None, _raw: bool = False, _df: bool = False) -> Any:
         """按类别查公告
 
-:returns: ARR · 公告行
+:returns: ARR · 公告行（date/title/type/url/pdf_url）
         """
         kw: dict[str, Any] = {"category": category}
         if window is not None:
@@ -841,7 +844,7 @@ class NoticeNS(_Ns):
     def query_on_date(self, date: str, type_regex: str | None = None, limit: int | None = None, market: str | None = None, _raw: bool = False, _df: bool = False) -> Any:
         """指定日期公告
 
-:returns: ARR · 公告行
+:returns: ARR · 公告行（date/title/type/url/pdf_url）
         """
         kw: dict[str, Any] = {"date": date}
         if type_regex is not None:
@@ -855,7 +858,7 @@ class NoticeNS(_Ns):
     def query_find(self, from_date: str, to_date: str, type_regex: str | None = None, stock_code: str | None = None, limit: int | None = None, market: str | None = None, _raw: bool = False, _df: bool = False) -> Any:
         """按日期区间查公告
 
-:returns: ARR · 公告行
+:returns: ARR · 公告行（date/title/type/url/pdf_url）
         """
         kw: dict[str, Any] = {"from_date": from_date, "to_date": to_date}
         if type_regex is not None:

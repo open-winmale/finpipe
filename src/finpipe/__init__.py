@@ -17,7 +17,7 @@ from finpipe.errors import (
     TransportError, UsageError,
 )
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 __all__ = [
     "Catalog", "load", "Client", "BatchResult", "normalize_symbol", "__version__",

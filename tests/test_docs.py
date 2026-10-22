@@ -64,12 +64,13 @@ def cli():
                   catalog=CAT, session=FakeSession())
 
 
-def core_rows() -> list[tuple[str, str, str, str]]:
+def core_rows() -> list[tuple[str, str, str, str, str]]:
     rows = []
     for line in API_MD.splitlines():
         m = CORE_ROW.match(line)
         if m:
-            rows.append((m.group(1), m.group(2), m.group(4).replace("\\|", "|"), m.group(6)))
+            rows.append((m.group(1), m.group(2), m.group(4).replace("\\|", "|"),
+                         m.group(5), m.group(6)))
     return rows
 
 
@@ -117,14 +118,14 @@ def test_readme_counts_match_catalog():
 
 def test_api_md_core_interfaces_exact():
     rows = core_rows()
-    got = [(ns, m) for ns, m, _, _ in rows]
+    got = [(ns, m) for ns, m, _, _, _ in rows]
     want = [(ns, m) for _, ns, m, _, _ in FRIENDLY_INDEX]
     assert sorted(got) == sorted(want), "核心接口表与 FRIENDLY_INDEX 不一致"
     assert len(got) == len(set(got)), "核心接口表存在重复行"
 
 
 def test_api_md_params_match_signatures():
-    for ns, method, cell, _ in core_rows():
+    for ns, method, cell, _, _ in core_rows():
         sig = inspect.signature(getattr(FRIENDLY_NAMESPACES[ns], method))
         expected = []
         for name, p in sig.parameters.items():
@@ -135,6 +136,25 @@ def test_api_md_params_match_signatures():
             expected.append((name, ann, default))
         parsed = parse_sig_cell(cell)
         assert parsed == expected, f"{ns}.{method} 文档参数 {parsed} != 签名 {expected}"
+
+
+def test_api_md_last_rows_are_map():
+    """last() 包装返回单行/None，不能沿用底层数组的 ARR 描述。"""
+    wanted = {("kline", "last"), ("moneyflow", "last"), ("dividend", "last")}
+    seen = set()
+    for ns, method, _cell, ret, _ in core_rows():
+        if (ns, method) in wanted:
+            seen.add((ns, method))
+            assert "MAP" in ret and "ARR" not in ret, f"{ns}.{method}: {ret}"
+    assert seen == wanted
+
+
+def test_indicator_units_documented_as_decimal():
+    assert "0.332 = 33.2%" in README
+    assert "0.332 = 33.2%" in API_MD
+    assert "15.0 = 15%" not in README
+    assert "15.0 = 15%" not in API_MD
+    assert "指标层比率统一为小数" in API_MD
 
 
 def test_api_md_metric_groups_match_catalog():
@@ -185,7 +205,7 @@ def test_api_md_appendix_functions_match_catalog():
 
 # ---------------------------------------------------------------- 示例可执行
 def test_api_md_examples_execute(cli):
-    for ns, method, _, example in core_rows():
+    for ns, method, _, _, example in core_rows():
         assert example.startswith(f"cli.{ns}.{method}("), f"{ns}.{method} 示例串不匹配"
         eval(example, {"cli": cli})  # noqa: S307 - 文档内生成的示例，受仓库控制
 
@@ -302,6 +322,18 @@ def test_openapi_matches_signatures_and_returns():
         if not fields:
             continue
         resp = op["responses"]["200"]["content"]["application/json"]["schema"]
+        expected_container = {
+            ("kline", "last"): "object",
+            ("moneyflow", "last"): "object",
+            ("dividend", "last"): "object",
+            ("kline", "bars"): "array",
+        }
+        if (ns, method) in expected_container:
+            assert resp.get("type") == expected_container[(ns, method)], \
+                f"{ns}.{method} OpenAPI 容器类型错误：{resp.get('type')}"
+        if ns == "notice" and method in ("list", "recent", "by_category", "find", "on_date"):
+            assert {"date", "title", "url"} <= set(resp.get("items", {}).get("properties") or {}), \
+                f"notice.{method} 未记录规范化字段"
         container = resp.get("items", resp) if resp.get("type") == "array" else resp
         assert set(container.get("properties") or {}) == {f["name"] for f in fields}, \
             f"{ns}.{method} 响应字段与目录 returns_shape 不一致"

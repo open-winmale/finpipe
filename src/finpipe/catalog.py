@@ -63,22 +63,48 @@ class Catalog:
 
     # ---- 装载 ----
     def _load_domains(self) -> None:
+        docs = []
+        self._yaml_functions: dict[str, dict] = {}
         for path in sorted((self.root / "domains").glob("*.yaml")):
             doc = yaml.safe_load(path.read_text(encoding="utf-8"))
             self.domains[doc["id"]] = doc
+            docs.append(doc)
+            for fn in doc.get("functions") or []:
+                self._yaml_functions[fn["name"]] = fn
+        # 两阶段：先收集全部 YAML 函数，再合并；这样 normalize_with 可以
+        # 读取到同域内尚未合并的格式化函数 shape。
+        for doc in docs:
             for fn in doc.get("functions") or []:
                 merged = self._merge_with_inventory(fn, doc["id"])
                 self._functions[fn["name"]] = merged
                 self._fn_domain[fn["name"]] = doc
 
+    def _normalizer_shape(self, name: str | None) -> dict | None:
+        if not name:
+            return None
+        yaml_fn = self._yaml_functions.get(name) or {}
+        ret = yaml_fn.get("returns") or {}
+        if isinstance(ret.get("shape"), dict):
+            return ret["shape"]
+        inv = self._inv_functions.get(name) or {}
+        return inv.get("returns_shape")
+
     def _merge_with_inventory(self, fn: dict, domain_id: str) -> dict:
-        """精修条目 + inventory 原始合同（示例/returns_shape/min_args）合并视图。"""
+        """精修条目 + inventory 原始合同（示例/returns_shape/min_args）合并视图。
+
+        returns_shape 优先级：YAML returns.shape → normalize_with 目标函数的 shape
+        → 当前函数 inventory shape。这样规范化后的公告/分红行在目录里也是扁平字段。
+        """
         inv = self._inv_functions.get(fn["name"], {})
+        ret = fn.get("returns") or {}
+        shape = ret.get("shape") if isinstance(ret.get("shape"), dict) else None
+        if shape is None:
+            shape = self._normalizer_shape(fn.get("normalize_with"))
         return {
             **fn,
             "domain": domain_id,
             "inventory_example": inv.get("example", ""),
-            "returns_shape": inv.get("returns_shape"),
+            "returns_shape": shape or inv.get("returns_shape"),
             "min_args": inv.get("min_args"),
             "sources": inv.get("sources", []),
         }

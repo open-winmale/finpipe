@@ -12,15 +12,15 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 import requests
 
 from finpipe._experience import credentials as _experience_credentials
 from finpipe.catalog import Catalog, load
 from finpipe.errors import (
-    ApiError, AuthError, CatalogError, FinPipeError, LimitError, ServerError,
-    TransportError, UsageError,
+    APPID_GUIDANCE, ApiError, AuthError, CatalogError, FinPipeError, LimitError,
+    ServerError, TransportError, UsageError,
 )
 
 DEFAULT_BASE_URL = "https://api.winmale.com"
@@ -102,14 +102,20 @@ class Client:
         self.client_secret = client_secret or ""
         if bool(self.client_id) != bool(self.client_secret):
             raise AuthError(
-                "client_id 与 client_secret 需成对提供；两者都不传则使用内置体验 appid"
-                "（额度有限，正式使用请在赢麻了开放平台申请自己的 appid）", code="config")
+                "client_id 与 client_secret 需成对提供；两者都不传则使用内置体验 AppID"
+                f"（额度有限）。{APPID_GUIDANCE}", code="config")
         if not self.client_id:
-            cid, sec = _experience_credentials()
+            try:
+                cid, sec = _experience_credentials()
+            except Exception as e:
+                raise AuthError(
+                    f"内置体验 AppID 不可用（包可能损坏或被篡改）：{e}。{APPID_GUIDANCE}",
+                    code="experience") from e
             self.client_id = cid
             self.client_secret = sec
         self.market = market
         self.catalog = catalog or load()
+        self._owns_session = session is None
         self.session = session or requests.Session()
         self.timeout = timeout
         self.max_limit = max_limit
@@ -178,6 +184,56 @@ class Client:
         assert last is not None  # 循环必然 return 或 raise
         return last
 
+    @staticmethod
+    def _error_detail(resp: requests.Response) -> tuple[str, str]:
+        """从错误响应中尽力提取服务端 code/message（OAuth 与网关两种格式）。"""
+        try:
+            doc = resp.json()
+        except ValueError:
+            return "", (resp.text or "")[:300]
+        if not isinstance(doc, dict):
+            return "", (resp.text or "")[:300]
+        err = doc.get("error")
+        if isinstance(err, dict):
+            code = str(err.get("code") or "")
+            msg = str(err.get("message") or err.get("error_description") or "")
+            if code or msg:
+                return code, msg
+        # OAuth 规范风格：{"error": "invalid_client", "error_description": "..."}
+        if isinstance(err, str):
+            return err, str(doc.get("error_description") or doc.get("message") or "")
+        return "", (resp.text or "")[:300]
+
+    def _raise_http_error(self, resp: requests.Response, *, stage: str) -> NoReturn:
+        """把 OAuth/eval 的非 200 响应统一映射为 FinPipeError，并附 AppID 引导。"""
+        status = resp.status_code
+        code, detail = self._error_detail(resp)
+        label = f"HTTP {status}" + (f"，{code}" if code else "")
+        suffix = f"：{detail}" if detail else ""
+        if status == 429:
+            retry_after = resp.headers.get("Retry-After") if hasattr(resp, "headers") else None
+            wait = f"（建议 {retry_after} 秒后重试）" if retry_after else ""
+            raise LimitError(
+                f"请求被限流（{label}）{wait}{suffix}。请稍后重试，或申请自己的 AppID 提升额度。"
+                f"{APPID_GUIDANCE}",
+                code="rate_limited", status=status)
+        if stage == "oauth" and status in (400, 401, 403):
+            raise AuthError(
+                f"OAuth 认证失败（{label}）{suffix}。"
+                f"当前 client_id/client_secret 无效，或内置体验 AppID 已失效。"
+                f"{APPID_GUIDANCE}",
+                code=code or "oauth_denied", status=status)
+        if status in (401, 403):
+            raise AuthError(
+                f"认证或权限被拒绝（{label}）{suffix}。"
+                f"请检查凭证；若使用内置体验 AppID，请申请自己的 AppID。"
+                f"{APPID_GUIDANCE}",
+                code=code or "denied", status=status)
+        if status >= 500:
+            raise ServerError(f"HTTP {status}{suffix}", code=code or "server",
+                              status=status)
+        raise ApiError(f"HTTP {status}{suffix}", code=code or "http", status=status)
+
     def _get_token(self) -> str:
         if self._token and time.time() < self._token_exp - 60:
             return self._token
@@ -190,14 +246,26 @@ class Client:
             },
             timeout=self.timeout,
         )
-        resp.raise_for_status()
-        doc = resp.json()
+        if resp.status_code != 200:
+            self._raise_http_error(resp, stage="oauth")
+        try:
+            doc = resp.json()
+        except ValueError as e:
+            raise ApiError(
+                f"OAuth 响应不是合法 JSON（HTTP {resp.status_code}）：{resp.text[:200]}",
+                code="oauth_response", status=resp.status_code) from e
+        if not isinstance(doc, dict):
+            raise ApiError(f"OAuth 响应格式异常：{json.dumps(doc, ensure_ascii=False)[:300]}",
+                           code="oauth_response", status=resp.status_code)
         data = doc.get("data") or doc
+        if not isinstance(data, dict):
+            data = {}
         token = data.get("access_token")
         if not token:
             raise AuthError(
-                f"OAuth 未返回 access_token：{json.dumps(doc, ensure_ascii=False)[:300]}",
-                code="oauth")
+                f"OAuth 未返回 access_token：{json.dumps(doc, ensure_ascii=False)[:300]}。"
+                f"{APPID_GUIDANCE}",
+                code="oauth", status=resp.status_code)
         self._token = token
         self._token_exp = time.time() + float(data.get("expires_in", 3600))
         return token
@@ -230,20 +298,27 @@ class Client:
             self._token_exp = 0.0
             resp = call_once()
         if resp.status_code != 200:
-            if resp.status_code in (401, 403):
-                raise AuthError(f"eval HTTP {resp.status_code}: {resp.text[:300]}",
-                                code="denied", status=resp.status_code)
-            if resp.status_code >= 500:
-                raise ServerError(f"eval HTTP {resp.status_code}: {resp.text[:300]}",
-                                  code="server", status=resp.status_code)
-            raise ApiError(f"eval HTTP {resp.status_code}: {resp.text[:300]}",
-                           code="http", status=resp.status_code)
-        doc = resp.json()
+            self._raise_http_error(resp, stage="eval")
+        try:
+            doc = resp.json()
+        except ValueError as e:
+            raise ApiError(
+                f"eval 响应不是合法 JSON（HTTP {resp.status_code}）：{resp.text[:200]}",
+                code="response", status=resp.status_code) from e
+        if not isinstance(doc, dict):
+            raise ApiError(f"eval 响应格式异常：{json.dumps(doc, ensure_ascii=False)[:300]}",
+                           code="response", status=resp.status_code)
         if not doc.get("success", True):
             err = doc.get("error") or {}
-            raise ApiError(
-                f"eval 失败: {err.get('code', '')} {err.get('message', json.dumps(doc)[:200])}",
-                code=str(err.get("code", "eval")))
+            code = str(err.get("code") or "eval")
+            message = str(err.get("message") or json.dumps(doc, ensure_ascii=False)[:200])
+            if "RATE" in code.upper() or "QUOTA" in code.upper():
+                raise LimitError(
+                    f"eval 失败：{code} {message}。"
+                    f"内置体验 AppID 是共享池、额度有限，请稍后重试或申请自己的 AppID。"
+                    f"{APPID_GUIDANCE}", code=code, status=resp.status_code)
+            raise ApiError(f"eval 失败: {code} {message}", code=code,
+                           status=resp.status_code)
         return doc
 
     def eval_result(self, xs: str | list[str], **kw: Any) -> Any:
@@ -261,7 +336,10 @@ class Client:
         entry = (inv.get("domains") or {}).get(ns, {}).get("entry")
         return [f'xs.require("{entry}")'] if entry else []
 
-    SYMBOL_PARAMS = ("sym", "symbol", "stk")
+    # 标的参数自动归一；stock_code 用于 notice.query_find 等底层函数。
+    # 批量识别只用 BATCH_SYMBOL_PARAMS，避免把 stock_code 误当成可批量首个参数。
+    SYMBOL_PARAMS = ("sym", "symbol", "stk", "stock_code")
+    BATCH_SYMBOL_PARAMS = ("sym", "symbol", "stk")
 
     def _build_call_line(self, name: str, params: list[dict], kwargs: dict[str, Any],
                          *, sym_override: str | None = None,
@@ -338,7 +416,7 @@ class Client:
         fn = self.catalog.function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
         sym_param = next((p["name"] for p in params
-                          if p.get("type") == "string" and p["name"] in self.SYMBOL_PARAMS), None)
+                          if p.get("type") == "string" and p["name"] in self.BATCH_SYMBOL_PARAMS), None)
         if sym_param is None:
             raise UsageError(f"{name}: 没有标的参数（sym/symbol/stk），不支持批量调用",
                              code="params")
@@ -377,7 +455,9 @@ class Client:
 
     # ---- 生命周期 ----
     def close(self) -> None:
-        """关闭底层 HTTP 会话（注入的 session 也由调用方决定是否关闭）。"""
+        """关闭底层 HTTP 会话；调用方注入的 session 由调用方自行管理。"""
+        if not self._owns_session:
+            return
         close = getattr(self.session, "close", None)
         if callable(close):
             close()

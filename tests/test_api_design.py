@@ -200,12 +200,19 @@ def test_metric_lookup_is_indexed():
 
 
 # ---------------------------------------------------------------- 生命周期与 DataFrame
-def test_context_manager_closes_session():
-    s = FakeSession()
+def test_context_manager_owns_only_internal_session():
+    injected = FakeSession()
     with Client(base_url="https://t", client_id="i", client_secret="s",
-                catalog=load(), session=s) as c:
+                catalog=load(), session=injected) as c:
         assert c is not None
-    assert s.closed is True
+    assert injected.closed is False  # 注入 session 由调用方管理
+
+    owned = FakeSession()
+    c = Client(base_url="https://t", client_id="i", client_secret="s", catalog=load())
+    c.session = owned
+    with c:
+        pass
+    assert owned.closed is True
 
 
 def test_df_on_list_interfaces(cli):

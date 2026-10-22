@@ -130,3 +130,36 @@ def test_unknown_param_still_guards(cli):
     from finpipe.client import FinPipeError
     with pytest.raises(FinPipeError, match="未知参数"):
         cli.call("kline.query_bars", sym="600519", bogus=1)
+
+
+def test_getattr_delegates_catalog_functions(cli):
+    """__getattr__ 兜底：友好类未显式包装的目录函数经属性直达，零遮蔽。"""
+    # kline 命名空间的筛选器（未显式包装）可直达
+    cli.kline.screen_above_ma20(sym="600519")
+    assert last_xs(cli) == ['return kline.screen_above_ma20("600519")']
+    # dividend 命名空间映射到目录 bonus 命名空间，窗口函数同理
+    cli.dividend.query_dps_window(sym="600519", window="3y")
+    assert last_xs(cli) == ['return bonus.query_dps_window("600519", "3y")']
+    # 委托函数带可读名（便于调试与 repr）
+    fn = cli.kline.screen_above_ma20
+    assert fn.__name__ == "screen_above_ma20"
+    assert fn.__qualname__ == "KlineApi.screen_above_ma20"
+
+
+def test_getattr_rejects_non_catalog_names(cli):
+    """目录之外的名字显式 AttributeError，且提示可发现性入口。"""
+    with pytest.raises(AttributeError, match="cat.search"):
+        cli.kline.no_such_fn
+    # 双下划线永不委托（不干扰 pickle/copy 等协议探测）
+    with pytest.raises(AttributeError):
+        cli.kline.__deepcopy__
+
+
+def test_dividend_screeners_promoted(cli):
+    """杀手锏筛选器提为显式方法，可经 cli.dividend.screen_* 调用。"""
+    cli.dividend.screen_quality("600519", min_yield=0.03, payout_max=1.0)
+    assert last_xs(cli) == ['return bonus.screen_quality("600519", 0.03, 1.0)']
+    cli.dividend.screen_high_yield("600519")
+    assert last_xs(cli) == ['return bonus.screen_high_yield("600519")']
+    cli.dividend.screen_undervalued_yield("600519", min_yield=0.04)
+    assert last_xs(cli) == ['return bonus.screen_undervalued_yield("600519", 0.04)']

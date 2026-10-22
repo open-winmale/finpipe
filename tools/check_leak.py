@@ -4,6 +4,8 @@
 Scans all git-tracked files for:
   - internal hostnames / NAS paths / developer machine paths
   - secret-looking assignments (CLIENT_SECRET=..., token literals)
+  - tracked files outside the public whitelist (CONTRIBUTING.md 入库白名单),
+    so internal planning/process docs can never slip back into the repo
 Exits 1 on any hit. Wired into CI (gates job) and pre-push habit.
 
 Usage: python3 tools/check_leak.py
@@ -63,6 +65,45 @@ def tracked_files() -> list[Path]:
     return [REPO / p for p in out.stdout.splitlines() if p.strip()]
 
 
+# 允许进入公开仓库的路径白名单（CONTRIBUTING.md「入库白名单」的机器可执行版）。
+# 白名单之外任何被 git 跟踪的文件一律视为泄漏——内部规划/流程/路线图文档
+# 曾经因只扫关键词而漏网，这里从路径层面兜底。
+ALLOWED_PATH_PREFIXES = (
+    "src/",
+    "tests/",
+    "examples/",
+    "docs/",
+    "tools/",
+    ".github/",
+)
+ALLOWED_PATHS = {
+    "README.md",
+    "README.en.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
+    "LICENSE",
+    "NOTICE",
+    "pyproject.toml",
+    ".gitignore",
+}
+
+
+def disallowed_tracked_files() -> list[str]:
+    out = subprocess.run(["git", "-C", str(REPO), "ls-files"],
+                         capture_output=True, text=True, check=True)
+    bad: list[str] = []
+    for raw in out.stdout.splitlines():
+        rel = raw.strip()
+        if not rel:
+            continue
+        if rel.startswith(ALLOWED_PATH_PREFIXES) or rel in ALLOWED_PATHS:
+            continue
+        bad.append(rel)
+    return bad
+
+
 def scan() -> list[str]:
     findings: list[str] = []
     self_rel = Path(__file__).resolve().relative_to(REPO).as_posix()
@@ -92,6 +133,9 @@ def scan() -> list[str]:
 
 def main() -> int:
     findings = scan()
+    for rel in disallowed_tracked_files():
+        findings.append(f"{rel}: 白名单外文件被 git 跟踪（见 CONTRIBUTING.md 入库白名单，"
+                        f"内部规划/流程文档一律不入库）")
     if findings:
         print("FAIL: 泄漏扫描发现以下问题：", file=sys.stderr)
         for f in findings:

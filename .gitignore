@@ -7,6 +7,9 @@ dist/
 .venv/
 .env
 .internal/
+.zcode/
+.agents/
+.workbuddy/
 .coverage
 htmlcov/
 .mypy_cache/

@@ -24,5 +24,11 @@ jobs:
         run: python tools/validate_catalog.py
       - name: API docs drift gate
         run: python tools/gen_api_docs.py --check
-      - name: Tests (offline; extractor drift auto-skips without scripts tree)
-        run: pytest -q
+      - name: Typed facade drift gate
+        run: python tools/gen_typed_api.py --check
+      - name: OpenAPI spec drift gate
+        run: python tools/gen_openapi.py --check
+      - name: Type check
+        run: python -m mypy
+      - name: Tests + coverage (offline; extractor drift auto-skips without scripts tree)
+        run: pytest -q --cov=finpipe --cov-report=term-missing --cov-fail-under=85

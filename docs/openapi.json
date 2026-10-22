@@ -140,8 +140,8 @@
     "/kline/last": {
       "post": {
         "operationId": "kline_last",
-        "summary": "最新一根日 K（MAP 或 None）。",
-        "description": "底层目录函数 `kline.query_last`。SDK 调用：`cli.kline.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "summary": "最新一根日 K（date/open/high/low/close/volume/amount/percent），无数据返回 None。",
+        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致（底层 query_last 返回的是、store 原始行，字段名不同）。、底层目录函数 `kline.query_last`。SDK 调用：`cli.kline.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -477,8 +477,8 @@
     "/moneyflow/last": {
       "post": {
         "operationId": "moneyflow_last",
-        "summary": "最新一行资金流。",
-        "description": "底层目录函数 `moneyflow.query_last`。SDK 调用：`cli.moneyflow.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "summary": "最新一行资金流（date/net_mf/elg_net/lg_net/md_net/sm_net），无数据返回 None。",
+        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致（底层 query_last 返回的是、store 原始行，净流入嵌在 props 下）。、底层目录函数 `moneyflow.query_last`。SDK 调用：`cli.moneyflow.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -1692,7 +1692,7 @@
     "/dividend/dps": {
       "post": {
         "operationId": "dividend_dps",
-        "summary": "按报告期的每股分红序列。",
+        "summary": "财报期每股分红（元/股）。",
         "description": "底层目录函数 `bonus.dps_rpt`。SDK 调用：`cli.dividend.dps(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
@@ -1732,7 +1732,7 @@
     "/dividend/yield_ttm": {
       "post": {
         "operationId": "dividend_yield_ttm",
-        "summary": "TTM 股息率（百分数；= TTM 分红总额 / 最新市值）。",
+        "summary": "TTM 股息率（小数，0.0396 = 3.96%；= TTM 分红总额 / 最新市值）。",
         "description": "底层目录函数 `bonus.snapshot_yield_ttm`。SDK 调用：`cli.dividend.yield_ttm(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
@@ -1772,7 +1772,7 @@
     "/dividend/payout_ttm": {
       "post": {
         "operationId": "dividend_payout_ttm",
-        "summary": "TTM 派息率（百分数；= TTM 分红 / 归母净利 TTM）。",
+        "summary": "TTM 派息率（小数，0.799 = 79.9%；= TTM 分红 / 归母净利 TTM）。",
         "description": "底层目录函数 `bonus.snapshot_payout_ttm`。SDK 调用：`cli.dividend.payout_ttm(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"

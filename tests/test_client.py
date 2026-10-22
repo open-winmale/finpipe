@@ -180,7 +180,9 @@ def test_namespace_facade(client):
 def test_inventory_min_args_optional(client):
     # kline.query_bars_adj(sym, limit, adj) xs:catalog min_args=2 → adj 可选
     client.call("kline.query_bars_adj", sym="600519", limit=10)
-    assert last_eval(client)["json"]["xs_lines"] == ['return kline.query_bars_adj("600519", 10)']
+    assert last_eval(client)["json"]["xs_lines"] == [
+        '__r := kline.query_bars_adj("600519", 10)',
+        "return kline.fmt_maps(__r)"]  # 复权序列走规范化，字段与不复权一致
     with pytest.raises(FinPipeError, match="必填参数 limit"):
         client.call("kline.query_bars_adj", sym="600519")
 

@@ -73,6 +73,20 @@ def test_kline_bars_dispatch(cli):
                             'return kline.fmt_maps(__r)']
     cli.kline.bars("600519", n=5, adj="qfq", _raw=True)
     assert last_xs(cli) == ['return kline.query_bars_adj("600519", 5, "qfq")']
+    # 复权序列也走规范化（输出字段与不复权一致）
+    cli.kline.bars("600519", n=5, adj="qfq")
+    assert last_xs(cli) == ['__r := kline.query_bars_adj("600519", 5, "qfq")',
+                            'return kline.fmt_maps(__r)']
+
+
+def test_last_returns_normalized_latest_row(cli):
+    cli.session.eval_result = [{"date": "2026-10-21", "close": 1309.69}]
+    assert cli.kline.last("600519") == {"date": "2026-10-21", "close": 1309.69}
+    assert last_xs(cli)[-1] == 'return kline.fmt_maps(__r)'
+    cli.session.eval_result = [{"date": "2026-10-21", "net_mf": -161756700}]
+    assert cli.moneyflow.last("600519") == {"date": "2026-10-21", "net_mf": -161756700}
+    cli.session.eval_result = []
+    assert cli.kline.last("600519") is None
 
 
 def test_statements_translation(cli):

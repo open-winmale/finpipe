@@ -285,3 +285,6 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("disclosure", "dividend", "payout_ttm", "TTM 派息率", "bonus.snapshot_payout_ttm"),
     ("reference", "info", "profile", "公司档案摘要", "档案指标（$NAME 等）"),
 ]
+
+# 类型化门面（生成层）：目录命名空间的完整类型签名；运行时仍走 client.call()。
+from openwm.api._generated import NAMESPACES as GENERATED_NAMESPACES  # noqa: E402

@@ -50,7 +50,24 @@ class BatchResult:
 
 
 def _xs_literal(v: Any) -> str:
-    """Python 值 → XS 字面量（JSON 字面量与 XS 字面量在 string/number/bool/array/map 上一致）。"""
+    """Python 值 → XS 字面量。
+
+    XS 的空值是 ``nil``（不接受 JSON 的 ``null``），因此 None 必须单独映射；
+    其余 string/number/bool/array/map 与 JSON 字面量一致。
+    """
+    if v is None:
+        return "nil"
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (int, float)):
+        return json.dumps(v)
+    if isinstance(v, str):
+        return json.dumps(v, ensure_ascii=False)
+    if isinstance(v, (list, tuple)):
+        return "[" + ", ".join(_xs_literal(x) for x in v) + "]"
+    if isinstance(v, dict):
+        return "{" + ", ".join(f"{_xs_literal(str(k))}: {_xs_literal(x)}"
+                               for k, x in v.items()) + "}"
     return json.dumps(v, ensure_ascii=False)
 
 

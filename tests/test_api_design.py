@@ -215,3 +215,76 @@ def test_df_on_list_interfaces(cli):
     assert isinstance(df, pd.DataFrame) and list(df.columns) == ["date", "close"]
     df2 = cli.statements.income("600519", _df=True)
     assert isinstance(df2, pd.DataFrame)
+
+
+# ---------------------------------------------------------------- 日期区间
+def test_kline_range_filters_within_bounds(cli):
+    cli.session.result = [
+        {"date": "2026-09-30", "close": 1.0},
+        {"date": "2026-09-01", "close": 2.0},
+        {"date": "2026-08-31", "close": 3.0},
+    ]
+    out = cli.kline.bars("600519", begin="2026-09-01", end="2026-09-30")
+    assert [r["date"] for r in out] == ["2026-09-30", "2026-09-01"]
+    # 区间查询默认按 max_limit 取数（默认 500）
+    assert 'kline.query_bars("600519", 500)' in last_ev(cli)["xs_lines"][0]
+
+
+def test_moneyflow_range_filters(cli):
+    cli.session.result = [{"date": "2026-09-30", "net_mf": 1},
+                          {"date": "2026-08-01", "net_mf": 2}]
+    out = cli.moneyflow.bars("600519", begin="2026-09-01", end="2026-09-30")
+    assert [r["date"] for r in out] == ["2026-09-30"]
+    assert 'moneyflow.query_bars("600519", 500)' in last_ev(cli)["xs_lines"][0]
+
+
+def test_range_guards(cli):
+    with pytest.raises(UsageError, match="同时提供"):
+        cli.kline.bars("600519", begin="2026-01-01")
+    with pytest.raises(UsageError, match="不能晚于"):
+        cli.kline.bars("600519", begin="2026-09-30", end="2026-09-01")
+    with pytest.raises(UsageError, match="YYYY-MM-DD"):
+        cli.kline.bars("600519", begin="bad", end="2026-01-01")
+    with pytest.raises(LimitError, match="超过上限"):
+        cli.kline.bars("600519", begin="2010-01-01", end="2026-01-01")
+
+
+def test_range_coverage_error_when_truncated(cli):
+    cli.session.result = [{"date": "2026-09-30"}, {"date": "2026-09-29"}]
+    with pytest.raises(LimitError, match="区间未被覆盖"):
+        cli.kline.bars("600519", n=2, begin="2026-01-01", end="2026-09-30")
+
+
+def test_dividend_history_normalized_and_ranged(cli):
+    cli.session.result = [
+        {"ex_div": "2026-06-26", "dps": 28.0, "total": 1, "announce": "2026-06-22"},
+        {"ex_div": "2023-06-26", "dps": 20.0, "total": 1, "announce": "2023-06-22"},
+    ]
+    out = cli.dividend.history("600519", begin="2025-01-01", end="2026-12-31")
+    assert len(out) == 1 and out[0]["ex_div"] == "2026-06-26"
+    with pytest.raises(UsageError, match="_raw=True"):
+        cli.dividend.history("600519", begin="2025-01-01", end="2026-01-01", _raw=True)
+
+
+# ---------------------------------------------------------------- 窗口统计
+def test_window_stats_counts_rows_by_ex_div(cli):
+    from datetime import date, timedelta
+    recent = (date.today() - timedelta(days=10)).isoformat()
+    old = (date.today() - timedelta(days=2000)).isoformat()
+    cli.session.result = {
+        "rows": [{"ex_div": recent}, {"ex_div": old}, {"ex_div": recent}],
+        "dps": 10.0, "total": 100.0,
+    }
+    st = cli.dividend.window_stats("600519", "3y")
+    assert st == {"dps": 10.0, "total": 100.0, "count": 2}
+
+
+def test_window_token_validation(cli):
+    with pytest.raises(UsageError, match="未知窗口"):
+        cli.dividend.window_stats("600519", "10y")   # 上游会静默退化为 30 天
+    with pytest.raises(UsageError, match="未知窗口"):
+        cli.dividend.window_stats("600519", "2y")
+    with pytest.raises(LimitError, match="超出支持范围"):
+        cli.dividend.window_stats("600519", 2000)
+    cli.session.result = {"rows": [], "dps": 0.0, "total": 0.0}
+    assert cli.dividend.window_stats("600519", 30)["count"] == 0

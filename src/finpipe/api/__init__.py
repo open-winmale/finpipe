@@ -17,12 +17,78 @@
 from __future__ import annotations
 
 import json
+from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
-from finpipe.errors import CatalogError, UsageError
+from finpipe.errors import CatalogError, LimitError, UsageError
 
 if TYPE_CHECKING:  # pragma: no cover
     from finpipe.client import Client
+
+# 区间/窗口上限（与上游脚本仓对齐）：
+#  - 上游 store 单次硬上限 10000 行（见 kernel vfunc_store_find.go）
+#  - 分红命名窗口 token 最大 5y（sys/anchor.xs window_days）
+#  - 上游未识别 token 会静默退化为 30 天，SDK 侧改为显式报错
+MAX_RANGE_DAYS = 1825
+WINDOW_DAYS = {"7d": 7, "1m": 30, "3m": 90, "6m": 180,
+               "1y": 365, "3y": 1095, "5y": 1825}
+
+
+def _range_bounds(begin: str, end: str) -> tuple[date, date]:
+    try:
+        b = date.fromisoformat(str(begin)[:10])
+        e = date.fromisoformat(str(end)[:10])
+    except ValueError:
+        raise UsageError("begin/end 需为 YYYY-MM-DD 格式", code="range") from None
+    if b > e:
+        raise UsageError("begin 不能晚于 end", code="range")
+    span = (e - b).days
+    if span > MAX_RANGE_DAYS:
+        raise LimitError(
+            f"区间跨度 {span} 天超过上限 {MAX_RANGE_DAYS} 天（5 年）；"
+            "更早数据请缩短区间或分批用 limit 获取", code="range")
+    return b, e
+
+
+def _filter_by_date(rows: Any, begin: str, end: str, key: str, limit: int) -> Any:
+    """按日期列过滤（含端点）；行数已触顶且最早日期仍晚于 begin 时，说明区间未被覆盖。"""
+    if not isinstance(rows, list):
+        return rows
+    b, e = _range_bounds(begin, end)
+    out = []
+    dates = []
+    for r in rows:
+        d = str(r.get(key) or "")[:10] if isinstance(r, dict) else ""
+        if d:
+            dates.append(d)
+        if d and b.isoformat() <= d <= e.isoformat():
+            out.append(r)
+    if limit and len(rows) >= limit and dates and min(dates) > b.isoformat():
+        raise LimitError(
+            f"区间未被覆盖：单次返回 {len(rows)} 行（上限 {limit}），最早仅到 {min(dates)}；"
+            "请缩小 begin/end 或调大 Client(max_limit=...)（上游单次硬上限 10000 行）",
+            code="range")
+    return out
+
+
+def _window_days(window: str | int) -> int:
+    if isinstance(window, int) or str(window).isdigit():
+        days = int(window)
+    elif window in WINDOW_DAYS:
+        days = WINDOW_DAYS[window]
+    else:
+        raise UsageError(
+            f"未知窗口 {window!r}；可选 {sorted(WINDOW_DAYS)} 或正整数天数"
+            "（上游未知 token 会静默按 30 天处理，故此处显式报错）", code="window")
+    if days <= 0 or days > MAX_RANGE_DAYS:
+        raise LimitError(f"窗口 {days} 天超出支持范围 1~{MAX_RANGE_DAYS} 天（5 年）",
+                         code="window")
+    return days
+
+
+def _to_df(result: Any) -> Any:
+    from finpipe.client import _to_dataframe
+    return _to_dataframe(result)
 
 
 class _Api:
@@ -34,17 +100,32 @@ class _Api:
 class KlineApi(_Api):
     """行情与 K 线。单位：价格=元，量=手(A股)，额=本币，涨跌幅=小数（0.01=1%）。"""
 
-    def bars(self, symbol: str, n: int = 120, adj: str | None = None,
+    def bars(self, symbol: str, n: int | None = None, adj: str | None = None,
+             begin: str | None = None, end: str | None = None,
              _raw: bool = False, _df: bool = False) -> Any:
         """日 K 序列（date/open/high/low/close/volume/amount/percent）。
 
-        :param n: 根数，默认 120
+        :param n: 根数，默认 120；区间查询时默认取 max_limit（上限 10000）
         :param adj: None=不复权；"qfq"=前复权；"hfq"=后复权
+        :param begin: 起始日期（含，YYYY-MM-DD），须与 end 同时提供；区间上限 5 年
+        :param end: 结束日期（含）
         """
+        if begin is not None or end is not None:
+            if not (begin and end):
+                raise UsageError("begin 与 end 需同时提供", code="range")
+            limit = min(int(n) if n is not None else (self._c.max_limit or 10000), 10000)
+            fn = "kline.query_bars" if adj is None else "kline.query_bars_adj"
+            kwargs: dict[str, Any] = {"sym": symbol, "limit": limit, "_raw": _raw}
+            if adj is not None:
+                kwargs["adj"] = adj
+            rows = self._c.call(fn, **kwargs)
+            out = _filter_by_date(rows, begin, end, "date", limit)
+            return _to_df(out) if _df else out
+        limit = 120 if n is None else n
         if adj is None:
-            return self._c.call("kline.query_bars", sym=symbol, limit=n,
+            return self._c.call("kline.query_bars", sym=symbol, limit=limit,
                                 _raw=_raw, _df=_df)
-        return self._c.call("kline.query_bars_adj", sym=symbol, limit=n, adj=adj,
+        return self._c.call("kline.query_bars_adj", sym=symbol, limit=limit, adj=adj,
                             _raw=_raw, _df=_df)
 
     def last(self, symbol: str, _raw: bool = False) -> Any:
@@ -83,9 +164,24 @@ class KlineApi(_Api):
 class MoneyflowApi(_Api):
     """资金流向（日频：主力/超大单/大单/中单/小单净流入，单位=元；非逐笔 Level2）。"""
 
-    def bars(self, symbol: str, n: int = 20, _raw: bool = False, _df: bool = False) -> Any:
-        """资金流历史（date/net_mf/elg_net/lg_net/md_net/sm_net）。"""
-        return self._c.call("moneyflow.query_bars", sym=symbol, limit=n,
+    def bars(self, symbol: str, n: int | None = None,
+             begin: str | None = None, end: str | None = None,
+             _raw: bool = False, _df: bool = False) -> Any:
+        """资金流历史（date/net_mf/elg_net/lg_net/md_net/sm_net）。
+
+        :param n: 条数，默认 20；区间查询时默认取 max_limit（上限 10000）
+        :param begin: 起始日期（含，YYYY-MM-DD），须与 end 同时提供；区间上限 5 年
+        :param end: 结束日期（含）
+        """
+        if begin is not None or end is not None:
+            if not (begin and end):
+                raise UsageError("begin 与 end 需同时提供", code="range")
+            limit = min(int(n) if n is not None else (self._c.max_limit or 10000), 10000)
+            rows = self._c.call("moneyflow.query_bars", sym=symbol, limit=limit, _raw=_raw)
+            out = _filter_by_date(rows, begin, end, "date", limit)
+            return _to_df(out) if _df else out
+        limit = 20 if n is None else n
+        return self._c.call("moneyflow.query_bars", sym=symbol, limit=limit,
                             _raw=_raw, _df=_df)
 
     def last(self, symbol: str, _raw: bool = False) -> Any:
@@ -287,9 +383,27 @@ class ForecastApi(_Api):
 class DividendApi(_Api):
     """分红。DPS 单位=元/股；股息率/派息率为小数（0.0396 = 3.96%）。"""
 
-    def history(self, symbol: str, limit: int = 20, _raw: bool = False,
-                _df: bool = False) -> Any:
-        """分红历史明细（预案/除权除息日/每 10 股派息）。"""
+    def history(self, symbol: str, limit: int | None = None,
+                begin: str | None = None, end: str | None = None,
+                _raw: bool = False, _df: bool = False) -> Any:
+        """分红历史明细（announce/ex_date/pay/dps/total/content/sas/payout_ratio）。
+
+        :param limit: 条数，默认 20；区间查询时默认取 max_limit（上限 10000）
+        :param begin: 起始日期（含，YYYY-MM-DD，按除权日），须与 end 同时提供；上限 5 年
+        :param end: 结束日期（含）
+        """
+        if begin is not None or end is not None:
+            if not (begin and end):
+                raise UsageError("begin 与 end 需同时提供", code="range")
+            if _raw:
+                raise UsageError("_raw=True 时不支持 begin/end（原始行无扁平日期字段）",
+                                 code="range")
+            fetch = min(int(limit) if limit is not None else (self._c.max_limit or 10000),
+                        10000)
+            rows = self._c.call("bonus.query_list", sym=symbol, limit=fetch)
+            out = _filter_by_date(rows, begin, end, "ex_div", fetch)
+            return _to_df(out) if _df else out
+        limit = 20 if limit is None else limit
         return self._c.call("bonus.query_list", sym=symbol, limit=limit,
                             _raw=_raw, _df=_df)
 
@@ -302,18 +416,32 @@ class DividendApi(_Api):
         return self._c.call("bonus.dps_rpt", sym=symbol)
 
     def window_stats(self, symbol: str, window: str = "3y") -> dict:
-        """窗口统计（单次请求）：{"dps": 每股股利合计(元/股), "total": 总分红(元)}。
+        """窗口统计（单次请求）：{"dps": 每股股利合计(元/股), "total": 总分红(元), "count": 次数}。
 
-        分红次数暂不返回：上游 count 聚合当前恒为 0（已记录，待上游修复）；
-        需要次数时可用 ``history()`` 自行统计。
+        窗口按**除权日**计、截至今天；命名窗口仅支持 7d/1m/3m/6m/1y/3y/5y（最大 5 年）
+        或正整数天数。count 由 SDK 从规范化历史行统计——上游 count 聚合存在缺陷
+        （同窗口 sum 正常、count 恒 0），故不经上游 count。
 
         :param window: 窗口字符串，如 "3y"/"5y"
         """
+        days = _window_days(window)
+        limit = min(self._c.max_limit or 10000, 10000)
         s = json.dumps(symbol, ensure_ascii=False)
-        w = json.dumps(window, ensure_ascii=False)
-        body = (f'{{"dps": bonus.query_dps_window({s}, {w}), '
-                f'"total": bonus.query_total_window({s}, {w})}}')
-        return self._c.eval_result(f"return {body}", symbol=symbol) or {}
+        w = json.dumps(str(window), ensure_ascii=False)
+        xs = (f"__r := bonus.query_list({s}, {limit})\n"
+              f"__rows := bonus.fmt_maps(__r)\n"
+              f'return {{"rows": __rows, '
+              f'"dps": bonus.query_dps_window({s}, {w}), '
+              f'"total": bonus.query_total_window({s}, {w})}}')
+        res = self._c.eval_result(xs, symbol=symbol) or {}
+        if not isinstance(res, dict):
+            raise CatalogError(
+                f"window_stats: 返回不是 MAP（{type(res).__name__}）", code="shape")
+        cutoff = (date.today() - timedelta(days=days)).isoformat()
+        rows = res.pop("rows", []) or []
+        count = sum(1 for r in rows if isinstance(r, dict)
+                    and str(r.get("ex_div") or r.get("ex_date") or "")[:10] >= cutoff)
+        return {"dps": res.get("dps"), "total": res.get("total"), "count": count}
 
     def yield_ttm(self, symbol: str) -> Any:
         """TTM 股息率（小数，0.0396 = 3.96%；= TTM 分红总额 / 最新市值）。"""

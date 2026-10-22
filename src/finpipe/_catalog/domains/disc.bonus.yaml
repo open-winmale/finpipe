@@ -1,5 +1,5 @@
 id: disc.bonus
-version: 1.1.2
+version: 1.2.0
 cn: 分红
 kind: raw
 category: disclosure
@@ -21,8 +21,10 @@ functions:
     params:
       - {name: sym, type: string, required: true, desc: 6 位裸码}
       - {name: limit, type: int, required: false, desc: 条数}
-    returns: {desc: ARR · 分红行（预案/除权除息日/每10股派息等）}
+    returns: {desc: 'ARR · 分红行（announce/ex_date/pay/dps/total/content/sas/payout_ratio）'}
     example: 'bonus.query_list("600519", 20)'
+    normalize_with: bonus.fmt_maps
+    notes: [输出为规范化的扁平行（announce/ex_date/pay/dps/total/content/sas/payout_ratio），不再嵌套 props]
   - name: bonus.query_last
     cn: 最近一次分红
     kind: raw

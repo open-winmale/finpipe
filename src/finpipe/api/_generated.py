@@ -31,7 +31,7 @@ class BonusNS(_Ns):
 :param sym: 6 位裸码
 :param limit: 条数
 
-:returns: ARR · 分红行（预案/除权除息日/每10股派息等）
+:returns: ARR · 分红行（announce/ex_date/pay/dps/total/content/sas/payout_ratio）
         """
         kw: dict[str, Any] = {"sym": sym}
         if limit is not None:

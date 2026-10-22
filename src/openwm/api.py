@@ -80,6 +80,8 @@ class MoneyflowApi(_Api):
 class StatementsApi(_Api):
     """三大报表科目透视（披露原值；金额=报表原币）。
 
+    各方法返回科目行列表（科目代码/中文名 × 期次列）；树视图另含派生比率行。
+
     :param years: 期数（年报降序，默认 5）
     :param scope: "合并"（默认）或 "母公司"
     """

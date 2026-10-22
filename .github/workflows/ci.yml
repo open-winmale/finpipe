@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Leak gate (internal markers / secrets)
+        run: python tools/check_leak.py
+      - name: Catalog contract + anti-fabrication gate
+        run: python tools/validate_catalog.py
+      - name: API docs drift gate
+        run: python tools/gen_api_docs.py --check
+      - name: Tests (offline; extractor drift auto-skips without scripts tree)
+        run: pytest -q

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openwm"
+version = "0.1.0"
+description = "A 股个股数据 Python SDK：随包内置机器可读数据目录 + 云端取数客户端（仅依赖 appid）"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE"]
+dependencies = [
+    "requests>=2.28",
+    "PyYAML>=6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7",
+    "jsonschema>=4",
+]
+dataframe = ["pandas>=1.5"]
+
+[project.urls]
+Homepage = "https://github.com/open-winmale/openwm"
+Documentation = "https://github.com/open-winmale/openwm/blob/main/docs/API.md"
+Issues = "https://github.com/open-winmale/openwm/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+openwm = [
+    "_catalog/schema/*.json",
+    "_catalog/domains/*.yaml",
+    "_catalog/generated/*.json",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,12 +1,12 @@
 id: fund.indicators
-version: 1.1.0
+version: 1.1.1
 cn: 指标层
 kind: computed
 category: fundamentals
 priority: P0
 description: 平台公式计算的派生指标——数值不存在于任何披露文件中，由平台以行情/报表/股本/
-  分红等原始数据计算得出。L0 精选约 95 个按用途分组；全量 2197 个指标代码随包内数据目录分发
-  （generated/metrics.json）。
+  分红等原始数据计算得出。11 个指标组精选 74 个常用指标代码按用途分组；全量 2197 个指标
+  代码随包内数据目录分发（generated/metrics.json）。
 data_origin: [平台计算]
 units:
   pct: 百分数（如 15.0 = 15%）

@@ -1,6 +1,7 @@
 """快速上手：5 分钟看懂 finpipe 的四类数据。
 
-运行前设置凭证：
+凭证是可选的：不配置时自动使用内置体验 appid（共享池、额度有限，仅供初次体验）。
+正式使用建议配置自己的 appid：
     export FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=...
     python examples/quickstart.py
 """

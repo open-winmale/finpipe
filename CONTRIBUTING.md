@@ -17,6 +17,10 @@ python3 -m mypy                     # 类型检查
 真实取数冒烟（需要凭证）：`FINPIPE_LIVE=1 pytest tests/test_live.py`——覆盖全部 32 个
 核心接口与多个标的，做数值合理性断言（日期有序、价格为正、率类口径等）。
 
+文档一致性由 `tests/test_docs.py` 强制：API.md 的参数/示例/指标组/附录与目录逐项比对，
+README 代码块真实执行，README 引用的指标代码与接口必须存在，docstring 单位口径必须与
+目录一致。改了文档或接口后直接跑 pytest 即可发现不一致。
+
 CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 
 ## 内容规范（check_leak 强制）

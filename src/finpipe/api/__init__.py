@@ -6,7 +6,9 @@
   - 方法名动宾化、可猜（bars/last/live/list/history/yield_ttm…）；
   - 返回 list[dict] / dict；返回列表的方法支持 ``_df=True`` 转 DataFrame，
     ``_raw=True`` 取未规范化原始行（仅部分方法）；
-  - 本层只是目录合同的薄翻译，全量 155 个底层函数仍可经 ``client.call("ns.fn", ...)`` 调用。
+  - 本层是目录合同的薄翻译：高频方法显式包装；目录内其余函数经 ``__getattr__``
+    属性直达（如 ``cli.kline.screen_above_ma20``、``cli.dividend.screen_quality``），
+    目录之外的名字显式 AttributeError——155 个底层函数零遮蔽。
 
 使用：
     cli = finpipe.Client.from_env()
@@ -91,9 +93,59 @@ def _to_df(result: Any) -> Any:
     return _to_dataframe(result)
 
 
+# 友好命名空间 → 目录（XS）命名空间。目录真实命名空间为
+# bonus/filings/forecast/kline/moneyflow/notice/rptdom；statements/indicator/info
+# 是聚合层（indicator/info 走指标 eval，无目录函数）。
+_FRIENDLY_NS_TO_CATALOG: dict[str, str] = {
+    "kline": "kline",
+    "moneyflow": "moneyflow",
+    "statements": "rptdom",
+    "notice": "notice",
+    "filings": "filings",
+    "forecast": "forecast",
+    "dividend": "bonus",
+}
+
+
 class _Api:
     def __init__(self, client: "Client"):
         self._c = client
+
+    def __getattr__(self, name: str) -> Any:
+        """目录感知兜底：友好类未显式定义的目录函数，委托 ``client.call(ns.name, ...)``。
+
+        友好层只对高频方法做动宾化包装（bars/history/yield_ttm…）；目录内其余
+        函数（筛选器 screen_*、全景 index_*、格式化 fmt_* 等）同样可经本属性
+        直接调用，例如 ``cli.kline.screen_above_ma20("600519")``、
+        ``cli.dividend.screen_quality("600519")``。非目录成员一律 AttributeError，
+        且以双下划线开头的名称永不委托（避免干扰魔术方法解析）。
+        """
+        if name.startswith("__"):
+            raise AttributeError(name)
+        client = self._c
+        ns = ""
+        for cand, cls in FRIENDLY_NAMESPACES.items():
+            if cls is type(self):
+                ns = cand
+                break
+        catalog_ns = _FRIENDLY_NS_TO_CATALOG.get(ns, "")
+        if not catalog_ns:
+            raise AttributeError(name)  # indicator / info 等聚合层不提供目录委托
+        qualified = f"{catalog_ns}.{name}"
+        try:
+            client.catalog.function(qualified)
+        except Exception:
+            raise AttributeError(
+                f"{type(self).__name__!s}.{name} 不存在；请查目录："
+                f"cat.search({name!r}) 或 docs/API.md") from None
+        call = client.call
+
+        def _delegate(*args: Any, **kwargs: Any) -> Any:
+            return call(qualified, *args, **kwargs)
+
+        _delegate.__name__ = name
+        _delegate.__qualname__ = f"{type(self).__name__}.{name}"
+        return _delegate
 
 
 # ---------------------------------------------------------------- 行情 market
@@ -381,7 +433,51 @@ class ForecastApi(_Api):
 
 
 class DividendApi(_Api):
-    """分红。DPS 单位=元/股；股息率/派息率为小数（0.0396 = 3.96%）。"""
+    """分红。DPS 单位=元/股；股息率/派息率为小数（0.0396 = 3.96%）。
+
+    除下方动宾化方法外，目录内全部 ``bonus.*`` 函数（含质量筛选器
+    ``screen_quality`` / ``screen_high_yield`` / ``screen_undervalued_yield``…）
+    经属性直达，如 ``cli.dividend.screen_quality("600519")``。
+    """
+
+    # 常用筛选器提为显式方法（docstring 在 IDE 可见；底层合同与目录一致）
+    def screen_quality(self, symbol: str, min_yield: float | None = None,
+                       payout_min: float | None = None,
+                       payout_max: float | None = None, _raw: bool = False,
+                       _df: bool = False) -> Any:
+        """分红质量优（高股息 + 派息可持续，阈值可调）。
+
+        :param min_yield: 最低股息率（小数，如 0.03 = 3%）
+        :param payout_min: 派息率下限（小数）
+        :param payout_max: 派息率上限（小数）
+        """
+        kw: dict[str, Any] = {"sym": symbol}
+        if min_yield is not None:
+            kw["min_yield"] = min_yield
+        if payout_min is not None:
+            kw["payout_min"] = payout_min
+        if payout_max is not None:
+            kw["payout_max"] = payout_max
+        return self._c.call("bonus.screen_quality", **kw, _raw=_raw, _df=_df)
+
+    def screen_high_yield(self, symbol: str, min_yield: float | None = None,
+                          _raw: bool = False, _df: bool = False) -> Any:
+        """高股息（min_yield 为小数，如 0.04 = 4%）。"""
+        kw: dict[str, Any] = {"sym": symbol}
+        if min_yield is not None:
+            kw["min_yield"] = min_yield
+        return self._c.call("bonus.screen_high_yield", **kw, _raw=_raw, _df=_df)
+
+    def screen_undervalued_yield(self, symbol: str, min_yield: float | None = None,
+                                 min_pct: float | None = None, _raw: bool = False,
+                                 _df: bool = False) -> Any:
+        """低估 + 高股息（min_yield 为小数；min_pct 为低估值百分位门槛）。"""
+        kw: dict[str, Any] = {"sym": symbol}
+        if min_yield is not None:
+            kw["min_yield"] = min_yield
+        if min_pct is not None:
+            kw["min_pct"] = min_pct
+        return self._c.call("bonus.screen_undervalued_yield", **kw, _raw=_raw, _df=_df)
 
     def history(self, symbol: str, limit: int | None = None,
                 begin: str | None = None, end: str | None = None,
@@ -521,6 +617,10 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("disclosure", "dividend", "window_stats", "窗口分红统计", "bonus.query_*_window"),
     ("disclosure", "dividend", "yield_ttm", "TTM 股息率", "bonus.snapshot_yield_ttm"),
     ("disclosure", "dividend", "payout_ttm", "TTM 派息率", "bonus.snapshot_payout_ttm"),
+    ("disclosure", "dividend", "screen_quality", "分红质量优筛选", "bonus.screen_quality"),
+    ("disclosure", "dividend", "screen_high_yield", "高股息筛选", "bonus.screen_high_yield"),
+    ("disclosure", "dividend", "screen_undervalued_yield", "低估+高股息筛选",
+     "bonus.screen_undervalued_yield"),
     ("reference", "info", "profile", "公司档案摘要", "档案指标（$NAME 等）"),
 ]
 

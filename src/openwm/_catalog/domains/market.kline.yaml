@@ -1,10 +1,10 @@
 id: market.kline
-version: 1.0.0
+version: 1.1.0
 cn: 行情K线
 kind: raw
 category: market
 priority: P0
-description: 个股日 K（不复权 / 前复权 / 后复权）、最新一根、盘中 tip 快照、分钟分时、
+description: 个股日 K（不复权 / 前复权 / 后复权）、最新一根、盘中最新快照、分钟分时、
   单股快照与均线类筛选、全市场涨跌宽度。ETF 日线已入库；指数键自动桥接指数点位。
 data_origin: [交易所行情, 外部行情源(盘中/live)]
 units:
@@ -15,12 +15,12 @@ units:
 requires: {path: sys/kline/init.xs, preloaded: true}
 stores: [kline(前复权), kline_normal(不复权), kline_after(后复权)]
 notes:
-  - 复权 adj 取值 nr(不复权,默认)/qfq(前复权)/hfq(后复权)；默认口径 DEFAULT_ADJ=nr
+  - 复权 adj 取值 nr(不复权,默认)/qfq(前复权)/hfq(后复权)
   - 指数键（index.hs300 / 399xxx 等）自动分流指数点位；指数无复权，*_adj 忽略 adj
-  - 盘中三分工：query_last_live=最新一根 tip；query_bars_live=最近 n 根日K（外部行情源 HTTP）；
-    query_min1_live=当日 1 分钟分时（tip 有损滚桶合成，~15s 采样，非 Level2）
+  - 盘中三分工：query_last_live=最新一根快照；query_bars_live=最近 n 根日 K（外部行情源）；
+    query_min1_live=当日 1 分钟分时（有损合成采样，非逐笔 Level2）
   - ETF（沪 51/52/56/58、深 159，共 1600+ 只）日线有数据；分时/live 查询无分钟源会被拦截
-  - 光标语义：财报季光标不截断 query_bars；日频回测光标仍截断
+  - 返回根数：财报季 query_bars 不因披露进度截断；日频回测口径仍按已披露数据截断
 functions:
   # ---- L0：查询 ----
   - name: kline.query_bars
@@ -33,7 +33,7 @@ functions:
     returns: {desc: ARR · bars（date/open/high/low/close/volume/amount/percent）, shape_ref: inventory}
     example: 'kline.query_bars("600519", 30)'
     normalize_with: kline.fmt_maps
-    notes: [财报季光标不截断]
+    notes: [财报季不因披露进度截断]
   - name: kline.query_last
     cn: 最新一根 K 线
     kind: raw
@@ -53,7 +53,7 @@ functions:
     notes: [ETF 判定唯一入口：stocktype 数据驱动优先，号段兜底]
   # ---- L0：盘中 live ----
   - name: kline.query_last_live
-    cn: 盘中日K快照（tip）
+    cn: 盘中日K快照
     kind: raw
     layer: L0
     params:
@@ -142,7 +142,7 @@ functions:
     kind: computed
     layer: L0
     params:
-      - {name: idx, type: any, required: true, desc: '指数键，如 LatestIndexKey() 或 "index.cn.all"'}
+      - {name: idx, type: any, required: true, desc: '指数键字符串，如 "index.cn.all"'}
     returns: {desc: MAP · 涨跌统计}
     example: 'kline.index_breadth_summary(LatestIndexKey())'
   - name: kline.index_top_movers
@@ -188,7 +188,7 @@ functions:
   - {name: kline.screen_pullback_20d, cn: 近 20 日回撤可控, kind: computed, layer: L1}
   - {name: kline.screen_volume_spike, cn: 放量, kind: computed, layer: L1}
   # ---- L1：指数盘中（raw，指数键）----
-  - {name: kline.query_index_last_live, cn: 指数盘中点位 tip, kind: raw, layer: L1}
+  - {name: kline.query_index_last_live, cn: 指数盘中点位, kind: raw, layer: L1}
   - {name: kline.query_index_last_live_many, cn: 指数盘中点位批量, kind: raw, layer: L1}
   - {name: kline.query_index_min1_live, cn: 指数盘中 1 分钟分时, kind: raw, layer: L1}
   - {name: kline.query_index_min1_live_meta, cn: 指数分时头, kind: raw, layer: L1}

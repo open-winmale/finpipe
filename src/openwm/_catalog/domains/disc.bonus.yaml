@@ -1,11 +1,11 @@
 id: disc.bonus
-version: 1.0.0
+version: 1.1.0
 cn: 分红
 kind: raw
 category: disclosure
 priority: P0
-description: 分红历史明细（预案/实施）、每股股利、窗口合计。列表与 DPS 为披露原值（raw）；
-  股息率/派息率 TTM 快照及全市场筛选为计算派生（computed，函数级标注）。
+description: 分红历史明细（预案/实施）、每股股利、窗口合计。列表与 DPS 为披露原值；
+  股息率/派息率 TTM 快照及全市场筛选为计算派生（函数级标注性质）。
 data_origin: [公司公告披露]
 units:
   dps: 元/股
@@ -32,12 +32,12 @@ functions:
     returns: {desc: 分红行 MAP 或 nil}
     example: 'bonus.query_last("600519")'
   - name: bonus.query_at_sas
-    cn: 指定 SAS 报告期分红
+    cn: 指定报告期分红
     kind: raw
     layer: L0
     params:
       - {name: sym, type: string, required: true}
-      - {name: sas, type: string, required: true, desc: 'SAS 报告期，如 "2024-Q4"'}
+      - {name: sas, type: string, required: true, desc: '报告期，如 "2024-Q4"'}
     returns: {desc: 分红行 MAP 或 nil}
     example: 'bonus.query_at_sas("600519", "2024-Q4")'
   - name: bonus.dps_rpt
@@ -131,7 +131,7 @@ functions:
   - {name: bonus.screen_trend_ok, cn: 分红趋势健康, kind: computed, layer: L1}
   - {name: bonus.screen_declining_yield, cn: 股息下滑, kind: computed, layer: L1}
   - {name: bonus.screen_undervalued_yield, cn: 低估+高股息, kind: computed, layer: L1}
-  # ---- L1：全市场 where 积木（computed，供 INDEX_QUERY）----
+  # ---- L1：全市场筛选积木（computed，内部用途）----
   - {name: bonus.index_where_active, cn: where·有分红, kind: computed, layer: L1}
   - {name: bonus.index_where_no_dividend, cn: where·无分红, kind: computed, layer: L1}
   - {name: bonus.index_where_has_dividend, cn: where·有记录, kind: computed, layer: L1}

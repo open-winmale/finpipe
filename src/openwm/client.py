@@ -48,6 +48,7 @@ class Client:
         catalog: Catalog | None = None,
         session: requests.Session | None = None,
         timeout: float = 30.0,
+        max_limit: int | None = 500,
     ):
         self.base_url = (base_url or "https://api.winmale.com").rstrip("/")
         self.client_id = client_id or ""
@@ -56,6 +57,7 @@ class Client:
         self.catalog = catalog or load()
         self.session = session or requests.Session()
         self.timeout = timeout
+        self.max_limit = max_limit
         self._token: str = ""
         self._token_exp: float = 0.0
 
@@ -163,6 +165,14 @@ class Client:
         for p in params:
             if p["name"] not in kwargs and "default" not in p and p.get("required"):
                 raise OpenWMError(f"{name}: 缺少必填参数 {p['name']}")
+        if self.max_limit is not None:
+            for p in params:
+                if p["name"] in ("limit", "lim") and p["type"] == "int":
+                    v = kwargs.get(p["name"], p.get("default"))
+                    if isinstance(v, int) and not isinstance(v, bool) and v > self.max_limit:
+                        raise OpenWMError(
+                            f"{name}: {p['name']}={v} 超过单次请求上限 {self.max_limit}"
+                            "（防止单次拉取过大；可在 Client(max_limit=...) 调整，设 None 关闭）")
         args = []
         for p in params:
             if p["name"] in kwargs:

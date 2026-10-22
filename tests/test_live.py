@@ -43,6 +43,8 @@ def test_fund_indicator(cli):
 def test_disc_notice(cli):
     rows = cli.notice.list("600519", window="1y", limit=5)
     assert isinstance(rows, list)
+    found = cli.notice.find("600519", "2026-01-01", "2026-03-31", limit=5)
+    assert isinstance(found, list)
 
 
 def test_disc_filings(cli):

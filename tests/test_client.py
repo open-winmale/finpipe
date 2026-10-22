@@ -103,6 +103,15 @@ def test_param_validation(client):
         client.call("kline.no_such_fn", sym="600519")
 
 
+def test_max_limit_caps_limit_params(client):
+    with pytest.raises(OpenWMError, match="超过单次请求上限 500"):
+        client.call("kline.query_bars", sym="600519", limit=501)
+    client.call("kline.query_bars", sym="600519", limit=500)  # 上限值本身放行
+    c2 = Client(base_url="https://t", client_id="i", client_secret="s",
+                catalog=load(), session=FakeSession(), max_limit=None)
+    c2.call("kline.query_bars", sym="600519", limit=5000)  # None 关闭上限
+
+
 def test_object_param_serialized(client):
     client.call("rptdom.statement", sym="600519", domain="fin.income_statement",
                 opts={"scope": "合并", "n": 5})

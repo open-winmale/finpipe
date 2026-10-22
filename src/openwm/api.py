@@ -140,6 +140,18 @@ class NoticeApi(_Api):
         return self._c.call("notice.query_by_category", category=category,
                             window=window, limit=limit)
 
+    def find(self, symbol: str, begin: str, end: str, keyword: str = "",
+             limit: int = 50, _raw: bool = False) -> Any:
+        """按日期区间查单票公告（begin/end 均含当日，格式 YYYY-MM-DD）。
+
+        :param begin: 起始日期（含）
+        :param end: 结束日期（含）
+        :param keyword: 标题/类型正则（可空）
+        """
+        return self._c.call("notice.query_find", from_date=begin, to_date=end,
+                            type_regex=keyword, stock_code=symbol, limit=limit,
+                            _raw=_raw)
+
     def has_buyback(self, symbol: str, window: str = "6m") -> bool:
         """窗口内是否有回购公告。"""
         return bool(self._c.call("notice.signal_has_buyback", sym=symbol, window=window))
@@ -254,6 +266,7 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("fundamentals", "indicator", "metrics", "批量取指标", "指标代码批量直查"),
     ("disclosure", "notice", "list", "单票公告列表", "notice.query_by_symbol"),
     ("disclosure", "notice", "by_category", "按类别查公告", "notice.query_by_category"),
+    ("disclosure", "notice", "find", "按日期区间查公告", "notice.query_find"),
     ("disclosure", "notice", "has_buyback", "窗口内有回购", "notice.signal_has_buyback"),
     ("disclosure", "notice", "has_reduction", "窗口内有减持", "notice.signal_has_reduction"),
     ("disclosure", "filings", "list", "定期报告列表", "filings.query"),

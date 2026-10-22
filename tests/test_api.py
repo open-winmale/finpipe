@@ -86,6 +86,8 @@ def test_statements_translation(cli):
 def test_notice_and_dividend(cli):
     cli.notice.list("600519", window="3m", keyword="回购", limit=5)
     assert last_xs(cli) == ['return notice.query_by_symbol("600519", "3m", "回购", 5)']
+    cli.notice.find("600519", "2026-01-01", "2026-03-31", keyword="回购", limit=10)
+    assert last_xs(cli) == ['return notice.query_find("2026-01-01", "2026-03-31", "回购", "600519", 10)']
     cli.dividend.yield_ttm("600519")
     assert last_xs(cli) == ['return bonus.snapshot_yield_ttm("600519")']
 

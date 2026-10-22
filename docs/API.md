@@ -299,6 +299,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 |---|---|---|
 | `cli.notice.list(...)` | 单票公告列表 | `notice.query_by_symbol` |
 | `cli.notice.by_category(...)` | 按类别查公告 | `notice.query_by_category` |
+| `cli.notice.find(...)` | 按日期区间查公告 | `notice.query_find` |
 | `cli.notice.has_buyback(...)` | 窗口内有回购 | `notice.signal_has_buyback` |
 | `cli.notice.has_reduction(...)` | 窗口内有减持 | `notice.signal_has_reduction` |
 | `cli.filings.list(...)` | 定期报告列表 | `filings.query` |

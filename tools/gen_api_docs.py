@@ -42,13 +42,16 @@ def gh_slug(title: str) -> str:
     return re.sub(r"[^\w\- ]", "", title.lower()).replace(" ", "-")
 
 
+TYPE_SHORT = {"float64": "float", "int64": "int"}
+
+
 def fmt_params(fn: dict, inv: dict) -> str:
     params = fn.get("params")
     if not params:
         sig = inv.get("params") or []
         if not sig:
             return "—"
-        return "`" + ", ".join(f"{p['name']}:{p.get('type','any')}" for p in sig) + "`（签名）"
+        return " · ".join(f"`{p['name']}:{p.get('type', 'any')}`" for p in sig) + "（签名）"
     parts = []
     for p in params:
         s = f"{p['name']}:{p['type']}"
@@ -56,8 +59,11 @@ def fmt_params(fn: dict, inv: dict) -> str:
             s += "?"
         if "default" in p:
             s += f"={json.dumps(p['default'], ensure_ascii=False)}"
-        parts.append(s)
-    return "`" + ", ".join(parts) + "`"
+        part = f"`{s}`"
+        if p.get("desc"):
+            part += f" — {esc(p['desc'])}"
+        parts.append(part)
+    return " · ".join(parts)
 
 
 def fmt_returns(fn: dict, inv: dict) -> str:
@@ -67,7 +73,12 @@ def fmt_returns(fn: dict, inv: dict) -> str:
     if shape:
         fields = (shape.get("items") or shape).get("fields") or []
         if fields:
-            desc += "；字段 " + "/".join(f["name"] for f in fields)
+            detail = " / ".join(
+                f"{f['name']}:{TYPE_SHORT.get(f.get('type', 'any'), f.get('type', 'any'))}"
+                + ("?" if f.get("optional") else "")
+                + (f"（{f['cn']}）" if f.get("cn") else "")
+                for f in fields)
+            desc += "；字段 " + detail
     return esc(desc)
 
 

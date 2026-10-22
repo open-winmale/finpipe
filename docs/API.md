@@ -42,29 +42,29 @@
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `kline.query_bars` | 历史 K 线 | 原始数据 | L0 | `sym:string, limit:int=120` | ARR · bars（date/open/high/low/close/volume/amount/percent）；字段 sas/date/open/high/low/close/volume/amount/percent | 例：`cli.call("kline.query_bars", sym='600519', limit=30)`
-| `kline.query_last` | 最新一根 K 线 | 原始数据 | L0 | `sym:string` | MAP · bar 或 nil；字段 sas/date/open/high/low/close/volume/amount/percent | 例：`cli.call("kline.query_last", sym='600519')`
+| `kline.query_bars` | 历史 K 线 | 原始数据 | L0 | `sym:string` — 6 位裸码（自动剥 cn./sh. 前缀与 .SH/.SZ/.BJ 后缀） · `limit:int=120` — 根数，默认 120 | ARR · bars（date/open/high/low/close/volume/amount/percent）；字段 sas:string?（SAS） / date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收） / volume:float?（量） / amount:float?（额） / percent:float?（涨跌幅） | 例：`cli.call("kline.query_bars", sym='600519', limit=30)`
+| `kline.query_last` | 最新一根 K 线 | 原始数据 | L0 | `sym:string` — 6 位裸码 | MAP · bar 或 nil；字段 sas:string?（SAS） / date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收） / volume:float?（量） / amount:float?（额） / percent:float?（涨跌幅） | 例：`cli.call("kline.query_last", sym='600519')`
 | `kline.is_etf` | 是否场内 ETF | 原始数据 | L0 | `sym:string` | bool · true=场内 ETF | 例：`cli.call("kline.is_etf", sym='510300')`
-| `kline.query_last_live` | 盘中日K快照 | 原始数据 | L0 | `sym:string` | MAP · 盘中 bar（date/ohlcv/amount/percent/mv/source）；字段 date/open/high/low/close/volume/amount/percent/mv/source | 例：`cli.call("kline.query_last_live", sym='000807')`
-| `kline.query_last_live_many` | 盘中日K批量快照 | 原始数据 | L0 | `syms:array` | MAP · symbol → bar | 例：`cli.call("kline.query_last_live_many", syms=['600519', '000807'])`
-| `kline.query_bars_live` | 盘中拉最近 n 根日K（外部行情源 HTTP，≠分时） | 原始数据 | L0 | `sym:string, limit:int?` | ARR · bars | 例：`cli.call("kline.query_bars_live", sym='000807', limit=5)`
+| `kline.query_last_live` | 盘中日K快照 | 原始数据 | L0 | `sym:string` | MAP · 盘中 bar（date/ohlcv/amount/percent/mv/source）；字段 date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收/现价） / volume:float?（量(手)） / amount:float?（额(元)） / percent:float?（涨跌幅(小数)） / mv:float?（市值亿） / source:string?（来源标识枚举） | 例：`cli.call("kline.query_last_live", sym='000807')`
+| `kline.query_last_live_many` | 盘中日K批量快照 | 原始数据 | L0 | `syms:array` — 裸码列表 | MAP · symbol → bar | 例：`cli.call("kline.query_last_live_many", syms=['600519', '000807'])`
+| `kline.query_bars_live` | 盘中拉最近 n 根日K（外部行情源 HTTP，≠分时） | 原始数据 | L0 | `sym:string` · `limit:int?` — 最近 n 个交易日 | ARR · bars | 例：`cli.call("kline.query_bars_live", sym='000807', limit=5)`
 | `kline.query_min1_live` | 当日 1 分钟分时（有损滚桶） | 原始数据 | L0 | `sym:string` | MAP · 分时包 {trading_day, bars:[t,hm,close,volume,amount,...], bar_n}；休市读上一交易日 | 例：`cli.call("kline.query_min1_live", sym='600519')`
 | `kline.query_min1_live_meta` | 分时头（无 bars） | 原始数据 | L0 | `sym:string` | MAP · {trading_day, updated_at, bar_n} | 例：`cli.call("kline.query_min1_live_meta", sym='600519')`
-| `kline.snapshot` | 单股行情快照 | 原始数据 | L0 | `sym:string` | MAP · {symbol, close, percent, chg_20d}；字段 symbol/close/percent/chg_20d | 例：`cli.call("kline.snapshot", sym='600519')`
+| `kline.snapshot` | 单股行情快照 | 原始数据 | L0 | `sym:string` | MAP · {symbol, close, percent, chg_20d}；字段 symbol:string?（代码） / close:float?（最新价） / percent:float?（涨跌幅） / chg_20d:float?（20 日涨跌） | 例：`cli.call("kline.snapshot", sym='600519')`
 | `kline.screen_above_ma20` | 收盘价在 MA20 之上 | 指标 | L0 | `sym:string` | bool | 例：`cli.call("kline.screen_above_ma20", sym='600519')`
-| `kline.screen_momentum_20d` | 近 20 日涨幅达标 | 指标 | L0 | `sym:string, min_chg:float` | bool | 例：`cli.call("kline.screen_momentum_20d", sym='600519', min_chg=0.1)`
-| `kline.fmt_maps` | K 线规范化 MAP 列表 | 原始数据 | L0 | `rows:array` | ARR · 规范化 bar MAP |
+| `kline.screen_momentum_20d` | 近 20 日涨幅达标 | 指标 | L0 | `sym:string` · `min_chg:float` — 如 0.1 = 10% | bool | 例：`cli.call("kline.screen_momentum_20d", sym='600519', min_chg=0.1)`
+| `kline.fmt_maps` | K 线规范化 MAP 列表 | 原始数据 | L0 | `rows:array` — query_bars 等返回的 bars | ARR · 规范化 bar MAP |
 | `kline.fmt_lines` | K 线文本行 | 原始数据 | L0 | `rows:array` | ARR · 文本 |
-| `kline.index_breadth_summary` | 全市场涨跌全景 | 指标 | L0 | `idx:any` | MAP · 涨跌统计 |
-| `kline.index_top_movers` | 涨跌榜 | 指标 | L0 | `idx:any, limit:int?, desc:bool?` | ARR · 行 |
-| `kline.query_bars_adj` | 历史 K 线（复权） | 原始数据 | L1 | `sym:string, limit:int, adj:string`（签名） | ARR · bars | 例：`cli.call("kline.query_bars_adj", sym='600519', limit=30, adj='qfq')`
-| `kline.query_bars_props` | 历史 K 线（指定字段） | 原始数据 | L1 | `sym:string, limit:int, props:array`（签名） | MAP · 列式字段序列 | 例：`cli.call("kline.query_bars_props", sym='600519', limit=30, props=['close'])`
-| `kline.query_bars_props_adj` | 历史 K 线（字段+复权） | 原始数据 | L1 | `sym:string, limit:int, props:array, adj:string`（签名） | MAP · 列式字段序列 | 例：`cli.call("kline.query_bars_props_adj", sym='600519', limit=30, props=['close'], adj='qfq')`
-| `kline.query_last_adj` | 最新一根 K 线（复权） | 原始数据 | L1 | `sym:string, adj:string`（签名） | MAP/any · bar | 例：`cli.call("kline.query_last_adj", sym='600519', adj='qfq')`
-| `kline.query_valid` | 有效 K 线序列（过滤停牌空bar） | 原始数据 | L1 | `sym:string, limit:int`（签名） | ARR · bars | 例：`cli.call("kline.query_valid", sym='600519', limit=30)`
-| `kline.query_valid_adj` | 有效 K 线（复权） | 原始数据 | L1 | `sym:string, limit:int, adj:string`（签名） | ARR · bars | 例：`cli.call("kline.query_valid_adj", sym='600519', limit=30, adj='qfq')`
-| `kline.query_at_anchor` | 锚点日前 K 线 | 原始数据 | L1 | `sym:string, limit:int, anchor_date:string`（签名） | ARR · bars |
-| `kline.query_at_anchor_adj` | 锚点日前 K 线（复权） | 原始数据 | L1 | `sym:string, limit:int, anchor_date:string, adj:string`（签名） | ARR · bars |
+| `kline.index_breadth_summary` | 全市场涨跌全景 | 指标 | L0 | `idx:any` — 指数键字符串，如 "index.cn.all" | MAP · 涨跌统计 |
+| `kline.index_top_movers` | 涨跌榜 | 指标 | L0 | `idx:any` · `limit:int?` · `desc:bool?` — true=涨幅榜 | ARR · 行 |
+| `kline.query_bars_adj` | 历史 K 线（复权） | 原始数据 | L1 | `sym:string` · `limit:int` · `adj:string`（签名） | ARR · bars | 例：`cli.call("kline.query_bars_adj", sym='600519', limit=30, adj='qfq')`
+| `kline.query_bars_props` | 历史 K 线（指定字段） | 原始数据 | L1 | `sym:string` · `limit:int` · `props:array`（签名） | MAP · 列式字段序列 | 例：`cli.call("kline.query_bars_props", sym='600519', limit=30, props=['close'])`
+| `kline.query_bars_props_adj` | 历史 K 线（字段+复权） | 原始数据 | L1 | `sym:string` · `limit:int` · `props:array` · `adj:string`（签名） | MAP · 列式字段序列 | 例：`cli.call("kline.query_bars_props_adj", sym='600519', limit=30, props=['close'], adj='qfq')`
+| `kline.query_last_adj` | 最新一根 K 线（复权） | 原始数据 | L1 | `sym:string` · `adj:string`（签名） | MAP/any · bar | 例：`cli.call("kline.query_last_adj", sym='600519', adj='qfq')`
+| `kline.query_valid` | 有效 K 线序列（过滤停牌空bar） | 原始数据 | L1 | `sym:string` · `limit:int`（签名） | ARR · bars | 例：`cli.call("kline.query_valid", sym='600519', limit=30)`
+| `kline.query_valid_adj` | 有效 K 线（复权） | 原始数据 | L1 | `sym:string` · `limit:int` · `adj:string`（签名） | ARR · bars | 例：`cli.call("kline.query_valid_adj", sym='600519', limit=30, adj='qfq')`
+| `kline.query_at_anchor` | 锚点日前 K 线 | 原始数据 | L1 | `sym:string` · `limit:int` · `anchor_date:string`（签名） | ARR · bars |
+| `kline.query_at_anchor_adj` | 锚点日前 K 线（复权） | 原始数据 | L1 | `sym:string` · `limit:int` · `anchor_date:string` · `adj:string`（签名） | ARR · bars |
 | `kline.snapshot_close` | 最新收盘价 | 原始数据 | L1 | `sym:string`（签名） | float | 例：`cli.call("kline.snapshot_close", sym='600519')`
 | `kline.snapshot_percent` | 最新涨跌幅 | 指标 | L1 | `sym:string`（签名） | float | 例：`cli.call("kline.snapshot_percent", sym='600519')`
 | `kline.snapshot_chg_20d` | 近 20 日涨跌幅 | 指标 | L1 | `sym:string`（签名） | float | 例：`cli.call("kline.snapshot_chg_20d", sym='600519')`
@@ -78,8 +78,8 @@
 | `kline.screen_flat_today` | 今日平盘 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("kline.screen_flat_today", sym='600519')`
 | `kline.screen_limit_up` | 涨停 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("kline.screen_limit_up", sym='600519')`
 | `kline.screen_limit_down` | 跌停 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("kline.screen_limit_down", sym='600519')`
-| `kline.screen_pullback_20d` | 近 20 日回撤可控 | 指标 | L1 | `sym:string, min_chg:any`（签名） | bool | 例：`cli.call("kline.screen_pullback_20d", sym='600519', min_chg=0.1)`
-| `kline.screen_volume_spike` | 放量 | 指标 | L1 | `sym:string, min_ratio:any`（签名） | bool | 例：`cli.call("kline.screen_volume_spike", sym='600519', min_ratio=2.0)`
+| `kline.screen_pullback_20d` | 近 20 日回撤可控 | 指标 | L1 | `sym:string` · `min_chg:any`（签名） | bool | 例：`cli.call("kline.screen_pullback_20d", sym='600519', min_chg=0.1)`
+| `kline.screen_volume_spike` | 放量 | 指标 | L1 | `sym:string` · `min_ratio:any`（签名） | bool | 例：`cli.call("kline.screen_volume_spike", sym='600519', min_ratio=2.0)`
 | `kline.query_index_last_live` | 指数盘中点位 | 原始数据 | L1 | `key:string`（签名） | MAP/any | 例：`cli.call("kline.query_index_last_live", key='index.hs300')`
 | `kline.query_index_last_live_many` | 指数盘中点位批量 | 原始数据 | L1 | `keys:array`（签名） | MAP | 例：`cli.call("kline.query_index_last_live_many", keys=['index.shzs', 'index.hs300'])`
 | `kline.query_index_min1_live` | 指数盘中 1 分钟分时 | 原始数据 | L1 | `key:string`（签名） | MAP/any | 例：`cli.call("kline.query_index_min1_live", key='index.hs300')`
@@ -88,7 +88,7 @@
 | `kline.index_breadth_bin_industries` | 分桶行业分布 | 指标 | L1 | `idx:any`（签名） | any |
 | `kline.fmt_line` | 单根 K 线文本 | 原始数据 | L1 | `row:any`（签名） | string |
 | `kline.fmt_snapshot_line` | 快照一行文本 | 原始数据 | L1 | `sym:string`（签名） | string | 例：`cli.call("kline.fmt_snapshot_line", sym='600519')`
-| `kline.fmt_bins` | 涨跌幅分桶格式化 | 原始数据 | L1 | `bins_raw:any, total_count:int`（签名） | ARR/MAP · 分桶展示 |
+| `kline.fmt_bins` | 涨跌幅分桶格式化 | 原始数据 | L1 | `bins_raw:any` · `total_count:int`（签名） | ARR/MAP · 分桶展示 |
 
 > 另有 7 个索引/内部辅助函数未列入本文档，仍可经 `cli.call(...)` 调用。
 
@@ -103,9 +103,9 @@
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `moneyflow.query_bars` | 资金流向历史 | 原始数据 | L0 | `sym:string, limit:int=20` | ARR · 资金流行（date/net_mf/elg_net/lg_net/md_net/sm_net）；字段 sas/date/net_mf/elg_net/lg_net/md_net/sm_net | 例：`cli.call("moneyflow.query_bars", sym='600519', limit=20)`
-| `moneyflow.query_last` | 最新资金流向 | 原始数据 | L0 | `sym:string` | 资金流行 MAP 或 nil；字段 sas/date/net_mf/elg_net/lg_net/md_net/sm_net | 例：`cli.call("moneyflow.query_last", sym='600519')`
-| `moneyflow.query_valid` | 有效资金流向（过滤空行） | 原始数据 | L0 | `sym:string, limit:int=20` | ARR · 资金流行 | 例：`cli.call("moneyflow.query_valid", sym='600519', limit=20)`
+| `moneyflow.query_bars` | 资金流向历史 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `limit:int=20` — 根数，默认 20 | ARR · 资金流行（date/net_mf/elg_net/lg_net/md_net/sm_net）；字段 sas:string?（SAS） / date:string?（日期） / net_mf:float?（主力净流入） / elg_net:float?（超大单净流入） / lg_net:float?（大单净流入） / md_net:float?（中单净流入） / sm_net:float?（小单净流入） | 例：`cli.call("moneyflow.query_bars", sym='600519', limit=20)`
+| `moneyflow.query_last` | 最新资金流向 | 原始数据 | L0 | `sym:string` | 资金流行 MAP 或 nil；字段 sas:string?（SAS） / date:string?（日期） / net_mf:float?（主力净流入） / elg_net:float?（超大单净流入） / lg_net:float?（大单净流入） / md_net:float?（中单净流入） / sm_net:float?（小单净流入） | 例：`cli.call("moneyflow.query_last", sym='600519')`
+| `moneyflow.query_valid` | 有效资金流向（过滤空行） | 原始数据 | L0 | `sym:string` · `limit:int=20` | ARR · 资金流行 | 例：`cli.call("moneyflow.query_valid", sym='600519', limit=20)`
 | `moneyflow.query_last_live` | 盘中资金流快照 | 原始数据 | L0 | `sym:string` | MAP · 资金流快照 | 例：`cli.call("moneyflow.query_last_live", sym='000807')`
 | `moneyflow.snapshot` | 资金流向快照 | 原始数据 | L0 | `sym:string` | MAP · 快照 | 例：`cli.call("moneyflow.snapshot", sym='600519')`
 | `moneyflow.snapshot_net_mf` | 最新主力净流入 | 原始数据 | L0 | `sym:string` | float · 主力净流入（元） | 例：`cli.call("moneyflow.snapshot_net_mf", sym='600519')`
@@ -287,10 +287,10 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `rptdom.statement` | 三报表科目×期次透视 | 原始数据 | L0 | `sym:string, domain:string, opts:object?` | ARR · 科目行（科目代码/中文名×期次列） | 例：`cli.call("rptdom.statement", sym='600519', domain='fin.income_statement', opts={'scope': '合并', 'n': 5})`
-| `rptdom.statement_years` | 报表可用年报（Q4 档，降序） | 原始数据 | L0 | `sym:string, domain:string` | ARR · 年份 | 例：`cli.call("rptdom.statement_years", sym='600519', domain='fin.income_statement')`
-| `rptdom.statement_compare` | 合并 vs 母公司报表比较 | 指标 | L0 | `sym:string, domain:string, opts:object?` | ARR · 科目行 + 合并/母公司/差额/差额占比 | 例：`cli.call("rptdom.statement_compare", sym='600519', domain='fin.income_statement', opts={'n': 2})`
-| `rptdom.statement_tree` | 三表目录树视图（树序 + 比率/占比行） | 原始数据 | L0 | `sym:string, domain:string, opts:object?` | ARR · 树序科目行；含派生比率行（LD/IBD_RATE/GM 等 pct 行） | 例：`cli.call("rptdom.statement_tree", sym='600519', domain='fin.balance_sheet', opts={'scope': '合并', 'n': 5})`
+| `rptdom.statement` | 三报表科目×期次透视 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `domain:string` · `opts:object?` — {scope: 合并\|母公司(默认合并), n: 期数(默认5), years: 年份数组} | ARR · 科目行（科目代码/中文名×期次列） | 例：`cli.call("rptdom.statement", sym='600519', domain='fin.income_statement', opts={'scope': '合并', 'n': 5})`
+| `rptdom.statement_years` | 报表可用年报（Q4 档，降序） | 原始数据 | L0 | `sym:string` · `domain:string` | ARR · 年份 | 例：`cli.call("rptdom.statement_years", sym='600519', domain='fin.income_statement')`
+| `rptdom.statement_compare` | 合并 vs 母公司报表比较 | 指标 | L0 | `sym:string` · `domain:string` · `opts:object?` — 同 statement（差额/差额占比%为派生计算） | ARR · 科目行 + 合并/母公司/差额/差额占比 | 例：`cli.call("rptdom.statement_compare", sym='600519', domain='fin.income_statement', opts={'n': 2})`
+| `rptdom.statement_tree` | 三表目录树视图（树序 + 比率/占比行） | 原始数据 | L0 | `sym:string` · `domain:string` · `opts:object?` — 同 statement | ARR · 树序科目行；含派生比率行（LD/IBD_RATE/GM 等 pct 行） | 例：`cli.call("rptdom.statement_tree", sym='600519', domain='fin.balance_sheet', opts={'scope': '合并', 'n': 5})`
 | `rptdom.statement_audit` | 审计意见（Q4 年轴） | 原始数据 | L0 | `sym:string` | ARR · 年份×审计意见 | 例：`cli.call("rptdom.statement_audit", sym='600519')`
 
 ## 信息披露
@@ -324,29 +324,29 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `bonus.query_list` | 分红历史明细 | 原始数据 | L0 | `sym:string, limit:int?` | ARR · 分红行（预案/除权除息日/每10股派息等） | 例：`cli.call("bonus.query_list", sym='600519', limit=20)`
+| `bonus.query_list` | 分红历史明细 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `limit:int?` — 条数 | ARR · 分红行（预案/除权除息日/每10股派息等） | 例：`cli.call("bonus.query_list", sym='600519', limit=20)`
 | `bonus.query_last` | 最近一次分红 | 原始数据 | L0 | `sym:string` | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_last", sym='600519')`
-| `bonus.query_at_sas` | 指定报告期分红 | 原始数据 | L0 | `sym:string, sas:string` | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_at_sas", sym='600519', sas='2024-Q4')`
+| `bonus.query_at_sas` | 指定报告期分红 | 原始数据 | L0 | `sym:string` · `sas:string` — 报告期，如 "2024-Q4" | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_at_sas", sym='600519', sas='2024-Q4')`
 | `bonus.dps_rpt` | 财报期每股分红 | 原始数据 | L0 | `sym:string` | 按报告期的 DPS 序列 | 例：`cli.call("bonus.dps_rpt", sym='600519')`
-| `bonus.dps_rpt_asof` | 财报期每股分红（截至日） | 原始数据 | L0 | `rows:array, asof:string` | 截至日的 DPS |
-| `bonus.query_dps_window` | 窗口内每股股利合计 | 指标 | L0 | `sym:string, window:string` | float · 元/股 | 例：`cli.call("bonus.query_dps_window", sym='600519', window='3y')`
-| `bonus.query_total_window` | 窗口内总分红 | 指标 | L0 | `sym:string, window:string` | float · 元 | 例：`cli.call("bonus.query_total_window", sym='600519', window='3y')`
-| `bonus.query_count_window` | 窗口内分红次数 | 指标 | L0 | `sym:string, window:string` | int | 例：`cli.call("bonus.query_count_window", sym='600519', window='5y')`
-| `bonus.query_valid` | 有效分红序列（过滤无效行） | 原始数据 | L0 | `sym:string, limit:int?` | ARR · 分红行 | 例：`cli.call("bonus.query_valid", sym='600519', limit=20)`
+| `bonus.dps_rpt_asof` | 财报期每股分红（截至日） | 原始数据 | L0 | `rows:array` — dps_rpt 结果 · `asof:string` — 截至日期 | 截至日的 DPS |
+| `bonus.query_dps_window` | 窗口内每股股利合计 | 指标 | L0 | `sym:string` · `window:string` — 窗口（如 3y） | float · 元/股 | 例：`cli.call("bonus.query_dps_window", sym='600519', window='3y')`
+| `bonus.query_total_window` | 窗口内总分红 | 指标 | L0 | `sym:string` · `window:string` | float · 元 | 例：`cli.call("bonus.query_total_window", sym='600519', window='3y')`
+| `bonus.query_count_window` | 窗口内分红次数 | 指标 | L0 | `sym:string` · `window:string` | int | 例：`cli.call("bonus.query_count_window", sym='600519', window='5y')`
+| `bonus.query_valid` | 有效分红序列（过滤无效行） | 原始数据 | L0 | `sym:string` · `limit:int?` | ARR · 分红行 | 例：`cli.call("bonus.query_valid", sym='600519', limit=20)`
 | `bonus.snapshot` | 股息快照 | 指标 | L0 | `sym:string` | MAP · 股息/率快照 | 例：`cli.call("bonus.snapshot", sym='600519')`
 | `bonus.snapshot_yield_ttm` | LTM 股息率 | 指标 | L0 | `sym:string` | float · 百分数 | 例：`cli.call("bonus.snapshot_yield_ttm", sym='600519')`
 | `bonus.snapshot_payout_ttm` | TTM 派息率 | 指标 | L0 | `sym:string` | float · 百分数 | 例：`cli.call("bonus.snapshot_payout_ttm", sym='600519')`
 | `bonus.screen_active` | 近年有分红 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_active", sym='600519')`
-| `bonus.screen_has_dividend` | 有分红记录 | 指标 | L1 | `sym:string, min_yield:any`（签名） | bool | 例：`cli.call("bonus.screen_has_dividend", sym='600519', min_yield=0.03)`
-| `bonus.screen_high_yield` | 高股息 | 指标 | L1 | `sym:string, min_yield:any`（签名） | bool | 例：`cli.call("bonus.screen_high_yield", sym='600519', min_yield=0.03)`
+| `bonus.screen_has_dividend` | 有分红记录 | 指标 | L1 | `sym:string` · `min_yield:any`（签名） | bool | 例：`cli.call("bonus.screen_has_dividend", sym='600519', min_yield=0.03)`
+| `bonus.screen_high_yield` | 高股息 | 指标 | L1 | `sym:string` · `min_yield:any`（签名） | bool | 例：`cli.call("bonus.screen_high_yield", sym='600519', min_yield=0.03)`
 | `bonus.screen_ample_payout` | 慷慨派息 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_ample_payout", sym='600519')`
 | `bonus.screen_danger_payout` | 派息不可持续 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_danger_payout", sym='600519')`
-| `bonus.screen_quality` | 分红质量优 | 指标 | L1 | `sym:string, min_yield:any, payout_min:any, payout_max:any`（签名） | bool | 例：`cli.call("bonus.screen_quality", sym='600519', min_yield=0.03, payout_min=0.3, payout_max=0.7)`
+| `bonus.screen_quality` | 分红质量优 | 指标 | L1 | `sym:string` · `min_yield:any` · `payout_min:any` · `payout_max:any`（签名） | bool | 例：`cli.call("bonus.screen_quality", sym='600519', min_yield=0.03, payout_min=0.3, payout_max=0.7)`
 | `bonus.screen_stable_yield` | 股息稳定 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_stable_yield", sym='600519')`
 | `bonus.screen_improving_yield` | 股息改善 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_improving_yield", sym='600519')`
 | `bonus.screen_trend_ok` | 分红趋势健康 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_trend_ok", sym='600519')`
 | `bonus.screen_declining_yield` | 股息下滑 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_declining_yield", sym='600519')`
-| `bonus.screen_undervalued_yield` | 低估+高股息 | 指标 | L1 | `sym:string, min_yield:any, min_pct:any`（签名） | bool | 例：`cli.call("bonus.screen_undervalued_yield", sym='600519', min_yield=0.03, min_pct=30)`
+| `bonus.screen_undervalued_yield` | 低估+高股息 | 指标 | L1 | `sym:string` · `min_yield:any` · `min_pct:any`（签名） | bool | 例：`cli.call("bonus.screen_undervalued_yield", sym='600519', min_yield=0.03, min_pct=30)`
 | `bonus.fmt_maps` | 分红行规范化 | 原始数据 | L1 | `rows:array`（签名） | ARR · 规范化行 |
 | `bonus.fmt_lines` | 分红文本行 | 原始数据 | L1 | `rows:array`（签名） | ARR · 文本 |
 | `bonus.fmt_line` | 单条分红文本 | 原始数据 | L1 | `row:any`（签名） | string |
@@ -364,11 +364,11 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `forecast.yjyg_rows` | 业绩预告历史 | 原始数据 | L0 | `sym:string, limit:int?` | ARR · 预告行（报告期/类型/净利与扣非区间/同比/修正轨迹） | 例：`cli.call("forecast.yjyg_rows", sym='688008', limit=8)`
+| `forecast.yjyg_rows` | 业绩预告历史 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `limit:int?` — 条数 | ARR · 预告行（报告期/类型/净利与扣非区间/同比/修正轨迹） | 例：`cli.call("forecast.yjyg_rows", sym='688008', limit=8)`
 | `forecast.yjyg_latest` | 最新业绩预告 | 原始数据 | L0 | `sym:string` | 预告行 MAP 或 nil | 例：`cli.call("forecast.yjyg_latest", sym='688008')`
-| `forecast.yjkb_rows` | 业绩快报历史 | 原始数据 | L0 | `sym:string, limit:int?` | ARR · 快报行 | 例：`cli.call("forecast.yjkb_rows", sym='603092', limit=8)`
+| `forecast.yjkb_rows` | 业绩快报历史 | 原始数据 | L0 | `sym:string` · `limit:int?` | ARR · 快报行 | 例：`cli.call("forecast.yjkb_rows", sym='603092', limit=8)`
 | `forecast.yjkb_latest` | 最新业绩快报 | 原始数据 | L0 | `sym:string` | 快报行 MAP 或 nil | 例：`cli.call("forecast.yjkb_latest", sym='603092')`
-| `forecast.disclosure_rows` | 财报预约披露历史 | 原始数据 | L0 | `sym:string, limit:int?` | ARR · 预约披露行（报告期/计划披露日） | 例：`cli.call("forecast.disclosure_rows", sym='600519', limit=8)`
+| `forecast.disclosure_rows` | 财报预约披露历史 | 原始数据 | L0 | `sym:string` · `limit:int?` | ARR · 预约披露行（报告期/计划披露日） | 例：`cli.call("forecast.disclosure_rows", sym='600519', limit=8)`
 | `forecast.disclosure_next` | 下次财报披露 | 原始数据 | L0 | `sym:string` | 预约披露行 MAP 或 nil | 例：`cli.call("forecast.disclosure_next", sym='600519')`
 | `forecast.snapshot` | 业绩披露快照（预告+快报+日历合并视图） | 原始数据 | L0 | `sym:string` | MAP · 快照 | 例：`cli.call("forecast.snapshot", sym='688008')`
 | `forecast.fmt_line` | 预告文本行 | 原始数据 | L1 | `row:any`（签名） | string | 例：`cli.call("forecast.fmt_line", row='688008')`
@@ -384,8 +384,8 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `filings.query` | 定期报告列表 | 原始数据 | L0 | `sym:string, type_key:string="all", limit:int?` | ARR · 报告行（报告期/类型/标题/PDF 链接） | 例：`cli.call("filings.query", sym='600519', type_key='annual', limit=5)`
-| `filings.latest` | 最新一条定期报告 | 原始数据 | L0 | `sym:string, type_key:string="all"` | 报告行 MAP 或 nil | 例：`cli.call("filings.latest", sym='600519', type_key='annual')`
+| `filings.query` | 定期报告列表 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `type_key:string="all"` · `limit:int?` | ARR · 报告行（报告期/类型/标题/PDF 链接） | 例：`cli.call("filings.query", sym='600519', type_key='annual', limit=5)`
+| `filings.latest` | 最新一条定期报告 | 原始数据 | L0 | `sym:string` · `type_key:string="all"` | 报告行 MAP 或 nil | 例：`cli.call("filings.latest", sym='600519', type_key='annual')`
 | `filings.type_zh` | type_key 转中文 | 原始数据 | L1 | `type_key:string`（签名） | string | 例：`cli.call("filings.type_zh", type_key='annual')`
 | `filings.fmt_maps` | 报告行规范化列表 | 原始数据 | L1 | `rows:array`（签名） | ARR · 规范化报告行 |
 | `filings.fmt_map` | 单条报告规范化 | 原始数据 | L1 | `row:object`（签名） | MAP · 报告行 |
@@ -401,23 +401,23 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `notice.query_by_symbol` | 单票公告列表 | 原始数据 | L0 | `sym:string, window:string?, type_regex:string?, limit:int?` | ARR · 公告行（日期/标题/类别/链接） | 例：`cli.call("notice.query_by_symbol", sym='600519', window='3m', type_regex='', limit=20)`
-| `notice.query_recent` | 近期公告（全市场） | 原始数据 | L0 | `window:string?, type_regex:string?, limit:int?, market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_recent", window='7d', type_regex='', limit=50)`
-| `notice.query_by_category` | 按类别查公告 | 原始数据 | L0 | `category:string, window:string?, limit:int?, market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_by_category", category='回购', window='1m', limit=20)`
-| `notice.query_on_date` | 指定日期公告 | 原始数据 | L0 | `date:string, type_regex:string?, limit:int?, market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_on_date", date='2026-09-30')`
-| `notice.query_find` | 按日期区间查公告 | 原始数据 | L0 | `from_date:string, to_date:string, type_regex:string?, stock_code:string?, limit:int?, market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_find", from_date='2026-01-01', to_date='2026-03-31', type_regex='业绩', stock_code='', limit=50)`
-| `notice.signal_has_buyback` | 窗口内是否有回购公告 | 指标 | L0 | `sym:string, window:string?` | bool | 例：`cli.call("notice.signal_has_buyback", sym='600519', window='6m')`
-| `notice.signal_has_reduction` | 窗口内是否有减持公告 | 指标 | L0 | `sym:string, window:string?` | bool | 例：`cli.call("notice.signal_has_reduction", sym='600519', window='6m')`
-| `notice.signal_has_insider_buy` | 窗口内是否有增持公告 | 指标 | L0 | `sym:string, window:string?` | bool | 例：`cli.call("notice.signal_has_insider_buy", sym='600519', window='6m')`
-| `notice.signal_has_equity_incentive` | 窗口内是否有股权激励公告 | 指标 | L0 | `sym:string, window:string?` | bool | 例：`cli.call("notice.signal_has_equity_incentive", sym='600519', window='1y')`
-| `notice.signal_evidence_rows` | 信号证据（原始公告行） | 原始数据 | L0 | `sym:string, type_regex:string, window:string?, lim:int?` | ARR · 公告行 | 例：`cli.call("notice.signal_evidence_rows", sym='600519', type_regex='回购', window='1y', lim=10)`
-| `notice.signal_evidence_buyback` | 回购证据（规范化行） | 指标 | L0 | `sym:string, window:string?` | ARR · 规范化证据行 | 例：`cli.call("notice.signal_evidence_buyback", sym='600519', window='1y')`
-| `notice.signal_evidence_reduction` | 减持证据（规范化行） | 指标 | L0 | `sym:string, window:string?` | ARR · 规范化证据行 | 例：`cli.call("notice.signal_evidence_reduction", sym='600519', window='1y')`
-| `notice.signal_has` | 窗口内是否匹配类型正则 | 指标 | L1 | `sym:string, type_regex:string, window:string, anchor_date:string`（签名） | bool | 例：`cli.call("notice.signal_has", sym='600519', type_regex='减持', window='1m', anchor_date='')`
-| `notice.signal_has_category` | 窗口内是否有指定类别 | 指标 | L1 | `sym:string, category:string, window:string`（签名） | bool | 例：`cli.call("notice.signal_has_category", sym='600519', category='forecast', window='7d')`
-| `notice.signal_no_reduction` | 窗口内是否无减持 | 指标 | L1 | `sym:string, window:string`（签名） | bool | 例：`cli.call("notice.signal_no_reduction", sym='600519', window='1m')`
-| `notice.signal_evidence` | 信号证据（规范化） | 指标 | L1 | `sym:string, type_regex:string, window:string, lim:int`（签名） | ARR · 规范化公告 | 例：`cli.call("notice.signal_evidence", sym='600519', type_regex='减持', window='1m', lim=3)`
-| `notice.query_symbols_on_date` | 指定日期出现公告的代码列表 | 原始数据 | L1 | `date:string, type_regex:string`（签名） | ARR · 证券代码 | 例：`cli.call("notice.query_symbols_on_date", date='2026-07-01', type_regex='')`
+| `notice.query_by_symbol` | 单票公告列表 | 原始数据 | L0 | `sym:string` — 6 位裸码（港股 5 位） · `window:string?` — 时间窗 · `type_regex:string?` — 类型正则 · `limit:int?` | ARR · 公告行（日期/标题/类别/链接） | 例：`cli.call("notice.query_by_symbol", sym='600519', window='3m', type_regex='', limit=20)`
+| `notice.query_recent` | 近期公告（全市场） | 原始数据 | L0 | `window:string?` · `type_regex:string?` · `limit:int?` · `market:string?` — 缺省 cn | ARR · 公告行 | 例：`cli.call("notice.query_recent", window='7d', type_regex='', limit=50)`
+| `notice.query_by_category` | 按类别查公告 | 原始数据 | L0 | `category:string` · `window:string?` · `limit:int?` · `market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_by_category", category='回购', window='1m', limit=20)`
+| `notice.query_on_date` | 指定日期公告 | 原始数据 | L0 | `date:string` · `type_regex:string?` · `limit:int?` · `market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_on_date", date='2026-09-30')`
+| `notice.query_find` | 按日期区间查公告 | 原始数据 | L0 | `from_date:string` · `to_date:string` · `type_regex:string?` · `stock_code:string?` · `limit:int?` · `market:string?` | ARR · 公告行 | 例：`cli.call("notice.query_find", from_date='2026-01-01', to_date='2026-03-31', type_regex='业绩', stock_code='', limit=50)`
+| `notice.signal_has_buyback` | 窗口内是否有回购公告 | 指标 | L0 | `sym:string` · `window:string?` | bool | 例：`cli.call("notice.signal_has_buyback", sym='600519', window='6m')`
+| `notice.signal_has_reduction` | 窗口内是否有减持公告 | 指标 | L0 | `sym:string` · `window:string?` | bool | 例：`cli.call("notice.signal_has_reduction", sym='600519', window='6m')`
+| `notice.signal_has_insider_buy` | 窗口内是否有增持公告 | 指标 | L0 | `sym:string` · `window:string?` | bool | 例：`cli.call("notice.signal_has_insider_buy", sym='600519', window='6m')`
+| `notice.signal_has_equity_incentive` | 窗口内是否有股权激励公告 | 指标 | L0 | `sym:string` · `window:string?` | bool | 例：`cli.call("notice.signal_has_equity_incentive", sym='600519', window='1y')`
+| `notice.signal_evidence_rows` | 信号证据（原始公告行） | 原始数据 | L0 | `sym:string` · `type_regex:string` · `window:string?` · `lim:int?` | ARR · 公告行 | 例：`cli.call("notice.signal_evidence_rows", sym='600519', type_regex='回购', window='1y', lim=10)`
+| `notice.signal_evidence_buyback` | 回购证据（规范化行） | 指标 | L0 | `sym:string` · `window:string?` | ARR · 规范化证据行 | 例：`cli.call("notice.signal_evidence_buyback", sym='600519', window='1y')`
+| `notice.signal_evidence_reduction` | 减持证据（规范化行） | 指标 | L0 | `sym:string` · `window:string?` | ARR · 规范化证据行 | 例：`cli.call("notice.signal_evidence_reduction", sym='600519', window='1y')`
+| `notice.signal_has` | 窗口内是否匹配类型正则 | 指标 | L1 | `sym:string` · `type_regex:string` · `window:string` · `anchor_date:string`（签名） | bool | 例：`cli.call("notice.signal_has", sym='600519', type_regex='减持', window='1m', anchor_date='')`
+| `notice.signal_has_category` | 窗口内是否有指定类别 | 指标 | L1 | `sym:string` · `category:string` · `window:string`（签名） | bool | 例：`cli.call("notice.signal_has_category", sym='600519', category='forecast', window='7d')`
+| `notice.signal_no_reduction` | 窗口内是否无减持 | 指标 | L1 | `sym:string` · `window:string`（签名） | bool | 例：`cli.call("notice.signal_no_reduction", sym='600519', window='1m')`
+| `notice.signal_evidence` | 信号证据（规范化） | 指标 | L1 | `sym:string` · `type_regex:string` · `window:string` · `lim:int`（签名） | ARR · 规范化公告 | 例：`cli.call("notice.signal_evidence", sym='600519', type_regex='减持', window='1m', lim=3)`
+| `notice.query_symbols_on_date` | 指定日期出现公告的代码列表 | 原始数据 | L1 | `date:string` · `type_regex:string`（签名） | ARR · 证券代码 | 例：`cli.call("notice.query_symbols_on_date", date='2026-07-01', type_regex='')`
 | `notice.query_stats_recent` | 近期公告类别计数 | 原始数据 | L1 | `window:string`（签名） | MAP · 类别→条数 | 例：`cli.call("notice.query_stats_recent", window='7d')`
 | `notice.fmt_maps` | 公告行规范化 | 原始数据 | L1 | `rows:array`（签名） | ARR · 规范化公告 |
 | `notice.fmt_lines` | 公告文本行 | 原始数据 | L1 | `rows:array`（签名） | ARR · 文本行 |

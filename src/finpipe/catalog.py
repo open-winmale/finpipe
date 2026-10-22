@@ -16,7 +16,19 @@ from typing import Any
 
 import yaml
 
+from finpipe.errors import CatalogError
+
 _PACKAGE_CATALOG = Path(__file__).resolve().parent / "_catalog"
+SUPPORTED_SCHEMA_VERSION = 2
+
+
+def _check_schema(doc: dict, filename: str) -> None:
+    version = doc.get("schema_version")
+    if version != SUPPORTED_SCHEMA_VERSION:
+        raise CatalogError(
+            f"{filename}: schema_version={version} 与当前 SDK 支持的 "
+            f"{SUPPORTED_SCHEMA_VERSION} 不兼容；请升级 wm-finpipe 或重新安装",
+            code="schema")
 
 
 def catalog_dir() -> Path:
@@ -43,7 +55,10 @@ class Catalog:
             (root / "generated" / "inventory.json").read_text(encoding="utf-8"))
         self.metrics: dict = json.loads(
             (root / "generated" / "metrics.json").read_text(encoding="utf-8"))
+        _check_schema(self.inventory, "generated/inventory.json")
+        _check_schema(self.metrics, "generated/metrics.json")
         self._inv_functions = {f["name"]: f for f in self.inventory["functions"]}
+        self._metric_by_code = {m["code"]: m for m in self.metrics["metrics"]}
         self._load_domains()
 
     # ---- 装载 ----
@@ -72,19 +87,56 @@ class Catalog:
         try:
             return self.domains[domain_id]
         except KeyError:
-            raise KeyError(f"未知域 {domain_id!r}；已有：{sorted(self.domains)}") from None
+            raise CatalogError(
+                f"未知域 {domain_id!r}；已有：{sorted(self.domains)}", code="domain") from None
 
     def function(self, name: str) -> dict:
         try:
             return self._functions[name]
         except KeyError:
-            raise KeyError(f"未知函数 {name!r}；目录共 {len(self._functions)} 条") from None
+            raise CatalogError(
+                f"未知函数 {name!r}；目录共 {len(self._functions)} 条", code="function") from None
 
     def metric(self, code: str) -> dict | None:
-        for m in self.metrics["metrics"]:
-            if m["code"] == code:
-                return m
-        return None
+        """按代码取指标（O(1) 索引，2197 条不逐项扫描）。"""
+        return self._metric_by_code.get(code)
+
+    def metrics_in_group(self, group_id: str) -> list[dict]:
+        """某指标组的全部指标（code/cn），如 metrics_in_group("valuation")。"""
+        for d in self.domains.values():
+            for g in d.get("metric_groups") or []:
+                if g["id"] == group_id:
+                    return list(g.get("metrics") or [])
+        raise CatalogError(f"未知指标组 {group_id!r}", code="group")
+
+    def metric_groups(self) -> list[dict]:
+        """全部指标组摘要（id/cn/domain/count）。"""
+        out = []
+        for d in self.domains.values():
+            for g in d.get("metric_groups") or []:
+                out.append({"id": g["id"], "cn": g["cn"], "domain": d["id"],
+                            "count": len(g.get("metrics") or [])})
+        return out
+
+    def search(self, query: str, *, kind: str = "all", limit: int = 20) -> list[dict]:
+        """按关键字（英文名/中文名，大小写不敏感）搜索函数与指标代码。
+
+        kind: "all" | "function" | "metric"；返回 [{kind,name/code,cn,domain?}]。
+        """
+        q = query.strip().lower()
+        if not q:
+            return []
+        out: list[dict] = []
+        if kind in ("all", "function"):
+            for name, fn in self._functions.items():
+                if q in f"{name} {fn.get('cn', '')}".lower():
+                    out.append({"kind": "function", "name": name,
+                                "cn": fn.get("cn", ""), "domain": fn["domain"]})
+        if kind in ("all", "metric"):
+            for m in self.metrics["metrics"]:
+                if q in f"{m['code']} {m.get('cn', '')}".lower():
+                    out.append({"kind": "metric", "code": m["code"], "cn": m.get("cn", "")})
+        return out[:limit]
 
     def functions_by_domain(self) -> dict[str, list[str]]:
         out: dict[str, list[str]] = {}

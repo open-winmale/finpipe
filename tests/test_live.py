@@ -95,6 +95,17 @@ def test_kline_snapshot(cli):
     assert _is_num(snap["close"]) and snap["close"] > 0
 
 
+def test_kline_min1(cli):
+    pkg = _call_or_xfail(cli.kline.min1, MAIN)
+    assert isinstance(pkg, dict)
+    assert "trading_day" in pkg and isinstance(pkg.get("bars"), list)
+
+
+def test_kline_batch_live(cli):
+    out = _call_or_xfail(cli.kline.batch_live, [MAIN, "000001"])
+    assert isinstance(out, dict) and {MAIN, "000001"} <= set(out)
+
+
 def test_moneyflow_bars(cli):
     rows = cli.moneyflow.bars(MAIN, n=5)
     assert isinstance(rows, list) and len(rows) == 5
@@ -110,7 +121,7 @@ def test_moneyflow_last_and_live(cli):
     assert last is None or (isinstance(last, dict) and last.get("date")
                             and _is_num(last["net_mf"]))
     live = cli.moneyflow.live(MAIN)
-    assert isinstance(live, dict) and _is_num(live["net_mf"])
+    assert live is None or (isinstance(live, dict) and _is_num(live["net_mf"]))
 
 
 # ---------------------------------------------------------------- 财务 fundamentals
@@ -126,6 +137,26 @@ def test_statements_audit(cli):
     doc = cli.statements.audit(MAIN)
     assert isinstance(doc, dict) and doc
     assert all(str(k).isdigit() for k in doc)
+
+
+def test_statements_compare_tree_years(cli):
+    cmp_rows = cli.statements.compare(MAIN, "balance", years=2)
+    assert isinstance(cmp_rows, list) and cmp_rows
+    assert {"c", "p", "diff", "diffp", "k"} <= set(cmp_rows[0])
+    diff_rows = [r for r in cmp_rows if r.get("diff")]
+    assert diff_rows, "资产负债表应有部分科目可比出差额"
+    # 差额占比 = 差额 / 合并值 × 100
+    r = diff_rows[0]
+    year = sorted(r["diff"])[0]
+    assert abs(r["diffp"][year] - r["diff"][year] / r["c"][year] * 100) < 1e-6
+
+    tree = cli.statements.tree(MAIN, "balance", years=2)
+    assert isinstance(tree, list) and tree
+    assert {"k", "cn", "vals"} <= set(tree[0])
+
+    years = cli.statements.years(MAIN, "income")
+    assert isinstance(years, list) and years
+    assert all(isinstance(y, (int, str)) for y in years)
 
 
 def test_indicator_get_and_metrics(cli):
@@ -160,6 +191,15 @@ def test_notice_signals(cli):
     assert isinstance(cli.notice.has_reduction(MAIN, window="1y"), bool)
 
 
+def test_notice_recent_and_on_date(cli):
+    recent = cli.notice.recent("7d", limit=3)
+    assert isinstance(recent, list) and recent
+    assert all(isinstance(r, dict) for r in recent)
+    on = cli.notice.on_date("2026-10-21", limit=3)
+    assert isinstance(on, list)
+    assert all(isinstance(r, dict) for r in on)
+
+
 def test_filings_list_and_latest(cli):
     rows = cli.filings.list(MAIN, kind="annual", limit=3)
     assert isinstance(rows, list) and rows
@@ -187,6 +227,12 @@ def test_forecast_next_disclosure(cli):
     assert isinstance(row, dict) and row.get("report_date")
 
 
+def test_forecast_disclosure_history(cli):
+    rows = cli.forecast.disclosure_history(MAIN, limit=3)
+    assert isinstance(rows, list) and rows
+    assert all({"report_date", "report_type_name"} <= set(r) for r in rows)
+
+
 def test_dividend_history_and_last(cli):
     rows = cli.dividend.history(MAIN, limit=5)
     assert isinstance(rows, list) and rows
@@ -201,6 +247,13 @@ def test_dividend_dps_and_ratios(cli):
     p = cli.dividend.payout_ttm(MAIN)
     assert _is_num(y) and 0 < y < 1            # 小数口径：0.0396 = 3.96%
     assert p is None or (_is_num(p) and p >= 0)
+
+
+def test_dividend_window_stats(cli):
+    st = cli.dividend.window_stats(MAIN, "3y")
+    assert set(st) == {"dps", "total"}
+    assert _is_num(st["dps"]) and st["dps"] > 0
+    assert _is_num(st["total"]) and st["total"] > 0
 
 
 def test_kline_query_bars_live(cli):

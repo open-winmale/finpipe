@@ -141,7 +141,7 @@
       "post": {
         "operationId": "kline_last",
         "summary": "最新一根日 K（date/open/high/low/close/volume/amount/percent），无数据返回 None。",
-        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致（底层 query_last 返回的是、store 原始行，字段名不同）。、底层目录函数 `kline.query_last`。SDK 调用：`cli.kline.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致；``_raw=True`` 时跳过规范化，、返回 store 原始行（字段名不同，含 CreatedAt/sampling 等）。、底层目录函数 `kline.query_bars`。SDK 调用：`cli.kline.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -169,44 +169,47 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "K 线 bar",
-                  "type": "object",
-                  "properties": {
-                    "sas": {
-                      "type": "string",
-                      "description": "SAS"
-                    },
-                    "date": {
-                      "type": "string",
-                      "description": "日期"
-                    },
-                    "open": {
-                      "type": "number",
-                      "description": "开"
-                    },
-                    "high": {
-                      "type": "number",
-                      "description": "高"
-                    },
-                    "low": {
-                      "type": "number",
-                      "description": "低"
-                    },
-                    "close": {
-                      "type": "number",
-                      "description": "收"
-                    },
-                    "volume": {
-                      "type": "number",
-                      "description": "量"
-                    },
-                    "amount": {
-                      "type": "number",
-                      "description": "额"
-                    },
-                    "percent": {
-                      "type": "number",
-                      "description": "涨跌幅"
+                  "description": "K 线序列",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sas": {
+                        "type": "string",
+                        "description": "SAS"
+                      },
+                      "date": {
+                        "type": "string",
+                        "description": "日期"
+                      },
+                      "open": {
+                        "type": "number",
+                        "description": "开"
+                      },
+                      "high": {
+                        "type": "number",
+                        "description": "高"
+                      },
+                      "low": {
+                        "type": "number",
+                        "description": "低"
+                      },
+                      "close": {
+                        "type": "number",
+                        "description": "收"
+                      },
+                      "volume": {
+                        "type": "number",
+                        "description": "量"
+                      },
+                      "amount": {
+                        "type": "number",
+                        "description": "额"
+                      },
+                      "percent": {
+                        "type": "number",
+                        "description": "涨跌幅"
+                      }
                     }
                   }
                 }
@@ -292,6 +295,87 @@
                       "description": "来源标识枚举"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/kline/batch_live": {
+      "post": {
+        "operationId": "kline_batch_live",
+        "summary": "多标的盘中快照（单次请求，返回 {symbol: bar}）。",
+        "description": "底层目录函数 `kline.query_last_live_many`。SDK 调用：`cli.kline.batch_live(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbols": {
+                    "type": "array",
+                    "description": "标的列表（自动去重与归一）"
+                  }
+                },
+                "required": [
+                  "symbols"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/kline/min1": {
+      "post": {
+        "operationId": "kline_min1",
+        "summary": "当日 1 分钟分时（有损合成采样，非逐笔；休市返回上一交易日）。",
+        "description": "底层目录函数 `kline.query_min1_live`。SDK 调用：`cli.kline.min1(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -478,7 +562,7 @@
       "post": {
         "operationId": "moneyflow_last",
         "summary": "最新一行资金流（date/net_mf/elg_net/lg_net/md_net/sm_net），无数据返回 None。",
-        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致（底层 query_last 返回的是、store 原始行，净流入嵌在 props 下）。、底层目录函数 `moneyflow.query_last`。SDK 调用：`cli.moneyflow.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致；``_raw=True`` 时返回 store、原始行（净流入嵌在 props 下）。、底层目录函数 `moneyflow.query_bars`。SDK 调用：`cli.moneyflow.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -506,36 +590,38 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "资金流行",
-                  "type": "object",
-                  "properties": {
-                    "sas": {
-                      "type": "string",
-                      "description": "SAS"
-                    },
-                    "date": {
-                      "type": "string",
-                      "description": "日期"
-                    },
-                    "net_mf": {
-                      "type": "number",
-                      "description": "主力净流入"
-                    },
-                    "elg_net": {
-                      "type": "number",
-                      "description": "超大单净流入"
-                    },
-                    "lg_net": {
-                      "type": "number",
-                      "description": "大单净流入"
-                    },
-                    "md_net": {
-                      "type": "number",
-                      "description": "中单净流入"
-                    },
-                    "sm_net": {
-                      "type": "number",
-                      "description": "小单净流入"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sas": {
+                        "type": "string",
+                        "description": "SAS"
+                      },
+                      "date": {
+                        "type": "string",
+                        "description": "日期"
+                      },
+                      "net_mf": {
+                        "type": "number",
+                        "description": "主力净流入"
+                      },
+                      "elg_net": {
+                        "type": "number",
+                        "description": "超大单净流入"
+                      },
+                      "lg_net": {
+                        "type": "number",
+                        "description": "大单净流入"
+                      },
+                      "md_net": {
+                        "type": "number",
+                        "description": "中单净流入"
+                      },
+                      "sm_net": {
+                        "type": "number",
+                        "description": "小单净流入"
+                      }
                     }
                   }
                 }
@@ -548,7 +634,7 @@
     "/moneyflow/live": {
       "post": {
         "operationId": "moneyflow_live",
-        "summary": "盘中资金流快照（短 TTL）。",
+        "summary": "盘中资金流快照（短 TTL）；数据源暂无快照时返回 None。",
         "description": "底层目录函数 `moneyflow.query_last_live`。SDK 调用：`cli.moneyflow.live(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
@@ -760,10 +846,151 @@
         }
       }
     },
+    "/statements/compare": {
+      "post": {
+        "operationId": "statements_compare",
+        "summary": "合并 vs 母公司比较：科目行 + 合并值/母公司值/差额/差额占比。",
+        "description": "差额占比为**百分数**（差额 / 合并值 × 100）；母公司未披露的科目差额为空。、底层目录函数 `rptdom.statement_compare`。SDK 调用：`cli.statements.compare(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "years": {
+                    "type": "integer",
+                    "description": "期数（年报降序，默认 5）"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/statements/tree": {
+      "post": {
+        "operationId": "statements_tree",
+        "summary": "报表目录树视图：按树序输出科目行，含派生比率行（流动比率/资产负债率/毛利率等）。",
+        "description": "底层目录函数 `rptdom.statement_tree`。SDK 调用：`cli.statements.tree(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "years": {
+                    "type": "integer",
+                    "description": "期数（年报降序，默认 5）"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "description": "\"合并\"（默认）或 \"母公司\""
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/statements/years": {
+      "post": {
+        "operationId": "statements_years",
+        "summary": "该报表可用的年报年份（降序）。",
+        "description": "底层目录函数 `rptdom.statement_years`。SDK 调用：`cli.statements.years(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/statements/audit": {
       "post": {
         "operationId": "statements_audit",
-        "summary": "审计意见（按年报）。",
+        "summary": "审计意见（按年报，返回 {年份: 意见}）。",
         "description": "底层目录函数 `rptdom.statement_audit`。SDK 调用：`cli.statements.audit(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "财务基本面"
@@ -938,6 +1165,53 @@
         }
       }
     },
+    "/notice/recent": {
+      "post": {
+        "operationId": "notice_recent",
+        "summary": "全市场近期公告（按披露时间倒序）。",
+        "description": "底层目录函数 `notice.query_recent`。SDK 调用：`cli.notice.recent(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "信息披露"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "window": {
+                    "type": "string",
+                    "description": "时间窗口，如 \"7d\"/\"1m\" 或天数"
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "description": "标题/类型正则（可空）"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "公告行列表",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/notice/by_category": {
       "post": {
         "operationId": "notice_by_category",
@@ -1023,6 +1297,53 @@
                   "symbol",
                   "begin",
                   "end"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "公告行列表",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notice/on_date": {
+      "post": {
+        "operationId": "notice_on_date",
+        "summary": "指定日期的全市场公告（date 格式 YYYY-MM-DD）。",
+        "description": "底层目录函数 `notice.query_on_date`。SDK 调用：`cli.notice.on_date(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "信息披露"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string"
+                  },
+                  "keyword": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "date"
                 ]
               }
             }
@@ -1494,6 +1815,70 @@
         }
       }
     },
+    "/forecast/disclosure_history": {
+      "post": {
+        "operationId": "forecast_disclosure_history",
+        "summary": "历史财报预约披露（报告期/计划披露日/实际日）。",
+        "description": "底层目录函数 `forecast.disclosure_rows`。SDK 调用：`cli.forecast.disclosure_history(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "信息披露"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "report_date": {
+                        "type": "string",
+                        "description": "报告期"
+                      },
+                      "latest_appoint_date": {
+                        "type": "string",
+                        "description": "最新预约日"
+                      },
+                      "actual_publish_date": {
+                        "type": "string",
+                        "description": "实际披露日"
+                      },
+                      "change_count": {
+                        "type": "integer",
+                        "description": "变更次数"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/forecast/next_disclosure": {
       "post": {
         "operationId": "forecast_next_disclosure",
@@ -1706,6 +2091,50 @@
                 "properties": {
                   "symbol": {
                     "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dividend/window_stats": {
+      "post": {
+        "operationId": "dividend_window_stats",
+        "summary": "窗口统计（单次请求）：{\"dps\": 每股股利合计(元/股), \"total\": 总分红(元)}。",
+        "description": "分红次数暂不返回：上游 count 聚合当前恒为 0（已记录，待上游修复）；、需要次数时可用 ``history()`` 自行统计。、bonus.query_*_window。SDK 调用：`cli.dividend.window_stats(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "信息披露"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "window": {
+                    "type": "string",
+                    "description": "窗口字符串，如 \"3y\"/\"5y\""
                   }
                 },
                 "required": [

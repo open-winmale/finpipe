@@ -11,8 +11,16 @@
     bars = cli.call("kline.query_bars", sym="600519", limit=30)
 """
 from finpipe.catalog import Catalog, load
-from finpipe.client import Client
+from finpipe.client import BatchResult, Client, normalize_symbol
+from finpipe.errors import (
+    ApiError, AuthError, CatalogError, FinPipeError, LimitError, ServerError,
+    TransportError, UsageError,
+)
 
 __version__ = "0.1.0"
 
-__all__ = ["Catalog", "load", "Client", "__version__"]
+__all__ = [
+    "Catalog", "load", "Client", "BatchResult", "normalize_symbol", "__version__",
+    "FinPipeError", "AuthError", "UsageError", "LimitError", "TransportError",
+    "ServerError", "ApiError", "CatalogError",
+]

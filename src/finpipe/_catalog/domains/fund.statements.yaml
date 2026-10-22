@@ -1,5 +1,5 @@
 id: fund.statements
-version: 1.1.1
+version: 1.1.2
 cn: 财务报表
 kind: raw
 category: fundamentals
@@ -45,8 +45,9 @@ functions:
       - {name: sym, type: string, required: true}
       - {name: domain, type: string, required: true}
       - {name: opts, type: object, required: false, desc: 同 statement（差额/差额占比%为派生计算）}
-    returns: {desc: ARR · 科目行 + 合并/母公司/差额/差额占比}
+    returns: {desc: 'ARR · 科目行 + 合并/母公司/差额/差额占比'}
     example: 'rptdom.statement_compare("600519", "fin.income_statement", {"n": 2})'
+    notes: ['差额占比 = 差额 / 合并值（百分数）；母公司未披露的科目差额为空']
   - name: rptdom.statement_tree
     cn: 三表目录树视图（树序 + 比率/占比行）
     kind: raw

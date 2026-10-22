@@ -21,6 +21,14 @@ EXAMPLE_VALUES = {
     "category": '"回购"', "begin": '"2026-01-01"', "end": '"2026-03-31"',
     "kind": '"annual"', "keyword": '"回购"', "window": '"3m"',
     "years": "3", "scope": '"合并"', "n": "30", "limit": "10",
+    "symbols": '["600519", "000001"]', "date": '"2026-06-30"',
+}
+
+# 方法级示例值覆盖（同一参数名在不同接口语义不同，如 kind）
+METHOD_EXAMPLE_VALUES = {
+    ("statements", "compare"): {"kind": '"income"'},
+    ("statements", "tree"): {"kind": '"balance"'},
+    ("statements", "years"): {"kind": '"income"'},
 }
 
 # 返回说明兜底（FRIENDLY_INDEX 底层列不可回溯目录 shape 的核心接口）
@@ -98,14 +106,16 @@ def method_doc(cls: type, method: str) -> tuple[str, str]:
 
 def method_example(ns: str, method: str, params: list[Param]) -> str:
     """机械生成调用示例：symbol 位置传 "600519"，其余取示例值表，无示例值的必填参数以 … 占位。"""
+    overrides = METHOD_EXAMPLE_VALUES.get((ns, method), {})
+    values = {**EXAMPLE_VALUES, **overrides}
     parts: list[str] = []
     if any(p.name == "symbol" for p in params):
         parts.append('"600519"')
     for p in params:
         if p.name == "symbol":
             continue
-        if p.name in EXAMPLE_VALUES:
-            parts.append(f"{p.name}={EXAMPLE_VALUES[p.name]}")
+        if p.name in values:
+            parts.append(f"{p.name}={values[p.name]}")
         elif p.required:
             parts.append(f"{p.name}=…")
     return f"cli.{ns}.{method}({', '.join(parts)})"

@@ -72,6 +72,14 @@ def test_kline_bars_adj_variants(cli):
     assert all(_is_num(b["close"]) and b["close"] > 0 for b in qfq)
 
 
+def test_kline_bars_date_range(cli):
+    rows = cli.kline.bars(MAIN, begin="2026-09-01", end="2026-09-30")
+    assert isinstance(rows, list) and rows
+    assert all("2026-09-01" <= b["date"] <= "2026-09-30" for b in rows)
+    money = cli.moneyflow.bars(MAIN, begin="2026-09-01", end="2026-09-30")
+    assert all("2026-09-01" <= r["date"] <= "2026-09-30" for r in money)
+
+
 def test_kline_last(cli):
     bar = cli.kline.last(MAIN)
     assert isinstance(bar, dict)
@@ -251,9 +259,20 @@ def test_dividend_dps_and_ratios(cli):
 
 def test_dividend_window_stats(cli):
     st = cli.dividend.window_stats(MAIN, "3y")
-    assert set(st) == {"dps", "total"}
+    assert set(st) == {"dps", "total", "count"}
     assert _is_num(st["dps"]) and st["dps"] > 0
     assert _is_num(st["total"]) and st["total"] > 0
+    assert isinstance(st["count"], int) and st["count"] >= 1
+
+
+def test_dividend_history_fields_and_range(cli):
+    rows = cli.dividend.history(MAIN, limit=5)
+    assert isinstance(rows, list) and rows
+    assert {"dps", "total", "ex_div", "announce"} <= set(rows[0]), \
+        "history() 应为扁平规范化行（不再 props 嵌套）"
+    ranged = cli.dividend.history(MAIN, begin="2024-01-01", end="2026-10-22")
+    assert isinstance(ranged, list)
+    assert all("2024-01-01" <= str(r.get("ex_div"))[:10] <= "2026-10-22" for r in ranged)
 
 
 def test_kline_query_bars_live(cli):

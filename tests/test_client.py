@@ -52,6 +52,9 @@ def test_xs_literal():
     assert _xs_literal(True) == "true"
     assert _xs_literal(["close"]) == '["close"]'
     assert _xs_literal({"scope": "合并"}) == '{"scope": "合并"}'
+    # XS 空值是 nil，不是 JSON 的 null（否则服务端报 undefined variable "null"）
+    assert _xs_literal(None) == "nil"
+    assert _xs_literal({"a": None, "b": [1, None]}) == '{"a": nil, "b": [1, nil]}'
 
 
 def test_call_builds_xs_and_body(client):

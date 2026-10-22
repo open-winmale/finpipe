@@ -67,11 +67,19 @@
                   },
                   "n": {
                     "type": "integer",
-                    "description": "根数，默认 120"
+                    "description": "根数，默认 120；区间查询时默认取 max_limit（上限 10000）"
                   },
                   "adj": {
                     "type": "string",
                     "description": "None=不复权；\"qfq\"=前复权；\"hfq\"=后复权"
+                  },
+                  "begin": {
+                    "type": "string",
+                    "description": "起始日期（含，YYYY-MM-DD），须与 end 同时提供；区间上限 5 年"
+                  },
+                  "end": {
+                    "type": "string",
+                    "description": "结束日期（含）"
                   }
                 },
                 "required": [
@@ -501,7 +509,16 @@
                     "type": "string"
                   },
                   "n": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "条数，默认 20；区间查询时默认取 max_limit（上限 10000）"
+                  },
+                  "begin": {
+                    "type": "string",
+                    "description": "起始日期（含，YYYY-MM-DD），须与 end 同时提供；区间上限 5 年"
+                  },
+                  "end": {
+                    "type": "string",
+                    "description": "结束日期（含）"
                   }
                 },
                 "required": [
@@ -1922,7 +1939,7 @@
     "/dividend/history": {
       "post": {
         "operationId": "dividend_history",
-        "summary": "分红历史明细（预案/除权除息日/每 10 股派息）。",
+        "summary": "分红历史明细（announce/ex_date/pay/dps/total/content/sas/payout_ratio）。",
         "description": "底层目录函数 `bonus.query_list`。SDK 调用：`cli.dividend.history(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
@@ -1938,7 +1955,16 @@
                     "type": "string"
                   },
                   "limit": {
-                    "type": "integer"
+                    "type": "integer",
+                    "description": "条数，默认 20；区间查询时默认取 max_limit（上限 10000）"
+                  },
+                  "begin": {
+                    "type": "string",
+                    "description": "起始日期（含，YYYY-MM-DD，按除权日），须与 end 同时提供；上限 5 年"
+                  },
+                  "end": {
+                    "type": "string",
+                    "description": "结束日期（含）"
                   }
                 },
                 "required": [
@@ -2117,8 +2143,8 @@
     "/dividend/window_stats": {
       "post": {
         "operationId": "dividend_window_stats",
-        "summary": "窗口统计（单次请求）：{\"dps\": 每股股利合计(元/股), \"total\": 总分红(元)}。",
-        "description": "分红次数暂不返回：上游 count 聚合当前恒为 0（已记录，待上游修复）；、需要次数时可用 ``history()`` 自行统计。、bonus.query_*_window。SDK 调用：`cli.dividend.window_stats(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "summary": "窗口统计（单次请求）：{\"dps\": 每股股利合计(元/股), \"total\": 总分红(元), \"count\": 次数}。",
+        "description": "窗口按**除权日**计、截至今天；命名窗口仅支持 7d/1m/3m/6m/1y/3y/5y（最大 5 年）、或正整数天数。count 由 SDK 从规范化历史行统计——上游 count 聚合存在缺陷、（同窗口 sum 正常、count 恒 0），故不经上游 count。、bonus.query_*_window。SDK 调用：`cli.dividend.window_stats(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
         ],

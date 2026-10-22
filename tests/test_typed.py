@@ -76,9 +76,11 @@ def test_typed_dispatch(cli):
 
 def test_typed_optional_param_omitted(cli):
     cli.bonus.query_list(sym="600519")
-    assert last_xs(cli) == ['return bonus.query_list("600519")']
+    assert last_xs(cli) == ['__r := bonus.query_list("600519")',
+                            "return bonus.fmt_maps(__r)"]  # 规范化输出扁平行
     cli.bonus.query_list(sym="600519", limit=5)
-    assert last_xs(cli) == ['return bonus.query_list("600519", 5)']
+    assert last_xs(cli) == ['__r := bonus.query_list("600519", 5)',
+                            "return bonus.fmt_maps(__r)"]
 
 
 def test_typed_uses_curated_defaults_and_normalize(cli):

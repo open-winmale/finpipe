@@ -37,14 +37,14 @@
 
 | 接口 | 说明 | 参数 | 返回 | 示例 |
 |---|---|---|---|---|
-| `cli.kline.bars(...)` | 日 K 序列 | `symbol:str, n:int=120, adj:str \| None=None` | ARR · bars（date/open/high/low/close/volume/amount/percent）；字段 sas:string?（SAS） / date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收） / volume:float?（量） / amount:float?（额） / percent:float?（涨跌幅） | `cli.kline.bars("600519", n=30, adj="qfq")` |
+| `cli.kline.bars(...)` | 日 K 序列 | `symbol:str, n:int \| None=None, adj:str \| None=None, begin:str \| None=None, end:str \| None=None` | ARR · bars（date/open/high/low/close/volume/amount/percent）；字段 sas:string?（SAS） / date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收） / volume:float?（量） / amount:float?（额） / percent:float?（涨跌幅） | `cli.kline.bars("600519", n=30, adj="qfq", begin="2026-01-01", end="2026-03-31")` |
 | `cli.kline.last(...)` | 最新一根日 K | `symbol:str` | ARR · bars（date/open/high/low/close/volume/amount/percent）；字段 sas:string?（SAS） / date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收） / volume:float?（量） / amount:float?（额） / percent:float?（涨跌幅） | `cli.kline.last("600519")` |
 | `cli.kline.live(...)` | 盘中最新快照 | `symbol:str` | MAP · 盘中 bar（date/ohlcv/amount/percent/mv/source）；字段 date:string?（日期） / open:float?（开） / high:float?（高） / low:float?（低） / close:float?（收/现价） / volume:float?（量(手)） / amount:float?（额(元)） / percent:float?（涨跌幅(小数)） / mv:float?（市值亿） / source:string?（来源标识枚举） | `cli.kline.live("600519")` |
 | `cli.kline.batch_live(...)` | 多标的盘中快照 | `symbols:list[str]` | MAP · symbol → bar | `cli.kline.batch_live(symbols=["600519", "000001"])` |
 | `cli.kline.min1(...)` | 当日 1 分钟分时 | `symbol:str` | MAP · 分时包 {trading_day, bars:[t,hm,close,volume,amount,...], bar_n}；休市读上一交易日 | `cli.kline.min1("600519")` |
 | `cli.kline.snapshot(...)` | 行情摘要 | `symbol:str` | MAP · {symbol, close, percent, chg_20d}；字段 symbol:string?（代码） / close:float?（最新价） / percent:float?（涨跌幅） / chg_20d:float?（20 日涨跌） | `cli.kline.snapshot("600519")` |
 | `cli.kline.is_etf(...)` | 是否场内 ETF | `symbol:str` | bool · true=场内 ETF | `cli.kline.is_etf("600519")` |
-| `cli.moneyflow.bars(...)` | 资金流历史 | `symbol:str, n:int=20` | ARR · 资金流行（date/net_mf/elg_net/lg_net/md_net/sm_net）；字段 sas:string?（SAS） / date:string?（日期） / net_mf:float?（主力净流入） / elg_net:float?（超大单净流入） / lg_net:float?（大单净流入） / md_net:float?（中单净流入） / sm_net:float?（小单净流入） | `cli.moneyflow.bars("600519", n=30)` |
+| `cli.moneyflow.bars(...)` | 资金流历史 | `symbol:str, n:int \| None=None, begin:str \| None=None, end:str \| None=None` | ARR · 资金流行（date/net_mf/elg_net/lg_net/md_net/sm_net）；字段 sas:string?（SAS） / date:string?（日期） / net_mf:float?（主力净流入） / elg_net:float?（超大单净流入） / lg_net:float?（大单净流入） / md_net:float?（中单净流入） / sm_net:float?（小单净流入） | `cli.moneyflow.bars("600519", n=30, begin="2026-01-01", end="2026-03-31")` |
 | `cli.moneyflow.last(...)` | 最新资金流 | `symbol:str` | ARR · 资金流行（date/net_mf/elg_net/lg_net/md_net/sm_net）；字段 sas:string?（SAS） / date:string?（日期） / net_mf:float?（主力净流入） / elg_net:float?（超大单净流入） / lg_net:float?（大单净流入） / md_net:float?（中单净流入） / sm_net:float?（小单净流入） | `cli.moneyflow.last("600519")` |
 | `cli.moneyflow.live(...)` | 盘中资金流快照 | `symbol:str` | MAP · 资金流快照 | `cli.moneyflow.live("600519")` |
 
@@ -221,7 +221,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 | `cli.forecast.yjkb_latest(...)` | 最新业绩快报 | `symbol:str` | 快报行 MAP 或 nil | `cli.forecast.yjkb_latest("600519")` |
 | `cli.forecast.disclosure_history(...)` | 历史预约披露 | `symbol:str, limit:int=8` | ARR · 预约披露行（报告期/计划披露日） | `cli.forecast.disclosure_history("600519", limit=10)` |
 | `cli.forecast.next_disclosure(...)` | 下次预约披露 | `symbol:str` | 预约披露行 MAP 或 nil | `cli.forecast.next_disclosure("600519")` |
-| `cli.dividend.history(...)` | 分红历史 | `symbol:str, limit:int=20` | ARR · 分红行（预案/除权除息日/每10股派息等） | `cli.dividend.history("600519", limit=10)` |
+| `cli.dividend.history(...)` | 分红历史 | `symbol:str, limit:int \| None=None, begin:str \| None=None, end:str \| None=None` | ARR · 分红行（announce/ex_date/pay/dps/total/content/sas/payout_ratio） | `cli.dividend.history("600519", limit=10, begin="2026-01-01", end="2026-03-31")` |
 | `cli.dividend.last(...)` | 最近一次分红 | `symbol:str` | 分红行 MAP 或 nil | `cli.dividend.last("600519")` |
 | `cli.dividend.dps(...)` | 财报期每股分红 | `symbol:str` | float · 财报期每股分红（元/股） | `cli.dividend.dps("600519")` |
 | `cli.dividend.window_stats(...)` | 窗口分红统计 | `symbol:str, window:str='3y'` | — | `cli.dividend.window_stats("600519", window="3m")` |
@@ -363,14 +363,14 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 #### 分红（`disc.bonus`）
 
-**性质**：原始数据 · **版本**：1.1.2  
+**性质**：原始数据 · **版本**：1.2.0  
 分红历史明细（预案/实施）、每股股利、窗口合计。列表与 DPS 为披露原值； 股息率/派息率 TTM 快照及全市场筛选为计算派生（函数级标注性质）。
 数据来源：公司公告披露。
 单位口径：dps=元/股；total=元（窗口合计金额）；window=如 "3y" / "5y" 窗口字符串；rate=小数（0.03 = 3%）。
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| `bonus.query_list` | 分红历史明细 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `limit:int?` — 条数 | ARR · 分红行（预案/除权除息日/每10股派息等） | 例：`cli.call("bonus.query_list", sym='600519', limit=20)`
+| `bonus.query_list` | 分红历史明细 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `limit:int?` — 条数 | ARR · 分红行（announce/ex_date/pay/dps/total/content/sas/payout_ratio） | 例：`cli.call("bonus.query_list", sym='600519', limit=20)`
 | `bonus.query_last` | 最近一次分红 | 原始数据 | L0 | `sym:string` | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_last", sym='600519')`
 | `bonus.query_at_sas` | 指定报告期分红 | 原始数据 | L0 | `sym:string` · `sas:string` — 报告期，如 "2024-Q4" | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_at_sas", sym='600519', sas='2024-Q4')`
 | `bonus.dps_rpt` | 财报期每股分红 | 原始数据 | L0 | `sym:string` | float · 财报期每股分红（元/股） | 例：`cli.call("bonus.dps_rpt", sym='600519')`

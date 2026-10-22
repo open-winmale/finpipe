@@ -54,6 +54,11 @@ class FakeSession:
             def json(self):
                 if url.endswith("/v1/oauth/token"):
                     return {"data": {"access_token": "tok", "expires_in": 3600}}
+                lines = (json or {}).get("xs_lines") or []
+                if any("bonus.query_list" in ln for ln in lines) and \
+                        any('"rows"' in ln for ln in lines):
+                    return {"success": True,
+                            "data": {"result": {"rows": [], "dps": 0.0, "total": 0.0}}}
                 # 列表形态：友好层 last() 会对规范化序列取首行
                 return {"success": True, "data": {"result": [{"ok": True}]}}
         return R()

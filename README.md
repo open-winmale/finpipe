@@ -12,8 +12,10 @@ cli.kline.bars("600519", n=30)                      # 日 K（自动规范化）
 cli.statements.income("600519", years=5)            # 利润表（合并口径）
 cli.indicator.get("600519", "$PE_TTM_LAST")         # 平台指标（TTM 市盈率）
 cli.notice.list("600519", window="90d")             # 公告
+cli.notice.find("600519", "2026-01-01", "2026-03-31")   # 按日期区间查公告
 cli.dividend.yield_ttm("600519")                    # TTM 股息率
 cli.info.profile("600519")                          # 公司档案
+cli.bonus.query_list("600519", limit=10)            # 底层目录函数（类型化，IDE 补全）
 ```
 
 ## 安装
@@ -58,5 +60,7 @@ export OPENWM_CLIENT_SECRET=...
 ## 更多
 
 - [API 参考](docs/API.md)：四大类全量接口（参数 / 返回字段 / 单位口径 / 示例）
+- 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；
+  单次拉取上限 `Client(max_limit=500)` 可调
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
 - 运行测试：`pytest`（不联网）；`OPENWM_LIVE=1 pytest tests/test_live.py`（真实冒烟）

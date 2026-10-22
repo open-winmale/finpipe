@@ -38,6 +38,10 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 
 ## 数据域与接口规范
 
+- **随包目录是维护者同步的发布物**：`generated/` 清单由维护者从上游数据平台
+  同步冻结（`tools/extract_from_scripts.py`，含命名空间白名单、文本净化与指标
+  策展过滤）。贡献者**无需也无法**自行重建目录；新增数据域或指标请提 issue，
+  由维护者评估后同步。发布的是上游指标的**策展子集**，README 与文档表述保持一致。
 - 新增/修改数据域：在 `src/finpipe/_catalog/domains/<域>.yaml` 操作，必须
   bump 域 `version`（semver），并通过 `validate_catalog.py`（函数/指标码必须可回溯到
   `generated/` 清单，防编造）。
@@ -45,6 +49,21 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
   `tools/extract_from_scripts.py` 从上游同步（含命名空间白名单与文本净化策略）。
 - 友好 API（`src/finpipe/api/` 包）改动必须同步 `FRIENDLY_INDEX` 注册表
   （`tests/test_api.py` 强制两者一致），方法首参统一 `symbol`。
+- 命名空间映射：友好层的 `statements`/`dividend` 对应目录命名空间
+  `rptdom`/`bonus`（见 `src/finpipe/api/__init__.py` 的 `_FRIENDLY_NS_TO_CATALOG`）；
+  未显式包装的目录函数经 `_Api.__getattr__` 目录感知委托直达，
+  目录之外的名字必须 AttributeError（`tests/test_api.py` 强制）。
+
+## 运行示例
+
+```bash
+pip install -e ".[dev,dataframe]"
+python examples/quickstart.py          # 需要凭证（或用内置体验 appid）
+python examples/catalog_tour.py        # 离线可跑：无需凭证、不联网
+python examples/error_handling.py      # 离线：错误分类体系演示
+python examples/dividend_screener.py   # 高股息筛选（需凭证）
+python examples/pandas_analysis.py     # DataFrame 分析（需凭证 + pandas）
+```
 
 ## 许可政策
 

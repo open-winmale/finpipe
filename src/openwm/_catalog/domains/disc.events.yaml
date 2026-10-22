@@ -1,0 +1,79 @@
+id: disc.events
+version: 1.0.0
+cn: 业绩披露事件
+kind: raw
+category: disclosure
+priority: P0
+description: 业绩预告（yjyg：净利/扣非/营收区间+同比+修正轨迹）、业绩快报（yjkb）、
+  财报预约披露日历（disclosure）。均为交易所披露文件的结构化直采。
+data_origin: [交易所披露]
+units:
+  money: 元（预告区间金额）
+  yoy: 百分数或小数（以返回字段注释为准）
+  date: YYYY-MM-DD
+requires: {path: sys/forecast/init.xs, preloaded: false}
+notes:
+  - 预告为区间（下限/上限）；快报为披露的近似单值——两者在报告期正式报表发布前使用
+functions:
+  - name: forecast.yjyg_rows
+    cn: 业绩预告历史
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true, desc: 6 位裸码}
+      - {name: limit, type: int, required: false, desc: 条数}
+    returns: {desc: ARR · 预告行（报告期/类型/净利与扣非区间/同比/修正轨迹）}
+    example: 'forecast.yjyg_rows("688008", 8)'
+  - name: forecast.yjyg_latest
+    cn: 最新业绩预告
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: 预告行 MAP 或 nil}
+    example: 'forecast.yjyg_latest("688008")'
+  - name: forecast.yjkb_rows
+    cn: 业绩快报历史
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+      - {name: limit, type: int, required: false}
+    returns: {desc: ARR · 快报行}
+    example: 'forecast.yjkb_rows("603092", 8)'
+  - name: forecast.yjkb_latest
+    cn: 最新业绩快报
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: 快报行 MAP 或 nil}
+    example: 'forecast.yjkb_latest("603092")'
+  - name: forecast.disclosure_rows
+    cn: 财报预约披露历史
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+      - {name: limit, type: int, required: false}
+    returns: {desc: ARR · 预约披露行（报告期/计划披露日）}
+    example: 'forecast.disclosure_rows("600519", 8)'
+  - name: forecast.disclosure_next
+    cn: 下次财报披露
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: 预约披露行 MAP 或 nil}
+    example: 'forecast.disclosure_next("600519")'
+  - name: forecast.snapshot
+    cn: 业绩披露快照（预告+快报+日历合并视图）
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: MAP · 快照}
+    example: 'forecast.snapshot("688008")'
+  # ---- L1：格式化 ----
+  - {name: forecast.fmt_line, cn: 预告文本行, kind: raw, layer: L1}
+  - {name: forecast.fmt_lines, cn: 预告文本行列表, kind: raw, layer: L1}

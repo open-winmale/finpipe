@@ -1,0 +1,160 @@
+id: fund.indicators
+version: 1.0.0
+cn: 自产指标层
+kind: computed
+category: fundamentals
+priority: P0
+description: 平台 metric 层 `$CODE` 指标——用原始数据（行情/报表/股本/分红）由平台公式计算的
+  派生指标。这是与 raw 域的根本区别：数值不存在于任何披露文件中，由我们计算得出。
+  本域精修 L0 精选（约 95 个，按用途分组）；全量编目 2759 个见 catalog/generated/metrics.json。
+data_origin: [平台计算]
+units:
+  pct: 百分数（如 15.0 = 15%）
+  ratio: 倍 / 小数
+  money: 亿元（_LAST 截面多为亿元，个别元，见指标 note）
+requires: {path: sys/metric, preloaded: true}
+notes:
+  - '$CODE 寻址：SAS 式（symbol:annual:sampling），如 $ROE（随财报光标）与 $ROE_TTM_LAST（最新截面）'
+  - '_LAST 后缀 = 最新截面值；无后缀版本随 XS 光标（AT/RANGE）取历史'
+  - 单位负例：ROE 类指标比较请直接用指标值；自算比例时源数据 percent 为小数（0.15=15%），指标层 pct 为百分数（15.0=15%）——两者勿混
+  - 新旧会计准则适配（std_compat）在指标计算内部完成，输出口径已归一
+metric_groups:
+  - id: valuation
+    cn: 估值
+    caliber: '价格与股本 × TTM 利润/净资产/营收/现金流：PE=市值/归母净利TTM，PB=市值/归母净资产，PEG=PE/(增速×100) 等'
+    depends_on: [market.kline, fund.statements, corp.equity]
+    unit: 倍（分位类为小数）
+    metrics:
+      - {code: '$PE_TTM_LAST', cn: PE(TTM)}
+      - {code: '$PE_TTM_DPPR_LAST', cn: 扣非市盈率TTM}
+      - {code: '$PB_LAST', cn: PB}
+      - {code: '$PB_NOGW_LAST', cn: 最新不含商誉市净率}
+      - {code: '$PS_TTM_LAST', cn: 滚动市销率TTM}
+      - {code: '$PCF_TTM_LAST', cn: 滚动市现率TTM}
+      - {code: '$PEG_NP', cn: PEG}
+      - {code: '$PEG_DPPR', cn: 扣非PEG}
+      - {code: '$EV_EBITDA', cn: EV/EBITDA}
+      - {code: '$PR_LAST', cn: 最新市赚率}
+      - {code: '$PR_AVG', cn: 市赚率-3年平均ROE}
+      - {code: '$PCT_PE_TTM_10Y_LAST', cn: 'PE(TTM) 10年分位'}
+      - {code: '$PCT_PB_TTM_10Y_LAST', cn: 'PB(TTM) 10年分位'}
+  - id: profitability
+    cn: 盈利与回报（含杜邦）
+    caliber: '利润表/资产负债表派生：ROE=归母净利TTM/归母净资产；杜邦分解 ROE=rNT×rTT×rTTS（净利率×周转×权益乘数）'
+    depends_on: [fund.statements]
+    unit: 百分数 / 倍
+    metrics:
+      - {code: '$ROE_TTM_LAST', cn: 最新ROE(TTM)}
+      - {code: '$ROE_AVG3', cn: 最近3年平均ROE}
+      - {code: '$ROIC_LAST', cn: 最新ROIC}
+      - {code: '$ROA_WEIGHTED_LAST', cn: 最新加权ROA}
+      - {code: '$GM', cn: 毛利率}
+      - {code: '$OP_RATE_LAST', cn: 营业利润率}
+      - {code: '$rNT', cn: 营业净利率(杜邦)}
+      - {code: '$rTT', cn: 总资产周转率(杜邦)}
+      - {code: '$rTTS', cn: 权益乘数(杜邦)}
+  - id: growth
+    cn: 成长
+    caliber: TTM 同比（当期TTM/上年同期TTM-1）与多年年化均值
+    depends_on: [fund.statements]
+    unit: 百分数
+    metrics:
+      - {code: '$TR_TTM_YOY_LAST', cn: 营业收入TTM同比-最新}
+      - {code: '$NPTS_TTM_YOY_LAST', cn: 归母净利润TTM同比-最新}
+      - {code: '$DPPR_TTM_YOY', cn: 扣非净利润TTM同比}
+      - {code: '$TR_AR_3Y_AVG_LAST', cn: 近3年营收(TTM)年化增长均值}
+      - {code: '$NPTS_AR_3Y_AVG_LAST', cn: 近3年归母净利润(TTM)年化增长均值}
+      - {code: '$NPTS_AR_5Y_AVG_LAST', cn: 近5年归母净利润(TTM)年化增长均值}
+  - id: scale
+    cn: 营收与利润规模
+    caliber: TTM 聚合（最近四个季度滚动求和）与单期披露值
+    depends_on: [fund.statements]
+    unit: 亿元（EPS 为元）
+    metrics:
+      - {code: '$TR_TTM_LAST', cn: 最新营业收入(TTM)}
+      - {code: '$NP_TTM_LAST', cn: 最新NP(TTM)}
+      - {code: '$NPTS_TTM_LAST', cn: 最新归母净利润TTM}
+      - {code: '$DPPR_TTM_LAST', cn: 最新扣非净利润TTM}
+      - {code: '$EPS_NPTS_TTM_LAST', cn: 最新归母每股收益TTM}
+      - {code: '$EBITDA_TTM', cn: 息税折旧摊销前净利润TTM}
+  - id: cashflow
+    cn: 现金流
+    caliber: 现金流量表 TTM 聚合与比率（FCF=经营净额-资本开支；NCFO_NP=经营净额/净利润）
+    depends_on: [fund.statements]
+    unit: 亿元 / 百分数
+    metrics:
+      - {code: '$NCFO_TTM_LAST', cn: 经营活动现金流净额TTM}
+      - {code: '$NCFO_NP', cn: 经营现金流量净额对净利润比率}
+      - {code: '$FCF_TTM', cn: 自由现金流量TTM}
+      - {code: '$NROE', cn: 净资产现金收益率}
+      - {code: '$NCFI_TTM', cn: 投资活动现金流净额TTM}
+      - {code: '$NCFF_TTM', cn: 筹资活动现金流净额TTM}
+  - id: solvency
+    cn: 资产负债与偿债
+    caliber: 负债/资产结构比率与流动性倍数；有息负债=短借+一年内到期+长借+债券+租赁负债
+    depends_on: [fund.statements]
+    unit: 百分数 / 倍
+    metrics:
+      - {code: '$TL_RATE_LAST', cn: 资产负债率}
+      - {code: '$IBD_RATE_LAST', cn: 有息负债率}
+      - {code: '$GW_RATE', cn: 商誉占净资产比率}
+      - {code: '$LD', cn: 流动比率}
+      - {code: '$QUICK_RATIO_LAST', cn: 最新速动比率}
+      - {code: '$WACC', cn: 加权平均资本成本}
+  - id: efficiency
+    cn: 运营效率
+    caliber: 周转天数=360/周转率；CCC=应收+存货-应付天数；费用率=费用/营收
+    depends_on: [fund.statements]
+    unit: 天 / 百分数
+    metrics:
+      - {code: '$TA_TURNOVER', cn: 资产周转率}
+      - {code: '$AR_DAYS', cn: 应收账款周转天数}
+      - {code: '$IO_DAYS', cn: 存货周转天数}
+      - {code: '$AP_DAYS', cn: 应付账款周转天数}
+      - {code: '$CCC_DAYS', cn: 净现金周转天数}
+      - {code: '$SEXE_RATE_LAST', cn: 销售费用率}
+      - {code: '$MEXE_RATE_LAST', cn: 管理费用率}
+      - {code: '$RD_RATE_LAST', cn: 研发费用率}
+      - {code: '$COST_TOTAL_RATE_LAST', cn: 四项费用率}
+  - id: dividend
+    cn: 分红
+    caliber: 股息率=TTM 分红总额/市值；派息率=TTM 分红/归母净利 TTM
+    depends_on: [disc.bonus, market.kline, fund.statements]
+    unit: 百分数 / 元
+    metrics:
+      - {code: '$DPS_TTM_LAST', cn: 最近一年预测每股分红总额}
+      - {code: '$BONUS_TTM', cn: 分红股息TTM}
+      - {code: '$BONUS_RATE_TTM_LAST', cn: 分红股息率TTM}
+      - {code: '$BE_RATE', cn: 股息分配比例}
+  - id: market_quote
+    cn: 行情与风险（K线衍生）
+    caliber: 由日 K 与股本计算的截面：市值=收盘价×股本；ROI_N=N 年年化收益（复权）
+    depends_on: [market.kline, corp.equity]
+    unit: 价格元 / 市值亿元 / 收益百分数
+    metrics:
+      - {code: '$CLOSE_LAST', cn: 最新收盘价}
+      - {code: '$PERCENT_LAST', cn: 最新涨跌幅}
+      - {code: '$MV_LAST', cn: 最新市值}
+      - {code: '$MV_FREE_LAST', cn: 最新流通市值}
+      - {code: '$AMOUNT_LAST', cn: 最新成交额}
+      - {code: '$ROI_3', cn: 3年的年化投资收益率}
+  - id: profile
+    cn: 公司信息（档案直读）
+    caliber: '性质注：本组为 ref.info 档案字段的指标化引用，非计算值（raw 透传）'
+    depends_on: [corp.equity]
+    metrics:
+      - {code: '$NAME', cn: 编制单位}
+      - {code: '$INDUSTRY_CUR', cn: 当前三级行业}
+      - {code: '$STYLE_INDUSTRY', cn: 行业标签}
+      - {code: '$ORG_ORGTYPE', cn: 组织类型}
+      - {code: '$ORG_LISTINGDATE', cn: 上市日期}
+  - id: revenue_mix
+    cn: 收入构成占比
+    caliber: 分区域收入的占比与对应毛利率（指标层计算）
+    depends_on: [fund.statements]
+    unit: 百分数
+    metrics:
+      - {code: '$OP_TR_AREA_DOMESTIC_PCT_LAST', cn: 国内收入占比}
+      - {code: '$OP_TR_AREA_FOREIGN_PCT_LAST', cn: 国外收入占比}
+      - {code: '$OP_TR_AREA_DOMESTIC_MARGIN_LAST', cn: 国内毛利率}
+      - {code: '$OP_TR_AREA_FOREIGN_MARGIN_LAST', cn: 国外毛利率}

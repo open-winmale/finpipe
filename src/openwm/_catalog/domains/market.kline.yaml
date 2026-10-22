@@ -1,0 +1,207 @@
+id: market.kline
+version: 1.0.0
+cn: 行情K线
+kind: raw
+category: market
+priority: P0
+description: 个股日 K（不复权 / 前复权 / 后复权）、最新一根、盘中 tip 快照、分钟分时、
+  单股快照与均线类筛选、全市场涨跌宽度。ETF 日线已入库；指数键自动桥接指数点位。
+data_origin: [交易所行情, 外部行情源(盘中/live)]
+units:
+  price: 元
+  volume: 手(CN) / 股(HK,US)
+  amount: 本币
+  percent: 小数（0.01 = 1%）
+requires: {path: sys/kline/init.xs, preloaded: true}
+stores: [kline(前复权), kline_normal(不复权), kline_after(后复权)]
+notes:
+  - 复权 adj 取值 nr(不复权,默认)/qfq(前复权)/hfq(后复权)；默认口径 DEFAULT_ADJ=nr
+  - 指数键（index.hs300 / 399xxx 等）自动分流指数点位；指数无复权，*_adj 忽略 adj
+  - 盘中三分工：query_last_live=最新一根 tip；query_bars_live=最近 n 根日K（外部行情源 HTTP）；
+    query_min1_live=当日 1 分钟分时（tip 有损滚桶合成，~15s 采样，非 Level2）
+  - ETF（沪 51/52/56/58、深 159，共 1600+ 只）日线有数据；分时/live 查询无分钟源会被拦截
+  - 光标语义：财报季光标不截断 query_bars；日频回测光标仍截断
+functions:
+  # ---- L0：查询 ----
+  - name: kline.query_bars
+    cn: 历史 K 线
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true, desc: 6 位裸码（自动剥 cn./sh. 前缀与 .SH/.SZ/.BJ 后缀）}
+      - {name: limit, type: int, required: false, default: 120, desc: 根数，默认 120}
+    returns: {desc: ARR · bars（date/open/high/low/close/volume/amount/percent）, shape_ref: inventory}
+    example: 'kline.query_bars("600519", 30)'
+    normalize_with: kline.fmt_maps
+    notes: [财报季光标不截断]
+  - name: kline.query_last
+    cn: 最新一根 K 线
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true, desc: 6 位裸码}
+    returns: {desc: MAP · bar 或 nil, shape_ref: inventory}
+    example: 'kline.query_last("600519")'
+  - name: kline.is_etf
+    cn: 是否场内 ETF
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: bool · true=场内 ETF}
+    example: 'kline.is_etf("510300")'
+    notes: [ETF 判定唯一入口：stocktype 数据驱动优先，号段兜底]
+  # ---- L0：盘中 live ----
+  - name: kline.query_last_live
+    cn: 盘中日K快照（tip）
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: MAP · 盘中 bar（date/ohlcv/amount/percent/mv/source）, shape_ref: inventory}
+    example: 'kline.query_last_live("000807")'
+  - name: kline.query_last_live_many
+    cn: 盘中日K批量快照
+    kind: raw
+    layer: L0
+    params:
+      - {name: syms, type: array, required: true, desc: 裸码列表}
+    returns: {desc: MAP · symbol → bar}
+    example: 'kline.query_last_live_many(["600519","000807"])'
+  - name: kline.query_bars_live
+    cn: 盘中拉最近 n 根日K（外部行情源 HTTP，≠分时）
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+      - {name: limit, type: int, required: false, desc: 最近 n 个交易日}
+    returns: {desc: ARR · bars}
+    example: 'kline.query_bars_live("000807", 5)'
+  - name: kline.query_min1_live
+    cn: 当日 1 分钟分时（有损滚桶）
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: 'MAP · 分时包 {trading_day, bars:[t,hm,close,volume,amount,...], bar_n}；休市读上一交易日'}
+    example: 'kline.query_min1_live("600519")'
+  - name: kline.query_min1_live_meta
+    cn: 分时头（无 bars）
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: 'MAP · {trading_day, updated_at, bar_n}'}
+    example: 'kline.query_min1_live_meta("600519")'
+  # ---- L0：快照与筛选 ----
+  - name: kline.snapshot
+    cn: 单股行情快照
+    kind: raw
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: 'MAP · {symbol, close, percent, chg_20d}', shape_ref: inventory}
+    example: 'kline.snapshot("600519")'
+  - name: kline.screen_above_ma20
+    cn: 收盘价在 MA20 之上
+    kind: computed
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+    returns: {desc: bool}
+    example: 'kline.screen_above_ma20("600519")'
+  - name: kline.screen_momentum_20d
+    cn: 近 20 日涨幅达标
+    kind: computed
+    layer: L0
+    params:
+      - {name: sym, type: string, required: true}
+      - {name: min_chg, type: float, required: true, unit: 小数, desc: 如 0.1 = 10%}
+    returns: {desc: bool}
+    example: 'kline.screen_momentum_20d("600519", 0.1)'
+  # ---- L0：格式化 ----
+  - name: kline.fmt_maps
+    cn: K 线规范化 MAP 列表
+    kind: raw
+    layer: L0
+    params:
+      - {name: rows, type: array, required: true, desc: query_bars 等返回的 bars}
+    returns: {desc: ARR · 规范化 bar MAP}
+    example: 'kline.fmt_maps(bars)'
+  - name: kline.fmt_lines
+    cn: K 线文本行
+    kind: raw
+    layer: L0
+    params:
+      - {name: rows, type: array, required: true}
+    returns: {desc: ARR · 文本}
+    example: 'kline.fmt_lines(bars)'
+  # ---- L0：全市场宽度 ----
+  - name: kline.index_breadth_summary
+    cn: 全市场涨跌全景
+    kind: computed
+    layer: L0
+    params:
+      - {name: idx, type: any, required: true, desc: '指数键，如 LatestIndexKey() 或 "index.cn.all"'}
+    returns: {desc: MAP · 涨跌统计}
+    example: 'kline.index_breadth_summary(LatestIndexKey())'
+  - name: kline.index_top_movers
+    cn: 涨跌榜
+    kind: computed
+    layer: L0
+    params:
+      - {name: idx, type: any, required: true}
+      - {name: limit, type: int, required: false}
+      - {name: desc, type: bool, required: false, desc: true=涨幅榜}
+    returns: {desc: ARR · 行}
+    example: 'kline.index_top_movers(LatestIndexKey(), 20, true)'
+  - name: kline.index_pct_bin_expr
+    cn: 涨跌幅分桶 where 表达式
+    kind: computed
+    layer: L0
+    returns: {desc: string · 可用于 INDEX_QUERY where}
+    example: 'kline.index_pct_bin_expr()'
+  # ---- L1：复权 / 字段 / 锚点变体（raw）----
+  - {name: kline.query_bars_adj, cn: 历史 K 线（复权）, kind: raw, layer: L1}
+  - {name: kline.query_bars_props, cn: 历史 K 线（指定字段）, kind: raw, layer: L1}
+  - {name: kline.query_bars_props_adj, cn: 历史 K 线（字段+复权）, kind: raw, layer: L1}
+  - {name: kline.query_last_adj, cn: 最新一根 K 线（复权）, kind: raw, layer: L1}
+  - {name: kline.query_valid, cn: 有效 K 线序列（过滤停牌空bar）, kind: raw, layer: L1}
+  - {name: kline.query_valid_adj, cn: 有效 K 线（复权）, kind: raw, layer: L1}
+  - {name: kline.query_at_anchor, cn: 锚点日前 K 线, kind: raw, layer: L1}
+  - {name: kline.query_at_anchor_adj, cn: 锚点日前 K 线（复权）, kind: raw, layer: L1}
+  - {name: kline.snapshot_close, cn: 最新收盘价, kind: raw, layer: L1}
+  # ---- L1：单值衍生（computed）----
+  - {name: kline.snapshot_percent, cn: 最新涨跌幅, kind: computed, layer: L1}
+  - {name: kline.snapshot_chg_20d, cn: 近 20 日涨跌幅, kind: computed, layer: L1}
+  # ---- L1：均线/事件筛选全家（computed）----
+  - {name: kline.screen_above_ma60, cn: 收盘价在 MA60 之上, kind: computed, layer: L1}
+  - {name: kline.screen_above_ma120, cn: 收盘价在 MA120 之上, kind: computed, layer: L1}
+  - {name: kline.screen_breakout_ma20, cn: 突破 MA20, kind: computed, layer: L1}
+  - {name: kline.screen_ma60_up, cn: MA60 上行, kind: computed, layer: L1}
+  - {name: kline.screen_active, cn: 当日有成交, kind: computed, layer: L1}
+  - {name: kline.screen_up_today, cn: 今日上涨, kind: computed, layer: L1}
+  - {name: kline.screen_down_today, cn: 今日下跌, kind: computed, layer: L1}
+  - {name: kline.screen_flat_today, cn: 今日平盘, kind: computed, layer: L1}
+  - {name: kline.screen_limit_up, cn: 涨停, kind: computed, layer: L1}
+  - {name: kline.screen_limit_down, cn: 跌停, kind: computed, layer: L1}
+  - {name: kline.screen_pullback_20d, cn: 近 20 日回撤可控, kind: computed, layer: L1}
+  - {name: kline.screen_volume_spike, cn: 放量, kind: computed, layer: L1}
+  # ---- L1：指数盘中（raw，指数键）----
+  - {name: kline.query_index_last_live, cn: 指数盘中点位 tip, kind: raw, layer: L1}
+  - {name: kline.query_index_last_live_many, cn: 指数盘中点位批量, kind: raw, layer: L1}
+  - {name: kline.query_index_min1_live, cn: 指数盘中 1 分钟分时, kind: raw, layer: L1}
+  - {name: kline.query_index_min1_live_meta, cn: 指数分时头, kind: raw, layer: L1}
+  # ---- L1：宽度细作与字段预载（computed）----
+  - {name: kline.index_breadth_bins, cn: 涨跌幅分桶结果, kind: computed, layer: L1}
+  - {name: kline.index_breadth_bin_industries, cn: 分桶行业分布, kind: computed, layer: L1}
+  - {name: kline.index_field_load, cn: 索引字段预加载, kind: computed, layer: L1}
+  - {name: kline.index_field_load_analysis, cn: 分析字段预加载, kind: computed, layer: L1}
+  - {name: kline.index_field_load_breadth, cn: 涨跌全景字段预加载, kind: computed, layer: L1}
+  - {name: kline.index_fields_basic, cn: 基础字段列表, kind: computed, layer: L1}
+  - {name: kline.index_fields_analysis, cn: 分析字段列表, kind: computed, layer: L1}
+  - {name: kline.index_fields_breadth, cn: 涨跌全景字段列表, kind: computed, layer: L1}
+  # ---- L1：格式化（raw 传递）----
+  - {name: kline.fmt_line, cn: 单根 K 线文本, kind: raw, layer: L1}
+  - {name: kline.fmt_snapshot_line, cn: 快照一行文本, kind: raw, layer: L1}
+  - {name: kline.fmt_bins, cn: 涨跌幅分桶格式化, kind: raw, layer: L1}

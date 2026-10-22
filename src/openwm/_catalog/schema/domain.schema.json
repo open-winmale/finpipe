@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "openwm domain catalog entry (catalog/domains/*.yaml)",
+  "type": "object",
+  "required": ["id", "version", "cn", "kind", "category", "priority", "description"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$",
+      "description": "域 id，两段式：大类.域（见 docs/DATA_TAXONOMY.md 表 3）"
+    },
+    "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "cn": {"type": "string"},
+    "kind": {"enum": ["raw", "computed", "mixed"], "description": "缺省数据性质；函数级可覆盖"},
+    "category": {"enum": ["market", "fundamentals", "disclosure", "reference"], "description": "对外文档四大分类"},
+    "priority": {"enum": ["P0", "P1", "P2"]},
+    "description": {"type": "string"},
+    "data_origin": {"type": "array", "items": {"type": "string"}},
+    "units": {"type": "object", "additionalProperties": {"type": "string"}},
+    "requires": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": {"type": "string", "description": "scripts 仓 XS 域库装载点"},
+        "preloaded": {"type": "boolean", "description": "true = sys/init 已预载"}
+      },
+      "additionalProperties": false
+    },
+    "stores": {"type": "array", "items": {"type": "string"}, "description": "底层 store catalog 名"},
+    "notes": {"type": "array", "items": {"type": "string"}},
+    "functions": {"type": "array", "items": {"$ref": "#/$defs/function"}},
+    "metric_groups": {"type": "array", "items": {"$ref": "#/$defs/metric_group"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "function": {
+      "type": "object",
+      "required": ["name", "cn", "layer"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z_][a-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"},
+        "cn": {"type": "string"},
+        "kind": {"enum": ["raw", "computed"]},
+        "layer": {"enum": ["L0", "L1", "L2"]},
+        "status": {"enum": ["stable", "beta", "internal"]},
+        "params": {"type": "array", "items": {"$ref": "#/$defs/param"}},
+        "returns": {
+          "type": "object",
+          "required": ["desc"],
+          "properties": {
+            "desc": {"type": "string"},
+            "shape_ref": {"enum": ["inventory"], "description": "字段级结构直用 catalog/generated/inventory.json 的 returns_shape"},
+            "shape": {"type": "object", "description": "人工补写结构（须可追溯，慎用）"}
+          },
+          "additionalProperties": false
+        },
+        "example": {"type": "string"},
+        "normalize_with": {"type": "string", "description": "结果规范化函数（XS 调用，如 kline.fmt_maps）；call() 会自动套用，raw=True 可跳过"},
+        "notes": {"type": "array", "items": {"type":"string"}}
+      },
+      "additionalProperties": false
+    },
+    "param": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {"type": "string"},
+        "type": {"enum": ["string", "int", "float", "bool", "array", "object", "any"]},
+        "required": {"type": "boolean"},
+        "default": {},
+        "enum": {"type": "array"},
+        "unit": {"type": "string"},
+        "desc": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "metric_group": {
+      "type": "object",
+      "required": ["id", "cn"],
+      "properties": {
+        "id": {"type": "string"},
+        "cn": {"type": "string"},
+        "caliber": {"type": "string", "description": "公式口径（文字）"},
+        "depends_on": {"type": "array", "items": {"type": "string"}, "description": "依赖的 raw 域 id"},
+        "unit": {"type": "string"},
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["code"],
+            "properties": {
+              "code": {"type": "string", "pattern": "^\\$[A-Za-z0-9_]+$"},
+              "cn": {"type": "string"},
+              "note": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

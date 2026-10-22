@@ -1,0 +1,21 @@
+id: corp.equity
+version: 1.0.0
+cn: 股本与股东
+kind: raw
+category: reference
+priority: P1
+description: 股本变动（biz.equity store）、公司档案（ref.info：行业/上市日/股本/简介）与
+  F10 分析页体系（十大股东/一致行动人/股权质押/解禁限售/持股人数/回购/机构持仓/
+  高管员工/盈利预测/研报/融资融券等）。披露原值直采。
+data_origin: [交易所披露, 平台数据服务]
+units:
+  shares: 股（biz.equity 股本序列）
+  pct: 百分数（占比列）
+requires: {path: '', preloaded: true}
+stores: [biz.equity, ref.info]
+notes:
+  - '本域当前无独立 L0 函数面：数据经 store 层与指标层访问——股本 store.get("biz.equity", sym, 0, "")（XS memo CurE 同源）'
+  - '公司档案 store.get("ref.info", sym, 0, "")（行业/上市日/组织类型；指标化见 fund.indicators.profile 组）'
+  - 'F10 深度页（十大股东/质押/解禁/回购/机构持仓/高管/盈利预测等约 67 个分析页）经平台分析页体系（assets/{cn,hk,us}/company/）提供，属页面脚本而非域库函数；SDK 后续按需晋升'
+  - 股东户数/质押比例等派生比率为计算值，读取时以字段名 pct/_rate 区分
+functions: []

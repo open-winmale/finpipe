@@ -1,0 +1,8795 @@
+{
+ "schema_version": 2,
+ "upstream_rev": "8ae96a4e",
+ "count": 2197,
+ "metrics": [
+  {
+   "code": "$ACC",
+   "cn": "合同款以及预收款"
+  },
+  {
+   "code": "$ADP_DAYS",
+   "cn": "预付账款周转天数(D)"
+  },
+  {
+   "code": "$ADP_DAYS_TTM",
+   "cn": "TTM预付账款周转天数(D)"
+  },
+  {
+   "code": "$AEEX",
+   "cn": "行政开支"
+  },
+  {
+   "code": "$ALPHA_HS300",
+   "cn": "相对沪深300 Alpha(日频)"
+  },
+  {
+   "code": "$AMOUNT",
+   "cn": "日成交额"
+  },
+  {
+   "code": "$AMOUNT_AR_DAY",
+   "cn": "成交额(后复权)"
+  },
+  {
+   "code": "$AMOUNT_DAY",
+   "cn": "成交额(前复权)"
+  },
+  {
+   "code": "$AMOUNT_LAST",
+   "cn": "最新成交额"
+  },
+  {
+   "code": "$AMOUNT_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$AMOUNT_NR_DAY",
+   "cn": "成交额(无复权)"
+  },
+  {
+   "code": "$APOR",
+   "cn": "其他应收款"
+  },
+  {
+   "code": "$AP_DAYS",
+   "cn": "应付账款周转天数(D)"
+  },
+  {
+   "code": "$AP_DAYS_TTM",
+   "cn": "TTM应付账款周转天数(D)"
+  },
+  {
+   "code": "$AR_DAYS",
+   "cn": "应收账款周转天数(D)"
+  },
+  {
+   "code": "$AR_DAYS_TTM",
+   "cn": "TTM应收账款周转天数(D)"
+  },
+  {
+   "code": "$ASB",
+   "cn": "会计准则 FASB(美国的财务会计准则委员会) IASB(国际会计准则理事会)"
+  },
+  {
+   "code": "$ASSET_INVEST",
+   "cn": "城镇固定资产投资(亿)"
+  },
+  {
+   "code": "$AVG_AR_DAY",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$AVG_DAY",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$AVG_DAY_10",
+   "cn": "10日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_120",
+   "cn": "120日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_20",
+   "cn": "20日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_240",
+   "cn": "240日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_3",
+   "cn": "3日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_30",
+   "cn": "30日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_5",
+   "cn": "5日均价(前复权)"
+  },
+  {
+   "code": "$AVG_DAY_60",
+   "cn": "60日均价(前复权)"
+  },
+  {
+   "code": "$AVG_NR_DAY",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$BENCH_DEFAULT_SYMS",
+   "cn": "默认分析集合(行业/组合)"
+  },
+  {
+   "code": "$BENCH_PRIMARY",
+   "cn": "主对比基准指数"
+  },
+  {
+   "code": "$BENCH_SECONDARY",
+   "cn": "次对比基准指数"
+  },
+  {
+   "code": "$BETA",
+   "cn": "风险偏好(%)"
+  },
+  {
+   "code": "$BETA_HS300",
+   "cn": "相对沪深300 Beta"
+  },
+  {
+   "code": "$BE_RATE",
+   "cn": "股息分配比例(%)"
+  },
+  {
+   "code": "$BIZE",
+   "cn": "运营数据商品期末值"
+  },
+  {
+   "code": "$BIZT",
+   "cn": "运营数据商品累计值"
+  },
+  {
+   "code": "$BOND_BOND_COMBINE_CODE",
+   "cn": "债券组合代码"
+  },
+  {
+   "code": "$BOND_BOND_EXPIRE",
+   "cn": "债券到期日"
+  },
+  {
+   "code": "$BOND_BOND_NAME_ABBR",
+   "cn": "债券名称"
+  },
+  {
+   "code": "$BOND_BOND_TYPE",
+   "cn": "债券类型"
+  },
+  {
+   "code": "$BOND_BOND_TYPE_CODE",
+   "cn": "债券类型代码"
+  },
+  {
+   "code": "$BOND_EXPIRE_DATE",
+   "cn": "到期日"
+  },
+  {
+   "code": "$BOND_FUNDS_TOTAL",
+   "cn": "总发行规模(亿)"
+  },
+  {
+   "code": "$BOND_INITIAL_TRANSFER_PRICE",
+   "cn": "转股价格(元)"
+  },
+  {
+   "code": "$BOND_INITIAL_TRANSFER_RATIO",
+   "cn": "转股比例(%)"
+  },
+  {
+   "code": "$BOND_ISSUE_COUPON_IR",
+   "cn": "票面利率(%)"
+  },
+  {
+   "code": "$BOND_ISSUE_PRICE",
+   "cn": "发行价格(元)"
+  },
+  {
+   "code": "$BOND_ISSUE_SCALE",
+   "cn": "发行规模(亿)"
+  },
+  {
+   "code": "$BOND_LISTING_DATE",
+   "cn": "上市日期"
+  },
+  {
+   "code": "$BOND_LISTING_STATE",
+   "cn": "上市状态"
+  },
+  {
+   "code": "$BOND_NOTICE_DATE",
+   "cn": "公告日"
+  },
+  {
+   "code": "$BOND_PAR_VALUE",
+   "cn": "面值(元)"
+  },
+  {
+   "code": "$BOND_PURPOSE",
+   "cn": "用途"
+  },
+  {
+   "code": "$BOND_RESIDUAL_EXPIRE",
+   "cn": "剩余到期日"
+  },
+  {
+   "code": "$BOND_SECUCODE",
+   "cn": "证券代码"
+  },
+  {
+   "code": "$BOND_SECURITY_CODE",
+   "cn": "证券代码"
+  },
+  {
+   "code": "$BOND_SECURITY_NAME_ABBR",
+   "cn": "证券名称"
+  },
+  {
+   "code": "$BOND_TRANSFER_END_DATE",
+   "cn": "转股终止日"
+  },
+  {
+   "code": "$BOND_TRANSFER_START_DATE",
+   "cn": "转股起始日"
+  },
+  {
+   "code": "$BOND_VALUE_DATE",
+   "cn": "起息日"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_10Y",
+   "cn": "AAA中短期票据10年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_1Y",
+   "cn": "AAA中短期票据1年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_30Y",
+   "cn": "AAA中短期票据30年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_3Y",
+   "cn": "AAA中短期票据3年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_5Y",
+   "cn": "AAA中短期票据5年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_7Y",
+   "cn": "AAA中短期票据7年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_AAA_SPREAD_10_1",
+   "cn": "AAA中短期票据10Y-1Y期限利差"
+  },
+  {
+   "code": "$BOND_YIELD_BANK_10Y",
+   "cn": "AAA商业银行普通债10年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_BANK_1Y",
+   "cn": "AAA商业银行普通债1年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_BANK_30Y",
+   "cn": "AAA商业银行普通债30年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_BANK_3Y",
+   "cn": "AAA商业银行普通债3年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_BANK_5Y",
+   "cn": "AAA商业银行普通债5年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_BANK_7Y",
+   "cn": "AAA商业银行普通债7年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_10Y",
+   "cn": "国债10年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_1Y",
+   "cn": "国债1年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_30Y",
+   "cn": "国债30年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_3Y",
+   "cn": "国债3年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_5Y",
+   "cn": "国债5年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_7Y",
+   "cn": "国债7年期收益率"
+  },
+  {
+   "code": "$BOND_YIELD_GOV_SPREAD_10_1",
+   "cn": "国债10Y-1Y期限利差"
+  },
+  {
+   "code": "$BONUS",
+   "cn": "季度分红总额(亿)"
+  },
+  {
+   "code": "$BONUS_10Y_AVG",
+   "cn": "近10年分红(TTM)均值"
+  },
+  {
+   "code": "$BONUS_10Y_AVG_LAST",
+   "cn": "近10年分红(TTM)均值"
+  },
+  {
+   "code": "$BONUS_10Y_MIN",
+   "cn": "近10年分红(TTM)最低"
+  },
+  {
+   "code": "$BONUS_10Y_MIN_LAST",
+   "cn": "近10年分红(TTM)最低"
+  },
+  {
+   "code": "$BONUS_3Y",
+   "cn": "近3年分红(TTM)序列"
+  },
+  {
+   "code": "$BONUS_3Y_AVG",
+   "cn": "近3年分红(TTM)均值"
+  },
+  {
+   "code": "$BONUS_3Y_AVG_LAST",
+   "cn": "近3年分红(TTM)均值"
+  },
+  {
+   "code": "$BONUS_3Y_LAST",
+   "cn": "近3年分红(TTM)序列"
+  },
+  {
+   "code": "$BONUS_3Y_MIN",
+   "cn": "近3年分红(TTM)最低"
+  },
+  {
+   "code": "$BONUS_3Y_MIN_LAST",
+   "cn": "近3年分红(TTM)最低"
+  },
+  {
+   "code": "$BONUS_3Y_TREND",
+   "cn": "近3年分红(TTM)趋势"
+  },
+  {
+   "code": "$BONUS_3Y_TREND_LAST",
+   "cn": "近3年分红(TTM)趋势"
+  },
+  {
+   "code": "$BONUS_5Y_AVG",
+   "cn": "近5年分红(TTM)均值"
+  },
+  {
+   "code": "$BONUS_5Y_AVG_LAST",
+   "cn": "近5年分红(TTM)均值"
+  },
+  {
+   "code": "$BONUS_5Y_MIN",
+   "cn": "近5年分红(TTM)最低"
+  },
+  {
+   "code": "$BONUS_5Y_MIN_LAST",
+   "cn": "近5年分红(TTM)最低"
+  },
+  {
+   "code": "$BONUS_CR",
+   "cn": "股息货币转换为报价货币"
+  },
+  {
+   "code": "$BONUS_CR_BACKUP",
+   "cn": "一条分红数据的货币(兜底)"
+  },
+  {
+   "code": "$BONUS_CR_BACKUP_LAST",
+   "cn": "最后一条分红数据的货币(兜底)"
+  },
+  {
+   "code": "$BONUS_CR_LAST",
+   "cn": "股息最后一条数据货币转换为报价货币"
+  },
+  {
+   "code": "$BONUS_CR_TO_COMPANY",
+   "cn": "股息货币转换为公司财务货币"
+  },
+  {
+   "code": "$BONUS_CR_TO_COMPANY_LAST",
+   "cn": "股息最后一条数据货币转换为公司财务货币"
+  },
+  {
+   "code": "$BONUS_FUNDS_TOTAL_RATE",
+   "cn": "市场分红融资率(%)"
+  },
+  {
+   "code": "$BONUS_LAST_ONE",
+   "cn": "最后一条分红数据"
+  },
+  {
+   "code": "$BONUS_LAST_ONE_CCY",
+   "cn": "最后一条分红数据的货币"
+  },
+  {
+   "code": "$BONUS_LYR_RATE",
+   "cn": "静态股利支付率(%)"
+  },
+  {
+   "code": "$BONUS_LYR_RATE_LAST",
+   "cn": "静态股利支付率(%)"
+  },
+  {
+   "code": "$BONUS_NPTS_RATE",
+   "cn": "累计分红比例(%)"
+  },
+  {
+   "code": "$BONUS_ONE",
+   "cn": "一条分红数据"
+  },
+  {
+   "code": "$BONUS_ONE_CCY",
+   "cn": "一条分红数据的货币"
+  },
+  {
+   "code": "$BONUS_RATE_10Y_AVG",
+   "cn": "近10年股息率(TTM)均值"
+  },
+  {
+   "code": "$BONUS_RATE_10Y_AVG_LAST",
+   "cn": "近10年股息率(TTM)均值"
+  },
+  {
+   "code": "$BONUS_RATE_10Y_MIN",
+   "cn": "近10年股息率(TTM)最低"
+  },
+  {
+   "code": "$BONUS_RATE_10Y_MIN_LAST",
+   "cn": "近10年股息率(TTM)最低"
+  },
+  {
+   "code": "$BONUS_RATE_3Y",
+   "cn": "近3年股息率(TTM)序列"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_AVG",
+   "cn": "近3年股息率(TTM)均值"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_AVG_LAST",
+   "cn": "近3年股息率(TTM)均值"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_LAST",
+   "cn": "近3年股息率(TTM)序列"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_MIN",
+   "cn": "近3年股息率(TTM)最低"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_MIN_LAST",
+   "cn": "近3年股息率(TTM)最低"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_TREND",
+   "cn": "近3年股息率(TTM)趋势"
+  },
+  {
+   "code": "$BONUS_RATE_3Y_TREND_LAST",
+   "cn": "近3年股息率(TTM)趋势"
+  },
+  {
+   "code": "$BONUS_RATE_5Y_AVG",
+   "cn": "近5年股息率(TTM)均值"
+  },
+  {
+   "code": "$BONUS_RATE_5Y_AVG_LAST",
+   "cn": "近5年股息率(TTM)均值"
+  },
+  {
+   "code": "$BONUS_RATE_5Y_MIN",
+   "cn": "近5年股息率(TTM)最低"
+  },
+  {
+   "code": "$BONUS_RATE_5Y_MIN_LAST",
+   "cn": "近5年股息率(TTM)最低"
+  },
+  {
+   "code": "$BONUS_RATE_LYR",
+   "cn": "静态股息率(%)"
+  },
+  {
+   "code": "$BONUS_RATE_LYR_LAST",
+   "cn": "静态股息率(%)"
+  },
+  {
+   "code": "$BONUS_RATE_LYR_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$BONUS_RATE_TTM",
+   "cn": "股息率(%)"
+  },
+  {
+   "code": "$BONUS_RATE_TTM_LAST",
+   "cn": "分红股息率TTM(%)"
+  },
+  {
+   "code": "$BONUS_RATE_TTM_LAST_REAL",
+   "cn": "最新分红股息率TTM(%)"
+  },
+  {
+   "code": "$BONUS_RATE_TTM_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$BONUS_TOTAL",
+   "cn": "累计分红总金额(亿)"
+  },
+  {
+   "code": "$BONUS_TTM",
+   "cn": "分红股息TTM(亿)"
+  },
+  {
+   "code": "$BONUS_TTM_LAST",
+   "cn": "最近一年预测的分红股息TTM(亿)"
+  },
+  {
+   "code": "$BONUS_TTM_LAST_REAL",
+   "cn": "最近一年的分红股息TTM(亿)"
+  },
+  {
+   "code": "$BONUS_TTM_RATE",
+   "cn": "股利支付率(%)"
+  },
+  {
+   "code": "$BONUS_TTM_RATE_LAST",
+   "cn": "股利支付率(%)"
+  },
+  {
+   "code": "$BOOM_INDEX",
+   "cn": "企业景气指数(D)"
+  },
+  {
+   "code": "$BOOM_INDEX_FAITH",
+   "cn": "企业家信心指数(D)"
+  },
+  {
+   "code": "$BPS",
+   "cn": "每股净资产(元)"
+  },
+  {
+   "code": "$BRPA",
+   "cn": "拆入资金及卖出回购金融资产款净增加额"
+  },
+  {
+   "code": "$CAIBAO_NOTICE_DATE",
+   "cn": "发布时间"
+  },
+  {
+   "code": "$CAIBAO_NOTICE_TYPE",
+   "cn": "财报类型"
+  },
+  {
+   "code": "$CAIBAO_PDF_OSS_URL",
+   "cn": "财报下载地址"
+  },
+  {
+   "code": "$CAIBAO_TITLE",
+   "cn": "财报标题"
+  },
+  {
+   "code": "$CAPITAL_FUNDS_TOTAL",
+   "cn": "总增发金额(亿)"
+  },
+  {
+   "code": "$CAPITAL_NET_RAISE_FUNDS",
+   "cn": "增发金额(亿)"
+  },
+  {
+   "code": "$CAPITAL_PRESHARES_BOND_FUNDS_TOTAL",
+   "cn": "总的历史融资金额(亿)"
+  },
+  {
+   "code": "$CAPITAL_START_DATE",
+   "cn": "增发起始日"
+  },
+  {
+   "code": "$CAPITAL_TYPE",
+   "cn": "增发类型"
+  },
+  {
+   "code": "$CAP_SOLAR",
+   "cn": "太阳能发电装机容量(亿千瓦)"
+  },
+  {
+   "code": "$CAP_SOLAR_YOY",
+   "cn": "太阳能发电装机容量-同比"
+  },
+  {
+   "code": "$CAP_TOTAL",
+   "cn": "全国发电装机容量(亿千瓦)"
+  },
+  {
+   "code": "$CAP_TOTAL_YOY",
+   "cn": "全国发电装机容量-同比"
+  },
+  {
+   "code": "$CAP_UTIL_DELTA",
+   "cn": "发电设备利用小时-比上年同期(小时)"
+  },
+  {
+   "code": "$CAP_UTIL_HOURS",
+   "cn": "发电设备利用小时-年初累计(小时)"
+  },
+  {
+   "code": "$CAP_WIND",
+   "cn": "风电装机容量(亿千瓦)"
+  },
+  {
+   "code": "$CAP_WIND_YOY",
+   "cn": "风电装机容量-同比"
+  },
+  {
+   "code": "$CASH",
+   "cn": "总现金(亿)"
+  },
+  {
+   "code": "$CAS_DAYS",
+   "cn": "合同资产周转天数(D)"
+  },
+  {
+   "code": "$CAS_DAYS_TTM",
+   "cn": "TTM合同资产周转天数(D)"
+  },
+  {
+   "code": "$CCC_DAYS",
+   "cn": "净现金周转天数(D)"
+  },
+  {
+   "code": "$CCC_DAYS_TTM",
+   "cn": "TTM净现金周转天数(D)"
+  },
+  {
+   "code": "$CCY",
+   "cn": "货币单位"
+  },
+  {
+   "code": "$CCYCN",
+   "cn": "货币单位(中文优先, 空则回退代码)"
+  },
+  {
+   "code": "$CCY_AFTER",
+   "cn": "公司财报的货币单位"
+  },
+  {
+   "code": "$CCY_LASTQ4",
+   "cn": "最新年度财报的货币单位"
+  },
+  {
+   "code": "$CCY_MARKET",
+   "cn": "市场货币"
+  },
+  {
+   "code": "$CCY_QUOTE",
+   "cn": "报价货币"
+  },
+  {
+   "code": "$CEPS",
+   "cn": "扣非每股收益(元)"
+  },
+  {
+   "code": "$CF_KIND",
+   "cn": "现金流类型"
+  },
+  {
+   "code": "$CF_KINDS_RT0",
+   "cn": "蛮牛型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT1",
+   "cn": "老母鸡型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT2",
+   "cn": "奶牛型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT3",
+   "cn": "女巫型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT4",
+   "cn": "蝙蝠型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT5",
+   "cn": "赌徒型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT6",
+   "cn": "躺平型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KINDS_RT7",
+   "cn": "咸鱼型企业数量占比(%)"
+  },
+  {
+   "code": "$CF_KIND_CN",
+   "cn": "现金流类型"
+  },
+  {
+   "code": "$CF_KIND_CODE_10Y",
+   "cn": "近10年现金流特征(TTM)"
+  },
+  {
+   "code": "$CF_KIND_CODE_10Y_LAST",
+   "cn": "近10年现金流特征(TTM)"
+  },
+  {
+   "code": "$CF_KIND_CODE_3Y",
+   "cn": "近3年现金流特征(TTM)"
+  },
+  {
+   "code": "$CF_KIND_CODE_3Y_LAST",
+   "cn": "近3年现金流特征(TTM)"
+  },
+  {
+   "code": "$CF_KIND_CODE_5Y",
+   "cn": "近5年现金流特征(TTM)"
+  },
+  {
+   "code": "$CF_KIND_CODE_5Y_LAST",
+   "cn": "近5年现金流特征(TTM)"
+  },
+  {
+   "code": "$CF_KIND_DESC",
+   "cn": "现金流类型"
+  },
+  {
+   "code": "$CF_KIND_TTM",
+   "cn": "现金流类型TTM"
+  },
+  {
+   "code": "$CF_KIND_VALID_10Y",
+   "cn": "近10年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CF_KIND_VALID_10Y_LAST",
+   "cn": "近10年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CF_KIND_VALID_3Y",
+   "cn": "近3年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CF_KIND_VALID_3Y_LAST",
+   "cn": "近3年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CF_KIND_VALID_5Y",
+   "cn": "近5年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CF_KIND_VALID_5Y_LAST",
+   "cn": "近5年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CF_NP_RATIO",
+   "cn": "经营现金流/净利润比率(TTM)"
+  },
+  {
+   "code": "$CF_NP_RATIO_LAST",
+   "cn": "最新经营现金流/净利润比率(TTM)"
+  },
+  {
+   "code": "$CLBDR",
+   "cn": "合同负债预收款合计"
+  },
+  {
+   "code": "$CLB_DAYS",
+   "cn": "合同负债周转天数(D)"
+  },
+  {
+   "code": "$CLB_DAYS_TTM",
+   "cn": "TTM合同负债周转天数(D)"
+  },
+  {
+   "code": "$CLOSE_AR_DAY",
+   "cn": "收盘价(后复权)"
+  },
+  {
+   "code": "$CLOSE_DAY",
+   "cn": "收盘价(前复权)"
+  },
+  {
+   "code": "$CLOSE_LAST",
+   "cn": "最新收盘价(D)"
+  },
+  {
+   "code": "$CLOSE_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$CLOSE_NR_DAY",
+   "cn": "收盘价(无复权)"
+  },
+  {
+   "code": "$COA",
+   "cn": "区域成本(亿)"
+  },
+  {
+   "code": "$COA_LASTQ4",
+   "cn": "区域成本(亿)"
+  },
+  {
+   "code": "$COB",
+   "cn": "业务成本(亿)"
+  },
+  {
+   "code": "$COB_LASTQ4",
+   "cn": "业务成本(亿)"
+  },
+  {
+   "code": "$CODEA",
+   "cn": "A股代码"
+  },
+  {
+   "code": "$CODEB",
+   "cn": "B股代码"
+  },
+  {
+   "code": "$CODEH",
+   "cn": "H股代码"
+  },
+  {
+   "code": "$COG",
+   "cn": "商品成本(亿)"
+  },
+  {
+   "code": "$COG_LASTQ4",
+   "cn": "商品成本(亿)"
+  },
+  {
+   "code": "$CONSUMERS_ASTIS",
+   "cn": "消费者满意指数(D)"
+  },
+  {
+   "code": "$CONSUMERS_EXPECT",
+   "cn": "消费者预期指数(D)"
+  },
+  {
+   "code": "$CONSUMERS_FAITH",
+   "cn": "消费者信心指数(D)"
+  },
+  {
+   "code": "$CONSUMERS_FAITH_BBF",
+   "cn": "咨商会消费者信心指数"
+  },
+  {
+   "code": "$CORE_NP",
+   "cn": "核心利润(亿)"
+  },
+  {
+   "code": "$CORE_NP_RATE",
+   "cn": "核心利润率(%)"
+  },
+  {
+   "code": "$CORE_NP_RATE_LAST",
+   "cn": "核心利润率(%)"
+  },
+  {
+   "code": "$COST",
+   "cn": "费用"
+  },
+  {
+   "code": "$COST_RATE",
+   "cn": "营业费用率(%)"
+  },
+  {
+   "code": "$COST_TOTAL",
+   "cn": "四项费用(亿)"
+  },
+  {
+   "code": "$COST_TOTAL_RATE",
+   "cn": "四项费用率(%)"
+  },
+  {
+   "code": "$COST_TOTAL_RATE_LAST",
+   "cn": "四项费用率(%)"
+  },
+  {
+   "code": "$CPCA_BODY_MPV_RET",
+   "cn": "MPV零售(万辆)"
+  },
+  {
+   "code": "$CPCA_BODY_MPV_WHL",
+   "cn": "MPV批发(万辆)"
+  },
+  {
+   "code": "$CPCA_BODY_MPV_WHL_YOY",
+   "cn": "MPV批发同比"
+  },
+  {
+   "code": "$CPCA_BODY_SEDAN_RET",
+   "cn": "轿车零售(万辆)"
+  },
+  {
+   "code": "$CPCA_BODY_SEDAN_WHL",
+   "cn": "轿车批发(万辆)"
+  },
+  {
+   "code": "$CPCA_BODY_SEDAN_WHL_YOY",
+   "cn": "轿车批发同比"
+  },
+  {
+   "code": "$CPCA_BODY_SUV_RET",
+   "cn": "SUV零售(万辆)"
+  },
+  {
+   "code": "$CPCA_BODY_SUV_SHARE",
+   "cn": "SUV批发占比"
+  },
+  {
+   "code": "$CPCA_BODY_SUV_WHL",
+   "cn": "SUV批发(万辆)"
+  },
+  {
+   "code": "$CPCA_BODY_SUV_WHL_YOY",
+   "cn": "SUV批发同比"
+  },
+  {
+   "code": "$CPCA_NEV_EXP",
+   "cn": "新能源乘用车出口(万辆)"
+  },
+  {
+   "code": "$CPCA_NEV_EXP_YOY",
+   "cn": "新能源乘用车出口同比"
+  },
+  {
+   "code": "$CPCA_NEV_OUT",
+   "cn": "新能源乘用车产量(万辆)"
+  },
+  {
+   "code": "$CPCA_NEV_OUT_YOY",
+   "cn": "新能源乘用车产量同比"
+  },
+  {
+   "code": "$CPCA_NEV_PEN_RET",
+   "cn": "新能源零售渗透率"
+  },
+  {
+   "code": "$CPCA_NEV_PEN_WHL",
+   "cn": "新能源批发渗透率"
+  },
+  {
+   "code": "$CPCA_NEV_RET",
+   "cn": "新能源乘用车零售(万辆,厂报)"
+  },
+  {
+   "code": "$CPCA_NEV_RET_YOY",
+   "cn": "新能源乘用车零售同比"
+  },
+  {
+   "code": "$CPCA_NEV_WHL",
+   "cn": "新能源乘用车批发(万辆)"
+  },
+  {
+   "code": "$CPCA_NEV_WHL_YOY",
+   "cn": "新能源乘用车批发同比"
+  },
+  {
+   "code": "$CPCA_ORG_DOM_RET",
+   "cn": "自主品牌零售(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_DOM_SHARE_RET",
+   "cn": "自主品牌零售份额"
+  },
+  {
+   "code": "$CPCA_ORG_DOM_SHARE_WHL",
+   "cn": "自主品牌批发份额"
+  },
+  {
+   "code": "$CPCA_ORG_DOM_WHL",
+   "cn": "自主品牌批发(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_FRA_WHL",
+   "cn": "法系批发(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_GER_RET",
+   "cn": "德系零售(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_GER_WHL",
+   "cn": "德系批发(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_JPN_RET",
+   "cn": "日系零售(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_JPN_WHL",
+   "cn": "日系批发(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_KOR_WHL",
+   "cn": "韩系批发(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_OEG_WHL",
+   "cn": "其他欧系批发(万辆)"
+  },
+  {
+   "code": "$CPCA_ORG_USA_WHL",
+   "cn": "美系批发(万辆)"
+  },
+  {
+   "code": "$CPCA_PV_EXP",
+   "cn": "狭义乘用车出口(万辆)"
+  },
+  {
+   "code": "$CPCA_PV_EXP_YOY",
+   "cn": "狭义乘用车出口同比"
+  },
+  {
+   "code": "$CPCA_PV_OUT",
+   "cn": "狭义乘用车产量(万辆)"
+  },
+  {
+   "code": "$CPCA_PV_OUT_YOY",
+   "cn": "狭义乘用车产量同比"
+  },
+  {
+   "code": "$CPCA_PV_RET",
+   "cn": "狭义乘用车零售(万辆,厂报)"
+  },
+  {
+   "code": "$CPCA_PV_RET_YOY",
+   "cn": "狭义乘用车零售同比"
+  },
+  {
+   "code": "$CPCA_PV_WHL",
+   "cn": "狭义乘用车批发(万辆,含出口)"
+  },
+  {
+   "code": "$CPCA_PV_WHL_YOY",
+   "cn": "狭义乘用车批发同比"
+  },
+  {
+   "code": "$CPCA_SEG_MPV_B_WHL",
+   "cn": "MPV B级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_MPV_C_WHL",
+   "cn": "MPV C级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SEDAN_A0_WHL",
+   "cn": "轿车 A0级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SEDAN_A_WHL",
+   "cn": "轿车 A级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SEDAN_B_WHL",
+   "cn": "轿车 B级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SUV_A0_RET",
+   "cn": "SUV A0级零售(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SUV_A0_WHL",
+   "cn": "SUV A0级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SUV_A_RET",
+   "cn": "SUV A级零售(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SUV_A_WHL",
+   "cn": "SUV A级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SUV_B_WHL",
+   "cn": "SUV B级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_SEG_SUV_C_WHL",
+   "cn": "SUV C级批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_BYD_WHL",
+   "cn": "比亚迪批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_BYD_WHL_YOY",
+   "cn": "比亚迪批发同比"
+  },
+  {
+   "code": "$CPCA_TOP_CHANGAN_WHL",
+   "cn": "长安批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_CHERY_WHL",
+   "cn": "奇瑞批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_CHERY_WHL_YOY",
+   "cn": "奇瑞批发同比"
+  },
+  {
+   "code": "$CPCA_TOP_FAWVW_WHL",
+   "cn": "一汽大众批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_GEELY_WHL",
+   "cn": "吉利批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_GEELY_WHL_YOY",
+   "cn": "吉利批发同比"
+  },
+  {
+   "code": "$CPCA_TOP_GWM_WHL",
+   "cn": "长城批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_LEAP_WHL",
+   "cn": "零跑批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_SAIC_WHL",
+   "cn": "上汽乘用车批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_SGMW_WHL",
+   "cn": "上汽通用五菱批发(万辆)"
+  },
+  {
+   "code": "$CPCA_TOP_TESLA_WHL",
+   "cn": "特斯拉中国批发(万辆)"
+  },
+  {
+   "code": "$CPI",
+   "cn": "居民消费价格指数(D)"
+  },
+  {
+   "code": "$CPI_CITY",
+   "cn": "城市消费价格指数(D)"
+  },
+  {
+   "code": "$CPI_KEY_QOQ",
+   "cn": "核心消费者物价指数月率(%)"
+  },
+  {
+   "code": "$CPI_KEY_YOY",
+   "cn": "核心消费者物价指数年率(%)"
+  },
+  {
+   "code": "$CPI_QOQ",
+   "cn": "消费者物价指数月率(%)"
+  },
+  {
+   "code": "$CPI_RATE",
+   "cn": "城市消费价格指数(当月同比)(D)"
+  },
+  {
+   "code": "$CPI_RURAL",
+   "cn": "乡村消费价格指数(D)"
+  },
+  {
+   "code": "$CPI_YOY",
+   "cn": "消费者物价指数年率(%)"
+  },
+  {
+   "code": "$CR_BUY",
+   "cn": "中行汇买价"
+  },
+  {
+   "code": "$CR_CASH_BUY",
+   "cn": "中行钞买价"
+  },
+  {
+   "code": "$CR_CM",
+   "cn": "自动汇率(公司到报价货币)(D)"
+  },
+  {
+   "code": "$CR_CM_LAST",
+   "cn": "最新自动汇率(公司到报价货币)(D)"
+  },
+  {
+   "code": "$CR_CURRENCY",
+   "cn": "币种"
+  },
+  {
+   "code": "$CR_CURRENCY_RATE",
+   "cn": "兑人民币汇率"
+  },
+  {
+   "code": "$CR_EUR",
+   "cn": "欧元兑人民币汇率(D)"
+  },
+  {
+   "code": "$CR_EUR_LAST",
+   "cn": "欧元兑人民币汇率-最新"
+  },
+  {
+   "code": "$CR_HKD",
+   "cn": "港币兑人民币汇率(D)"
+  },
+  {
+   "code": "$CR_HKD_LAST",
+   "cn": "港币兑人民币汇率-最新"
+  },
+  {
+   "code": "$CR_MIDDLE",
+   "cn": "央行中间价"
+  },
+  {
+   "code": "$CR_USD",
+   "cn": "美元兑人民币汇率(D)"
+  },
+  {
+   "code": "$CR_USD_LAST",
+   "cn": "美元兑人民币汇率-最新"
+  },
+  {
+   "code": "$CT",
+   "cn": "费用率"
+  },
+  {
+   "code": "$CTM",
+   "cn": "管理费用率"
+  },
+  {
+   "code": "$CTR",
+   "cn": "研发费用率"
+  },
+  {
+   "code": "$CTS",
+   "cn": "销售费用率"
+  },
+  {
+   "code": "$CUDA",
+   "cn": "客户存款净增加额"
+  },
+  {
+   "code": "$CURRENCY_DEPOSIT_FOREX",
+   "cn": "本外币存款-月(亿)"
+  },
+  {
+   "code": "$CURRENCY_DEPOSIT_FOREX_ACCUMULATE",
+   "cn": "本外币存款-累计(亿)"
+  },
+  {
+   "code": "$CURRENCY_LOAN_FOREX",
+   "cn": "新增外汇贷款(亿)(美元)"
+  },
+  {
+   "code": "$CURRENCY_LOAN_RMB",
+   "cn": "新增人民币贷款(亿)"
+  },
+  {
+   "code": "$CURRENCY_RATE",
+   "cn": "美联储利率(%)"
+  },
+  {
+   "code": "$CURRENCY_RESERVE_FOREX",
+   "cn": "外汇储备(亿)(美元)"
+  },
+  {
+   "code": "$CURRENCY_RESERVE_GOLD",
+   "cn": "黄金储备(亿)(美元)"
+  },
+  {
+   "code": "$CUR_IND_BONUS_10Y_AVG",
+   "cn": "行业近10年分红(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_10Y_AVG_LAST",
+   "cn": "行业近10年分红(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_10Y_MIN",
+   "cn": "行业近10年分红(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_10Y_MIN_LAST",
+   "cn": "行业近10年分红(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_3Y_AVG",
+   "cn": "行业近3年分红(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_3Y_AVG_LAST",
+   "cn": "行业近3年分红(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_3Y_MIN",
+   "cn": "行业近3年分红(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_3Y_MIN_LAST",
+   "cn": "行业近3年分红(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_5Y_AVG",
+   "cn": "行业近5年分红(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_5Y_AVG_LAST",
+   "cn": "行业近5年分红(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_5Y_MIN",
+   "cn": "行业近5年分红(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_5Y_MIN_LAST",
+   "cn": "行业近5年分红(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_10Y_AVG",
+   "cn": "行业近10年股息率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_10Y_AVG_LAST",
+   "cn": "行业近10年股息率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_10Y_MIN",
+   "cn": "行业近10年股息率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_10Y_MIN_LAST",
+   "cn": "行业近10年股息率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_3Y_AVG",
+   "cn": "行业近3年股息率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_3Y_AVG_LAST",
+   "cn": "行业近3年股息率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_3Y_MIN",
+   "cn": "行业近3年股息率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_3Y_MIN_LAST",
+   "cn": "行业近3年股息率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_5Y_AVG",
+   "cn": "行业近5年股息率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_5Y_AVG_LAST",
+   "cn": "行业近5年股息率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_5Y_MIN",
+   "cn": "行业近5年股息率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_BONUS_RATE_5Y_MIN_LAST",
+   "cn": "行业近5年股息率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_CODE_10Y",
+   "cn": "行业近10年现金流特征(TTM)"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_CODE_10Y_LAST",
+   "cn": "行业近10年现金流特征(TTM)"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_CODE_3Y",
+   "cn": "行业近3年现金流特征(TTM)"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_CODE_3Y_LAST",
+   "cn": "行业近3年现金流特征(TTM)"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_CODE_5Y",
+   "cn": "行业近5年现金流特征(TTM)"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_CODE_5Y_LAST",
+   "cn": "行业近5年现金流特征(TTM)"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_VALID_10Y",
+   "cn": "行业近10年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_VALID_10Y_LAST",
+   "cn": "行业近10年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_VALID_3Y",
+   "cn": "行业近3年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_VALID_3Y_LAST",
+   "cn": "行业近3年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_VALID_5Y",
+   "cn": "行业近5年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CUR_IND_CF_KIND_VALID_5Y_LAST",
+   "cn": "行业近5年现金流特征(TTM)有效年数"
+  },
+  {
+   "code": "$CUR_IND_DPPR_10Y_MIN",
+   "cn": "行业近10年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_10Y_MIN_LAST",
+   "cn": "行业近10年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_3Y_MIN",
+   "cn": "行业近3年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_3Y_MIN_LAST",
+   "cn": "行业近3年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_5Y_MIN",
+   "cn": "行业近5年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_5Y_MIN_LAST",
+   "cn": "行业近5年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_AR_10Y_MIN",
+   "cn": "行业近10年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_AR_10Y_MIN_LAST",
+   "cn": "行业近10年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_AR_3Y_MIN",
+   "cn": "行业近3年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_AR_3Y_MIN_LAST",
+   "cn": "行业近3年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_AR_5Y_MIN",
+   "cn": "行业近5年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_DPPR_AR_5Y_MIN_LAST",
+   "cn": "行业近5年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_10Y_AVG",
+   "cn": "行业近10年毛利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_GMR_10Y_AVG_LAST",
+   "cn": "行业近10年毛利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_GMR_10Y_MIN",
+   "cn": "行业近10年毛利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_10Y_MIN_LAST",
+   "cn": "行业近10年毛利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_3Y_AVG",
+   "cn": "行业近3年毛利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_GMR_3Y_AVG_LAST",
+   "cn": "行业近3年毛利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_GMR_3Y_MIN",
+   "cn": "行业近3年毛利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_3Y_MIN_LAST",
+   "cn": "行业近3年毛利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_5Y_AVG",
+   "cn": "行业近5年毛利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_GMR_5Y_AVG_LAST",
+   "cn": "行业近5年毛利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_GMR_5Y_MIN",
+   "cn": "行业近5年毛利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_5Y_MIN_LAST",
+   "cn": "行业近5年毛利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_GMR_PCT",
+   "cn": "行业内毛利率分位"
+  },
+  {
+   "code": "$CUR_IND_GMR_PCT_LAST",
+   "cn": "行业内毛利率分位"
+  },
+  {
+   "code": "$CUR_IND_MV_PCT",
+   "cn": "行业内总市值分位"
+  },
+  {
+   "code": "$CUR_IND_MV_PCT_LAST",
+   "cn": "行业内总市值分位"
+  },
+  {
+   "code": "$CUR_IND_MV_SHARE",
+   "cn": "行业内总市值份额"
+  },
+  {
+   "code": "$CUR_IND_MV_SHARE_LAST",
+   "cn": "行业内总市值份额"
+  },
+  {
+   "code": "$CUR_IND_NPM_10Y_AVG",
+   "cn": "行业近10年净利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPM_10Y_AVG_LAST",
+   "cn": "行业近10年净利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPM_10Y_MIN",
+   "cn": "行业近10年净利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPM_10Y_MIN_LAST",
+   "cn": "行业近10年净利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPM_3Y_AVG",
+   "cn": "行业近3年净利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPM_3Y_AVG_LAST",
+   "cn": "行业近3年净利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPM_3Y_MIN",
+   "cn": "行业近3年净利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPM_3Y_MIN_LAST",
+   "cn": "行业近3年净利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPM_5Y_AVG",
+   "cn": "行业近5年净利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPM_5Y_AVG_LAST",
+   "cn": "行业近5年净利率(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPM_5Y_MIN",
+   "cn": "行业近5年净利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPM_5Y_MIN_LAST",
+   "cn": "行业近5年净利率(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPM_PCT",
+   "cn": "行业内净利率分位"
+  },
+  {
+   "code": "$CUR_IND_NPM_PCT_LAST",
+   "cn": "行业内净利率分位"
+  },
+  {
+   "code": "$CUR_IND_NPTS_10Y_AVG",
+   "cn": "行业近10年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_10Y_AVG_LAST",
+   "cn": "行业近10年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_10Y_MIN",
+   "cn": "行业近10年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_10Y_MIN_LAST",
+   "cn": "行业近10年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_3Y_AVG",
+   "cn": "行业近3年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_3Y_AVG_LAST",
+   "cn": "行业近3年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_3Y_MIN",
+   "cn": "行业近3年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_3Y_MIN_LAST",
+   "cn": "行业近3年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_5Y_AVG",
+   "cn": "行业近5年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_5Y_AVG_LAST",
+   "cn": "行业近5年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_5Y_MIN",
+   "cn": "行业近5年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_5Y_MIN_LAST",
+   "cn": "行业近5年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_10Y_AVG",
+   "cn": "行业近10年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_10Y_AVG_LAST",
+   "cn": "行业近10年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_10Y_MIN",
+   "cn": "行业近10年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_10Y_MIN_LAST",
+   "cn": "行业近10年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_3Y_AVG",
+   "cn": "行业近3年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_3Y_AVG_LAST",
+   "cn": "行业近3年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_3Y_MIN",
+   "cn": "行业近3年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_3Y_MIN_LAST",
+   "cn": "行业近3年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_5Y_AVG",
+   "cn": "行业近5年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_5Y_AVG_LAST",
+   "cn": "行业近5年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_5Y_MIN",
+   "cn": "行业近5年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NPTS_AR_5Y_MIN_LAST",
+   "cn": "行业近5年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_10Y_AVG",
+   "cn": "行业近10年利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NP_10Y_AVG_LAST",
+   "cn": "行业近10年利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NP_10Y_MIN",
+   "cn": "行业近10年利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NP_10Y_MIN_LAST",
+   "cn": "行业近10年利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NP_3Y_AVG",
+   "cn": "行业近3年利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NP_3Y_AVG_LAST",
+   "cn": "行业近3年利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NP_3Y_MIN",
+   "cn": "行业近3年利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NP_3Y_MIN_LAST",
+   "cn": "行业近3年利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NP_5Y_AVG",
+   "cn": "行业近5年利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NP_5Y_AVG_LAST",
+   "cn": "行业近5年利润(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_NP_5Y_MIN",
+   "cn": "行业近5年利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NP_5Y_MIN_LAST",
+   "cn": "行业近5年利润(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_10Y_AVG",
+   "cn": "行业近10年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_10Y_AVG_LAST",
+   "cn": "行业近10年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_10Y_MIN",
+   "cn": "行业近10年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_10Y_MIN_LAST",
+   "cn": "行业近10年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_3Y_AVG",
+   "cn": "行业近3年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_3Y_AVG_LAST",
+   "cn": "行业近3年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_3Y_MIN",
+   "cn": "行业近3年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_3Y_MIN_LAST",
+   "cn": "行业近3年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_5Y_AVG",
+   "cn": "行业近5年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_5Y_AVG_LAST",
+   "cn": "行业近5年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_5Y_MIN",
+   "cn": "行业近5年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_AR_5Y_MIN_LAST",
+   "cn": "行业近5年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_NP_PCT",
+   "cn": "行业内净利润分位"
+  },
+  {
+   "code": "$CUR_IND_NP_PCT_LAST",
+   "cn": "行业内净利润分位"
+  },
+  {
+   "code": "$CUR_IND_NP_SHARE",
+   "cn": "行业内净利润份额"
+  },
+  {
+   "code": "$CUR_IND_NP_SHARE_LAST",
+   "cn": "行业内净利润份额"
+  },
+  {
+   "code": "$CUR_IND_ROE_10Y_AVG",
+   "cn": "行业近10年ROE(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_ROE_10Y_AVG_LAST",
+   "cn": "行业近10年ROE(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_ROE_10Y_MIN",
+   "cn": "行业近10年ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_10Y_MIN_LAST",
+   "cn": "行业近10年ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_3Y_AVG",
+   "cn": "行业近3年ROE(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_ROE_3Y_AVG_LAST",
+   "cn": "行业近3年ROE(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_ROE_3Y_MIN",
+   "cn": "行业近3年ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_3Y_MIN_LAST",
+   "cn": "行业近3年ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_5Y_AVG",
+   "cn": "行业近5年ROE(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_ROE_5Y_AVG_LAST",
+   "cn": "行业近5年ROE(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_ROE_5Y_MIN",
+   "cn": "行业近5年ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_5Y_MIN_LAST",
+   "cn": "行业近5年ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_DPPR_10Y_MIN",
+   "cn": "行业近10年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_DPPR_10Y_MIN_LAST",
+   "cn": "行业近10年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_DPPR_3Y_MIN",
+   "cn": "行业近3年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_DPPR_3Y_MIN_LAST",
+   "cn": "行业近3年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_DPPR_5Y_MIN",
+   "cn": "行业近5年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_DPPR_5Y_MIN_LAST",
+   "cn": "行业近5年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_ROE_PCT",
+   "cn": "行业内ROE分位"
+  },
+  {
+   "code": "$CUR_IND_ROE_PCT_LAST",
+   "cn": "行业内ROE分位"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_10Y_AVG",
+   "cn": "行业近10年资产负债率均值"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_10Y_AVG_LAST",
+   "cn": "行业近10年资产负债率均值"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_10Y_MIN",
+   "cn": "行业近10年资产负债率最低"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_10Y_MIN_LAST",
+   "cn": "行业近10年资产负债率最低"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_3Y_AVG",
+   "cn": "行业近3年资产负债率均值"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_3Y_AVG_LAST",
+   "cn": "行业近3年资产负债率均值"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_3Y_MIN",
+   "cn": "行业近3年资产负债率最低"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_3Y_MIN_LAST",
+   "cn": "行业近3年资产负债率最低"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_5Y_AVG",
+   "cn": "行业近5年资产负债率均值"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_5Y_AVG_LAST",
+   "cn": "行业近5年资产负债率均值"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_5Y_MIN",
+   "cn": "行业近5年资产负债率最低"
+  },
+  {
+   "code": "$CUR_IND_TL_RATE_5Y_MIN_LAST",
+   "cn": "行业近5年资产负债率最低"
+  },
+  {
+   "code": "$CUR_IND_TR_10Y_AVG",
+   "cn": "行业近10年营收(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_TR_10Y_AVG_LAST",
+   "cn": "行业近10年营收(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_TR_10Y_MIN",
+   "cn": "行业近10年营收(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_TR_10Y_MIN_LAST",
+   "cn": "行业近10年营收(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_TR_3Y_AVG",
+   "cn": "行业近3年营收(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_TR_3Y_AVG_LAST",
+   "cn": "行业近3年营收(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_TR_3Y_MIN",
+   "cn": "行业近3年营收(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_TR_3Y_MIN_LAST",
+   "cn": "行业近3年营收(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_TR_5Y_AVG",
+   "cn": "行业近5年营收(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_TR_5Y_AVG_LAST",
+   "cn": "行业近5年营收(TTM)均值"
+  },
+  {
+   "code": "$CUR_IND_TR_5Y_MIN",
+   "cn": "行业近5年营收(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_TR_5Y_MIN_LAST",
+   "cn": "行业近5年营收(TTM)最低"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_10Y_AVG",
+   "cn": "行业近10年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_10Y_AVG_LAST",
+   "cn": "行业近10年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_10Y_MIN",
+   "cn": "行业近10年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_10Y_MIN_LAST",
+   "cn": "行业近10年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_3Y_AVG",
+   "cn": "行业近3年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_3Y_AVG_LAST",
+   "cn": "行业近3年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_3Y_MIN",
+   "cn": "行业近3年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_3Y_MIN_LAST",
+   "cn": "行业近3年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_5Y_AVG",
+   "cn": "行业近5年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_5Y_AVG_LAST",
+   "cn": "行业近5年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_5Y_MIN",
+   "cn": "行业近5年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_TR_AR_5Y_MIN_LAST",
+   "cn": "行业近5年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$CUR_IND_TR_PCT",
+   "cn": "行业内营收分位"
+  },
+  {
+   "code": "$CUR_IND_TR_PCT_LAST",
+   "cn": "行业内营收分位"
+  },
+  {
+   "code": "$CUR_IND_TR_SHARE",
+   "cn": "行业内营收份额"
+  },
+  {
+   "code": "$CUR_IND_TR_SHARE_LAST",
+   "cn": "行业内营收份额"
+  },
+  {
+   "code": "$CUSTOMS_EXPORT",
+   "cn": "出口额-月(亿)(美元)"
+  },
+  {
+   "code": "$CUSTOMS_EXPORT_ACCUMULATE",
+   "cn": "出口额-累计(亿)(美元)"
+  },
+  {
+   "code": "$CUSTOMS_IMPORT",
+   "cn": "进口额-月(亿)(美元)"
+  },
+  {
+   "code": "$CUSTOMS_IMPORT_ACCUMULATE",
+   "cn": "进口额-累计(亿)(美元)"
+  },
+  {
+   "code": "$CYCLICAL_TAG",
+   "cn": "周期行业标签"
+  },
+  {
+   "code": "$CYCLICAL_TAG_DETAILS",
+   "cn": "周期行业标签详情"
+  },
+  {
+   "code": "$DATE",
+   "cn": "日期"
+  },
+  {
+   "code": "$DATE_SAS",
+   "cn": "采样日期"
+  },
+  {
+   "code": "$DATE_SAS_LAST",
+   "cn": "最新采样日期"
+  },
+  {
+   "code": "$DCF2",
+   "cn": "两段式折现(亿)"
+  },
+  {
+   "code": "$DCF2_AVG_YEARS",
+   "cn": "均值年数(D)"
+  },
+  {
+   "code": "$DCF2_DISCOUNT",
+   "cn": "折现率(%)"
+  },
+  {
+   "code": "$DCF2_GROWTH",
+   "cn": "第一段增长率(%)"
+  },
+  {
+   "code": "$DCF2_STABILITY",
+   "cn": "第二段永续增长率(%)"
+  },
+  {
+   "code": "$DCF2_TARGET",
+   "cn": "折现目标"
+  },
+  {
+   "code": "$DCF2_TARGET_CN",
+   "cn": "折现目标"
+  },
+  {
+   "code": "$DCF2_YEARS",
+   "cn": "第一段年数(D)"
+  },
+  {
+   "code": "$DPPR",
+   "cn": "扣非归母净利润"
+  },
+  {
+   "code": "$DPPR_10Y_MIN",
+   "cn": "近10年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$DPPR_10Y_MIN_LAST",
+   "cn": "近10年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$DPPR_3Y",
+   "cn": "近3年扣非净利润(TTM)序列"
+  },
+  {
+   "code": "$DPPR_3Y_LAST",
+   "cn": "近3年扣非净利润(TTM)序列"
+  },
+  {
+   "code": "$DPPR_3Y_MIN",
+   "cn": "近3年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$DPPR_3Y_MIN_LAST",
+   "cn": "近3年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$DPPR_3Y_TREND",
+   "cn": "近3年扣非净利润(TTM)趋势"
+  },
+  {
+   "code": "$DPPR_3Y_TREND_LAST",
+   "cn": "近3年扣非净利润(TTM)趋势"
+  },
+  {
+   "code": "$DPPR_5Y_MIN",
+   "cn": "近5年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$DPPR_5Y_MIN_LAST",
+   "cn": "近5年扣非净利润(TTM)最低"
+  },
+  {
+   "code": "$DPPR_AR_10Y_MIN",
+   "cn": "近10年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$DPPR_AR_10Y_MIN_LAST",
+   "cn": "近10年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$DPPR_AR_3Y",
+   "cn": "近3年扣非净利润(TTM)年化增长序列"
+  },
+  {
+   "code": "$DPPR_AR_3Y_LAST",
+   "cn": "近3年扣非净利润(TTM)年化增长序列"
+  },
+  {
+   "code": "$DPPR_AR_3Y_MIN",
+   "cn": "近3年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$DPPR_AR_3Y_MIN_LAST",
+   "cn": "近3年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$DPPR_AR_3Y_TREND",
+   "cn": "近3年扣非净利润(TTM)年化增长趋势"
+  },
+  {
+   "code": "$DPPR_AR_3Y_TREND_LAST",
+   "cn": "近3年扣非净利润(TTM)年化增长趋势"
+  },
+  {
+   "code": "$DPPR_AR_5Y_MIN",
+   "cn": "近5年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$DPPR_AR_5Y_MIN_LAST",
+   "cn": "近5年扣非净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$DPPR_NPTS",
+   "cn": "扣非净利润占比(%)"
+  },
+  {
+   "code": "$DPPR_TTM",
+   "cn": "扣非净利润TTM(亿)"
+  },
+  {
+   "code": "$DPPR_TTM_LAST",
+   "cn": "最新扣非净利润TTM(亿)"
+  },
+  {
+   "code": "$DPPR_TTM_YOY",
+   "cn": "扣非净利润TTM同比"
+  },
+  {
+   "code": "$DPPR_TTM_YOY_LAST",
+   "cn": "扣非净利润TTM同比-最新"
+  },
+  {
+   "code": "$DPS",
+   "cn": "季度每股分红总额(元)"
+  },
+  {
+   "code": "$DPSS",
+   "cn": "每股股息(D)"
+  },
+  {
+   "code": "$DPS_TTM",
+   "cn": "年度每股分红总额(元)"
+  },
+  {
+   "code": "$DPS_TTM_LAST",
+   "cn": "最近一年预测的每股分红总额(元)"
+  },
+  {
+   "code": "$DPS_TTM_LAST_REAL",
+   "cn": "最近一年的每股分红总额(元)"
+  },
+  {
+   "code": "$DR",
+   "cn": "预收款项"
+  },
+  {
+   "code": "$DR_DAYS",
+   "cn": "预收账款周转天数(D)"
+  },
+  {
+   "code": "$DR_DAYS_TTM",
+   "cn": "TTM预收账款周转天数(D)"
+  },
+  {
+   "code": "$EBIT",
+   "cn": "息税前净利润(亿)"
+  },
+  {
+   "code": "$EBITDA_TTM",
+   "cn": "息税折旧摊销前净利润TTM(亿)"
+  },
+  {
+   "code": "$EBIT_TTM",
+   "cn": "息税前净利润TTM(亿)"
+  },
+  {
+   "code": "$ELEC_EV_CHARGE",
+   "cn": "充换电服务业用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_EV_CHARGE_YOY",
+   "cn": "充换电服务业用电量-同比"
+  },
+  {
+   "code": "$ELEC_FEB_EST",
+   "cn": "2月用电量-模型估算(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_HI_TECH",
+   "cn": "高技术及装备制造业用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_HI_TECH_YOY",
+   "cn": "高技术及装备制造业用电量-同比"
+  },
+  {
+   "code": "$ELEC_IDC",
+   "cn": "互联网数据服务用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_IDC_YOY",
+   "cn": "互联网数据服务用电量-同比"
+  },
+  {
+   "code": "$ELEC_INDUSTRY",
+   "cn": "工业用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_INDUSTRY_YOY",
+   "cn": "工业用电量-同比"
+  },
+  {
+   "code": "$ELEC_JAN_EST",
+   "cn": "1月用电量-模型估算(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_JAN_FEB",
+   "cn": "全社会用电量-1-2月合计(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_JAN_FEB_YOY",
+   "cn": "全社会用电量-1-2月合计同比"
+  },
+  {
+   "code": "$ELEC_PRIMARY",
+   "cn": "第一产业用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_PRIMARY_YOY",
+   "cn": "第一产业用电量-同比"
+  },
+  {
+   "code": "$ELEC_RESIDENTIAL",
+   "cn": "城乡居民生活用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_RESIDENTIAL_YOY",
+   "cn": "城乡居民生活用电量-同比"
+  },
+  {
+   "code": "$ELEC_SECONDARY",
+   "cn": "第二产业用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_SECONDARY_YOY",
+   "cn": "第二产业用电量-同比"
+  },
+  {
+   "code": "$ELEC_TERTIARY",
+   "cn": "第三产业用电量(亿千瓦时)"
+  },
+  {
+   "code": "$ELEC_TERTIARY_YOY",
+   "cn": "第三产业用电量-同比"
+  },
+  {
+   "code": "$ELEC_TOTAL",
+   "cn": "全社会用电量(亿千瓦时，2月合并期为估算)"
+  },
+  {
+   "code": "$ELEC_TOTAL_YOY",
+   "cn": "全社会用电量-同比"
+  },
+  {
+   "code": "$EM2016",
+   "cn": "行业"
+  },
+  {
+   "code": "$EMP_NUM",
+   "cn": "员工人数"
+  },
+  {
+   "code": "$EMP_NUM_Admin",
+   "cn": "行政人员数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Bachelor",
+   "cn": "学士人数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Fin",
+   "cn": "财务人员数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Higher",
+   "cn": "高中及以下人数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Junior",
+   "cn": "大专人数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Master",
+   "cn": "硕士人数(D)"
+  },
+  {
+   "code": "$EMP_NUM_NEWEST",
+   "cn": "员工人数(最新)"
+  },
+  {
+   "code": "$EMP_NUM_PhD",
+   "cn": "博士人数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Prod",
+   "cn": "生成人员数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Sales",
+   "cn": "销售人员数(D)"
+  },
+  {
+   "code": "$EMP_NUM_Tech",
+   "cn": "技术人员数(D)"
+  },
+  {
+   "code": "$EMP_NUM_WEIGHTED",
+   "cn": "加权员工数"
+  },
+  {
+   "code": "$EPMR",
+   "cn": "已赚保费"
+  },
+  {
+   "code": "$EPS_DPPR",
+   "cn": "归母每股扣非收益(元)"
+  },
+  {
+   "code": "$EPS_DPPR_LAST",
+   "cn": "最新扣非每股收益(元)"
+  },
+  {
+   "code": "$EPS_DPPR_TTM",
+   "cn": "归母每股扣非收益TTM(元)"
+  },
+  {
+   "code": "$EPS_DPPR_TTM_LAST",
+   "cn": "最新扣非每股收益TTM(元)"
+  },
+  {
+   "code": "$EPS_NPTS",
+   "cn": "归母每股收益(元)"
+  },
+  {
+   "code": "$EPS_NPTS_LAST",
+   "cn": "最新归母每股收益(元)"
+  },
+  {
+   "code": "$EPS_NPTS_TTM",
+   "cn": "归母每股收益TTM(元)"
+  },
+  {
+   "code": "$EPS_NPTS_TTM_3Y_GROWTH",
+   "cn": "归母每股收益TTM 3年增长率"
+  },
+  {
+   "code": "$EPS_NPTS_TTM_3Y_GROWTH_LAST",
+   "cn": "最新归母每股收益TTM 3年增长率"
+  },
+  {
+   "code": "$EPS_NPTS_TTM_LAST",
+   "cn": "最新归母每股收益TTM(元)"
+  },
+  {
+   "code": "$EQUITYPLEDGE_ACTUAL_UNFREEZE_DATE",
+   "cn": "实际解押日期"
+  },
+  {
+   "code": "$EQUITYPLEDGE_HOLDER_NAME",
+   "cn": "持股人名称"
+  },
+  {
+   "code": "$EQUITYPLEDGE_IS_PFTYPE",
+   "cn": "是否质押类型"
+  },
+  {
+   "code": "$EQUITYPLEDGE_NOTICE_DATE",
+   "cn": "公告日期"
+  },
+  {
+   "code": "$EQUITYPLEDGE_PF_HOLD_RATIO",
+   "cn": "持股比例(%)"
+  },
+  {
+   "code": "$EQUITYPLEDGE_PF_NUM",
+   "cn": "质押数量(股)"
+  },
+  {
+   "code": "$EQUITYPLEDGE_PF_ORG",
+   "cn": "质押机构"
+  },
+  {
+   "code": "$EQUITYPLEDGE_PF_START_DATE",
+   "cn": "质押起始日期"
+  },
+  {
+   "code": "$EQUITYPLEDGE_PF_TSR",
+   "cn": "质押比例(%)"
+  },
+  {
+   "code": "$EQUITYPLEDGE_UNFREEZE_DATE",
+   "cn": "解押日期"
+  },
+  {
+   "code": "$EQUITY_B_FREE_SHARE",
+   "cn": "B股自由流通股(亿)"
+  },
+  {
+   "code": "$EQUITY_CHANGE_REASON",
+   "cn": "变动原因"
+  },
+  {
+   "code": "$EQUITY_FREE_SHARES",
+   "cn": "自由流通股(亿)"
+  },
+  {
+   "code": "$EQUITY_FREE_SHARES_LAST",
+   "cn": "最新自由流通股(亿)"
+  },
+  {
+   "code": "$EQUITY_H_FREE_SHARE",
+   "cn": "H股自由流通股(亿)"
+  },
+  {
+   "code": "$EQUITY_LISTED_A_SHARES",
+   "cn": "上市A股(亿)"
+  },
+  {
+   "code": "$EQUITY_NON_FREE_SHARES",
+   "cn": "非自由流通股(亿)"
+  },
+  {
+   "code": "$EQUITY_NUM_DAY",
+   "cn": "总股本"
+  },
+  {
+   "code": "$EQUITY_TOTAL_SHARES",
+   "cn": "总股本ADS(亿)"
+  },
+  {
+   "code": "$EQUITY_TOTAL_SHARES_LAST",
+   "cn": "总股本ADS(亿)"
+  },
+  {
+   "code": "$EV",
+   "cn": "企业账面价值(亿)"
+  },
+  {
+   "code": "$EV_EBIT",
+   "cn": "EV/EBIT(倍)"
+  },
+  {
+   "code": "$EV_EBITDA",
+   "cn": "EV/EBITDA(倍)"
+  },
+  {
+   "code": "$EXCHANGEHOLD_AVERAGE_PRICE",
+   "cn": "交易均价(元)"
+  },
+  {
+   "code": "$EXCHANGEHOLD_CHANGE_AFTER_HOLDNUM",
+   "cn": "结存股票(股)"
+  },
+  {
+   "code": "$EXCHANGEHOLD_CHANGE_NUM",
+   "cn": "增减持数量(股)"
+  },
+  {
+   "code": "$EXCHANGEHOLD_END_DATE",
+   "cn": "截止日期"
+  },
+  {
+   "code": "$EXCHANGEHOLD_END_DATE_LAST",
+   "cn": "增减持最新截止日期"
+  },
+  {
+   "code": "$EXCHANGEHOLD_EXECUTIVE_NAME",
+   "cn": "执行人名称"
+  },
+  {
+   "code": "$EXCHANGEHOLD_EXECUTIVE_RELATION",
+   "cn": "执行人关系"
+  },
+  {
+   "code": "$EXCHANGEHOLD_HOLDER_NAME",
+   "cn": "持股人名称"
+  },
+  {
+   "code": "$EXCHANGEHOLD_POSITION",
+   "cn": "职位"
+  },
+  {
+   "code": "$EXCHANGEHOLD_TOTAL",
+   "cn": "年度总计增减持(万)"
+  },
+  {
+   "code": "$EXCHANGEHOLD_TRADE_WAY",
+   "cn": "交易方式"
+  },
+  {
+   "code": "$EXECUTIVE_AGE",
+   "cn": "年龄"
+  },
+  {
+   "code": "$EXECUTIVE_BIRTH_YEAR",
+   "cn": "出生年"
+  },
+  {
+   "code": "$EXECUTIVE_HIGH_DEGREE",
+   "cn": "高管学历"
+  },
+  {
+   "code": "$EXECUTIVE_HOLD_NUM",
+   "cn": "持股数(股)"
+  },
+  {
+   "code": "$EXECUTIVE_HOLD_RATIO",
+   "cn": "管理层持股比例"
+  },
+  {
+   "code": "$EXECUTIVE_HOLD_RATIO_LAST",
+   "cn": "管理层持股比例-最新"
+  },
+  {
+   "code": "$EXECUTIVE_HOLD_RATIO_LAST_DATE",
+   "cn": "管理层持股披露时间点"
+  },
+  {
+   "code": "$EXECUTIVE_HOLD_TOTAL",
+   "cn": "管理层持股总数(股)"
+  },
+  {
+   "code": "$EXECUTIVE_INCUMBENT_TIME",
+   "cn": "任职时间"
+  },
+  {
+   "code": "$EXECUTIVE_NATIONALITY",
+   "cn": "国籍"
+  },
+  {
+   "code": "$EXECUTIVE_PERSON_NAME",
+   "cn": "姓名"
+  },
+  {
+   "code": "$EXECUTIVE_POSITION",
+   "cn": "职位"
+  },
+  {
+   "code": "$EXECUTIVE_RESUME",
+   "cn": "简历"
+  },
+  {
+   "code": "$EXECUTIVE_SALARY",
+   "cn": "薪酬(万)"
+  },
+  {
+   "code": "$EXECUTIVE_SEX",
+   "cn": "性别"
+  },
+  {
+   "code": "$EXPENSE_BANK",
+   "cn": "银行业务成本(亿)"
+  },
+  {
+   "code": "$EXPENSE_RATE_BANK",
+   "cn": "成本收入比(%)"
+  },
+  {
+   "code": "$EXP_REVENUE",
+   "cn": "快递业务收入(亿元)"
+  },
+  {
+   "code": "$EXP_REVENUE_YOY",
+   "cn": "快递业务收入-同比"
+  },
+  {
+   "code": "$EXP_VOLUME",
+   "cn": "快递业务量(亿件)"
+  },
+  {
+   "code": "$EXP_VOLUME_YOY",
+   "cn": "快递业务量-同比"
+  },
+  {
+   "code": "$FCF",
+   "cn": "自由现金流量(亿)"
+  },
+  {
+   "code": "$FCF_TTM",
+   "cn": "自由现金流量TTM(亿)"
+  },
+  {
+   "code": "$FC_EPS_1",
+   "cn": "一致预期EPS-已实现年（近六月平均）"
+  },
+  {
+   "code": "$FC_EPS_2",
+   "cn": "一致预期EPS-预测年（近六月平均）"
+  },
+  {
+   "code": "$FC_NP_COUNT",
+   "cn": "预测覆盖机构数（<5家代表样本不足，预测信度低）"
+  },
+  {
+   "code": "$FC_NP_DISPERSION",
+   "cn": "预测分歧度=(乐观-悲观)/中位数（>0.3代表机构意见严重不一致，预测噪声大）"
+  },
+  {
+   "code": "$FC_NP_MEDIAN",
+   "cn": "预测归母净利润-中位数（次年预测年，多机构共识，推荐用于选股）"
+  },
+  {
+   "code": "$FC_NP_OPTIMISTIC",
+   "cn": "预测归母净利润-乐观（前20%机构均值）"
+  },
+  {
+   "code": "$FC_NP_PESSIMISTIC",
+   "cn": "预测归母净利润-悲观（后20%机构均值）"
+  },
+  {
+   "code": "$FC_PE_1",
+   "cn": "一致预期PE-已实现年（近六月平均）"
+  },
+  {
+   "code": "$FC_PE_2",
+   "cn": "一致预期PE-预测年（近六月平均）"
+  },
+  {
+   "code": "$FC_STATS_EPS",
+   "cn": "一致预期EPS-统计口径（市场快照，最新年）"
+  },
+  {
+   "code": "$FC_STATS_EPS_RATIO",
+   "cn": "EPS增速-统计口径（市场快照，最新年）"
+  },
+  {
+   "code": "$FC_STATS_NP",
+   "cn": "一致预期归母净利润-统计口径（市场快照，最新年）"
+  },
+  {
+   "code": "$FC_STATS_OP",
+   "cn": "一致预期营业利润-统计口径（市场快照，最新年）"
+  },
+  {
+   "code": "$FC_STATS_ROE",
+   "cn": "一致预期ROE-统计口径（市场快照，最新年）"
+  },
+  {
+   "code": "$FE",
+   "cn": "财务费用"
+  },
+  {
+   "code": "$FE_RATE",
+   "cn": "财务费用率(%)"
+  },
+  {
+   "code": "$FE_RATE_LAST",
+   "cn": "财务费用率(%)"
+  },
+  {
+   "code": "$FISCAL_INCOME",
+   "cn": "财政收入-月(万亿)"
+  },
+  {
+   "code": "$FISCAL_INCOME_ACCUMULATE",
+   "cn": "财政收入-累计(万亿)"
+  },
+  {
+   "code": "$FISCAL_TAX",
+   "cn": "税收-累计(万亿)"
+  },
+  {
+   "code": "$FREE_HOLDER_0",
+   "cn": "第一大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_1",
+   "cn": "第二大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_2",
+   "cn": "第三大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_3",
+   "cn": "第四大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_4",
+   "cn": "第五大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_5",
+   "cn": "第六大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_6",
+   "cn": "第七大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_7",
+   "cn": "第八大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_8",
+   "cn": "第九大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_9",
+   "cn": "第十大股东"
+  },
+  {
+   "code": "$FREE_HOLDER_SUM_NUM",
+   "cn": "十大流通股东持股数量总和(亿)(股)"
+  },
+  {
+   "code": "$FREE_HOLDER_SUM_NUM_LAST",
+   "cn": "十大流通股东持股数量总和-最新(亿)(股)"
+  },
+  {
+   "code": "$FREE_HOLDER_SUM_RATIO",
+   "cn": "十大流通股东持股比例总和(%)"
+  },
+  {
+   "code": "$FREE_HOLDER_SUM_RATIO_LAST",
+   "cn": "十大流通股东持股比例总和-最新(%)"
+  },
+  {
+   "code": "$FREE_HOLDER_SUM_RATIO_LAST_DATE",
+   "cn": "十大流通股东持股比例披露时间点"
+  },
+  {
+   "code": "$FRRE_DAYS",
+   "cn": "应收款项融资周转天数(D)"
+  },
+  {
+   "code": "$FRRE_DAYS_TTM",
+   "cn": "TTM应收款项融资周转天数(D)"
+  },
+  {
+   "code": "$FUT_AMOUNT",
+   "cn": "期货成交额(万元)"
+  },
+  {
+   "code": "$FUT_CLOSE",
+   "cn": "期货收盘价"
+  },
+  {
+   "code": "$FUT_CLOSE_MONTH",
+   "cn": "期货月收盘价"
+  },
+  {
+   "code": "$FUT_CLOSE_WEEK",
+   "cn": "期货周收盘价"
+  },
+  {
+   "code": "$FUT_HAS",
+   "cn": "期货日K是否存在"
+  },
+  {
+   "code": "$FUT_HAS_MONTH",
+   "cn": "期货月K是否存在"
+  },
+  {
+   "code": "$FUT_HAS_WEEK",
+   "cn": "期货周K是否存在"
+  },
+  {
+   "code": "$FUT_HIGH",
+   "cn": "期货最高价"
+  },
+  {
+   "code": "$FUT_HIGH_MONTH",
+   "cn": "期货月最高价"
+  },
+  {
+   "code": "$FUT_HIGH_WEEK",
+   "cn": "期货周最高价"
+  },
+  {
+   "code": "$FUT_LOW",
+   "cn": "期货最低价"
+  },
+  {
+   "code": "$FUT_LOW_MONTH",
+   "cn": "期货月最低价"
+  },
+  {
+   "code": "$FUT_LOW_WEEK",
+   "cn": "期货周最低价"
+  },
+  {
+   "code": "$FUT_OI",
+   "cn": "期货持仓量(手)"
+  },
+  {
+   "code": "$FUT_OI_CHG",
+   "cn": "期货持仓变化(手)"
+  },
+  {
+   "code": "$FUT_OI_MONTH",
+   "cn": "期货月持仓量(手)"
+  },
+  {
+   "code": "$FUT_OI_WEEK",
+   "cn": "期货周持仓量(手)"
+  },
+  {
+   "code": "$FUT_OPEN",
+   "cn": "期货开盘价"
+  },
+  {
+   "code": "$FUT_OPEN_MONTH",
+   "cn": "期货月开盘价"
+  },
+  {
+   "code": "$FUT_OPEN_WEEK",
+   "cn": "期货周开盘价"
+  },
+  {
+   "code": "$FUT_PRE_SETTLE",
+   "cn": "期货前结算价"
+  },
+  {
+   "code": "$FUT_SETTLE",
+   "cn": "期货结算价"
+  },
+  {
+   "code": "$FUT_SETTLE_MONTH",
+   "cn": "期货月结算价"
+  },
+  {
+   "code": "$FUT_SETTLE_WEEK",
+   "cn": "期货周结算价"
+  },
+  {
+   "code": "$FUT_VOLUME",
+   "cn": "期货成交量(手)"
+  },
+  {
+   "code": "$FUT_VOLUME_MONTH",
+   "cn": "期货月成交量(手)"
+  },
+  {
+   "code": "$FUT_VOLUME_WEEK",
+   "cn": "期货周成交量(手)"
+  },
+  {
+   "code": "$FY",
+   "cn": "财年截止日"
+  },
+  {
+   "code": "$FY_LAST",
+   "cn": "最新财年截止日"
+  },
+  {
+   "code": "$GANGGUTONGBIAODIHU",
+   "cn": "港股通标的沪"
+  },
+  {
+   "code": "$GANGGUTONGBIAODISHEN",
+   "cn": "港股通标的深"
+  },
+  {
+   "code": "$GDP",
+   "cn": "国内生产总值(万亿)"
+  },
+  {
+   "code": "$GDP_FIRST",
+   "cn": "第一产业(万亿)"
+  },
+  {
+   "code": "$GDP_RATE",
+   "cn": "生产总值(当季同比)(%)"
+  },
+  {
+   "code": "$GDP_SECOND",
+   "cn": "第二产业(万亿)"
+  },
+  {
+   "code": "$GDP_THIRD",
+   "cn": "第三产业(万亿)"
+  },
+  {
+   "code": "$GM",
+   "cn": "毛利率(%)"
+  },
+  {
+   "code": "$GMR_10Y_AVG",
+   "cn": "近10年毛利率(TTM)均值"
+  },
+  {
+   "code": "$GMR_10Y_AVG_LAST",
+   "cn": "近10年毛利率(TTM)均值"
+  },
+  {
+   "code": "$GMR_10Y_MIN",
+   "cn": "近10年毛利率(TTM)最低"
+  },
+  {
+   "code": "$GMR_10Y_MIN_LAST",
+   "cn": "近10年毛利率(TTM)最低"
+  },
+  {
+   "code": "$GMR_3Y",
+   "cn": "近3年毛利率(TTM)序列"
+  },
+  {
+   "code": "$GMR_3Y_AVG",
+   "cn": "近3年毛利率(TTM)均值"
+  },
+  {
+   "code": "$GMR_3Y_AVG_LAST",
+   "cn": "近3年毛利率(TTM)均值"
+  },
+  {
+   "code": "$GMR_3Y_LAST",
+   "cn": "近3年毛利率(TTM)序列"
+  },
+  {
+   "code": "$GMR_3Y_MIN",
+   "cn": "近3年毛利率(TTM)最低"
+  },
+  {
+   "code": "$GMR_3Y_MIN_LAST",
+   "cn": "近3年毛利率(TTM)最低"
+  },
+  {
+   "code": "$GMR_3Y_TREND",
+   "cn": "近3年毛利率(TTM)趋势"
+  },
+  {
+   "code": "$GMR_3Y_TREND_LAST",
+   "cn": "近3年毛利率(TTM)趋势"
+  },
+  {
+   "code": "$GMR_5Y_AVG",
+   "cn": "近5年毛利率(TTM)均值"
+  },
+  {
+   "code": "$GMR_5Y_AVG_LAST",
+   "cn": "近5年毛利率(TTM)均值"
+  },
+  {
+   "code": "$GMR_5Y_MIN",
+   "cn": "近5年毛利率(TTM)最低"
+  },
+  {
+   "code": "$GMR_5Y_MIN_LAST",
+   "cn": "近5年毛利率(TTM)最低"
+  },
+  {
+   "code": "$GMR_TTM",
+   "cn": "毛利率(TTM)"
+  },
+  {
+   "code": "$GM_LAST",
+   "cn": "毛利率(%)"
+  },
+  {
+   "code": "$GOODS_INDEX",
+   "cn": "企业商品价格指数(D)"
+  },
+  {
+   "code": "$GOODS_INDEX_ENERGY",
+   "cn": "能源产品价格指数(D)"
+  },
+  {
+   "code": "$GOODS_INDEX_FARM",
+   "cn": "农产品价格指数(D)"
+  },
+  {
+   "code": "$GOODS_INDEX_MINERAL",
+   "cn": "矿产品价格指数(D)"
+  },
+  {
+   "code": "$GOODS_ORDER_DURABLE",
+   "cn": "耐用品订单月率(%)"
+  },
+  {
+   "code": "$GOODS_ORDER_DURABLE_NVEH",
+   "cn": "耐用品订单月率(除运输外)(%)"
+  },
+  {
+   "code": "$GOODS_RETAIL",
+   "cn": "零售销售月率(%)"
+  },
+  {
+   "code": "$GOODS_RETAIL_KEY",
+   "cn": "核心零售销售月率(%)"
+  },
+  {
+   "code": "$GOODS_TRADE",
+   "cn": "贸易帐-逆差(亿)(美元)"
+  },
+  {
+   "code": "$GOODS_TRADE_AMOUNT_RATE",
+   "cn": "商品贸易差额(当月同比)"
+  },
+  {
+   "code": "$GUARANTEE_CURRENCY",
+   "cn": "币种"
+  },
+  {
+   "code": "$GUARANTEE_GUARANTEED_NAME",
+   "cn": "被担保方"
+  },
+  {
+   "code": "$GUARANTEE_GUARANTEE_AMT",
+   "cn": "担保金额"
+  },
+  {
+   "code": "$GUARANTEE_GUARANTEE_END_DATE",
+   "cn": "担保终止日"
+  },
+  {
+   "code": "$GUARANTEE_GUARANTEE_EXPIRE",
+   "cn": "担保到期日(D)"
+  },
+  {
+   "code": "$GUARANTEE_GUARANTEE_START_DATE",
+   "cn": "担保起始日"
+  },
+  {
+   "code": "$GUARANTEE_GUARANTEE_WAY",
+   "cn": "担保方式"
+  },
+  {
+   "code": "$GUARANTEE_GUAR_EVENT_EXPLAIN",
+   "cn": "担保事项说明"
+  },
+  {
+   "code": "$GUARANTEE_GUAR_NAME",
+   "cn": "担保方"
+  },
+  {
+   "code": "$GUARANTEE_IS_PERFORM",
+   "cn": "是否履行"
+  },
+  {
+   "code": "$GUARANTEE_IS_RELATED_TRADE",
+   "cn": "是否关联交易"
+  },
+  {
+   "code": "$GUARANTEE_NOTICE_DATE",
+   "cn": "公告日期"
+  },
+  {
+   "code": "$GUARANTEE_REPORT_DATE",
+   "cn": "报告日期"
+  },
+  {
+   "code": "$GUARANTEE_REPORT_TYPE_NAME",
+   "cn": "报告类型"
+  },
+  {
+   "code": "$GUARANTEE_TRADE_DATE",
+   "cn": "交易日期"
+  },
+  {
+   "code": "$GW_RATE",
+   "cn": "商誉占净资产比率(%)"
+  },
+  {
+   "code": "$GW_RATE_LAST",
+   "cn": "最新商誉占净资产比率(%)"
+  },
+  {
+   "code": "$HAS_BUYBACK_1M",
+   "cn": "近1月有回购"
+  },
+  {
+   "code": "$HAS_BUYBACK_3M",
+   "cn": "近3月有回购"
+  },
+  {
+   "code": "$HAS_BUYBACK_6M",
+   "cn": "近6月有回购"
+  },
+  {
+   "code": "$HAS_EQUITY_INCENTIVE_1M",
+   "cn": "近1月有股权激励"
+  },
+  {
+   "code": "$HAS_EQUITY_INCENTIVE_3M",
+   "cn": "近3月有股权激励"
+  },
+  {
+   "code": "$HAS_EQUITY_INCENTIVE_6M",
+   "cn": "近6月有股权激励"
+  },
+  {
+   "code": "$HAS_INSIDER_BUYING_1M",
+   "cn": "近1月有增持"
+  },
+  {
+   "code": "$HAS_INSIDER_BUYING_3M",
+   "cn": "近3月有增持"
+  },
+  {
+   "code": "$HAS_INSIDER_BUYING_6M",
+   "cn": "近6月有增持"
+  },
+  {
+   "code": "$HEAVY_ASSET",
+   "cn": "重资产(亿)"
+  },
+  {
+   "code": "$HIGH_AR_DAY",
+   "cn": "最高价(后复权)"
+  },
+  {
+   "code": "$HIGH_DAY",
+   "cn": "最高价(前复权)"
+  },
+  {
+   "code": "$HIGH_LAST",
+   "cn": "最新最高价(D)"
+  },
+  {
+   "code": "$HIGH_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$HIGH_NR_DAY",
+   "cn": "最高价(无复权)"
+  },
+  {
+   "code": "$HOLDERNUM_AVG_FREESHARES_RATIO",
+   "cn": "人均流通股较上期变化(%)"
+  },
+  {
+   "code": "$HOLDERNUM_AVG_FREE_SHARES",
+   "cn": "平均自由流通股(D)"
+  },
+  {
+   "code": "$HOLDERNUM_AVG_HOLD_AMT",
+   "cn": "平均持股金额(万)"
+  },
+  {
+   "code": "$HOLDERNUM_AVG_HOLD_AMT_LAST",
+   "cn": "平均持股金额-最新(万)"
+  },
+  {
+   "code": "$HOLDERNUM_END_DATE",
+   "cn": "截止日期"
+  },
+  {
+   "code": "$HOLDERNUM_END_DATE_LAST",
+   "cn": "持股人情况截止日期-最新"
+  },
+  {
+   "code": "$HOLDERNUM_FREEHOLD_RATIO_TOTAL",
+   "cn": "十大流通股东持股比例总计(%)"
+  },
+  {
+   "code": "$HOLDERNUM_HOLDER_TOTAL_NUM",
+   "cn": "持股人总数(万)"
+  },
+  {
+   "code": "$HOLDERNUM_HOLD_FOCUS",
+   "cn": "持股集中度"
+  },
+  {
+   "code": "$HOLDERNUM_HOLD_FOCUS_LAST",
+   "cn": "持股集中度-最新"
+  },
+  {
+   "code": "$HOLDERNUM_HOLD_RATIO_TOTAL",
+   "cn": "十大股东持股比例总计(%)"
+  },
+  {
+   "code": "$HOLDERNUM_HOLD_RATIO_TOTAL_LAST",
+   "cn": "十大股东持股比例总计-最新(%)"
+  },
+  {
+   "code": "$HOLDERNUM_PRICE",
+   "cn": "价格(元)"
+  },
+  {
+   "code": "$HOLDERNUM_TOTAL_NUM_RATIO",
+   "cn": "持股人数较上期变化(%)"
+  },
+  {
+   "code": "$HOLDERNUM_TOTAL_NUM_RATIO_LAST",
+   "cn": "持股人数较上期变化-最新(%)"
+  },
+  {
+   "code": "$HOLD_MV_CHANGE_BYVOL",
+   "cn": "资金变动(开盘价估算)"
+  },
+  {
+   "code": "$HOLD_MV_DAY",
+   "cn": "持股市值"
+  },
+  {
+   "code": "$HOLD_NETADD_MV_DAY",
+   "cn": "净增持市值"
+  },
+  {
+   "code": "$HOLD_RATIO_DAY",
+   "cn": "持股比例(陆股通)(%)"
+  },
+  {
+   "code": "$HOLD_RATIO_DAY_CN",
+   "cn": "持股比例(陆股通)(%)"
+  },
+  {
+   "code": "$HOLD_RATIO_DAY_HK",
+   "cn": "持股比例(港股通)(%)"
+  },
+  {
+   "code": "$HOLD_VOL_CHANGE",
+   "cn": "持股变动"
+  },
+  {
+   "code": "$HOLD_VOL_DAY",
+   "cn": "持股量(陆股通)"
+  },
+  {
+   "code": "$HOLD_VOL_DAY_CN",
+   "cn": "持股量(陆股通)"
+  },
+  {
+   "code": "$HOLD_VOL_DAY_HK",
+   "cn": "持股量(港股通)"
+  },
+  {
+   "code": "$HOLD_VOL_NETADD_DAY",
+   "cn": "净增持量(陆股通)"
+  },
+  {
+   "code": "$HOLD_VOL_NETADD_DAY_CN",
+   "cn": "净增持量(陆股通)"
+  },
+  {
+   "code": "$HOLD_VOL_NETADD_DAY_HK",
+   "cn": "净增持量(港股通)"
+  },
+  {
+   "code": "$HOUSE_NEWLYBUILD",
+   "cn": "新屋开工(万)"
+  },
+  {
+   "code": "$HOUSE_PRICE_NEWLYBUILD",
+   "cn": "新建商品住宅价格指数(D)"
+  },
+  {
+   "code": "$HOUSE_PRICE_NEWLYBUILD_SAME",
+   "cn": "新建商品住宅价格指数-同比(D)"
+  },
+  {
+   "code": "$HOUSE_PRICE_NEWLYBUILD_SEQ",
+   "cn": "新建商品住宅价格指数-环比(D)"
+  },
+  {
+   "code": "$HOUSE_PRICE_SECONDHAND",
+   "cn": "二手住宅价格指数(D)"
+  },
+  {
+   "code": "$HOUSE_PRICE_SECONDHAND_SAME",
+   "cn": "二手住宅价格指数-同比(D)"
+  },
+  {
+   "code": "$HOUSE_PRICE_SECONDHAND_SEQ",
+   "cn": "二手住宅价格指数-环比(D)"
+  },
+  {
+   "code": "$HOUSE_SALE",
+   "cn": "成屋销售(万)"
+  },
+  {
+   "code": "$HOUSE_SALE_AMOUNT",
+   "cn": "楼宇买卖合约(成交)(亿)(港元)"
+  },
+  {
+   "code": "$HOUSE_SALE_AMOUNT_TTM",
+   "cn": "商品住宅销售总值(年累计)(亿)(港元)"
+  },
+  {
+   "code": "$HOUSE_SALE_VOLUME",
+   "cn": "楼宇买卖合约(数量)"
+  },
+  {
+   "code": "$HOUSE_SALE_VOLUME_TTM",
+   "cn": "楼宇买卖合约(年累计)(数量)"
+  },
+  {
+   "code": "$HOUSE_WAITSALE",
+   "cn": "未决房屋销售月率"
+  },
+  {
+   "code": "$HROE_B2",
+   "cn": "归母ROE(B2,%, 普通股口径,加权/多点近似)"
+  },
+  {
+   "code": "$HROE_COMMON_B2",
+   "cn": "归母ROE(普通股口径,B2,%)"
+  },
+  {
+   "code": "$HROE_COMMON_WAVG_B2",
+   "cn": "归母ROE(普通股口径,加权/多点近似,B2,%)"
+  },
+  {
+   "code": "$HROE_PARENT_B2",
+   "cn": "归母ROE(归母口径,B2,%)"
+  },
+  {
+   "code": "$HROE_PARENT_WAVG_B2",
+   "cn": "归母ROE(归母口径,加权/多点近似,B2,%)"
+  },
+  {
+   "code": "$IBD",
+   "cn": "有息负债(亿)"
+  },
+  {
+   "code": "$IBD_RATE",
+   "cn": "有息负债率(%)"
+  },
+  {
+   "code": "$IBD_RATE_LAST",
+   "cn": "有息负债率(%)"
+  },
+  {
+   "code": "$IDW_ALPHA_HS300",
+   "cn": "相对沪深300 Alpha(日频)"
+  },
+  {
+   "code": "$IDW_BETA_HS300",
+   "cn": "相对沪深300 Beta"
+  },
+  {
+   "code": "$IDW_BONUS_RATE",
+   "cn": "股息率(%)"
+  },
+  {
+   "code": "$IDW_BONUS_RATE_HM",
+   "cn": "股息率(等权)(%)"
+  },
+  {
+   "code": "$IDW_BONUS_RATE_MV",
+   "cn": "调和市值加权股息率(%)"
+  },
+  {
+   "code": "$IDW_BONUS_RATE_TTM",
+   "cn": "加权股息率TTM(%)"
+  },
+  {
+   "code": "$IDW_BONUS_RATE_TTM_LAST",
+   "cn": "最新加权股息率(%)"
+  },
+  {
+   "code": "$IDW_BONUS_TTM",
+   "cn": "指数加权分红TTM"
+  },
+  {
+   "code": "$IDW_BONUS_TTM_HM",
+   "cn": "指数加权分红TTM(等权)"
+  },
+  {
+   "code": "$IDW_BONUS_TTM_LAST",
+   "cn": "最新指数加权分红TTM"
+  },
+  {
+   "code": "$IDW_CLOSE_AR_DAY",
+   "cn": "加权日收盘价(后复权)"
+  },
+  {
+   "code": "$IDW_CLOSE_DAY",
+   "cn": "加权日收盘价(前复权)"
+  },
+  {
+   "code": "$IDW_CLOSE_NR_DAY",
+   "cn": "加权日收盘价(无复权)"
+  },
+  {
+   "code": "$IDW_GM",
+   "cn": "指数加权毛利率(%)"
+  },
+  {
+   "code": "$IDW_GM_HM",
+   "cn": "等权毛利率(%)"
+  },
+  {
+   "code": "$IDW_GM_MV",
+   "cn": "市值加权毛利率(%)"
+  },
+  {
+   "code": "$IDW_INDEX_LEVEL_1000",
+   "cn": "rebased指数水平(基日1000点)"
+  },
+  {
+   "code": "$IDW_NP",
+   "cn": "指数加权利润"
+  },
+  {
+   "code": "$IDW_NP_HM",
+   "cn": "指数加权利润(等权)"
+  },
+  {
+   "code": "$IDW_NP_LAST",
+   "cn": "最新加权利润"
+  },
+  {
+   "code": "$IDW_OC",
+   "cn": "指数加权营业成本"
+  },
+  {
+   "code": "$IDW_OC_HM",
+   "cn": "指数加权营业成本(等权)"
+  },
+  {
+   "code": "$IDW_OIE",
+   "cn": "指数加权营业收入"
+  },
+  {
+   "code": "$IDW_OIE_HM",
+   "cn": "指数加权营业收入(等权)"
+  },
+  {
+   "code": "$IDW_PE",
+   "cn": "指数加权市盈率(D)"
+  },
+  {
+   "code": "$IDW_PE_HM",
+   "cn": "平权市盈率(D)"
+  },
+  {
+   "code": "$IDW_PE_HM_LAST",
+   "cn": "平权市盈率(D)"
+  },
+  {
+   "code": "$IDW_PE_LAST",
+   "cn": "最新加权市盈率(D)"
+  },
+  {
+   "code": "$IDW_PE_MV",
+   "cn": "调和市值加权市盈率(TTM)"
+  },
+  {
+   "code": "$IDW_PE_MV_LAST",
+   "cn": "最新调和市值加权市盈率(TTM)"
+  },
+  {
+   "code": "$IDW_PT",
+   "cn": "指数加权净利润率(%)"
+  },
+  {
+   "code": "$IDW_PT_HM",
+   "cn": "等权净利润率(%)"
+  },
+  {
+   "code": "$IDW_PT_MV",
+   "cn": "市值加权净利润率(%)"
+  },
+  {
+   "code": "$IDW_ROC",
+   "cn": "指数加权利润率(%)"
+  },
+  {
+   "code": "$IDW_ROC_HM",
+   "cn": "平权利润率(%)"
+  },
+  {
+   "code": "$IDW_ROC_HM_LAST",
+   "cn": "平权利润率(%)"
+  },
+  {
+   "code": "$IDW_ROC_LAST",
+   "cn": "最新加权利润率(%)"
+  },
+  {
+   "code": "$IDW_ROC_MV",
+   "cn": "调和市值加权利润率(%)"
+  },
+  {
+   "code": "$IDW_ROC_MV_LAST",
+   "cn": "最新调和市值加权利润率(%)"
+  },
+  {
+   "code": "$IDW_ROI_1",
+   "cn": "加权1年的投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_10",
+   "cn": "加权10年的年化的投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_20",
+   "cn": "加权20年的年化的投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_3",
+   "cn": "加权3年的年化投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_5",
+   "cn": "加权5年的年化投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_EXCESS_HS300_1",
+   "cn": "相对沪深300超额1年(%)"
+  },
+  {
+   "code": "$IDW_ROI_EXCESS_HS300_3",
+   "cn": "相对沪深300超额3年(%)"
+  },
+  {
+   "code": "$IDW_ROI_EXCESS_HS300_5",
+   "cn": "相对沪深300超额5年(%)"
+  },
+  {
+   "code": "$IDW_ROI_NERAST_1",
+   "cn": "加权最近1年的投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_NERAST_10",
+   "cn": "加权最近10年的年化投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_NERAST_20",
+   "cn": "加权最近20年的年化投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_NERAST_3",
+   "cn": "加权最近3年的年化投资收益率(%)"
+  },
+  {
+   "code": "$IDW_ROI_NERAST_5",
+   "cn": "加权最近5年的年化投资收益率(%)"
+  },
+  {
+   "code": "$IDW_TR",
+   "cn": "指数加权营业总收入"
+  },
+  {
+   "code": "$IDW_TR_HM",
+   "cn": "指数加权营业总收入(等权)"
+  },
+  {
+   "code": "$ID_ADP",
+   "cn": "预付账款"
+  },
+  {
+   "code": "$ID_ADP_DAYS",
+   "cn": "预付账款周转天数(D)"
+  },
+  {
+   "code": "$ID_ADP_DAYS_TTM",
+   "cn": "TTM预付账款周转天数(D)"
+  },
+  {
+   "code": "$ID_ADP_WEIGHTED",
+   "cn": "加权预付账款"
+  },
+  {
+   "code": "$ID_AP",
+   "cn": "应付账款"
+  },
+  {
+   "code": "$ID_AP_DAYS",
+   "cn": "应付账款周转天数(D)"
+  },
+  {
+   "code": "$ID_AP_DAYS_TTM",
+   "cn": "TTM应付账款周转天数(D)"
+  },
+  {
+   "code": "$ID_AP_WEIGHTED",
+   "cn": "加权应付账款"
+  },
+  {
+   "code": "$ID_AR",
+   "cn": "应收账款"
+  },
+  {
+   "code": "$ID_AR_DAYS",
+   "cn": "应收账款周转天数(D)"
+  },
+  {
+   "code": "$ID_AR_DAYS_TTM",
+   "cn": "TTM应收账款周转天数(D)"
+  },
+  {
+   "code": "$ID_AR_WEIGHTED",
+   "cn": "加权应收账款"
+  },
+  {
+   "code": "$ID_BOND_FUNDS_TOTAL",
+   "cn": "总债券融资"
+  },
+  {
+   "code": "$ID_BONUS_FUNDS_TOTAL_RATE",
+   "cn": "市场分红融资率(%)"
+  },
+  {
+   "code": "$ID_BONUS_NPTS_RATE",
+   "cn": "累计分红比例(%)"
+  },
+  {
+   "code": "$ID_BONUS_RATE_TTM",
+   "cn": "股息率(%)"
+  },
+  {
+   "code": "$ID_BONUS_RATE_TTM_LAST",
+   "cn": "最新分红股息率TTM(%)"
+  },
+  {
+   "code": "$ID_BONUS_RATE_TTM_MCW",
+   "cn": "股息率(TTM-mcw)"
+  },
+  {
+   "code": "$ID_BONUS_SQ",
+   "cn": "单季分红合计"
+  },
+  {
+   "code": "$ID_BONUS_SQ_YOY",
+   "cn": "分红同比"
+  },
+  {
+   "code": "$ID_BONUS_TOTAL",
+   "cn": "分红总额"
+  },
+  {
+   "code": "$ID_BONUS_TTM",
+   "cn": "分红股息TTM"
+  },
+  {
+   "code": "$ID_BONUS_TTM_LAST",
+   "cn": "最近一年分红股息TTM"
+  },
+  {
+   "code": "$ID_BONUS_TTM_RATE",
+   "cn": "股利支付率(%)"
+  },
+  {
+   "code": "$ID_BTAS",
+   "cn": "营业税金及附加"
+  },
+  {
+   "code": "$ID_CAPITAL_FUNDS_TOTAL",
+   "cn": "总增发金额"
+  },
+  {
+   "code": "$ID_CAPITAL_PRESHARES_BOND_FUNDS_TOTAL",
+   "cn": "总的历史融资金额"
+  },
+  {
+   "code": "$ID_CAS",
+   "cn": "合同资产"
+  },
+  {
+   "code": "$ID_CASH",
+   "cn": "总现金"
+  },
+  {
+   "code": "$ID_CAS_DAYS",
+   "cn": "合同资产周转天数(D)"
+  },
+  {
+   "code": "$ID_CAS_DAYS_TTM",
+   "cn": "TTM合同资产周转天数(D)"
+  },
+  {
+   "code": "$ID_CAS_WEIGHTED",
+   "cn": "加权合同资产"
+  },
+  {
+   "code": "$ID_CCC_DAYS",
+   "cn": "净现金周转天数(D)"
+  },
+  {
+   "code": "$ID_CCC_DAYS_TTM",
+   "cn": "TTM净现金周转天数(D)"
+  },
+  {
+   "code": "$ID_CFAF",
+   "cn": "指定以公允价值记账之金融资产"
+  },
+  {
+   "code": "$ID_CF_KIND",
+   "cn": "现金流类型"
+  },
+  {
+   "code": "$ID_CF_KIND_CN",
+   "cn": "现金流类型"
+  },
+  {
+   "code": "$ID_CF_KIND_DESC",
+   "cn": "现金流类型描述"
+  },
+  {
+   "code": "$ID_CF_KIND_TTM",
+   "cn": "现金流类型TTM"
+  },
+  {
+   "code": "$ID_CLAR",
+   "cn": "购建固定资产、无形资产和其他长期资产支付的现金"
+  },
+  {
+   "code": "$ID_CLB",
+   "cn": "合同负债"
+  },
+  {
+   "code": "$ID_CLB_DAYS",
+   "cn": "合同负债周转天数(D)"
+  },
+  {
+   "code": "$ID_CLB_DAYS_TTM",
+   "cn": "TTM合同负债周转天数(D)"
+  },
+  {
+   "code": "$ID_CLB_WEIGHTED",
+   "cn": "加权合同负债"
+  },
+  {
+   "code": "$ID_CLOSE_AR_DAY",
+   "cn": "日收盘价(后复权)"
+  },
+  {
+   "code": "$ID_CLOSE_DAY",
+   "cn": "日收盘价(前复权)"
+  },
+  {
+   "code": "$ID_CLOSE_NR_DAY",
+   "cn": "日收盘价(无复权)"
+  },
+  {
+   "code": "$ID_CORE_NP",
+   "cn": "核心利润"
+  },
+  {
+   "code": "$ID_CORE_NP_RATE",
+   "cn": "核心利润率(%)"
+  },
+  {
+   "code": "$ID_COST",
+   "cn": "费用"
+  },
+  {
+   "code": "$ID_COST_TOTAL",
+   "cn": "四项费用"
+  },
+  {
+   "code": "$ID_COST_TOTAL_RATE",
+   "cn": "四项费用率(%)"
+  },
+  {
+   "code": "$ID_CR",
+   "cn": "资本公积"
+  },
+  {
+   "code": "$ID_CT",
+   "cn": "三项费用率(%)"
+  },
+  {
+   "code": "$ID_DITA",
+   "cn": "递延所得税资产"
+  },
+  {
+   "code": "$ID_DLAL",
+   "cn": "处置固定资产、无形资产和其他长期资产收回的现金净额"
+  },
+  {
+   "code": "$ID_DPPR",
+   "cn": "扣非净利润"
+  },
+  {
+   "code": "$ID_DPPR_NPTS",
+   "cn": "扣非净利润占比(%)"
+  },
+  {
+   "code": "$ID_DPPR_TTM",
+   "cn": "滚动净利润(扣非)"
+  },
+  {
+   "code": "$ID_DR",
+   "cn": "预收账款"
+  },
+  {
+   "code": "$ID_DR_DAYS",
+   "cn": "预收账款周转天数(D)"
+  },
+  {
+   "code": "$ID_DR_DAYS_TTM",
+   "cn": "TTM预收账款周转天数(D)"
+  },
+  {
+   "code": "$ID_DR_WEIGHTED",
+   "cn": "加权预收账款"
+  },
+  {
+   "code": "$ID_EBIT",
+   "cn": "息税前净利润"
+  },
+  {
+   "code": "$ID_EBITDA_TTM",
+   "cn": "息税折旧摊销前营业利润TTM"
+  },
+  {
+   "code": "$ID_EBIT_TTM",
+   "cn": "息税前净利润TTM"
+  },
+  {
+   "code": "$ID_EMP_NUM",
+   "cn": "员工数"
+  },
+  {
+   "code": "$ID_EMP_NUM_WEIGHTED",
+   "cn": "加权员工数"
+  },
+  {
+   "code": "$ID_EPMR",
+   "cn": "已赚保费"
+  },
+  {
+   "code": "$ID_EPS_DPPR",
+   "cn": "归母每股扣非收益(元)"
+  },
+  {
+   "code": "$ID_EPS_NPTS",
+   "cn": "归母每股收益(元)"
+  },
+  {
+   "code": "$ID_EV",
+   "cn": "企业账面价值"
+  },
+  {
+   "code": "$ID_EV_EBIT",
+   "cn": "EV/EBIT(D)"
+  },
+  {
+   "code": "$ID_EV_EBITDA",
+   "cn": "EV/EBITDA(D)"
+  },
+  {
+   "code": "$ID_EXCHANGEHOLD_TOTAL",
+   "cn": "高管年度增减持股总额"
+  },
+  {
+   "code": "$ID_FCF",
+   "cn": "自由现金流量"
+  },
+  {
+   "code": "$ID_FE",
+   "cn": "财务费用"
+  },
+  {
+   "code": "$ID_FE_RATE",
+   "cn": "财务费用率(%)"
+  },
+  {
+   "code": "$ID_FREE_HOLDER_SUM_MV",
+   "cn": "十大流通股东持股市值总和"
+  },
+  {
+   "code": "$ID_FREE_HOLDER_SUM_RATIO",
+   "cn": "十大流通股东持股比例总和(%)"
+  },
+  {
+   "code": "$ID_FRRE",
+   "cn": "应收款项融资"
+  },
+  {
+   "code": "$ID_FRRE_DAYS",
+   "cn": "应收款项融资周转天数(D)"
+  },
+  {
+   "code": "$ID_FRRE_DAYS_TTM",
+   "cn": "TTM应收款项融资周转天数(D)"
+  },
+  {
+   "code": "$ID_FRRE_WEIGHTED",
+   "cn": "加权应收款项融资"
+  },
+  {
+   "code": "$ID_GM",
+   "cn": "毛利率(%)"
+  },
+  {
+   "code": "$ID_GM_TTM",
+   "cn": "毛利率TTM(%)"
+  },
+  {
+   "code": "$ID_GW",
+   "cn": "商誉"
+  },
+  {
+   "code": "$ID_HOLDERNUM_HOLDER_TOTAL",
+   "cn": "持股人总数(万)"
+  },
+  {
+   "code": "$ID_HOLD_MV_CHANGE_BYVOL",
+   "cn": "净增持市值变化"
+  },
+  {
+   "code": "$ID_HOLD_MV_DAY",
+   "cn": "持股市值"
+  },
+  {
+   "code": "$ID_HOLD_NETADD_MV_DAY",
+   "cn": "净增持市值"
+  },
+  {
+   "code": "$ID_HOLD_RATIO_DAY",
+   "cn": "持股比例"
+  },
+  {
+   "code": "$ID_HOLD_VOL_DAY",
+   "cn": "持股量"
+  },
+  {
+   "code": "$ID_HROE",
+   "cn": "ROE(%)"
+  },
+  {
+   "code": "$ID_IA",
+   "cn": "无形资产"
+  },
+  {
+   "code": "$ID_IBD",
+   "cn": "有息负债"
+  },
+  {
+   "code": "$ID_IBD_RATE",
+   "cn": "有息负债率(%)"
+  },
+  {
+   "code": "$ID_IFCO",
+   "cn": "手续费及佣金收入"
+  },
+  {
+   "code": "$ID_IGDL",
+   "cn": "清算扣除资产"
+  },
+  {
+   "code": "$ID_IO",
+   "cn": "存货"
+  },
+  {
+   "code": "$ID_IO0",
+   "cn": "存货-期初"
+  },
+  {
+   "code": "$ID_IO_DAYS",
+   "cn": "存货周转天数(D)"
+  },
+  {
+   "code": "$ID_IO_DAYS_TTM",
+   "cn": "TTM存货周转天数(D)"
+  },
+  {
+   "code": "$ID_IO_WEIGHTED",
+   "cn": "加权存货"
+  },
+  {
+   "code": "$ID_LARN",
+   "cn": "贷款及垫款（兼容旧码）"
+  },
+  {
+   "code": "$ID_LD",
+   "cn": "流动比率(%)"
+  },
+  {
+   "code": "$ID_LF",
+   "cn": "拆出资金"
+  },
+  {
+   "code": "$ID_LOANS",
+   "cn": "贷款及垫款"
+  },
+  {
+   "code": "$ID_LTDE",
+   "cn": "长期待摊费用"
+  },
+  {
+   "code": "$ID_LV",
+   "cn": "清算价值"
+  },
+  {
+   "code": "$ID_LV_NET",
+   "cn": "净清算价值"
+  },
+  {
+   "code": "$ID_LV_RATE",
+   "cn": "清算价值比率(%)"
+  },
+  {
+   "code": "$ID_MEXE",
+   "cn": "管理费用"
+  },
+  {
+   "code": "$ID_MEXE_RATE",
+   "cn": "管理费用率(%)"
+  },
+  {
+   "code": "$ID_MFNS",
+   "cn": "货币资金"
+  },
+  {
+   "code": "$ID_MFNS_TCL",
+   "cn": "货币资金占流动负债比率(%)"
+  },
+  {
+   "code": "$ID_MIIT",
+   "cn": "少数股东损益"
+  },
+  {
+   "code": "$ID_MIN_WEIGHTED",
+   "cn": "加权少数股东权益"
+  },
+  {
+   "code": "$ID_MLTD",
+   "cn": "中长期存款"
+  },
+  {
+   "code": "$ID_MV",
+   "cn": "市值"
+  },
+  {
+   "code": "$ID_MV_CHANGE",
+   "cn": "市值变化"
+  },
+  {
+   "code": "$ID_MV_LAST",
+   "cn": "最新市值"
+  },
+  {
+   "code": "$ID_NAME",
+   "cn": "名字"
+  },
+  {
+   "code": "$ID_NA_WEIGHTED",
+   "cn": "加权净资产"
+  },
+  {
+   "code": "$ID_NCF",
+   "cn": "现金及现金等价物净增加额"
+  },
+  {
+   "code": "$ID_NCFF",
+   "cn": "筹资活动产生的现金流量净额"
+  },
+  {
+   "code": "$ID_NCFF_TTM",
+   "cn": "筹资活动产生的现金流量净额TTM"
+  },
+  {
+   "code": "$ID_NCFI",
+   "cn": "投资活动产生的现金流量净额"
+  },
+  {
+   "code": "$ID_NCFI_TTM",
+   "cn": "投资活动产生的现金流量净额TTM"
+  },
+  {
+   "code": "$ID_NCFO",
+   "cn": "经营活动产生的现金流量净额"
+  },
+  {
+   "code": "$ID_NCFO_NP",
+   "cn": "经营现金流量净额对净利润的比率(%)"
+  },
+  {
+   "code": "$ID_NCFO_OP",
+   "cn": "经营现金流量净额对营业利润的比率(%)"
+  },
+  {
+   "code": "$ID_NCFO_PPE",
+   "cn": "经营现金流量净额对固定资产的比率(%)"
+  },
+  {
+   "code": "$ID_NCFO_TTM",
+   "cn": "经营活动产生的现金流量净额TTM"
+  },
+  {
+   "code": "$ID_NFOI",
+   "cn": "经营活动现金流入小计"
+  },
+  {
+   "code": "$ID_NIBD",
+   "cn": "无息负债"
+  },
+  {
+   "code": "$ID_NIBD_C",
+   "cn": "无息流动负债"
+  },
+  {
+   "code": "$ID_NIBD_NC",
+   "cn": "无息非流动负债"
+  },
+  {
+   "code": "$ID_NP",
+   "cn": "净利润"
+  },
+  {
+   "code": "$ID_NPAP",
+   "cn": "应付账款及应付票据"
+  },
+  {
+   "code": "$ID_NPAP_DAYS",
+   "cn": "应付账款及应付票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NPAP_DAYS_TTM",
+   "cn": "TTM应付账款及应付票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NPAP_WEIGHTED",
+   "cn": "加权应付账款及应付票据"
+  },
+  {
+   "code": "$ID_NPE",
+   "cn": "应付票据"
+  },
+  {
+   "code": "$ID_NPE_DAYS",
+   "cn": "应付票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NPE_DAYS_TTM",
+   "cn": "TTM应付票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NPE_WEIGHTED",
+   "cn": "加权应付票据"
+  },
+  {
+   "code": "$ID_NPR_TTM",
+   "cn": "净现比（收现质量）(TTM)"
+  },
+  {
+   "code": "$ID_NPTS",
+   "cn": "归母净利润"
+  },
+  {
+   "code": "$ID_NPTS_TOTAL",
+   "cn": "上市至今归母净利润总额"
+  },
+  {
+   "code": "$ID_NPTS_TTM",
+   "cn": "归母净利润TTM"
+  },
+  {
+   "code": "$ID_NP_EMP_AVG",
+   "cn": "人均净利润"
+  },
+  {
+   "code": "$ID_NP_RATE",
+   "cn": "净利润率(%)"
+  },
+  {
+   "code": "$ID_NP_RATE_TTM",
+   "cn": "净利润率TTM(%)"
+  },
+  {
+   "code": "$ID_NP_TTM",
+   "cn": "净利润(TTM)"
+  },
+  {
+   "code": "$ID_NP_YOY",
+   "cn": "净利润同比"
+  },
+  {
+   "code": "$ID_NR",
+   "cn": "应收票据"
+  },
+  {
+   "code": "$ID_NRAR",
+   "cn": "应收票据及应收账款"
+  },
+  {
+   "code": "$ID_NRAR_DAYS",
+   "cn": "应收账款和应收票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NRAR_DAYS_TTM",
+   "cn": "TTM应收账款和应收票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NRAR_WEIGHTED",
+   "cn": "加权应收票据及应收账款"
+  },
+  {
+   "code": "$ID_NR_DAYS",
+   "cn": "应收票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NR_DAYS_TTM",
+   "cn": "TTM应收票据周转天数(D)"
+  },
+  {
+   "code": "$ID_NR_WEIGHTED",
+   "cn": "加权应收票据"
+  },
+  {
+   "code": "$ID_NT",
+   "cn": "归母净利率(%)"
+  },
+  {
+   "code": "$ID_OBIH",
+   "cn": "其他业务收入"
+  },
+  {
+   "code": "$ID_OC",
+   "cn": "营业成本"
+  },
+  {
+   "code": "$ID_OCA",
+   "cn": "其他流动资产"
+  },
+  {
+   "code": "$ID_OCEM",
+   "cn": "利息收入"
+  },
+  {
+   "code": "$ID_OC_TTM",
+   "cn": "TTM营业成本"
+  },
+  {
+   "code": "$ID_OFI_NET",
+   "cn": "经投融现金流量净额"
+  },
+  {
+   "code": "$ID_OIE",
+   "cn": "营业收入"
+  },
+  {
+   "code": "$ID_OIE_OTHER",
+   "cn": "营业收入外其他项目"
+  },
+  {
+   "code": "$ID_OIE_TTM",
+   "cn": "TTM营业收入"
+  },
+  {
+   "code": "$ID_ONAS",
+   "cn": "其他非流动资产"
+  },
+  {
+   "code": "$ID_OP",
+   "cn": "营业利润"
+  },
+  {
+   "code": "$ID_OP_ASSET_DBET",
+   "cn": "总投资资本"
+  },
+  {
+   "code": "$ID_OP_ASSET_NET",
+   "cn": "净营运资本"
+  },
+  {
+   "code": "$ID_OP_DEBT_NET",
+   "cn": "净营运负债"
+  },
+  {
+   "code": "$ID_OP_RATE",
+   "cn": "营业利润率(%)"
+  },
+  {
+   "code": "$ID_OTOI",
+   "cn": "营业总收入其他项目"
+  },
+  {
+   "code": "$ID_O_DAYS",
+   "cn": "营业周转天数(D)"
+  },
+  {
+   "code": "$ID_O_DAYS_TTM",
+   "cn": "TTM营业周转天数(D)"
+  },
+  {
+   "code": "$ID_PB_NOGW",
+   "cn": "市净率(不含商誉)(D)"
+  },
+  {
+   "code": "$ID_PB_NOGW_LAST",
+   "cn": "最新市净率(不含商誉)(D)"
+  },
+  {
+   "code": "$ID_PB_TTM",
+   "cn": "整体市净率(TTM)"
+  },
+  {
+   "code": "$ID_PB_TTM_IDX",
+   "cn": "指数市净率(TTM-mcw)"
+  },
+  {
+   "code": "$ID_PB_TTM_LAST",
+   "cn": "最新滚动市净率PB(D)"
+  },
+  {
+   "code": "$ID_PB_TTM_MEDIAN",
+   "cn": "整体市净率中位数(TTM)"
+  },
+  {
+   "code": "$ID_PB_TTM_MEDIAN_LAST",
+   "cn": "整体市净率中位数-最新"
+  },
+  {
+   "code": "$ID_PB_TTM_SE",
+   "cn": "整体市净率(含商誉)(D)"
+  },
+  {
+   "code": "$ID_PB_TTM_SE_LAST",
+   "cn": "最新整体市净率(含商誉)(D)"
+  },
+  {
+   "code": "$ID_PB_TTM_TOTAL",
+   "cn": "整体市净率(不含商誉)(D)"
+  },
+  {
+   "code": "$ID_PB_TTM_WEIGHTED",
+   "cn": "调和市值加权市净率(TTM)"
+  },
+  {
+   "code": "$ID_PCF_TTM",
+   "cn": "滚动市现率TTM(D)"
+  },
+  {
+   "code": "$ID_PCF_TTM_IDX",
+   "cn": "指数市现率(TTM-mcw)"
+  },
+  {
+   "code": "$ID_PCF_TTM_LAST",
+   "cn": "最新滚动市现率TTM(D)"
+  },
+  {
+   "code": "$ID_PE_TTM",
+   "cn": "整体市盈率(TTM)"
+  },
+  {
+   "code": "$ID_PE_TTM_DPPR",
+   "cn": "滚动市盈率(扣非)(D)"
+  },
+  {
+   "code": "$ID_PE_TTM_DPPR_IDX",
+   "cn": "指数扣非市盈率(TTM-mcw)"
+  },
+  {
+   "code": "$ID_PE_TTM_DPPR_TOTAL",
+   "cn": "滚动市盈率(扣非-整体法)(D)"
+  },
+  {
+   "code": "$ID_PE_TTM_DPPR_WEIGHTED",
+   "cn": "调和市值加权扣非市盈率(TTM)"
+  },
+  {
+   "code": "$ID_PE_TTM_DPPR_WEIGHTED_EQUAL",
+   "cn": "等权调和市盈率(扣非)(D)"
+  },
+  {
+   "code": "$ID_PE_TTM_IDX",
+   "cn": "指数市盈率(TTM-mcw)"
+  },
+  {
+   "code": "$ID_PE_TTM_LAST",
+   "cn": "整体市盈率(TTM)-最新"
+  },
+  {
+   "code": "$ID_PE_TTM_MEDIAN",
+   "cn": "整体市盈率中位数(TTM)"
+  },
+  {
+   "code": "$ID_PE_TTM_MEDIAN_LAST",
+   "cn": "整体市盈率中位数-最新"
+  },
+  {
+   "code": "$ID_PE_TTM_TOTAL",
+   "cn": "整体市盈率(TTM-整体法)"
+  },
+  {
+   "code": "$ID_PE_TTM_TOTAL_LAST",
+   "cn": "整体市盈率(TTM-整体法)-最新"
+  },
+  {
+   "code": "$ID_PE_TTM_WEIGHTED",
+   "cn": "调和市值加权市盈率(TTM)"
+  },
+  {
+   "code": "$ID_PE_TTM_WEIGHTED_EQUAL",
+   "cn": "等权调和市盈率(D)"
+  },
+  {
+   "code": "$ID_PIC",
+   "cn": "股本"
+  },
+  {
+   "code": "$ID_PPE",
+   "cn": "固定资产"
+  },
+  {
+   "code": "$ID_PPE_ALL",
+   "cn": "固定资产"
+  },
+  {
+   "code": "$ID_PPE_ALL_WEIGHTED",
+   "cn": "加权平均固定资产"
+  },
+  {
+   "code": "$ID_PPE_DAYS",
+   "cn": "固定资产周转天数(D)"
+  },
+  {
+   "code": "$ID_PPE_DAYS_TTM",
+   "cn": "TTM固定资产周转天数(D)"
+  },
+  {
+   "code": "$ID_PPE_TA",
+   "cn": "固定资产占总资产比率(%)"
+  },
+  {
+   "code": "$ID_PPE_TURNOVER",
+   "cn": "固定资产周转率(D)"
+  },
+  {
+   "code": "$ID_PPE_WEIGHTED",
+   "cn": "加权固定资产"
+  },
+  {
+   "code": "$ID_PR",
+   "cn": "市赚率(D)"
+  },
+  {
+   "code": "$ID_PRESHARES_FUNDS_TOTAL",
+   "cn": "总募集资金"
+  },
+  {
+   "code": "$ID_PR_AVG",
+   "cn": "市赚率-3年平均ROE(D)"
+  },
+  {
+   "code": "$ID_PR_LAST",
+   "cn": "最新市赚率(D)"
+  },
+  {
+   "code": "$ID_PS_CR",
+   "cn": "每股资本公积(元)"
+  },
+  {
+   "code": "$ID_PS_NCFO",
+   "cn": "每股经营现金流量净额(元)"
+  },
+  {
+   "code": "$ID_PS_NFOI",
+   "cn": "每股经营现金流量(元)"
+  },
+  {
+   "code": "$ID_PS_RE",
+   "cn": "每股未分配利润(元)"
+  },
+  {
+   "code": "$ID_PS_SE",
+   "cn": "归母每股股东权益(元)"
+  },
+  {
+   "code": "$ID_PS_TTM",
+   "cn": "滚动市销率TTM(D)"
+  },
+  {
+   "code": "$ID_PS_TTM_IDX",
+   "cn": "指数市销率(TTM-mcw)"
+  },
+  {
+   "code": "$ID_PS_TTM_LAST",
+   "cn": "最新滚动市销率TTM(D)"
+  },
+  {
+   "code": "$ID_PS_TTM_MEDIAN",
+   "cn": "整体市销率中位数(TTM)"
+  },
+  {
+   "code": "$ID_PT",
+   "cn": "净利润率(%)"
+  },
+  {
+   "code": "$ID_QR_ASSET",
+   "cn": "速动资产"
+  },
+  {
+   "code": "$ID_QR_MINUS_ASSET",
+   "cn": "速动扣除资产"
+  },
+  {
+   "code": "$ID_RAAS",
+   "cn": "买入返售金融资产"
+  },
+  {
+   "code": "$ID_RD",
+   "cn": "研发费用"
+  },
+  {
+   "code": "$ID_RD_RATE",
+   "cn": "研发费用率(%)"
+  },
+  {
+   "code": "$ID_RE",
+   "cn": "未分配利润"
+  },
+  {
+   "code": "$ID_ROA_WEIGHTED",
+   "cn": "ROA(%)"
+  },
+  {
+   "code": "$ID_ROC",
+   "cn": "资本收益率(%)"
+  },
+  {
+   "code": "$ID_ROE",
+   "cn": "归母净资产收益率(%)"
+  },
+  {
+   "code": "$ID_ROE_AVG",
+   "cn": "历史平均ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_AVG10",
+   "cn": "最近10年平均ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_AVG3",
+   "cn": "最近3年平均ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_AVG5",
+   "cn": "最近5年平均ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_DPPR",
+   "cn": "归母扣非ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_DPPR_TTM",
+   "cn": "归母扣非ROE(TTM)(%)"
+  },
+  {
+   "code": "$ID_ROE_MIIT",
+   "cn": "少数股东ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_NP",
+   "cn": "ROE"
+  },
+  {
+   "code": "$ID_ROE_NPTS",
+   "cn": "归母加权ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_NPTS_TTM",
+   "cn": "滚动归母加权ROE(%)"
+  },
+  {
+   "code": "$ID_ROE_NP_TTM",
+   "cn": "滚动净资产收益率(%)"
+  },
+  {
+   "code": "$ID_ROE_TTM",
+   "cn": "滚动归母净资产收益率(%)"
+  },
+  {
+   "code": "$ID_ROE_TTM_AFTER",
+   "cn": "ROE(TTM)"
+  },
+  {
+   "code": "$ID_ROE_TTM_LAST",
+   "cn": "最新ROE(TTM)(%)"
+  },
+  {
+   "code": "$ID_ROIC",
+   "cn": "投资资本回报率(%)"
+  },
+  {
+   "code": "$ID_ROI_1",
+   "cn": "1年的投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_10",
+   "cn": "10年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_20",
+   "cn": "20年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_3",
+   "cn": "3年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_5",
+   "cn": "5年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_NERAST_1",
+   "cn": "最近1年的投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_NERAST_10",
+   "cn": "最近10年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_NERAST_20",
+   "cn": "最近20年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_NERAST_3",
+   "cn": "最近3年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROI_NERAST_5",
+   "cn": "最近5年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ID_ROTA",
+   "cn": "有形资产回报率(%)"
+  },
+  {
+   "code": "$ID_SALARY_EMP_AVG",
+   "cn": "人均薪酬(万)"
+  },
+  {
+   "code": "$ID_SALARY_TOTAL",
+   "cn": "薪酬总额"
+  },
+  {
+   "code": "$ID_SD",
+   "cn": "速动比率(%)"
+  },
+  {
+   "code": "$ID_SE",
+   "cn": "股东权益"
+  },
+  {
+   "code": "$ID_SETL",
+   "cn": "权益负债"
+  },
+  {
+   "code": "$ID_SEXE",
+   "cn": "销售费用"
+  },
+  {
+   "code": "$ID_SEXE_RATE",
+   "cn": "销售费用率(%)"
+  },
+  {
+   "code": "$ID_SE_NOGW",
+   "cn": "不含商誉股东权益"
+  },
+  {
+   "code": "$ID_SE_WEIGHTED",
+   "cn": "加权股东权益"
+  },
+  {
+   "code": "$ID_SE_WEIGHTED_AFTER",
+   "cn": "最新股东权益(加权)(亿)"
+  },
+  {
+   "code": "$ID_SSIR",
+   "cn": "销售商品、提供劳务收到的现金"
+  },
+  {
+   "code": "$ID_SSIR_OIE",
+   "cn": "销售商品提供劳务收到的现金对营业收入的比率(%)"
+  },
+  {
+   "code": "$ID_SSIR_TA",
+   "cn": "销售商品提供劳务收到的现金对总资产的比率(%)"
+  },
+  {
+   "code": "$ID_STD",
+   "cn": "短期存款"
+  },
+  {
+   "code": "$ID_TA",
+   "cn": "总资产"
+  },
+  {
+   "code": "$ID_TANGIBLE_ASSET",
+   "cn": "有形资产"
+  },
+  {
+   "code": "$ID_TAX",
+   "cn": "所得税"
+  },
+  {
+   "code": "$ID_TAXR",
+   "cn": "税率"
+  },
+  {
+   "code": "$ID_TAX_RATE",
+   "cn": "有效税率(%)"
+  },
+  {
+   "code": "$ID_TA_DAYS",
+   "cn": "总资产周转天数(D)"
+  },
+  {
+   "code": "$ID_TA_DAYS_TTM",
+   "cn": "TTM总资产周转天数(D)"
+  },
+  {
+   "code": "$ID_TA_TURNOVER",
+   "cn": "总资产周转率(%)"
+  },
+  {
+   "code": "$ID_TA_WEIGHTED",
+   "cn": "加权平均总资产"
+  },
+  {
+   "code": "$ID_TA_YOY",
+   "cn": "资产同比"
+  },
+  {
+   "code": "$ID_TCA",
+   "cn": "流动资产合计"
+  },
+  {
+   "code": "$ID_TCL",
+   "cn": "流动负债合计"
+  },
+  {
+   "code": "$ID_TCL_DAYS",
+   "cn": "流动资产周转天数(D)"
+  },
+  {
+   "code": "$ID_TCL_DAYS_TTM",
+   "cn": "TTM流动资产周转天数(D)"
+  },
+  {
+   "code": "$ID_TCL_WEIGHTED",
+   "cn": "加权流动资产"
+  },
+  {
+   "code": "$ID_TE",
+   "cn": "总权益"
+  },
+  {
+   "code": "$ID_TE_DAYS",
+   "cn": "股东权益周转天数(D)"
+  },
+  {
+   "code": "$ID_TE_DAYS_TTM",
+   "cn": "TTM股东权益周转天数(D)"
+  },
+  {
+   "code": "$ID_TE_WEIGHTED",
+   "cn": "加权总权益"
+  },
+  {
+   "code": "$ID_TFAN",
+   "cn": "交易性金融资产(非FVT)"
+  },
+  {
+   "code": "$ID_TFAS",
+   "cn": "交易性金融资产"
+  },
+  {
+   "code": "$ID_TL",
+   "cn": "总负债"
+  },
+  {
+   "code": "$ID_TL_RATE",
+   "cn": "资产负债率(%)"
+  },
+  {
+   "code": "$ID_TNA",
+   "cn": "非流动资产合计"
+  },
+  {
+   "code": "$ID_TNL",
+   "cn": "非流动负债合计"
+  },
+  {
+   "code": "$ID_TP",
+   "cn": "利润总额"
+  },
+  {
+   "code": "$ID_TR",
+   "cn": "营业总收入"
+  },
+  {
+   "code": "$ID_TR_EMP_AVG",
+   "cn": "人均营业总收入"
+  },
+  {
+   "code": "$ID_TR_TTM",
+   "cn": "TTM营业总收入"
+  },
+  {
+   "code": "$ID_TR_YOY",
+   "cn": "营收同比"
+  },
+  {
+   "code": "$ID_TT",
+   "cn": "总资产周转率(%)"
+  },
+  {
+   "code": "$ID_TTS",
+   "cn": "杠杆系数(D)"
+  },
+  {
+   "code": "$IGDL",
+   "cn": "清算扣除资产(亿)"
+  },
+  {
+   "code": "$INCOME_BANK",
+   "cn": "银行业务收入(亿)"
+  },
+  {
+   "code": "$INDEX_AMOUNT_DAY",
+   "cn": "指数成交额"
+  },
+  {
+   "code": "$INDEX_AMOUNT_LAST",
+   "cn": "指数最新成交额"
+  },
+  {
+   "code": "$INDEX_AMOUNT_WEEK",
+   "cn": "指数周成交额"
+  },
+  {
+   "code": "$INDEX_ASOF_LAST",
+   "cn": "指数最新行情 asof"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_10",
+   "cn": "10日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_120",
+   "cn": "120日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_20",
+   "cn": "20日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_240",
+   "cn": "240日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_3",
+   "cn": "3日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_30",
+   "cn": "30日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_5",
+   "cn": "5日均价"
+  },
+  {
+   "code": "$INDEX_AVG_DAY_60",
+   "cn": "60日均价"
+  },
+  {
+   "code": "$INDEX_CHG_DAY",
+   "cn": "指数涨跌额"
+  },
+  {
+   "code": "$INDEX_CHG_LAST",
+   "cn": "指数最新涨跌额"
+  },
+  {
+   "code": "$INDEX_CHG_WEEK",
+   "cn": "指数周涨跌额"
+  },
+  {
+   "code": "$INDEX_CLOSE",
+   "cn": "指数收盘价"
+  },
+  {
+   "code": "$INDEX_CLOSE_DAY",
+   "cn": "指数收盘价"
+  },
+  {
+   "code": "$INDEX_CLOSE_LAST",
+   "cn": "指数最新收盘价"
+  },
+  {
+   "code": "$INDEX_CLOSE_WEEK",
+   "cn": "指数周收盘价"
+  },
+  {
+   "code": "$INDEX_CLOSE_WEEK_LAST",
+   "cn": "指数最新周收盘价"
+  },
+  {
+   "code": "$INDEX_DATE_LAST",
+   "cn": "指数最新行情日期"
+  },
+  {
+   "code": "$INDEX_HIGH_DAY",
+   "cn": "指数最高价"
+  },
+  {
+   "code": "$INDEX_HIGH_LAST",
+   "cn": "指数最新最高价"
+  },
+  {
+   "code": "$INDEX_HIGH_WEEK",
+   "cn": "指数周最高价"
+  },
+  {
+   "code": "$INDEX_LOW_DAY",
+   "cn": "指数最低价"
+  },
+  {
+   "code": "$INDEX_LOW_LAST",
+   "cn": "指数最新最低价"
+  },
+  {
+   "code": "$INDEX_LOW_WEEK",
+   "cn": "指数周最低价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_10",
+   "cn": "10日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_120",
+   "cn": "120日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_20",
+   "cn": "20日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_240",
+   "cn": "240日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_3",
+   "cn": "3日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_30",
+   "cn": "30日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_5",
+   "cn": "5日最高价"
+  },
+  {
+   "code": "$INDEX_MAX_DAY_60",
+   "cn": "60日最高价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_10",
+   "cn": "10日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_120",
+   "cn": "120日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_20",
+   "cn": "20日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_240",
+   "cn": "240日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_3",
+   "cn": "3日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_30",
+   "cn": "30日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_5",
+   "cn": "5日最低价"
+  },
+  {
+   "code": "$INDEX_MIN_DAY_60",
+   "cn": "60日最低价"
+  },
+  {
+   "code": "$INDEX_OPEN_DAY",
+   "cn": "指数开盘价"
+  },
+  {
+   "code": "$INDEX_OPEN_LAST",
+   "cn": "指数最新开盘价"
+  },
+  {
+   "code": "$INDEX_OPEN_WEEK",
+   "cn": "指数周开盘价"
+  },
+  {
+   "code": "$INDEX_PERCENT",
+   "cn": "指数涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_PERCENT_DAY",
+   "cn": "指数涨跌幅"
+  },
+  {
+   "code": "$INDEX_PERCENT_LAST",
+   "cn": "指数最新涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_PERCENT_WEEK",
+   "cn": "指数周涨跌幅"
+  },
+  {
+   "code": "$INDEX_PERCENT_WEEK_LAST",
+   "cn": "指数最新周涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_1",
+   "cn": "指数1年涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_10",
+   "cn": "指数10年年化涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_3",
+   "cn": "指数3年年化涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_5",
+   "cn": "指数5年年化涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_NERAST_1",
+   "cn": "指数最近1年涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_NERAST_10",
+   "cn": "指数最近10年年化涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_NERAST_3",
+   "cn": "指数最近3年年化涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_ROI_NERAST_5",
+   "cn": "指数最近5年年化涨跌幅(%)"
+  },
+  {
+   "code": "$INDEX_VOLUME_DAY",
+   "cn": "指数成交量"
+  },
+  {
+   "code": "$INDEX_VOLUME_LAST",
+   "cn": "指数最新成交量"
+  },
+  {
+   "code": "$INDEX_VOLUME_WEEK",
+   "cn": "指数周成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_10",
+   "cn": "10日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_120",
+   "cn": "120日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_20",
+   "cn": "20日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_240",
+   "cn": "240日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_3",
+   "cn": "3日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_30",
+   "cn": "30日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_5",
+   "cn": "5日成交量"
+  },
+  {
+   "code": "$INDEX_VOL_SUM_60",
+   "cn": "60日成交量"
+  },
+  {
+   "code": "$INDUSGROW_ACCUMULATE",
+   "cn": "工业增加值增长-同比(D)"
+  },
+  {
+   "code": "$INDUSGROW_SAME",
+   "cn": "工业增加值增长-同比(D)"
+  },
+  {
+   "code": "$INDUSTRY_CUR",
+   "cn": "当前三级行业"
+  },
+  {
+   "code": "$INDUSTRY_CUR_1",
+   "cn": "当前一级行业"
+  },
+  {
+   "code": "$INDUSTRY_CUR_2",
+   "cn": "当前二级行业"
+  },
+  {
+   "code": "$INDUSTRY_CUR_3",
+   "cn": "当前三级行业"
+  },
+  {
+   "code": "$INDUSTRY_LEVEL1",
+   "cn": "1级行业"
+  },
+  {
+   "code": "$INDUSTRY_LEVEL2",
+   "cn": "2级行业"
+  },
+  {
+   "code": "$INDUSTRY_LEVEL3",
+   "cn": "3级行业"
+  },
+  {
+   "code": "$INDUSTRY_NAME",
+   "cn": "行业名称"
+  },
+  {
+   "code": "$INDUSTRY_PARENT",
+   "cn": "细分行业"
+  },
+  {
+   "code": "$INDUSTRY_SIBLING",
+   "cn": "细分行业"
+  },
+  {
+   "code": "$INDUSTRY_SUB",
+   "cn": "细分行业"
+  },
+  {
+   "code": "$INSIDER_BUYING",
+   "cn": "大股东增持"
+  },
+  {
+   "code": "$IOFA",
+   "cn": "同业及其他金融机构存放款项净增加额"
+  },
+  {
+   "code": "$IO_DAYS",
+   "cn": "存货周转天数(D)"
+  },
+  {
+   "code": "$IO_DAYS_TTM",
+   "cn": "TTM存货周转天数(D)"
+  },
+  {
+   "code": "$IO_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$IPODate",
+   "cn": "首次公开发行日期"
+  },
+  {
+   "code": "$IPOYear",
+   "cn": "首次公开发行年份"
+  },
+  {
+   "code": "$IPO_YEARS",
+   "cn": "上市年数"
+  },
+  {
+   "code": "$IPO_YEARS_Q4",
+   "cn": "上市年数(完整年度)"
+  },
+  {
+   "code": "$IR",
+   "cn": "指标"
+  },
+  {
+   "code": "$IR_CCY",
+   "cn": "最新指标货币单位"
+  },
+  {
+   "code": "$IR_CCYCN",
+   "cn": "最新指标货币单位(中文优先, 空则回退代码)"
+  },
+  {
+   "code": "$IR_LAST",
+   "cn": "最新指标"
+  },
+  {
+   "code": "$ISSUE",
+   "cn": "上市发行信息(美股)"
+  },
+  {
+   "code": "$ISSUE_CONVERT_RATIO",
+   "cn": "转换比率(美股)"
+  },
+  {
+   "code": "$ISSUE_ISIN_CODE",
+   "cn": "ISIN代码(美股)"
+  },
+  {
+   "code": "$ISSUE_LISTING_DATE",
+   "cn": "上市日期(美股)"
+  },
+  {
+   "code": "$ISSUE_NUM",
+   "cn": "发行数量(美股)"
+  },
+  {
+   "code": "$ISSUE_PAR_VALUE",
+   "cn": "面值(美股)"
+  },
+  {
+   "code": "$ISSUE_PRICE",
+   "cn": "发行价格(美股)"
+  },
+  {
+   "code": "$ISSUE_SECUCODE",
+   "cn": "证券代码(美股)"
+  },
+  {
+   "code": "$ISSUE_SECURITY_TYPE",
+   "cn": "证券类型(美股)"
+  },
+  {
+   "code": "$ISSUE_TRADE_MARKET",
+   "cn": "交易市场(美股)"
+  },
+  {
+   "code": "$IS_BANK",
+   "cn": "是否银行"
+  },
+  {
+   "code": "$IS_DELISTING",
+   "cn": "是否是退市股票(整理期)"
+  },
+  {
+   "code": "$IS_FINANCIAL",
+   "cn": "是否金融企业"
+  },
+  {
+   "code": "$IS_INSURANCE",
+   "cn": "是否保险"
+  },
+  {
+   "code": "$IS_SECURITIES",
+   "cn": "是否证券"
+  },
+  {
+   "code": "$IS_ST",
+   "cn": "是否是ST股票"
+  },
+  {
+   "code": "$IS_ST_RED",
+   "cn": "是否是ST红牌股票"
+  },
+  {
+   "code": "$IS_ST_YELLOW",
+   "cn": "是否是ST黄牌股票"
+  },
+  {
+   "code": "$IS_SUSPEND",
+   "cn": "是否停牌"
+  },
+  {
+   "code": "$JOB_ADD",
+   "cn": "非农就业人数变化(万)"
+  },
+  {
+   "code": "$JOB_LESS",
+   "cn": "失业率(月)(%)"
+  },
+  {
+   "code": "$KLINE_DATE",
+   "cn": "日K线采样日期"
+  },
+  {
+   "code": "$KLINE_DATE_LAST",
+   "cn": "最新采样点日期"
+  },
+  {
+   "code": "$KLINE_DAY",
+   "cn": "日K线(F)"
+  },
+  {
+   "code": "$KLINE_HAS",
+   "cn": "日K线是否存在"
+  },
+  {
+   "code": "$KLINE_LAST_DATE",
+   "cn": "最新采样点日期"
+  },
+  {
+   "code": "$KLINE_SAS",
+   "cn": "日K线采样点"
+  },
+  {
+   "code": "$KLINE_SAS_LAST",
+   "cn": "最新采样点"
+  },
+  {
+   "code": "$KLINE_TIP_ASOF_LAST",
+   "cn": "最新行情 asof"
+  },
+  {
+   "code": "$KLINE_TIP_REFRESHED_AT",
+   "cn": "最新行情 tip 刷新时刻"
+  },
+  {
+   "code": "$LA_CD",
+   "cn": "贷存比(%)"
+  },
+  {
+   "code": "$LD",
+   "cn": "流动比率"
+  },
+  {
+   "code": "$LEIT",
+   "cn": "长期股权投资"
+  },
+  {
+   "code": "$LERR",
+   "cn": "拆出资金及买入返售金融资产净减少额"
+  },
+  {
+   "code": "$LITIGATION_CASE_AMOUNT",
+   "cn": "案件金额"
+  },
+  {
+   "code": "$LITIGATION_CASE_NAME",
+   "cn": "案件名称"
+  },
+  {
+   "code": "$LITIGATION_CASE_PROFILE",
+   "cn": "案件概况"
+  },
+  {
+   "code": "$LITIGATION_CURRENCY",
+   "cn": "币种"
+  },
+  {
+   "code": "$LITIGATION_DEFENCE",
+   "cn": "被告"
+  },
+  {
+   "code": "$LITIGATION_EXECUTE_SITUATION",
+   "cn": "执行情况"
+  },
+  {
+   "code": "$LITIGATION_FI_ACCEPTANCE_COURT",
+   "cn": "一审受理法院"
+  },
+  {
+   "code": "$LITIGATION_FI_IS_APPEAL",
+   "cn": "一审是否上诉"
+  },
+  {
+   "code": "$LITIGATION_FI_JUDGMENT_CONTENT",
+   "cn": "一审判决内容"
+  },
+  {
+   "code": "$LITIGATION_FI_JUDGMENT_DATE",
+   "cn": "一审判决日期"
+  },
+  {
+   "code": "$LITIGATION_FI_PROSECUTE_DATE",
+   "cn": "一审起诉日期"
+  },
+  {
+   "code": "$LITIGATION_LITIGATION_TYPE",
+   "cn": "诉讼类型"
+  },
+  {
+   "code": "$LITIGATION_NOTICE_DATE",
+   "cn": "公告日期"
+  },
+  {
+   "code": "$LITIGATION_PLAINTIFF",
+   "cn": "原告"
+  },
+  {
+   "code": "$LITIGATION_SI_ACCEPTANCE_COURT",
+   "cn": "二审受理法院"
+  },
+  {
+   "code": "$LITIGATION_SI_APPELLEE",
+   "cn": "二审被上诉人"
+  },
+  {
+   "code": "$LITIGATION_SI_JUDGMENT_CONTENT",
+   "cn": "二审判决内容"
+  },
+  {
+   "code": "$LITIGATION_SI_JUDGMENT_DATE",
+   "cn": "二审判决日期"
+  },
+  {
+   "code": "$LOW_AR_DAY",
+   "cn": "最低价(后复权)"
+  },
+  {
+   "code": "$LOW_DAY",
+   "cn": "最低价(前复权)"
+  },
+  {
+   "code": "$LOW_LAST",
+   "cn": "最新最低价(D)"
+  },
+  {
+   "code": "$LOW_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$LOW_NR_DAY",
+   "cn": "最低价(无复权)"
+  },
+  {
+   "code": "$LPCA",
+   "cn": "向中央银行借款净增加额"
+  },
+  {
+   "code": "$LV",
+   "cn": "清算价值(亿)"
+  },
+  {
+   "code": "$LV_NET",
+   "cn": "净清算价值(亿)"
+  },
+  {
+   "code": "$LV_RATE",
+   "cn": "清算价值比率(%)"
+  },
+  {
+   "code": "$M0",
+   "cn": "流通中的现金(m0)"
+  },
+  {
+   "code": "$M1",
+   "cn": "货币(m1)"
+  },
+  {
+   "code": "$M2",
+   "cn": "货币和准货币(m2)"
+  },
+  {
+   "code": "$MA120",
+   "cn": "MA120(120日收盘价均线)"
+  },
+  {
+   "code": "$MA120_LAST",
+   "cn": "MA120(120日收盘价均线)-最新"
+  },
+  {
+   "code": "$MAJORALL_EVENT_TYPE",
+   "cn": "事件类型"
+  },
+  {
+   "code": "$MAJORALL_INFO_CODE",
+   "cn": "信息代码"
+  },
+  {
+   "code": "$MAJORALL_LEVEL1_CONTENT",
+   "cn": "一级内容"
+  },
+  {
+   "code": "$MAJORALL_LEVEL2_CONTENT",
+   "cn": "二级内容"
+  },
+  {
+   "code": "$MAJORALL_NOTICE_DATE",
+   "cn": "公告日期"
+  },
+  {
+   "code": "$MAJORALL_SPECIFIC_EVENTTYPE",
+   "cn": "具体事件类型"
+  },
+  {
+   "code": "$MAX_DAY_10",
+   "cn": "10日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_120",
+   "cn": "120日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_20",
+   "cn": "20日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_240",
+   "cn": "240日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_3",
+   "cn": "3日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_30",
+   "cn": "30日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_5",
+   "cn": "5日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_60",
+   "cn": "60日最高价(前复权)"
+  },
+  {
+   "code": "$MAX_DAY_90",
+   "cn": "90日最高价(前复权)"
+  },
+  {
+   "code": "$MEXE_RATE",
+   "cn": "管理费用率(%)"
+  },
+  {
+   "code": "$MEXE_RATE_LAST",
+   "cn": "管理费用率(%)"
+  },
+  {
+   "code": "$MFNS_TCL",
+   "cn": "货币资金占流动负债比率(%)"
+  },
+  {
+   "code": "$MIN_DAY_10",
+   "cn": "10日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_120",
+   "cn": "120日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_20",
+   "cn": "20日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_240",
+   "cn": "240日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_3",
+   "cn": "3日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_30",
+   "cn": "30日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_5",
+   "cn": "5日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_60",
+   "cn": "60日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_DAY_90",
+   "cn": "90日最低价(前复权)"
+  },
+  {
+   "code": "$MIN_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$MLTD",
+   "cn": "中长期存款"
+  },
+  {
+   "code": "$MV",
+   "cn": "市值"
+  },
+  {
+   "code": "$MV_CHANGE",
+   "cn": "市值变化"
+  },
+  {
+   "code": "$MV_DAY",
+   "cn": "市值"
+  },
+  {
+   "code": "$MV_FREE",
+   "cn": "流通市值"
+  },
+  {
+   "code": "$MV_FREE_DAY",
+   "cn": "流通市值"
+  },
+  {
+   "code": "$MV_FREE_LAST",
+   "cn": "最新流通市值(亿)"
+  },
+  {
+   "code": "$MV_FREE_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$MV_LAST",
+   "cn": "最新市值(亿)"
+  },
+  {
+   "code": "$MV_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$M_GM_DEPTH_POLICY",
+   "cn": "global memo depth policy metric"
+  },
+  {
+   "code": "$M_GM_GLOBAL_MEMO",
+   "cn": "global memo metric"
+  },
+  {
+   "code": "$NAME",
+   "cn": "编制单位"
+  },
+  {
+   "code": "$NAMEA",
+   "cn": "A股名称"
+  },
+  {
+   "code": "$NAMEB",
+   "cn": "B股名称"
+  },
+  {
+   "code": "$NAMEEN",
+   "cn": "机构英文名称"
+  },
+  {
+   "code": "$NAMEH",
+   "cn": "H股名称"
+  },
+  {
+   "code": "$NA_LAST",
+   "cn": "最新净资产"
+  },
+  {
+   "code": "$NA_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$NA_WEIGHTED_AFTER",
+   "cn": "最新净资产(加权)"
+  },
+  {
+   "code": "$NBS_BEV",
+   "cn": "限额以上饮料类-当月(亿元)"
+  },
+  {
+   "code": "$NBS_BEV_YOY",
+   "cn": "限额以上饮料类-当月同比"
+  },
+  {
+   "code": "$NBS_FOOD",
+   "cn": "限额以上粮油食品类-当月(亿元)"
+  },
+  {
+   "code": "$NBS_FOOD_YOY",
+   "cn": "限额以上粮油食品类-当月同比"
+  },
+  {
+   "code": "$NBS_RETAIL",
+   "cn": "社零总额-当月(亿元)"
+  },
+  {
+   "code": "$NBS_RETAIL_YOY",
+   "cn": "社零总额-当月同比"
+  },
+  {
+   "code": "$NBS_RETAIL_YTD",
+   "cn": "社零总额-年初累计(亿元)"
+  },
+  {
+   "code": "$NBS_RETAIL_YTD_YOY",
+   "cn": "社零总额-累计同比"
+  },
+  {
+   "code": "$NBS_TOBACCO",
+   "cn": "限额以上烟酒类-当月(亿元)"
+  },
+  {
+   "code": "$NBS_TOBACCO_YOY",
+   "cn": "限额以上烟酒类-当月同比"
+  },
+  {
+   "code": "$NCB_EQUITY",
+   "cn": "自营权益类证券及其衍生品(亿)"
+  },
+  {
+   "code": "$NCB_N_EQUITY",
+   "cn": "自营非权益类证券及其衍生品(亿)"
+  },
+  {
+   "code": "$NCB_RISK",
+   "cn": "各项风险资本准备之和(亿)"
+  },
+  {
+   "code": "$NCFF_TTM",
+   "cn": "筹资活动现金流量净额(TTM)"
+  },
+  {
+   "code": "$NCFI_TTM",
+   "cn": "投资活动现金流量净额(TTM)"
+  },
+  {
+   "code": "$NCFO_3Y_MIN",
+   "cn": "近3年经营现金流(TTM)最低"
+  },
+  {
+   "code": "$NCFO_3Y_MIN_LAST",
+   "cn": "近3年经营现金流(TTM)最低"
+  },
+  {
+   "code": "$NCFO_NP",
+   "cn": "经营现金流量净额对净利润的比率(%)"
+  },
+  {
+   "code": "$NCFO_OP",
+   "cn": "经营现金流量净额对营业利润的比率(%)"
+  },
+  {
+   "code": "$NCFO_PPE",
+   "cn": "经营现金流量净额对固定资产的比率(%)"
+  },
+  {
+   "code": "$NCFO_TTM",
+   "cn": "经营活动产生的现金流量净额TTM(亿)"
+  },
+  {
+   "code": "$NCFO_TTM_LAST",
+   "cn": "经营活动产生的现金流量净额TTM(亿)"
+  },
+  {
+   "code": "$NDG",
+   "cn": "无形类资产"
+  },
+  {
+   "code": "$NES",
+   "cn": "营业外净收入"
+  },
+  {
+   "code": "$NIBD",
+   "cn": "无息负债(亿)"
+  },
+  {
+   "code": "$NIBD_C",
+   "cn": "无息流动负债(亿)"
+  },
+  {
+   "code": "$NIBD_NC",
+   "cn": "无息非流动负债(亿)"
+  },
+  {
+   "code": "$NNT",
+   "cn": "归母净现金流"
+  },
+  {
+   "code": "$NO_REDUCTION",
+   "cn": "近期无减持公告"
+  },
+  {
+   "code": "$NO_REDUCTION_1M",
+   "cn": "近1月无减持"
+  },
+  {
+   "code": "$NO_REDUCTION_3M",
+   "cn": "近3月无减持"
+  },
+  {
+   "code": "$NO_REDUCTION_6M",
+   "cn": "近6月无减持"
+  },
+  {
+   "code": "$NPAP_DAYS",
+   "cn": "应付账款及应付票据周转天数(D)"
+  },
+  {
+   "code": "$NPAP_DAYS_TTM",
+   "cn": "TTM应付账款及应付票据周转天数(D)"
+  },
+  {
+   "code": "$NPET",
+   "cn": "盈余再投资产(亿)"
+  },
+  {
+   "code": "$NPET_DIFF",
+   "cn": "盈余再投资差额(亿)"
+  },
+  {
+   "code": "$NPET_NP_TTM",
+   "cn": "盈余再投资利润(亿)"
+  },
+  {
+   "code": "$NPET_RATE",
+   "cn": "盈余再投资率(%)"
+  },
+  {
+   "code": "$NPE_DAYS",
+   "cn": "应付票据周转天数(D)"
+  },
+  {
+   "code": "$NPE_DAYS_TTM",
+   "cn": "TTM应付票据周转天数(D)"
+  },
+  {
+   "code": "$NPLR_LLPCR",
+   "cn": "拨贷比(%)"
+  },
+  {
+   "code": "$NPM_10Y_AVG",
+   "cn": "近10年净利率(TTM)均值"
+  },
+  {
+   "code": "$NPM_10Y_AVG_LAST",
+   "cn": "近10年净利率(TTM)均值"
+  },
+  {
+   "code": "$NPM_10Y_MIN",
+   "cn": "近10年净利率(TTM)最低"
+  },
+  {
+   "code": "$NPM_10Y_MIN_LAST",
+   "cn": "近10年净利率(TTM)最低"
+  },
+  {
+   "code": "$NPM_3Y",
+   "cn": "近3年净利率(TTM)序列"
+  },
+  {
+   "code": "$NPM_3Y_AVG",
+   "cn": "近3年净利率(TTM)均值"
+  },
+  {
+   "code": "$NPM_3Y_AVG_LAST",
+   "cn": "近3年净利率(TTM)均值"
+  },
+  {
+   "code": "$NPM_3Y_LAST",
+   "cn": "近3年净利率(TTM)序列"
+  },
+  {
+   "code": "$NPM_3Y_MIN",
+   "cn": "近3年净利率(TTM)最低"
+  },
+  {
+   "code": "$NPM_3Y_MIN_LAST",
+   "cn": "近3年净利率(TTM)最低"
+  },
+  {
+   "code": "$NPM_3Y_TREND",
+   "cn": "近3年净利率(TTM)趋势"
+  },
+  {
+   "code": "$NPM_3Y_TREND_LAST",
+   "cn": "近3年净利率(TTM)趋势"
+  },
+  {
+   "code": "$NPM_5Y_AVG",
+   "cn": "近5年净利率(TTM)均值"
+  },
+  {
+   "code": "$NPM_5Y_AVG_LAST",
+   "cn": "近5年净利率(TTM)均值"
+  },
+  {
+   "code": "$NPM_5Y_MIN",
+   "cn": "近5年净利率(TTM)最低"
+  },
+  {
+   "code": "$NPM_5Y_MIN_LAST",
+   "cn": "近5年净利率(TTM)最低"
+  },
+  {
+   "code": "$NPM_TTM",
+   "cn": "净利率(TTM)"
+  },
+  {
+   "code": "$NPS",
+   "cn": "每股经营现金流"
+  },
+  {
+   "code": "$NPT",
+   "cn": "权益比"
+  },
+  {
+   "code": "$NPTS_10Y_AVG",
+   "cn": "近10年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$NPTS_10Y_AVG_LAST",
+   "cn": "近10年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$NPTS_10Y_MIN",
+   "cn": "近10年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$NPTS_10Y_MIN_LAST",
+   "cn": "近10年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$NPTS_3Y",
+   "cn": "近3年归母净利润(TTM)序列"
+  },
+  {
+   "code": "$NPTS_3Y_AVG",
+   "cn": "近3年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$NPTS_3Y_AVG_LAST",
+   "cn": "近3年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$NPTS_3Y_LAST",
+   "cn": "近3年归母净利润(TTM)序列"
+  },
+  {
+   "code": "$NPTS_3Y_MIN",
+   "cn": "近3年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$NPTS_3Y_MIN_LAST",
+   "cn": "近3年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$NPTS_3Y_TREND",
+   "cn": "近3年归母净利润(TTM)趋势"
+  },
+  {
+   "code": "$NPTS_3Y_TREND_LAST",
+   "cn": "近3年归母净利润(TTM)趋势"
+  },
+  {
+   "code": "$NPTS_5Y_AVG",
+   "cn": "近5年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$NPTS_5Y_AVG_LAST",
+   "cn": "近5年归母净利润(TTM)均值"
+  },
+  {
+   "code": "$NPTS_5Y_MIN",
+   "cn": "近5年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$NPTS_5Y_MIN_LAST",
+   "cn": "近5年归母净利润(TTM)最低"
+  },
+  {
+   "code": "$NPTS_AR_10Y_AVG",
+   "cn": "近10年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NPTS_AR_10Y_AVG_LAST",
+   "cn": "近10年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NPTS_AR_10Y_MIN",
+   "cn": "近10年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NPTS_AR_10Y_MIN_LAST",
+   "cn": "近10年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NPTS_AR_3Y",
+   "cn": "近3年归母净利润(TTM)年化增长序列"
+  },
+  {
+   "code": "$NPTS_AR_3Y_AVG",
+   "cn": "近3年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NPTS_AR_3Y_AVG_LAST",
+   "cn": "近3年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NPTS_AR_3Y_LAST",
+   "cn": "近3年归母净利润(TTM)年化增长序列"
+  },
+  {
+   "code": "$NPTS_AR_3Y_MIN",
+   "cn": "近3年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NPTS_AR_3Y_MIN_LAST",
+   "cn": "近3年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NPTS_AR_3Y_TREND",
+   "cn": "近3年归母净利润(TTM)年化增长趋势"
+  },
+  {
+   "code": "$NPTS_AR_3Y_TREND_LAST",
+   "cn": "近3年归母净利润(TTM)年化增长趋势"
+  },
+  {
+   "code": "$NPTS_AR_5Y_AVG",
+   "cn": "近5年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NPTS_AR_5Y_AVG_LAST",
+   "cn": "近5年归母净利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NPTS_AR_5Y_MIN",
+   "cn": "近5年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NPTS_AR_5Y_MIN_LAST",
+   "cn": "近5年归母净利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NPTS_COMMON_TTM_B2",
+   "cn": "归母普通股股东净利润TTM(B2, 若未来有股息/利息数据则在此扣减)"
+  },
+  {
+   "code": "$NPTS_NP",
+   "cn": "归母净利润占比"
+  },
+  {
+   "code": "$NPTS_NP_TTM",
+   "cn": "归母净利润占比"
+  },
+  {
+   "code": "$NPTS_TOTAL",
+   "cn": "上市至今累计归母净利润(亿)"
+  },
+  {
+   "code": "$NPTS_TTM",
+   "cn": "归母净利润(TTM)"
+  },
+  {
+   "code": "$NPTS_TTM_B2",
+   "cn": "归母净利润TTM(B2)"
+  },
+  {
+   "code": "$NPTS_TTM_LAST",
+   "cn": "最新NPTS(TTM)"
+  },
+  {
+   "code": "$NPTS_TTM_YOY",
+   "cn": "归母净利润TTM同比"
+  },
+  {
+   "code": "$NPTS_TTM_YOY_LAST",
+   "cn": "归母净利润TTM同比-最新"
+  },
+  {
+   "code": "$NP_10Y_AVG",
+   "cn": "近10年利润(TTM)均值"
+  },
+  {
+   "code": "$NP_10Y_AVG_LAST",
+   "cn": "近10年利润(TTM)均值"
+  },
+  {
+   "code": "$NP_10Y_MIN",
+   "cn": "近10年利润(TTM)最低"
+  },
+  {
+   "code": "$NP_10Y_MIN_LAST",
+   "cn": "近10年利润(TTM)最低"
+  },
+  {
+   "code": "$NP_3Y",
+   "cn": "近3年利润(TTM)序列"
+  },
+  {
+   "code": "$NP_3Y_AVG",
+   "cn": "近3年利润(TTM)均值"
+  },
+  {
+   "code": "$NP_3Y_AVG_LAST",
+   "cn": "近3年利润(TTM)均值"
+  },
+  {
+   "code": "$NP_3Y_LAST",
+   "cn": "近3年利润(TTM)序列"
+  },
+  {
+   "code": "$NP_3Y_MIN",
+   "cn": "近3年利润(TTM)最低"
+  },
+  {
+   "code": "$NP_3Y_MIN_LAST",
+   "cn": "近3年利润(TTM)最低"
+  },
+  {
+   "code": "$NP_3Y_TREND",
+   "cn": "近3年利润(TTM)趋势"
+  },
+  {
+   "code": "$NP_3Y_TREND_LAST",
+   "cn": "近3年利润(TTM)趋势"
+  },
+  {
+   "code": "$NP_5Y_AVG",
+   "cn": "近5年利润(TTM)均值"
+  },
+  {
+   "code": "$NP_5Y_AVG_LAST",
+   "cn": "近5年利润(TTM)均值"
+  },
+  {
+   "code": "$NP_5Y_MIN",
+   "cn": "近5年利润(TTM)最低"
+  },
+  {
+   "code": "$NP_5Y_MIN_LAST",
+   "cn": "近5年利润(TTM)最低"
+  },
+  {
+   "code": "$NP_AR_10Y_AVG",
+   "cn": "近10年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NP_AR_10Y_AVG_LAST",
+   "cn": "近10年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NP_AR_10Y_MIN",
+   "cn": "近10年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NP_AR_10Y_MIN_LAST",
+   "cn": "近10年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NP_AR_3Y",
+   "cn": "近3年利润(TTM)年化增长序列"
+  },
+  {
+   "code": "$NP_AR_3Y_AVG",
+   "cn": "近3年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NP_AR_3Y_AVG_LAST",
+   "cn": "近3年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NP_AR_3Y_LAST",
+   "cn": "近3年利润(TTM)年化增长序列"
+  },
+  {
+   "code": "$NP_AR_3Y_MIN",
+   "cn": "近3年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NP_AR_3Y_MIN_LAST",
+   "cn": "近3年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NP_AR_3Y_TREND",
+   "cn": "近3年利润(TTM)年化增长趋势"
+  },
+  {
+   "code": "$NP_AR_3Y_TREND_LAST",
+   "cn": "近3年利润(TTM)年化增长趋势"
+  },
+  {
+   "code": "$NP_AR_5Y_AVG",
+   "cn": "近5年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NP_AR_5Y_AVG_LAST",
+   "cn": "近5年利润(TTM)年化增长均值"
+  },
+  {
+   "code": "$NP_AR_5Y_MIN",
+   "cn": "近5年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NP_AR_5Y_MIN_LAST",
+   "cn": "近5年利润(TTM)年化增长最低"
+  },
+  {
+   "code": "$NP_EMP_AVG",
+   "cn": "人均净利润(万)"
+  },
+  {
+   "code": "$NP_RATE",
+   "cn": "净利润率(%)"
+  },
+  {
+   "code": "$NP_RATE_LAST",
+   "cn": "净利润率(%)"
+  },
+  {
+   "code": "$NP_TTM",
+   "cn": "最近4个季度的净利润"
+  },
+  {
+   "code": "$NP_TTM_LAST",
+   "cn": "最新NP(TTM)"
+  },
+  {
+   "code": "$NP_TTM_YOY",
+   "cn": "净利润TTM同比"
+  },
+  {
+   "code": "$NP_TTM_YOY_LAST",
+   "cn": "净利润TTM同比-最新"
+  },
+  {
+   "code": "$NRAR_DAYS",
+   "cn": "应收账款和应收票据周转天数(D)"
+  },
+  {
+   "code": "$NRAR_DAYS_TTM",
+   "cn": "TTM应收账款和应收票据周转天数(D)"
+  },
+  {
+   "code": "$NRAR_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$NROE",
+   "cn": "净资产现金收益率"
+  },
+  {
+   "code": "$NR_DAYS",
+   "cn": "应收票据周转天数(D)"
+  },
+  {
+   "code": "$NR_DAYS_TTM",
+   "cn": "TTM应收票据周转天数(D)"
+  },
+  {
+   "code": "$NTGD",
+   "cn": "无形类资产"
+  },
+  {
+   "code": "$NT_B2",
+   "cn": "归母净利率(B2)"
+  },
+  {
+   "code": "$N_DY_D",
+   "cn": "股息率修正系数(D)"
+  },
+  {
+   "code": "$OBIH",
+   "cn": "其他业务收入"
+  },
+  {
+   "code": "$OC_TTM",
+   "cn": "营业成本(TTM)"
+  },
+  {
+   "code": "$OC_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$OEIR",
+   "cn": "其他权益工具"
+  },
+  {
+   "code": "$OFI_NET",
+   "cn": "经投融现金流量净额(亿)"
+  },
+  {
+   "code": "$OIE_OTHER",
+   "cn": "营业收入外其他项目(亿)"
+  },
+  {
+   "code": "$OIE_TTM",
+   "cn": "营业收入(TTM)(成本口径)"
+  },
+  {
+   "code": "$OIL_PRICE",
+   "cn": "油价(D)(元/吨)"
+  },
+  {
+   "code": "$OIL_PRICE_DIESEL",
+   "cn": "柴油油价(D)(元/吨)"
+  },
+  {
+   "code": "$OIL_PRICE_GASOLINE",
+   "cn": "汽油油价(D)(元/吨)"
+  },
+  {
+   "code": "$OPEN_AR_DAY",
+   "cn": "开盘价(后复权)"
+  },
+  {
+   "code": "$OPEN_DAY",
+   "cn": "开盘价(前复权)"
+  },
+  {
+   "code": "$OPEN_LAST",
+   "cn": "最新开盘价(D)"
+  },
+  {
+   "code": "$OPEN_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$OPEN_NR_DAY",
+   "cn": "开盘价(无复权)"
+  },
+  {
+   "code": "$OP_AREA_DOMESTIC_GROSS_PROFIT",
+   "cn": "国内毛利"
+  },
+  {
+   "code": "$OP_AREA_FOREIGN_GROSS_PROFIT",
+   "cn": "国外毛利"
+  },
+  {
+   "code": "$OP_AREA_OTHER_GROSS_PROFIT",
+   "cn": "其他区域毛利"
+  },
+  {
+   "code": "$OP_AREA_OTHER_MARGIN",
+   "cn": "其他区域毛利率"
+  },
+  {
+   "code": "$OP_ASSET_DBET",
+   "cn": "总投资资本(亿)"
+  },
+  {
+   "code": "$OP_ASSET_NET",
+   "cn": "净营运资本(亿)"
+  },
+  {
+   "code": "$OP_COST_AREA_BY_CONTINENT",
+   "cn": "分区域成本(大洲)(亿)"
+  },
+  {
+   "code": "$OP_COST_AREA_BY_REGION",
+   "cn": "分区域成本(标准区域)(亿)"
+  },
+  {
+   "code": "$OP_COST_AREA_DOMESTIC",
+   "cn": "国内成本"
+  },
+  {
+   "code": "$OP_COST_AREA_DOMESTIC_OVERSEAS",
+   "cn": "分区域成本(国内国外)(亿)"
+  },
+  {
+   "code": "$OP_COST_AREA_FOREIGN",
+   "cn": "国外成本"
+  },
+  {
+   "code": "$OP_COST_AREA_NORTH_SOUTH",
+   "cn": "分区域成本(南北)(亿)"
+  },
+  {
+   "code": "$OP_COST_AREA_OTHER",
+   "cn": "其他区域成本"
+  },
+  {
+   "code": "$OP_COST_AREA_PER_STOCK",
+   "cn": "分区域成本(公司口径)(亿)"
+  },
+  {
+   "code": "$OP_COST_BUSINESS_PER_STOCK",
+   "cn": "分业务成本(公司口径)(亿)"
+  },
+  {
+   "code": "$OP_COST_GOODS_PER_STOCK",
+   "cn": "分商品成本(公司口径)(亿)"
+  },
+  {
+   "code": "$OP_DEBT_NET",
+   "cn": "净营运债务(亿)"
+  },
+  {
+   "code": "$OP_GOODS_TWO_LIST_LAST",
+   "cn": "两个采样点"
+  },
+  {
+   "code": "$OP_GROSS_PROFIT_AREA_DOMESTIC_YOY",
+   "cn": "国内毛利年增长率"
+  },
+  {
+   "code": "$OP_GROSS_PROFIT_AREA_FOREIGN_YOY",
+   "cn": "国外毛利年增长率"
+  },
+  {
+   "code": "$OP_GROSS_PROFIT_AREA_OTHER_YOY",
+   "cn": "其他区域毛利年增长率"
+  },
+  {
+   "code": "$OP_OTHER",
+   "cn": "其他营业利润(亿)"
+  },
+  {
+   "code": "$OP_OTHER_RATE",
+   "cn": "其他营业利润率(%)"
+  },
+  {
+   "code": "$OP_RATE",
+   "cn": "营业利润率(%)"
+  },
+  {
+   "code": "$OP_RATE_LAST",
+   "cn": "营业利润率(%)"
+  },
+  {
+   "code": "$OP_TR_AREA",
+   "cn": "分区域营业额"
+  },
+  {
+   "code": "$OP_TR_AREA_BY_CONTINENT",
+   "cn": "分区域收入(大洲)(亿)"
+  },
+  {
+   "code": "$OP_TR_AREA_BY_REGION",
+   "cn": "分区域收入(标准区域)(亿)"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC",
+   "cn": "国内营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_LAST",
+   "cn": "国内营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_MARGIN",
+   "cn": "国内毛利率"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_MARGIN_LAST",
+   "cn": "国内毛利率"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_OVERSEAS",
+   "cn": "分区域收入(国内国外)(亿)"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_PCT",
+   "cn": "国内收入占比"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_PCT_LAST",
+   "cn": "国内收入占比"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_YOY",
+   "cn": "国内收入年增长率"
+  },
+  {
+   "code": "$OP_TR_AREA_DOMESTIC_YOY_LAST",
+   "cn": "国内收入年增长率"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN",
+   "cn": "国外营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_LAST",
+   "cn": "国外营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_MARGIN",
+   "cn": "国外毛利率"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_MARGIN_LAST",
+   "cn": "国外毛利率"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_PCT",
+   "cn": "国外收入占比"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_PCT_LAST",
+   "cn": "国外收入占比"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_YOY",
+   "cn": "国外收入年增长率"
+  },
+  {
+   "code": "$OP_TR_AREA_FOREIGN_YOY_LAST",
+   "cn": "国外收入年增长率"
+  },
+  {
+   "code": "$OP_TR_AREA_LAST",
+   "cn": "区域营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_LASTQ4",
+   "cn": "区域营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_NORTH_SOUTH",
+   "cn": "分区域收入(南北)(亿)"
+  },
+  {
+   "code": "$OP_TR_AREA_OTHER",
+   "cn": "其他区域营业收入"
+  },
+  {
+   "code": "$OP_TR_AREA_OTHER_PCT",
+   "cn": "其他区域收入占比"
+  },
+  {
+   "code": "$OP_TR_AREA_OTHER_YOY",
+   "cn": "其他区域收入年增长率"
+  },
+  {
+   "code": "$OP_TR_AREA_PER_STOCK",
+   "cn": "分区域收入(公司口径)(亿)"
+  },
+  {
+   "code": "$OP_TR_AREA_TOTAL",
+   "cn": "总营业收入"
+  },
+  {
+   "code": "$OP_TR_BUSINESS_PER_STOCK",
+   "cn": "分业务营业额(公司口径)(亿)"
+  },
+  {
+   "code": "$OP_TR_GOODS_PER_STOCK",
+   "cn": "分商品营业额(公司口径)(亿)"
+  },
+  {
+   "code": "$ORGCode",
+   "cn": "公司编码"
+  },
+  {
+   "code": "$ORGType",
+   "cn": "公司分类 一般企业(1), 银行(2), 保险(3), 证券(4)"
+  },
+  {
+   "code": "$ORGType_RAW_TAG",
+   "cn": "公司分类标签"
+  },
+  {
+   "code": "$ORG_BUSINESSSCOPE",
+   "cn": "经营范围"
+  },
+  {
+   "code": "$ORG_EMAIL",
+   "cn": "电子邮件"
+  },
+  {
+   "code": "$ORG_EXCHANGE",
+   "cn": "交易市场"
+  },
+  {
+   "code": "$ORG_EXCHANGENAME",
+   "cn": "交易市场"
+  },
+  {
+   "code": "$ORG_FULLNAME",
+   "cn": "机构全称"
+  },
+  {
+   "code": "$ORG_INDEXS",
+   "cn": "所属指数"
+  },
+  {
+   "code": "$ORG_INDEXS_CN_W1",
+   "cn": "归属指数"
+  },
+  {
+   "code": "$ORG_INDEXS_INDEX_W1",
+   "cn": "归属指数"
+  },
+  {
+   "code": "$ORG_INDUSTRIES",
+   "cn": "所属行业"
+  },
+  {
+   "code": "$ORG_INDUSTRY",
+   "cn": "行业"
+  },
+  {
+   "code": "$ORG_INDUSTRYS",
+   "cn": "所属行业"
+  },
+  {
+   "code": "$ORG_INDUSTRYSTANDARD",
+   "cn": "行业标准"
+  },
+  {
+   "code": "$ORG_INDUSTRY_CODE",
+   "cn": "所属行业代码"
+  },
+  {
+   "code": "$ORG_INDUSTRY_COMPANY",
+   "cn": "所属行业企业"
+  },
+  {
+   "code": "$ORG_INDUSTRY_INDEX",
+   "cn": "+ $ORG_INDUSTRIES[-1].Symbol"
+  },
+  {
+   "code": "$ORG_INDUSTRY_INDEX_SYMS",
+   "cn": "所属行业指数"
+  },
+  {
+   "code": "$ORG_INDUSTRY_NAME",
+   "cn": "所属行业"
+  },
+  {
+   "code": "$ORG_INDUSTRY_TAGS",
+   "cn": "所属行业标签"
+  },
+  {
+   "code": "$ORG_ISSUEPRICE",
+   "cn": "发行价格"
+  },
+  {
+   "code": "$ORG_LISTINGDATE",
+   "cn": "上市日期"
+  },
+  {
+   "code": "$ORG_LISTINGYEAR",
+   "cn": "上市年份"
+  },
+  {
+   "code": "$ORG_MAINBUSINESS",
+   "cn": "主营业务"
+  },
+  {
+   "code": "$ORG_NAME",
+   "cn": "机构名称"
+  },
+  {
+   "code": "$ORG_ORGCODE",
+   "cn": "组织机构代码"
+  },
+  {
+   "code": "$ORG_ORGNAME",
+   "cn": "组织机构名称"
+  },
+  {
+   "code": "$ORG_ORGTYPE",
+   "cn": "组织类型"
+  },
+  {
+   "code": "$ORG_PROFILE",
+   "cn": "简介"
+  },
+  {
+   "code": "$ORG_REGADDRESS",
+   "cn": "注册地址"
+  },
+  {
+   "code": "$ORG_REGCAPITAL",
+   "cn": "注册资本"
+  },
+  {
+   "code": "$ORG_REGPLACE",
+   "cn": "注册地"
+  },
+  {
+   "code": "$ORG_STOCKTYPE",
+   "cn": "股票类型"
+  },
+  {
+   "code": "$ORG_TELEPHONE",
+   "cn": "电话"
+  },
+  {
+   "code": "$ORG_TOTALISSUENUM",
+   "cn": "发行量"
+  },
+  {
+   "code": "$ORG_TYPE_TAG",
+   "cn": "企业分类标签"
+  },
+  {
+   "code": "$ORG_TYPE_TAG_BASIS",
+   "cn": "企业分类标签原因"
+  },
+  {
+   "code": "$ORG_TYPE_TAG_REASON",
+   "cn": "企业分类标签原因"
+  },
+  {
+   "code": "$ORG_TYPE_TAG_REG_SENSITIVE_LINE",
+   "cn": "企业分类标签监管敏感线"
+  },
+  {
+   "code": "$ORG_TYPE_TAG_TAG_EAST",
+   "cn": "企业分类标签数据源原始标签"
+  },
+  {
+   "code": "$ORG_WEB",
+   "cn": "机构网站"
+  },
+  {
+   "code": "$ORTR",
+   "cn": "其他经营收益"
+  },
+  {
+   "code": "$OTOI",
+   "cn": "营业总收入其他项目"
+  },
+  {
+   "code": "$O_DAYS",
+   "cn": "营业周转天数(D)"
+  },
+  {
+   "code": "$O_DAYS_TTM",
+   "cn": "TTM营业周转天数(D)"
+  },
+  {
+   "code": "$PB",
+   "cn": "市净率"
+  },
+  {
+   "code": "$PB_LAST",
+   "cn": "PB"
+  },
+  {
+   "code": "$PB_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PB_NOGW",
+   "cn": "不含商誉市净率(D)"
+  },
+  {
+   "code": "$PB_NOGW_LAST",
+   "cn": "最新不含商誉市净率(D)"
+  },
+  {
+   "code": "$PB_TTM",
+   "cn": "市净率(D)"
+  },
+  {
+   "code": "$PB_TTM_LAST",
+   "cn": "最新市净率(D)"
+  },
+  {
+   "code": "$PB_TTM_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PCF_TTM",
+   "cn": "滚动市现率TTM(D)"
+  },
+  {
+   "code": "$PCF_TTM_LAST",
+   "cn": "滚动市现率TTM(D)"
+  },
+  {
+   "code": "$PCT_BONUS_RATE_TTM_10Y",
+   "cn": "股息率(TTM) 10年分位"
+  },
+  {
+   "code": "$PCT_BONUS_RATE_TTM_10Y_LAST",
+   "cn": "股息率(TTM) 10年分位"
+  },
+  {
+   "code": "$PCT_BONUS_RATE_TTM_3Y",
+   "cn": "股息率(TTM) 3年分位"
+  },
+  {
+   "code": "$PCT_BONUS_RATE_TTM_3Y_LAST",
+   "cn": "股息率(TTM) 3年分位"
+  },
+  {
+   "code": "$PCT_BONUS_RATE_TTM_5Y",
+   "cn": "股息率(TTM) 5年分位"
+  },
+  {
+   "code": "$PCT_BONUS_RATE_TTM_5Y_LAST",
+   "cn": "股息率(TTM) 5年分位"
+  },
+  {
+   "code": "$PCT_PB_TTM_10Y",
+   "cn": "PB(TTM) 10年分位"
+  },
+  {
+   "code": "$PCT_PB_TTM_10Y_LAST",
+   "cn": "PB(TTM) 10年分位"
+  },
+  {
+   "code": "$PCT_PB_TTM_3Y",
+   "cn": "PB(TTM) 3年分位"
+  },
+  {
+   "code": "$PCT_PB_TTM_3Y_LAST",
+   "cn": "PB(TTM) 3年分位"
+  },
+  {
+   "code": "$PCT_PB_TTM_5Y",
+   "cn": "PB(TTM) 5年分位"
+  },
+  {
+   "code": "$PCT_PB_TTM_5Y_LAST",
+   "cn": "PB(TTM) 5年分位"
+  },
+  {
+   "code": "$PCT_PE_TTM_10Y",
+   "cn": "PE(TTM) 10年分位"
+  },
+  {
+   "code": "$PCT_PE_TTM_10Y_LAST",
+   "cn": "PE(TTM) 10年分位"
+  },
+  {
+   "code": "$PCT_PE_TTM_3Y",
+   "cn": "PE(TTM) 3年分位"
+  },
+  {
+   "code": "$PCT_PE_TTM_3Y_LAST",
+   "cn": "PE(TTM) 3年分位"
+  },
+  {
+   "code": "$PCT_PE_TTM_5Y",
+   "cn": "PE(TTM) 5年分位"
+  },
+  {
+   "code": "$PCT_PE_TTM_5Y_LAST",
+   "cn": "PE(TTM) 5年分位"
+  },
+  {
+   "code": "$PE",
+   "cn": "PE"
+  },
+  {
+   "code": "$PEG_DPPR",
+   "cn": "扣非PEG(D)"
+  },
+  {
+   "code": "$PEG_DPPR_ARN",
+   "cn": "未来n年扣非净利润复合增长率(%)"
+  },
+  {
+   "code": "$PEG_NP",
+   "cn": "PEG(D)"
+  },
+  {
+   "code": "$PEG_NP_ARN",
+   "cn": "未来n年净利润复合增长率(%)"
+  },
+  {
+   "code": "$PERCENT",
+   "cn": "涨跌幅(%)"
+  },
+  {
+   "code": "$PERCENT_DAY",
+   "cn": "涨跌幅(%)"
+  },
+  {
+   "code": "$PERCENT_LAST",
+   "cn": "当日涨跌幅(实时)"
+  },
+  {
+   "code": "$PERCENT_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PE_TTM",
+   "cn": "PE"
+  },
+  {
+   "code": "$PE_TTM_DPPR",
+   "cn": "扣非市盈率TTM(D)"
+  },
+  {
+   "code": "$PE_TTM_DPPR_LAST",
+   "cn": "扣非市盈率TTM(D)"
+  },
+  {
+   "code": "$PE_TTM_LAST",
+   "cn": "PE(TTM)"
+  },
+  {
+   "code": "$PE_TTM_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PMI",
+   "cn": "采购经理人指数(D)"
+  },
+  {
+   "code": "$PMI_MAKE",
+   "cn": "采购经理人指数-制造业(D)"
+  },
+  {
+   "code": "$PMI_NMAKE",
+   "cn": "采购经理人指数-非制造业(D)"
+  },
+  {
+   "code": "$POPULATION_AGE_0_14_TOTAL",
+   "cn": "0-14岁人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_AGE_15_64_TOTAL",
+   "cn": "15-64岁人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_AGE_65_PLUS_TOTAL",
+   "cn": "65岁以上人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_BIRTH",
+   "cn": "出生人口(万)(人)"
+  },
+  {
+   "code": "$POPULATION_BIRTH_RATE",
+   "cn": "人口出生率(%)"
+  },
+  {
+   "code": "$POPULATION_CHILD_DEPENDENCY_RATIO",
+   "cn": "儿童抚养比(%)"
+  },
+  {
+   "code": "$POPULATION_DEATH_RATE",
+   "cn": "人口死亡率(%)"
+  },
+  {
+   "code": "$POPULATION_DEPENDENCY_RATIO_TOTAL",
+   "cn": "总抚养比(%)"
+  },
+  {
+   "code": "$POPULATION_ELDERLY_DEPENDENCY_RATIO",
+   "cn": "老年抚养比(%)"
+  },
+  {
+   "code": "$POPULATION_GENDER_RATIO",
+   "cn": "性别比(女=100)(人口抽样调查)(%)"
+  },
+  {
+   "code": "$POPULATION_NATURAL_GROWTH_RATE",
+   "cn": "自然增长率(%)"
+  },
+  {
+   "code": "$POPULATION_PROPORTION_60",
+   "cn": "60岁以上人口(万)(人)"
+  },
+  {
+   "code": "$POPULATION_PROPORTION_65",
+   "cn": "65岁以上人口(万)(人)"
+  },
+  {
+   "code": "$POPULATION_RURAL",
+   "cn": "乡村人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_RURAL_TOTAL",
+   "cn": "乡村人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_SAMPLE_FEMALE_TOTAL",
+   "cn": "女性人口数(人口抽样调查)(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_TOTAL",
+   "cn": "总人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_URBAN",
+   "cn": "城镇人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_URBANIZATION_RATE",
+   "cn": "城镇化率(%)"
+  },
+  {
+   "code": "$POPULATION_URBANIZATION_REGISTERED_RATE",
+   "cn": "户籍人口城镇化率(%)"
+  },
+  {
+   "code": "$POPULATION_URBANIZATION_RESIDENT_RATE",
+   "cn": "常驻人口城镇化率(%)"
+  },
+  {
+   "code": "$POPULATION_URBAN_TOTAL",
+   "cn": "城镇人口(亿)(人)"
+  },
+  {
+   "code": "$POPULATION_YEAR_END_TOTAL",
+   "cn": "年末总人口(亿)(人)"
+  },
+  {
+   "code": "$PPE_ALL_TA",
+   "cn": "固定资产占总资产比率(%)"
+  },
+  {
+   "code": "$PPE_ALL_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$PPE_DAYS",
+   "cn": "固定资产周转天数(D)"
+  },
+  {
+   "code": "$PPE_DAYS_TTM",
+   "cn": "TTM固定资产周转天数(D)"
+  },
+  {
+   "code": "$PPE_TA",
+   "cn": "固定资产占总资产比率(%)"
+  },
+  {
+   "code": "$PPE_TURNOVER",
+   "cn": "固定资产周转率(D)"
+  },
+  {
+   "code": "$PPE_TURNOVER_TTM",
+   "cn": "TTM固定资产周转率(D)"
+  },
+  {
+   "code": "$PPE_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$PPI",
+   "cn": "工业品出厂价格指数(D)"
+  },
+  {
+   "code": "$PPI_KEY_QOQ",
+   "cn": "核心生产者物价指数月率(%)"
+  },
+  {
+   "code": "$PPI_KEY_YOY",
+   "cn": "核心生产者物价指数年率(%)"
+  },
+  {
+   "code": "$PR",
+   "cn": "市赚率"
+  },
+  {
+   "code": "$PR1_BASE_AVG3_D",
+   "cn": "第一市赚率-3年平均ROE(D)"
+  },
+  {
+   "code": "$PR1_BASE_AVG5_D",
+   "cn": "第一市赚率-5年平均ROE(D)"
+  },
+  {
+   "code": "$PR1_BASE_D",
+   "cn": "基础第一市赚率(D)"
+  },
+  {
+   "code": "$PR1_BASE_LAST_D",
+   "cn": "最新市赚率(D)"
+  },
+  {
+   "code": "$PR1_BASE_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PR1_CORRECT_3_D",
+   "cn": "修正市赚率-3年平均ROE(D)"
+  },
+  {
+   "code": "$PR1_CORRECT_5_D",
+   "cn": "修正市赚率-5年平均ROE(D)"
+  },
+  {
+   "code": "$PR1_CORRECT_AVG3_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PR1_CORRECT_AVG5_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PR1_CORRECT_D",
+   "cn": "修正市赚率(D)"
+  },
+  {
+   "code": "$PR1_CORRECT_LAST_D",
+   "cn": "最新修正市赚率(D)"
+  },
+  {
+   "code": "$PR1_CORRECT_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PR2_BASE_AVG3_D",
+   "cn": "第二市赚率-3年平均ROE(D)"
+  },
+  {
+   "code": "$PR2_BASE_AVG5_D",
+   "cn": "第二市赚率-5年平均ROE(D)"
+  },
+  {
+   "code": "$PR2_BASE_D",
+   "cn": "基础第二市赚率(D)"
+  },
+  {
+   "code": "$PR2_BASE_LAST_D",
+   "cn": "最新第二市赚率(D)"
+  },
+  {
+   "code": "$PR2_BASE_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PR2_CORRECT_3_D",
+   "cn": "修正第二市赚率-3年平均ROE(D)"
+  },
+  {
+   "code": "$PR2_CORRECT_5_D",
+   "cn": "修正第二市赚率-5年平均ROE(D)"
+  },
+  {
+   "code": "$PR2_CORRECT_D",
+   "cn": "修正第二市赚率(D)"
+  },
+  {
+   "code": "$PR2_CORRECT_LAST_D",
+   "cn": "最新修正第二市赚率(D)"
+  },
+  {
+   "code": "$PRESHARES_ACTUAL_ISSUE_NUM",
+   "cn": "发行数量(股)"
+  },
+  {
+   "code": "$PRESHARES_ACTUAL_RAISE_FUNDS",
+   "cn": "实际募集资金(亿)"
+  },
+  {
+   "code": "$PRESHARES_CORRE_SECURITY_CODE",
+   "cn": "相关证券代码"
+  },
+  {
+   "code": "$PRESHARES_CORRE_SECURITY_NAME",
+   "cn": "相关证券名称"
+  },
+  {
+   "code": "$PRESHARES_COUPON_DIVIDEND_RATE",
+   "cn": "票面股息率(%)"
+  },
+  {
+   "code": "$PRESHARES_FUNDS_TOTAL",
+   "cn": "总募集资金(亿)"
+  },
+  {
+   "code": "$PRESHARES_ISSUE_PRICE",
+   "cn": "发行价格(元)"
+  },
+  {
+   "code": "$PRESHARES_PURPOSE",
+   "cn": "用途"
+  },
+  {
+   "code": "$PRESHARES_SECUCODE",
+   "cn": "证券代码"
+  },
+  {
+   "code": "$PRESHARES_SECURITY_CODE",
+   "cn": "证券代码"
+  },
+  {
+   "code": "$PRESHARES_SECURITY_NAME_ABBR",
+   "cn": "发售对象"
+  },
+  {
+   "code": "$PRESIDENT",
+   "cn": "总经理"
+  },
+  {
+   "code": "$PROE",
+   "cn": "ROE"
+  },
+  {
+   "code": "$PR_AVG",
+   "cn": "市赚率-3年平均ROE"
+  },
+  {
+   "code": "$PR_ELIGIBLE_OK",
+   "cn": "入样(PE/ROE/PB最新为正)"
+  },
+  {
+   "code": "$PR_LAST",
+   "cn": "最新市赚率"
+  },
+  {
+   "code": "$PR_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$PS_CR",
+   "cn": "每股资本公积(元)"
+  },
+  {
+   "code": "$PS_CR_LAST",
+   "cn": "最新每股资本公积(元)"
+  },
+  {
+   "code": "$PS_NCFO",
+   "cn": "每股经营现金流量净额(元)"
+  },
+  {
+   "code": "$PS_NCFO_LAST",
+   "cn": "最新每股经营现金流(元)"
+  },
+  {
+   "code": "$PS_NCFO_TTM",
+   "cn": "每股经营现金流量净额TTM(元)"
+  },
+  {
+   "code": "$PS_NCFO_TTM_LAST",
+   "cn": "最新每股经营现金流TTM(元)"
+  },
+  {
+   "code": "$PS_NFOI",
+   "cn": "每股经营现金流量(元)"
+  },
+  {
+   "code": "$PS_RE",
+   "cn": "每股未分配利润(元)"
+  },
+  {
+   "code": "$PS_RE_LAST",
+   "cn": "最新每股未分配利润(元)"
+  },
+  {
+   "code": "$PS_SE",
+   "cn": "归母每股股东权益(元)"
+  },
+  {
+   "code": "$PS_SE_LAST",
+   "cn": "最新每股股东权益(元)"
+  },
+  {
+   "code": "$PS_TTM",
+   "cn": "滚动市销率TTM(D)"
+  },
+  {
+   "code": "$PS_TTM_LAST",
+   "cn": "滚动市销率TTM(D)"
+  },
+  {
+   "code": "$PTR",
+   "cn": "税后净利率"
+  },
+  {
+   "code": "$PT_AVGIPO",
+   "cn": "上市以来的平均税后净利率(除去亏损)"
+  },
+  {
+   "code": "$QR_ASSET",
+   "cn": "速动资产(亿)"
+  },
+  {
+   "code": "$QR_MINUS_ASSET",
+   "cn": "速动扣除资产(亿)"
+  },
+  {
+   "code": "$QUARTER_AFTER_LAST",
+   "cn": "季度"
+  },
+  {
+   "code": "$QUICK_RATIO",
+   "cn": "速动比率(D)"
+  },
+  {
+   "code": "$QUICK_RATIO_LAST",
+   "cn": "最新速动比率(D)"
+  },
+  {
+   "code": "$RATE_DEPOSIT",
+   "cn": "存款基准利率(%)(年化)"
+  },
+  {
+   "code": "$RATE_LOAN",
+   "cn": "贷款基准利率(%)(年化)"
+  },
+  {
+   "code": "$RATE_RESERVE_LARGE",
+   "cn": "存款准备金率-大型金融机构(%)"
+  },
+  {
+   "code": "$RATE_RESERVE_SMALL",
+   "cn": "存款准备金率-小型金融机构(%)"
+  },
+  {
+   "code": "$RDATE_LAST",
+   "cn": "最新报表期末日"
+  },
+  {
+   "code": "$RD_RATE",
+   "cn": "研发费用率(%)"
+  },
+  {
+   "code": "$RD_RATE_LAST",
+   "cn": "研发费用率(%)"
+  },
+  {
+   "code": "$REPORT_PERIOD",
+   "cn": "+ annual + \"-\" + sampling"
+  },
+  {
+   "code": "$REPORT_PERIOD_LAST",
+   "cn": "最新报告期"
+  },
+  {
+   "code": "$RETAIL",
+   "cn": "社会消费品零售总额-月(万亿)"
+  },
+  {
+   "code": "$RETAIL_ACCUMULATE",
+   "cn": "社会消费品零售总额-年累计(万亿)"
+  },
+  {
+   "code": "$RE_AREA",
+   "cn": "商品房销售面积(万平方米)"
+  },
+  {
+   "code": "$RE_AREA_JF",
+   "cn": "商品房销售面积-1-2月合计(万平方米)"
+  },
+  {
+   "code": "$RE_AREA_JF_YOY",
+   "cn": "商品房销售面积-1-2月合计同比"
+  },
+  {
+   "code": "$RE_AREA_YOY",
+   "cn": "商品房销售面积-同比"
+  },
+  {
+   "code": "$RE_AREA_YTD",
+   "cn": "商品房销售面积-年初累计(万平方米)"
+  },
+  {
+   "code": "$RE_INVEST",
+   "cn": "房地产开发投资(亿元)"
+  },
+  {
+   "code": "$RE_INVEST_YOY",
+   "cn": "房地产开发投资-同比"
+  },
+  {
+   "code": "$RE_INVEST_YTD",
+   "cn": "房地产开发投资-年初累计(亿元)"
+  },
+  {
+   "code": "$RE_VALUE",
+   "cn": "商品房销售额(亿元)"
+  },
+  {
+   "code": "$RE_VALUE_YOY",
+   "cn": "商品房销售额-同比"
+  },
+  {
+   "code": "$RE_VALUE_YTD",
+   "cn": "商品房销售额-年初累计(亿元)"
+  },
+  {
+   "code": "$RF",
+   "cn": "无风险利率(%)"
+  },
+  {
+   "code": "$RISK_COVER_RATE",
+   "cn": "风险覆盖率(%)"
+  },
+  {
+   "code": "$RM",
+   "cn": "市场预期回报率(%)"
+  },
+  {
+   "code": "$ROA_WEIGHTED",
+   "cn": "加权ROA(%)"
+  },
+  {
+   "code": "$ROA_WEIGHTED_LAST",
+   "cn": "最新加权ROA(%)"
+  },
+  {
+   "code": "$ROC",
+   "cn": "资本收益率(%)"
+  },
+  {
+   "code": "$ROC_LAST",
+   "cn": "最新资本收益率(%)"
+  },
+  {
+   "code": "$ROC_TTM",
+   "cn": "资本收益率(TTM)(%)"
+  },
+  {
+   "code": "$ROC_TTM_LAST",
+   "cn": "最新资本收益率(TTM)(%)"
+  },
+  {
+   "code": "$ROE_10Y_AVG",
+   "cn": "近10年ROE(TTM)均值"
+  },
+  {
+   "code": "$ROE_10Y_AVG_LAST",
+   "cn": "近10年ROE(TTM)均值"
+  },
+  {
+   "code": "$ROE_10Y_MIN",
+   "cn": "近10年ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_10Y_MIN_LAST",
+   "cn": "近10年ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_3Y",
+   "cn": "近3年ROE(TTM)序列"
+  },
+  {
+   "code": "$ROE_3Y_AVG",
+   "cn": "近3年ROE(TTM)均值"
+  },
+  {
+   "code": "$ROE_3Y_AVG_LAST",
+   "cn": "近3年ROE(TTM)均值"
+  },
+  {
+   "code": "$ROE_3Y_LAST",
+   "cn": "近3年ROE(TTM)序列"
+  },
+  {
+   "code": "$ROE_3Y_MIN",
+   "cn": "近3年ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_3Y_MIN_LAST",
+   "cn": "近3年ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_3Y_TREND",
+   "cn": "近3年ROE(TTM)趋势"
+  },
+  {
+   "code": "$ROE_3Y_TREND_LAST",
+   "cn": "近3年ROE(TTM)趋势"
+  },
+  {
+   "code": "$ROE_5Y_AVG",
+   "cn": "近5年ROE(TTM)均值"
+  },
+  {
+   "code": "$ROE_5Y_AVG_LAST",
+   "cn": "近5年ROE(TTM)均值"
+  },
+  {
+   "code": "$ROE_5Y_MIN",
+   "cn": "近5年ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_5Y_MIN_LAST",
+   "cn": "近5年ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_AVG",
+   "cn": "历史平均ROE"
+  },
+  {
+   "code": "$ROE_AVG10",
+   "cn": "最近10年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG10_AS",
+   "cn": "近10年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG10_AS_LAST",
+   "cn": "近10年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG3",
+   "cn": "最近3年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG3_AS",
+   "cn": "近3年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG3_AS_LAST",
+   "cn": "近3年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG5",
+   "cn": "最近5年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG5_AS",
+   "cn": "近5年平均ROE"
+  },
+  {
+   "code": "$ROE_AVG5_AS_LAST",
+   "cn": "近5年平均ROE"
+  },
+  {
+   "code": "$ROE_AVGIPO",
+   "cn": "历史平均ROE"
+  },
+  {
+   "code": "$ROE_AVGIPO_AS",
+   "cn": "上市以来平均ROE"
+  },
+  {
+   "code": "$ROE_AVGIPO_AS_LAST",
+   "cn": "上市以来平均ROE"
+  },
+  {
+   "code": "$ROE_AVG_AS",
+   "cn": "历史平均ROE"
+  },
+  {
+   "code": "$ROE_AVG_AS_LAST",
+   "cn": "历史平均ROE"
+  },
+  {
+   "code": "$ROE_DPPR",
+   "cn": "扣非归母加权ROE(%)"
+  },
+  {
+   "code": "$ROE_DPPR_10Y_MIN",
+   "cn": "近10年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_DPPR_10Y_MIN_LAST",
+   "cn": "近10年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_DPPR_3Y",
+   "cn": "近3年扣非ROE(TTM)序列"
+  },
+  {
+   "code": "$ROE_DPPR_3Y_LAST",
+   "cn": "近3年扣非ROE(TTM)序列"
+  },
+  {
+   "code": "$ROE_DPPR_3Y_MIN",
+   "cn": "近3年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_DPPR_3Y_MIN_LAST",
+   "cn": "近3年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_DPPR_3Y_TREND",
+   "cn": "近3年扣非ROE(TTM)趋势"
+  },
+  {
+   "code": "$ROE_DPPR_3Y_TREND_LAST",
+   "cn": "近3年扣非ROE(TTM)趋势"
+  },
+  {
+   "code": "$ROE_DPPR_5Y_MIN",
+   "cn": "近5年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_DPPR_5Y_MIN_LAST",
+   "cn": "近5年扣非ROE(TTM)最低"
+  },
+  {
+   "code": "$ROE_DPPR_TTM",
+   "cn": "扣非归母加权ROE(TTM)(%)"
+  },
+  {
+   "code": "$ROE_DPPR_TTM_LAST",
+   "cn": "最新扣非归母加权ROE(TTM)(%)"
+  },
+  {
+   "code": "$ROE_MIIT",
+   "cn": "少数股东ROE(%)"
+  },
+  {
+   "code": "$ROE_NP",
+   "cn": "ROE"
+  },
+  {
+   "code": "$ROE_NPTS",
+   "cn": "属母加权ROE(%)"
+  },
+  {
+   "code": "$ROE_NPTS_TTM",
+   "cn": "归母加权ROE(%)"
+  },
+  {
+   "code": "$ROE_TE",
+   "cn": "加权ROE(%)"
+  },
+  {
+   "code": "$ROE_TTM",
+   "cn": "ROE(TTM)"
+  },
+  {
+   "code": "$ROE_TTM_LAST",
+   "cn": "最新ROE(TTM)"
+  },
+  {
+   "code": "$ROIC",
+   "cn": "投资资本回报率(%)"
+  },
+  {
+   "code": "$ROIC_LAST",
+   "cn": "最新ROIC(%)"
+  },
+  {
+   "code": "$ROIC_TTM",
+   "cn": "投资资本回报率(TTM)(%)"
+  },
+  {
+   "code": "$ROIC_TTM_LAST",
+   "cn": "最新ROIC(TTM)(%)"
+  },
+  {
+   "code": "$ROI_1",
+   "cn": "1年的投资收益率(%)"
+  },
+  {
+   "code": "$ROI_10",
+   "cn": "10年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_3",
+   "cn": "3年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_5",
+   "cn": "5年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_EXCESS_HS300_1",
+   "cn": "相对沪深300超额1年(%)"
+  },
+  {
+   "code": "$ROI_IPO",
+   "cn": "上市以来的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_NERAST_1",
+   "cn": "最近1年的投资收益率(%)"
+  },
+  {
+   "code": "$ROI_NERAST_10",
+   "cn": "最近10年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_NERAST_20",
+   "cn": "最近20年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_NERAST_3",
+   "cn": "最近3年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROI_NERAST_5",
+   "cn": "最近5年的年化投资收益率(%)"
+  },
+  {
+   "code": "$ROTA",
+   "cn": "有形资产回报率(%)"
+  },
+  {
+   "code": "$ROTA_LAST",
+   "cn": "最新有形资产回报率(%)"
+  },
+  {
+   "code": "$RSE",
+   "cn": "权益资本成本(%)"
+  },
+  {
+   "code": "$SALARY_EMP_AVG",
+   "cn": "人均薪酬(万)"
+  },
+  {
+   "code": "$SALARY_TOTAL",
+   "cn": "薪酬总额(亿)"
+  },
+  {
+   "code": "$SAMPLING_DAY",
+   "cn": "采样点"
+  },
+  {
+   "code": "$SAS",
+   "cn": "当前财报采样点"
+  },
+  {
+   "code": "$SAS_LAST",
+   "cn": "最新财报披露季"
+  },
+  {
+   "code": "$SD",
+   "cn": "速动比率(%)"
+  },
+  {
+   "code": "$SECTOR_CUR_ECONOMY",
+   "cn": "关联产业(第一个产业)-经济"
+  },
+  {
+   "code": "$SECTOR_CUR_PROD",
+   "cn": "关联产业(第一个产业)-产量"
+  },
+  {
+   "code": "$SECTOR_CUR_SALES",
+   "cn": "关联产业(第一个产业)-销量"
+  },
+  {
+   "code": "$SECTOR_LIST_CUR_ECONOMY",
+   "cn": "关联产业列表-经济"
+  },
+  {
+   "code": "$SECTOR_LIST_CUR_PROD",
+   "cn": "关联产业列表-产量"
+  },
+  {
+   "code": "$SECTOR_LIST_CUR_SALES",
+   "cn": "关联产业列表-销量"
+  },
+  {
+   "code": "$SECURITY_TYPE",
+   "cn": "证券类型"
+  },
+  {
+   "code": "$SETL",
+   "cn": "权益负债(亿)"
+  },
+  {
+   "code": "$SEXE_RATE",
+   "cn": "销售费用率(%)"
+  },
+  {
+   "code": "$SEXE_RATE_LAST",
+   "cn": "销售费用率(%)"
+  },
+  {
+   "code": "$SE_AVG_COMMON_B2",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$SE_AVG_COMMON_WAVG_B2",
+   "cn": "归母普通股权益均值(加权/多点近似,B2)"
+  },
+  {
+   "code": "$SE_AVG_PARENT_B2",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$SE_AVG_PARENT_WAVG_B2",
+   "cn": "归母权益均值(加权/多点近似,B2)"
+  },
+  {
+   "code": "$SE_COMMON_BEG_B2",
+   "cn": "归母普通股权益(期初,B2)"
+  },
+  {
+   "code": "$SE_COMMON_END_B2",
+   "cn": "归母普通股权益(期末,B2)"
+  },
+  {
+   "code": "$SE_LAST",
+   "cn": "最新股东权益"
+  },
+  {
+   "code": "$SE_NOGW",
+   "cn": "不含商誉股东权益(亿)"
+  },
+  {
+   "code": "$SE_TTM",
+   "cn": "股东权益(亿)"
+  },
+  {
+   "code": "$SE_TTM_LAST",
+   "cn": "股东权益(亿)"
+  },
+  {
+   "code": "$SE_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$SE_WEIGHTED_AFTER",
+   "cn": "最新股东权益(加权)"
+  },
+  {
+   "code": "$SHIP_BCI",
+   "cn": "BCI 波罗的海海岬型指数(点)"
+  },
+  {
+   "code": "$SHIP_BCI_CHG",
+   "cn": "BCI-日环比"
+  },
+  {
+   "code": "$SHIP_BDI",
+   "cn": "BDI 波罗的海干散货指数(点)"
+  },
+  {
+   "code": "$SHIP_BDI_CHG",
+   "cn": "BDI-日环比"
+  },
+  {
+   "code": "$SSE_CCFI",
+   "cn": "CCFI 中国出口集装箱运价指数(点)"
+  },
+  {
+   "code": "$SSE_SCFI",
+   "cn": "SCFI 上海出口集装箱运价指数(点)"
+  },
+  {
+   "code": "$SSIR_OIE",
+   "cn": "销售商品提供劳务收到的现金对营业收入的比率(%)"
+  },
+  {
+   "code": "$SSIR_TA",
+   "cn": "销售商品提供劳务收到的现金对总资产的比率(%)"
+  },
+  {
+   "code": "$STD",
+   "cn": "短期存款"
+  },
+  {
+   "code": "$STM",
+   "cn": "总资产"
+  },
+  {
+   "code": "$STOCK_SH_AMOUNT",
+   "cn": "上证成交额(万亿)"
+  },
+  {
+   "code": "$STOCK_SH_HEIGH",
+   "cn": "上证股指-最高(D)"
+  },
+  {
+   "code": "$STOCK_SH_LOW",
+   "cn": "上证股指-最低(D)"
+  },
+  {
+   "code": "$STOCK_SH_MARKET",
+   "cn": "上证总市值(万亿)"
+  },
+  {
+   "code": "$STOCK_SH_SHARES",
+   "cn": "上证总股本(万亿)(股)"
+  },
+  {
+   "code": "$STOCK_SH_VOLUME",
+   "cn": "上证成交量(万亿)(股)"
+  },
+  {
+   "code": "$STOCK_SZ_AMOUNT",
+   "cn": "深证成交额(万亿)"
+  },
+  {
+   "code": "$STOCK_SZ_HEIGH",
+   "cn": "深证股指-最高(D)"
+  },
+  {
+   "code": "$STOCK_SZ_LOW",
+   "cn": "深证股指-最低(D)"
+  },
+  {
+   "code": "$STOCK_SZ_MARKET",
+   "cn": "深证总市值(万亿)"
+  },
+  {
+   "code": "$STOCK_SZ_SHARES",
+   "cn": "深证总股本(万亿)(股)"
+  },
+  {
+   "code": "$STOCK_SZ_VOLUME",
+   "cn": "深证成交量(万亿)(股)"
+  },
+  {
+   "code": "$STYLE_CLUSTER_NOTE",
+   "cn": "聚类(仅容器/KMEANS语境)"
+  },
+  {
+   "code": "$STYLE_DEFAULT",
+   "cn": "风格·默认(同 $STYLE_RULE)"
+  },
+  {
+   "code": "$STYLE_FIN_ANCHOR_OK",
+   "cn": "风格·盈利锚点有效(否则 $STYLE_RULE 回退行业)"
+  },
+  {
+   "code": "$STYLE_FIN_SCORE",
+   "cn": "周期"
+  },
+  {
+   "code": "$STYLE_INDUSTRY",
+   "cn": "行业标签"
+  },
+  {
+   "code": "$STYLE_LABELS",
+   "cn": "风格·标签列表"
+  },
+  {
+   "code": "$STYLE_LABEL_MIX",
+   "cn": "风格·合成标签(行业/规则风格)"
+  },
+  {
+   "code": "$STYLE_RULE",
+   "cn": "企业标签)"
+  },
+  {
+   "code": "$STYLE_RULE_FIN",
+   "cn": "风格·纯财务规则(无行业回退)"
+  },
+  {
+   "code": "$SUSPEND",
+   "cn": "停牌信息"
+  },
+  {
+   "code": "$SUSPEND_MARKET",
+   "cn": "停牌市场"
+  },
+  {
+   "code": "$SUSPEND_REASON",
+   "cn": "停牌原因"
+  },
+  {
+   "code": "$SUSPEND_START_DATE",
+   "cn": "停牌开始日期"
+  },
+  {
+   "code": "$SUSPEND_TYPE",
+   "cn": "停牌类型"
+  },
+  {
+   "code": "$SYM",
+   "cn": "符号"
+  },
+  {
+   "code": "$SYMBOL",
+   "cn": "符号"
+  },
+  {
+   "code": "$SYMS",
+   "cn": "行业指数代号"
+  },
+  {
+   "code": "$SYMSNAME",
+   "cn": "行业指数名字"
+  },
+  {
+   "code": "$SYMS_TOP_NP_SYMBOL",
+   "cn": "行业或者指数的龙头"
+  },
+  {
+   "code": "$TANGIBLE_ASSET",
+   "cn": "有形资产(亿)"
+  },
+  {
+   "code": "$TANGIBLE_ASSET_LAST",
+   "cn": "最新有形资产(亿)"
+  },
+  {
+   "code": "$TAXR",
+   "cn": "税率"
+  },
+  {
+   "code": "$TAX_RATE",
+   "cn": "有效税率(%)"
+  },
+  {
+   "code": "$TAX_RATE_LAST",
+   "cn": "有效税率(%)"
+  },
+  {
+   "code": "$TAX_TR",
+   "cn": "税费率"
+  },
+  {
+   "code": "$TA_AVG_B2",
+   "cn": "总资产多点均值(B2)"
+  },
+  {
+   "code": "$TA_DAYS",
+   "cn": "总资产周转天数(D)"
+  },
+  {
+   "code": "$TA_DAYS_TTM",
+   "cn": "TTM总资产周转天数(D)"
+  },
+  {
+   "code": "$TA_LAST",
+   "cn": "最新总资产"
+  },
+  {
+   "code": "$TA_TURNOVER",
+   "cn": "资产周转率(D)"
+  },
+  {
+   "code": "$TA_TURNOVER_TTM",
+   "cn": "TTM总资产周转率(D)"
+  },
+  {
+   "code": "$TA_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$TA_WEIGHTED_AFTER",
+   "cn": "最新总资产(加权)"
+  },
+  {
+   "code": "$TCL_DAYS",
+   "cn": "流动资产周转天数(D)"
+  },
+  {
+   "code": "$TCL_DAYS_TTM",
+   "cn": "TTM流动资产周转天数(D)"
+  },
+  {
+   "code": "$TCL_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$TETL",
+   "cn": "总权益及总负债"
+  },
+  {
+   "code": "$TE_DAYS",
+   "cn": "股东权益周转天数(D)"
+  },
+  {
+   "code": "$TE_DAYS_TTM",
+   "cn": "TTM股东权益周转天数(D)"
+  },
+  {
+   "code": "$TE_WEIGHTED",
+   "cn": "/ 2"
+  },
+  {
+   "code": "$TFAS",
+   "cn": "交易性金融资产"
+  },
+  {
+   "code": "$TFAS_C",
+   "cn": "交易性金融资产(流动)"
+  },
+  {
+   "code": "$TFAS_N",
+   "cn": "交易性金融资产(非流动)"
+  },
+  {
+   "code": "$TIP",
+   "cn": "提示"
+  },
+  {
+   "code": "$TL_RATE",
+   "cn": "资产负债率(%)"
+  },
+  {
+   "code": "$TL_RATE_10Y_AVG",
+   "cn": "近10年资产负债率均值"
+  },
+  {
+   "code": "$TL_RATE_10Y_AVG_LAST",
+   "cn": "近10年资产负债率均值"
+  },
+  {
+   "code": "$TL_RATE_10Y_MIN",
+   "cn": "近10年资产负债率最低"
+  },
+  {
+   "code": "$TL_RATE_10Y_MIN_LAST",
+   "cn": "近10年资产负债率最低"
+  },
+  {
+   "code": "$TL_RATE_3Y",
+   "cn": "近3年资产负债率序列"
+  },
+  {
+   "code": "$TL_RATE_3Y_AVG",
+   "cn": "近3年资产负债率均值"
+  },
+  {
+   "code": "$TL_RATE_3Y_AVG_LAST",
+   "cn": "近3年资产负债率均值"
+  },
+  {
+   "code": "$TL_RATE_3Y_LAST",
+   "cn": "近3年资产负债率序列"
+  },
+  {
+   "code": "$TL_RATE_3Y_MIN",
+   "cn": "近3年资产负债率最低"
+  },
+  {
+   "code": "$TL_RATE_3Y_MIN_LAST",
+   "cn": "近3年资产负债率最低"
+  },
+  {
+   "code": "$TL_RATE_3Y_TREND",
+   "cn": "近3年资产负债率趋势"
+  },
+  {
+   "code": "$TL_RATE_3Y_TREND_LAST",
+   "cn": "近3年资产负债率趋势"
+  },
+  {
+   "code": "$TL_RATE_5Y_AVG",
+   "cn": "近5年资产负债率均值"
+  },
+  {
+   "code": "$TL_RATE_5Y_AVG_LAST",
+   "cn": "近5年资产负债率均值"
+  },
+  {
+   "code": "$TL_RATE_5Y_MIN",
+   "cn": "近5年资产负债率最低"
+  },
+  {
+   "code": "$TL_RATE_5Y_MIN_LAST",
+   "cn": "近5年资产负债率最低"
+  },
+  {
+   "code": "$TL_RATE_LAST",
+   "cn": "资产负债率(%)"
+  },
+  {
+   "code": "$TP",
+   "cn": "利润总额"
+  },
+  {
+   "code": "$TRA",
+   "cn": "区域营业额(亿)"
+  },
+  {
+   "code": "$TRA_LASTQ4",
+   "cn": "区域营业额(亿)"
+  },
+  {
+   "code": "$TRB",
+   "cn": "业务营业额(亿)"
+  },
+  {
+   "code": "$TRB_LASTQ4",
+   "cn": "业务营业额(亿)"
+  },
+  {
+   "code": "$TRG",
+   "cn": "商品营业额(亿)"
+  },
+  {
+   "code": "$TRG_LASTQ4",
+   "cn": "商品营业额(亿)"
+  },
+  {
+   "code": "$TR_10Y_AVG",
+   "cn": "近10年营收(TTM)均值"
+  },
+  {
+   "code": "$TR_10Y_AVG_LAST",
+   "cn": "近10年营收(TTM)均值"
+  },
+  {
+   "code": "$TR_10Y_MIN",
+   "cn": "近10年营收(TTM)最低"
+  },
+  {
+   "code": "$TR_10Y_MIN_LAST",
+   "cn": "近10年营收(TTM)最低"
+  },
+  {
+   "code": "$TR_3Y",
+   "cn": "近3年营收(TTM)序列"
+  },
+  {
+   "code": "$TR_3Y_AVG",
+   "cn": "近3年营收(TTM)均值"
+  },
+  {
+   "code": "$TR_3Y_AVG_LAST",
+   "cn": "近3年营收(TTM)均值"
+  },
+  {
+   "code": "$TR_3Y_LAST",
+   "cn": "近3年营收(TTM)序列"
+  },
+  {
+   "code": "$TR_3Y_MIN",
+   "cn": "近3年营收(TTM)最低"
+  },
+  {
+   "code": "$TR_3Y_MIN_LAST",
+   "cn": "近3年营收(TTM)最低"
+  },
+  {
+   "code": "$TR_3Y_TREND",
+   "cn": "近3年营收(TTM)趋势"
+  },
+  {
+   "code": "$TR_3Y_TREND_LAST",
+   "cn": "近3年营收(TTM)趋势"
+  },
+  {
+   "code": "$TR_5Y_AVG",
+   "cn": "近5年营收(TTM)均值"
+  },
+  {
+   "code": "$TR_5Y_AVG_LAST",
+   "cn": "近5年营收(TTM)均值"
+  },
+  {
+   "code": "$TR_5Y_MIN",
+   "cn": "近5年营收(TTM)最低"
+  },
+  {
+   "code": "$TR_5Y_MIN_LAST",
+   "cn": "近5年营收(TTM)最低"
+  },
+  {
+   "code": "$TR_AR_10Y_AVG",
+   "cn": "近10年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$TR_AR_10Y_AVG_LAST",
+   "cn": "近10年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$TR_AR_10Y_MIN",
+   "cn": "近10年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$TR_AR_10Y_MIN_LAST",
+   "cn": "近10年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$TR_AR_3Y",
+   "cn": "近3年营收(TTM)年化增长序列"
+  },
+  {
+   "code": "$TR_AR_3Y_AVG",
+   "cn": "近3年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$TR_AR_3Y_AVG_LAST",
+   "cn": "近3年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$TR_AR_3Y_LAST",
+   "cn": "近3年营收(TTM)年化增长序列"
+  },
+  {
+   "code": "$TR_AR_3Y_MIN",
+   "cn": "近3年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$TR_AR_3Y_MIN_LAST",
+   "cn": "近3年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$TR_AR_3Y_TREND",
+   "cn": "近3年营收(TTM)年化增长趋势"
+  },
+  {
+   "code": "$TR_AR_3Y_TREND_LAST",
+   "cn": "近3年营收(TTM)年化增长趋势"
+  },
+  {
+   "code": "$TR_AR_5Y_AVG",
+   "cn": "近5年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$TR_AR_5Y_AVG_LAST",
+   "cn": "近5年营收(TTM)年化增长均值"
+  },
+  {
+   "code": "$TR_AR_5Y_MIN",
+   "cn": "近5年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$TR_AR_5Y_MIN_LAST",
+   "cn": "近5年营收(TTM)年化增长最低"
+  },
+  {
+   "code": "$TR_EMP_AVG",
+   "cn": "人均营业总收入(万)"
+  },
+  {
+   "code": "$TR_TTM",
+   "cn": "营业收入(TTM)"
+  },
+  {
+   "code": "$TR_TTM_B2",
+   "cn": "营业总收入TTM(B2)"
+  },
+  {
+   "code": "$TR_TTM_LAST",
+   "cn": "最新营业收入(TTM)"
+  },
+  {
+   "code": "$TR_TTM_YOY",
+   "cn": "营业收入TTM同比"
+  },
+  {
+   "code": "$TR_TTM_YOY_LAST",
+   "cn": "营业收入TTM同比-最新"
+  },
+  {
+   "code": "$TTAX",
+   "cn": "综合税"
+  },
+  {
+   "code": "$TTS_COMMON_B2",
+   "cn": "杠杆系数(普通股口径,B2)"
+  },
+  {
+   "code": "$TTS_PARENT_B2",
+   "cn": "杠杆系数(归母口径,B2)"
+  },
+  {
+   "code": "$TT_B2",
+   "cn": "总资产周转率(B2)"
+  },
+  {
+   "code": "$T_NW_COST_RATE",
+   "cn": "NOWHATIF test cost rate"
+  },
+  {
+   "code": "$T_NW_PROFIT",
+   "cn": "NOWHATIF test profit"
+  },
+  {
+   "code": "$T_NW_REV",
+   "cn": "NOWHATIF test revenue"
+  },
+  {
+   "code": "$T_NW_TAX_RATE",
+   "cn": "NOWHATIF test tax rate"
+  },
+  {
+   "code": "$T_SEL_METRIC",
+   "cn": "selector metric"
+  },
+  {
+   "code": "$T_WF_MARGIN",
+   "cn": "whatif test margin"
+  },
+  {
+   "code": "$T_WF_PROFIT",
+   "cn": "whatif test profit"
+  },
+  {
+   "code": "$T_WF_REV",
+   "cn": "whatif test revenue"
+  },
+  {
+   "code": "$T_WF_TAX",
+   "cn": "whatif test tax"
+  },
+  {
+   "code": "$URA",
+   "cn": "使用权资产"
+  },
+  {
+   "code": "$VIOLATION_CURRENCY",
+   "cn": "币种"
+  },
+  {
+   "code": "$VIOLATION_NOTICE_DATE",
+   "cn": "公告日期"
+  },
+  {
+   "code": "$VIOLATION_NOTICE_YEAR",
+   "cn": "公告年份"
+  },
+  {
+   "code": "$VIOLATION_PUNISH_AMT",
+   "cn": "处罚金额"
+  },
+  {
+   "code": "$VIOLATION_PUNISH_OBJECT",
+   "cn": "处罚对象"
+  },
+  {
+   "code": "$VIOLATION_PUNISH_STEP",
+   "cn": "处罚步骤"
+  },
+  {
+   "code": "$VIOLATION_PUNISH_TYPE",
+   "cn": "处罚类型"
+  },
+  {
+   "code": "$VIOLATION_SOLVE_ORG",
+   "cn": "解决机构"
+  },
+  {
+   "code": "$VIOLATION_VIOLATE_BEHAVIOUR",
+   "cn": "违规行为"
+  },
+  {
+   "code": "$VIOLATION_VIOLATE_TYPE",
+   "cn": "违规类型"
+  },
+  {
+   "code": "$VOLUME",
+   "cn": "成交量"
+  },
+  {
+   "code": "$VOLUME_AR_DAY",
+   "cn": "成交量(后复权)"
+  },
+  {
+   "code": "$VOLUME_DAY",
+   "cn": "成交量(前复权)"
+  },
+  {
+   "code": "$VOLUME_LAST",
+   "cn": "最新成交量"
+  },
+  {
+   "code": "$VOLUME_LIVE",
+   "cn": "drop stub"
+  },
+  {
+   "code": "$VOLUME_NR_DAY",
+   "cn": "成交量(无复权)"
+  },
+  {
+   "code": "$VST",
+   "cn": "*(1 + $BE_RATE / $PE_TTM) - 1"
+  },
+  {
+   "code": "$WACC",
+   "cn": "* $RSE +($MV / $CR_CM / $EV) *($FE / $IBD) *(1 - $TAXR)"
+  },
+  {
+   "code": "$WEIGHT",
+   "cn": "权重"
+  },
+  {
+   "code": "$YEARDAY",
+   "cn": "天(年)"
+  },
+  {
+   "code": "$_PPE",
+   "cn": "固定资产(别名)"
+  },
+  {
+   "code": "$_PPE_WEIGHTED",
+   "cn": "加权固定资产(别名)"
+  },
+  {
+   "code": "$col_distinct",
+   "cn": "列值去重统计"
+  },
+  {
+   "code": "$dNT",
+   "cn": "营业净利率"
+  },
+  {
+   "code": "$dROE",
+   "cn": "扣非ROE"
+  },
+  {
+   "code": "$dROE_TTM",
+   "cn": "扣非ROE(TTM)(%)"
+  },
+  {
+   "code": "$dTT",
+   "cn": "总资产周转率"
+  },
+  {
+   "code": "$dTTS",
+   "cn": "权益乘数"
+  },
+  {
+   "code": "$hAOBT",
+   "cn": "经营业务调整合计项"
+  },
+  {
+   "code": "$hCCF",
+   "cn": "期末现金余额(来源视角)"
+  },
+  {
+   "code": "$hCFO",
+   "cn": "经营产生现金(来源视角)"
+  },
+  {
+   "code": "$hGPRS",
+   "cn": "毛利"
+  },
+  {
+   "code": "$hNCF",
+   "cn": "现金流量净额(来源视角)"
+  },
+  {
+   "code": "$hNCFF",
+   "cn": "筹资活动产生的现金流量净额(来源视角)"
+  },
+  {
+   "code": "$hNCFI",
+   "cn": "投资活动产生的现金流量净额(来源视角)"
+  },
+  {
+   "code": "$hNCFO",
+   "cn": "经营活动产生的现金流量净额(来源视角)"
+  },
+  {
+   "code": "$hNES",
+   "cn": "营业外净收入"
+  },
+  {
+   "code": "$hNFFI",
+   "cn": "筹资活动现金流入小计(来源视角)"
+  },
+  {
+   "code": "$hNFFO",
+   "cn": "筹资活动现金流出小计(来源视角)"
+  },
+  {
+   "code": "$hNFII",
+   "cn": "投资活动现金流入小计(来源视角)"
+  },
+  {
+   "code": "$hNFIO",
+   "cn": "投资活动现金流出小计(来源视角)"
+  },
+  {
+   "code": "$hNFOI",
+   "cn": "经营活动现金流入小计(来源视角)"
+  },
+  {
+   "code": "$hNFOO",
+   "cn": "经营活动现金流出小计(来源视角)"
+  },
+  {
+   "code": "$hNP",
+   "cn": "净利润(来源视角)"
+  },
+  {
+   "code": "$hNPAO",
+   "cn": "归普通股东净利润(来源视角)"
+  },
+  {
+   "code": "$hNPTS",
+   "cn": "归母净利润(来源视角)"
+  },
+  {
+   "code": "$hNPTS1",
+   "cn": "归母净利润(深度视角)"
+  },
+  {
+   "code": "$hNPTS2",
+   "cn": "归母净利润(浅层视角)"
+  },
+  {
+   "code": "$hNRAR",
+   "cn": "应收票据及应收账款"
+  },
+  {
+   "code": "$hOC",
+   "cn": "营业成本"
+  },
+  {
+   "code": "$hOEIR",
+   "cn": "其他权益工具"
+  },
+  {
+   "code": "$hOEPP",
+   "cn": "经营支出"
+  },
+  {
+   "code": "$hOIE",
+   "cn": "营业收入"
+  },
+  {
+   "code": "$hOP",
+   "cn": "营业利润(来源视角)"
+  },
+  {
+   "code": "$hOPBC",
+   "cn": "营运资金变动前经营溢利(来源视角)"
+  },
+  {
+   "code": "$hORTR",
+   "cn": "其他经营收益"
+  },
+  {
+   "code": "$hPAT",
+   "cn": "税后利润(来源视角)"
+  },
+  {
+   "code": "$hPBT",
+   "cn": "税前利润(来源视角)"
+  },
+  {
+   "code": "$hSE",
+   "cn": "股东权益"
+  },
+  {
+   "code": "$hTA",
+   "cn": "总资产(来源视角)"
+  },
+  {
+   "code": "$hTCA",
+   "cn": "流动资产合计"
+  },
+  {
+   "code": "$hTCL",
+   "cn": "流动负债合计"
+  },
+  {
+   "code": "$hTE",
+   "cn": "所有者权益总计"
+  },
+  {
+   "code": "$hTETL",
+   "cn": "总资产(来源视角)"
+  },
+  {
+   "code": "$hTL",
+   "cn": "负债合计"
+  },
+  {
+   "code": "$hTNA",
+   "cn": "非流动资产合计"
+  },
+  {
+   "code": "$hTNL",
+   "cn": "非流动负债合计"
+  },
+  {
+   "code": "$hTOCO",
+   "cn": "营业总成本"
+  },
+  {
+   "code": "$hTORE",
+   "cn": "其他应收款合计"
+  },
+  {
+   "code": "$hTP",
+   "cn": "利润总额(来源视角)"
+  },
+  {
+   "code": "$hTR",
+   "cn": "营业总收入"
+  },
+  {
+   "code": "$hURR",
+   "cn": "保险类应收款"
+  },
+  {
+   "code": "$iTR",
+   "cn": "含增值税的收入"
+  },
+  {
+   "code": "$rNT",
+   "cn": "营业净利率"
+  },
+  {
+   "code": "$rROE",
+   "cn": "归母ROE"
+  },
+  {
+   "code": "$rROE_TTM",
+   "cn": "归母ROE(TTM)"
+  },
+  {
+   "code": "$rTT",
+   "cn": "总资产周转率"
+  },
+  {
+   "code": "$rTTS",
+   "cn": "权益乘数"
+  },
+  {
+   "code": "$xNT",
+   "cn": "营业净利率"
+  },
+  {
+   "code": "$xROE",
+   "cn": "ROE"
+  },
+  {
+   "code": "$xROE_TTM",
+   "cn": "ROE(TTM)"
+  },
+  {
+   "code": "$xTT",
+   "cn": "总资产周转率"
+  },
+  {
+   "code": "$xTTS",
+   "cn": "权益乘数"
+  }
+ ]
+}

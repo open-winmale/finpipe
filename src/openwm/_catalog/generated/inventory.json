@@ -1,0 +1,4684 @@
+{
+ "schema_version": 2,
+ "upstream_rev": "8ae96a4e",
+ "domains": {
+  "bonus": {
+   "entry": "sys/bonus/init.xs",
+   "exports": []
+  },
+  "filings": {
+   "entry": "sys/filings/init.xs",
+   "exports": []
+  },
+  "forecast": {
+   "entry": "sys/forecast/init.xs",
+   "exports": []
+  },
+  "kline": {
+   "entry": "sys/kline/init.xs",
+   "exports": [
+    "kline.fmt_lines",
+    "kline.fmt_maps",
+    "kline.index_breadth_summary",
+    "kline.index_pct_bin_expr",
+    "kline.index_top_movers",
+    "kline.is_etf",
+    "kline.query_bars",
+    "kline.query_bars_live",
+    "kline.query_last",
+    "kline.query_last_live",
+    "kline.query_last_live_many",
+    "kline.query_min1_live",
+    "kline.query_min1_live_meta",
+    "kline.screen_above_ma20",
+    "kline.screen_momentum_20d",
+    "kline.snapshot"
+   ]
+  },
+  "moneyflow": {
+   "entry": "sys/moneyflow/init.xs",
+   "exports": []
+  },
+  "notice": {
+   "entry": "sys/notice/init.xs",
+   "exports": []
+  },
+  "rptdom": {
+   "entry": "sys/rptdom/init.xs",
+   "exports": []
+  }
+ },
+ "preloaded_libs": [
+  "bonus",
+  "filings",
+  "kline",
+  "moneyflow",
+  "notice"
+ ],
+ "function_count": 155,
+ "functions": [
+  {
+   "name": "bonus.dps_rpt",
+   "cn": "财报期每股分红",
+   "example": "bonus.dps_rpt(\"601318\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.dps_rpt_asof",
+   "cn": "财报期每股分红(截至日)",
+   "example": "bonus.dps_rpt_asof(rows, \"2026-10-10\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "rows",
+     "type": "any"
+    },
+    {
+     "name": "asof",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.fmt_line",
+   "cn": "单条分红文本",
+   "example": "bonus.fmt_line(row)",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "bonus.fmt_lines",
+   "cn": "分红文本行",
+   "example": "bonus.fmt_lines(rows)",
+   "returns": "ARR · 文本",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "bonus.fmt_maps",
+   "cn": "分红行规范化",
+   "example": "bonus.fmt_maps(rows)",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分红行",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "dps",
+       "type": "float64",
+       "cn": "每股股利",
+       "optional": true
+      },
+      {
+       "name": "total",
+       "type": "float64",
+       "cn": "总分红",
+       "optional": true
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日",
+       "optional": true
+      },
+      {
+       "name": "ex_div_date",
+       "type": "string",
+       "cn": "除权日",
+       "optional": true
+      },
+      {
+       "name": "pay_date",
+       "type": "string",
+       "cn": "派息日",
+       "optional": true
+      },
+      {
+       "name": "content",
+       "type": "string",
+       "cn": "方案摘要",
+       "optional": true
+      },
+      {
+       "name": "payout_ratio",
+       "type": "float64",
+       "cn": "派息率",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "bonus.fmt_snapshot_line",
+   "cn": "股息快照一行文本",
+   "example": "bonus.fmt_snapshot_line(\"600519\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.index_field_load",
+   "cn": "股息索引字段预加载",
+   "example": "bonus.index_field_load(LatestIndexKey(), [\"yield\"])",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "索引预加载句柄/结果",
+    "fields": [
+     {
+      "name": "idx",
+      "type": "any",
+      "cn": "索引",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    },
+    {
+     "name": "fields",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "bonus.index_field_load_analysis",
+   "cn": "股息分析字段预加载",
+   "example": "bonus.index_field_load_analysis(LatestIndexKey())",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "索引预加载句柄/结果",
+    "fields": [
+     {
+      "name": "idx",
+      "type": "any",
+      "cn": "索引",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "bonus.index_fields_analysis",
+   "cn": "股息分析字段",
+   "example": "bonus.index_fields_analysis()",
+   "returns": "ARR · 字段名",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_fields_basic",
+   "cn": "股息基础字段",
+   "example": "bonus.index_fields_basic()",
+   "returns": "ARR · 字段名",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_active",
+   "cn": "where 积木：active",
+   "example": "bonus.index_where_active()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_ample_payout",
+   "cn": "where 积木：ample_payout",
+   "example": "bonus.index_where_ample_payout()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_danger_payout",
+   "cn": "where 积木：danger_payout",
+   "example": "bonus.index_where_danger_payout()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_declining",
+   "cn": "where 积木：declining",
+   "example": "bonus.index_where_declining()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_has_dividend",
+   "cn": "where 积木：has_dividend",
+   "example": "bonus.index_where_has_dividend()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_high_yield",
+   "cn": "where 积木：high_yield",
+   "example": "bonus.index_where_high_yield()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_high_yield_5",
+   "cn": "where 积木：high_yield_5",
+   "example": "bonus.index_where_high_yield_5()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_improving",
+   "cn": "where 积木：improving",
+   "example": "bonus.index_where_improving()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_no_dividend",
+   "cn": "where 积木：no_dividend",
+   "example": "bonus.index_where_no_dividend()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_quality",
+   "cn": "质量股 where 积木",
+   "example": "bonus.index_where_quality()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_stable",
+   "cn": "where 积木：stable",
+   "example": "bonus.index_where_stable()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_trend_up",
+   "cn": "where 积木：trend_up",
+   "example": "bonus.index_where_trend_up()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_where_undervalued",
+   "cn": "where 积木：undervalued",
+   "example": "bonus.index_where_undervalued()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.index_yield_bin_expr",
+   "cn": "股息率分桶表达式",
+   "example": "bonus.index_yield_bin_expr()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "bonus.query_at_sas",
+   "cn": "指定 SAS 分红",
+   "example": "bonus.query_at_sas(\"600519\", \"2024:Y\")",
+   "returns": "any · 分红行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "分红行",
+    "fields": [
+     {
+      "name": "sas",
+      "type": "string",
+      "cn": "SAS",
+      "optional": true
+     },
+     {
+      "name": "dps",
+      "type": "float64",
+      "cn": "每股股利",
+      "optional": true
+     },
+     {
+      "name": "total",
+      "type": "float64",
+      "cn": "总分红",
+      "optional": true
+     },
+     {
+      "name": "announce_date",
+      "type": "string",
+      "cn": "公告日",
+      "optional": true
+     },
+     {
+      "name": "ex_div_date",
+      "type": "string",
+      "cn": "除权日",
+      "optional": true
+     },
+     {
+      "name": "pay_date",
+      "type": "string",
+      "cn": "派息日",
+      "optional": true
+     },
+     {
+      "name": "content",
+      "type": "string",
+      "cn": "方案摘要",
+      "optional": true
+     },
+     {
+      "name": "payout_ratio",
+      "type": "float64",
+      "cn": "派息率",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "sas",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.query_count_window",
+   "cn": "窗口内分红次数",
+   "example": "bonus.query_count_window(\"600519\", \"1y\")",
+   "returns": "int",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.query_dps_window",
+   "cn": "窗口内每股股利合计",
+   "example": "bonus.query_dps_window(\"600519\", \"1y\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.query_last",
+   "cn": "最近一次分红",
+   "example": "bonus.query_last(\"600519\")",
+   "returns": "any · 分红行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "分红行",
+    "fields": [
+     {
+      "name": "sas",
+      "type": "string",
+      "cn": "SAS",
+      "optional": true
+     },
+     {
+      "name": "dps",
+      "type": "float64",
+      "cn": "每股股利",
+      "optional": true
+     },
+     {
+      "name": "total",
+      "type": "float64",
+      "cn": "总分红",
+      "optional": true
+     },
+     {
+      "name": "announce_date",
+      "type": "string",
+      "cn": "公告日",
+      "optional": true
+     },
+     {
+      "name": "ex_div_date",
+      "type": "string",
+      "cn": "除权日",
+      "optional": true
+     },
+     {
+      "name": "pay_date",
+      "type": "string",
+      "cn": "派息日",
+      "optional": true
+     },
+     {
+      "name": "content",
+      "type": "string",
+      "cn": "方案摘要",
+      "optional": true
+     },
+     {
+      "name": "payout_ratio",
+      "type": "float64",
+      "cn": "派息率",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.query_list",
+   "cn": "分红历史明细",
+   "example": "bonus.query_list(\"600519\", 50)",
+   "returns": "ARR · 分红行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分红行",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "dps",
+       "type": "float64",
+       "cn": "每股股利",
+       "optional": true
+      },
+      {
+       "name": "total",
+       "type": "float64",
+       "cn": "总分红",
+       "optional": true
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日",
+       "optional": true
+      },
+      {
+       "name": "ex_div_date",
+       "type": "string",
+       "cn": "除权日",
+       "optional": true
+      },
+      {
+       "name": "pay_date",
+       "type": "string",
+       "cn": "派息日",
+       "optional": true
+      },
+      {
+       "name": "content",
+       "type": "string",
+       "cn": "方案摘要",
+       "optional": true
+      },
+      {
+       "name": "payout_ratio",
+       "type": "float64",
+       "cn": "派息率",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "bonus.query_total_window",
+   "cn": "窗口内总分红",
+   "example": "bonus.query_total_window(\"600519\", \"1y\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.query_valid",
+   "cn": "有效分红明细",
+   "example": "bonus.query_valid(\"600519\", 50)",
+   "returns": "ARR · 分红行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分红行",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "dps",
+       "type": "float64",
+       "cn": "每股股利",
+       "optional": true
+      },
+      {
+       "name": "total",
+       "type": "float64",
+       "cn": "总分红",
+       "optional": true
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日",
+       "optional": true
+      },
+      {
+       "name": "ex_div_date",
+       "type": "string",
+       "cn": "除权日",
+       "optional": true
+      },
+      {
+       "name": "pay_date",
+       "type": "string",
+       "cn": "派息日",
+       "optional": true
+      },
+      {
+       "name": "content",
+       "type": "string",
+       "cn": "方案摘要",
+       "optional": true
+      },
+      {
+       "name": "payout_ratio",
+       "type": "float64",
+       "cn": "派息率",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_active",
+   "cn": "有分红记录",
+   "example": "bonus.screen_active(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_ample_payout",
+   "cn": "派息充足",
+   "example": "bonus.screen_ample_payout(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_danger_payout",
+   "cn": "透支分红风险",
+   "example": "bonus.screen_danger_payout(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_declining_yield",
+   "cn": "股息下滑",
+   "example": "bonus.screen_declining_yield(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_has_dividend",
+   "cn": "满足最低股息",
+   "example": "bonus.screen_has_dividend(\"600519\", 0.03)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_yield",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_high_yield",
+   "cn": "高息",
+   "example": "bonus.screen_high_yield(\"600519\", 0.03)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_yield",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_improving_yield",
+   "cn": "股息改善",
+   "example": "bonus.screen_improving_yield(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_quality",
+   "cn": "股息质量筛选",
+   "example": "bonus.screen_quality(\"600519\", 0.03, 0.3, 0.7)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_yield",
+     "type": "any"
+    },
+    {
+     "name": "payout_min",
+     "type": "any"
+    },
+    {
+     "name": "payout_max",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_stable_yield",
+   "cn": "股息稳定",
+   "example": "bonus.screen_stable_yield(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_trend_ok",
+   "cn": "股息趋势可接受",
+   "example": "bonus.screen_trend_ok(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.screen_undervalued_yield",
+   "cn": "低估高息",
+   "example": "bonus.screen_undervalued_yield(\"600519\", 0.03, 30)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_yield",
+     "type": "any"
+    },
+    {
+     "name": "min_pct",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "bonus.snapshot",
+   "cn": "股息快照",
+   "example": "bonus.snapshot(\"600519\")",
+   "returns": "MAP · 快照",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "股息快照",
+    "fields": [
+     {
+      "name": "yield_ttm",
+      "type": "float64",
+      "cn": "LTM 股息率",
+      "optional": true
+     },
+     {
+      "name": "payout_ttm",
+      "type": "float64",
+      "cn": "TTM 派息率",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.snapshot_payout_ttm",
+   "cn": "TTM 派息率",
+   "example": "bonus.snapshot_payout_ttm(\"600519\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "bonus.snapshot_yield_ttm",
+   "cn": "LTM 股息率",
+   "example": "bonus.snapshot_yield_ttm(\"600519\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "filings.fmt_date_short",
+   "cn": "日期缩短为 YYYY-MM-DD",
+   "example": "filings.fmt_date_short(\"20260701\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "raw",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "filings.fmt_map",
+   "cn": "单条定期报告规范化",
+   "example": "filings.fmt_map(row)",
+   "returns": "MAP · 报告行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "定期报告行",
+    "fields": [
+     {
+      "name": "title",
+      "type": "string",
+      "cn": "标题",
+      "optional": true
+     },
+     {
+      "name": "type",
+      "type": "string",
+      "cn": "报告类型中文",
+      "optional": true
+     },
+     {
+      "name": "notice_date",
+      "type": "string",
+      "cn": "公告日"
+     },
+     {
+      "name": "report_date",
+      "type": "string",
+      "cn": "报告期"
+     },
+     {
+      "name": "url",
+      "type": "string",
+      "cn": "链接",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "filings.fmt_maps",
+   "cn": "定期报告行规范化列表",
+   "example": "filings.fmt_maps(rows)",
+   "returns": "ARR · 规范化报告行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "定期报告行",
+     "fields": [
+      {
+       "name": "title",
+       "type": "string",
+       "cn": "标题",
+       "optional": true
+      },
+      {
+       "name": "type",
+       "type": "string",
+       "cn": "报告类型中文",
+       "optional": true
+      },
+      {
+       "name": "notice_date",
+       "type": "string",
+       "cn": "公告日"
+      },
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期"
+      },
+      {
+       "name": "url",
+       "type": "string",
+       "cn": "链接",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "filings.latest",
+   "cn": "最新一条定期报告",
+   "example": "filings.latest(\"600519\", \"annual\")",
+   "returns": "MAP · 报告行或空",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "定期报告行",
+    "fields": [
+     {
+      "name": "title",
+      "type": "string",
+      "cn": "标题",
+      "optional": true
+     },
+     {
+      "name": "type",
+      "type": "string",
+      "cn": "报告类型中文",
+      "optional": true
+     },
+     {
+      "name": "notice_date",
+      "type": "string",
+      "cn": "公告日"
+     },
+     {
+      "name": "report_date",
+      "type": "string",
+      "cn": "报告期"
+     },
+     {
+      "name": "url",
+      "type": "string",
+      "cn": "链接",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "type_key",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "filings.query",
+   "cn": "定期报告列表",
+   "example": "filings.query(\"600519\", \"annual\", 20)",
+   "returns": "ARR · 规范化报告行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "定期报告行",
+     "fields": [
+      {
+       "name": "title",
+       "type": "string",
+       "cn": "标题",
+       "optional": true
+      },
+      {
+       "name": "type",
+       "type": "string",
+       "cn": "报告类型中文",
+       "optional": true
+      },
+      {
+       "name": "notice_date",
+       "type": "string",
+       "cn": "公告日"
+      },
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期"
+      },
+      {
+       "name": "url",
+       "type": "string",
+       "cn": "链接",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "type_key",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "filings.type_zh",
+   "cn": "type_key 转中文报告类型",
+   "example": "filings.type_zh(\"annual\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "type_key",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "forecast.disclosure_next",
+   "cn": "下次财报披露",
+   "example": "forecast.disclosure_next(\"600519\")",
+   "returns": "MAP · 披露行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "forecast.disclosure_rows",
+   "cn": "财报预约披露历史",
+   "example": "forecast.disclosure_rows(\"600519\", 8)",
+   "returns": "ARR · 披露行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "预约披露行",
+     "fields": [
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期"
+      },
+      {
+       "name": "latest_appoint_date",
+       "type": "string",
+       "cn": "最新预约日",
+       "optional": true
+      },
+      {
+       "name": "actual_publish_date",
+       "type": "string",
+       "cn": "实际披露日",
+       "optional": true
+      },
+      {
+       "name": "change_count",
+       "type": "int",
+       "cn": "变更次数",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "forecast.fmt_line",
+   "cn": "预告文本行",
+   "example": "forecast.fmt_line(\"688008\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "forecast.fmt_lines",
+   "cn": "预告文本行列表",
+   "example": "forecast.fmt_lines(rows)",
+   "returns": "ARR · 文本",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "forecast.snapshot",
+   "cn": "业绩披露快照",
+   "example": "forecast.snapshot(\"688008\")",
+   "returns": "MAP · 快照",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "业绩披露快照",
+    "fields": [
+     {
+      "name": "symbol",
+      "type": "string",
+      "cn": "股票代码"
+     },
+     {
+      "name": "yjyg",
+      "type": "object",
+      "cn": "最新业绩预告",
+      "optional": true
+     },
+     {
+      "name": "yjkb",
+      "type": "object",
+      "cn": "最新业绩快报",
+      "optional": true
+     },
+     {
+      "name": "next_disclosure",
+      "type": "object",
+      "cn": "下次财报披露",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "forecast.yjkb_latest",
+   "cn": "最新业绩快报",
+   "example": "forecast.yjkb_latest(\"603092\")",
+   "returns": "MAP · 快报行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "forecast.yjkb_rows",
+   "cn": "业绩快报历史",
+   "example": "forecast.yjkb_rows(\"603092\", 8)",
+   "returns": "ARR · 快报行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "业绩快报行",
+     "fields": [
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期"
+      },
+      {
+       "name": "revenue",
+       "type": "float64",
+       "cn": "营业收入(元)",
+       "optional": true
+      },
+      {
+       "name": "netprofit",
+       "type": "float64",
+       "cn": "净利润(元)",
+       "optional": true
+      },
+      {
+       "name": "basic_eps",
+       "type": "float64",
+       "cn": "每股收益(元)",
+       "optional": true
+      },
+      {
+       "name": "ann_date",
+       "type": "string",
+       "cn": "公告日",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "forecast.yjyg_latest",
+   "cn": "最新业绩预告",
+   "example": "forecast.yjyg_latest(\"688008\")",
+   "returns": "MAP · 预告行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "forecast.yjyg_rows",
+   "cn": "业绩预告历史",
+   "example": "forecast.yjyg_rows(\"688008\", 8)",
+   "returns": "ARR · 预告行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "业绩预告行",
+     "fields": [
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期"
+      },
+      {
+       "name": "predict_type",
+       "type": "string",
+       "cn": "预告类型",
+       "optional": true
+      },
+      {
+       "name": "np_lower",
+       "type": "float64",
+       "cn": "净利润下限(元)",
+       "optional": true
+      },
+      {
+       "name": "np_upper",
+       "type": "float64",
+       "cn": "净利润上限(元)",
+       "optional": true
+      },
+      {
+       "name": "np_amp_lower",
+       "type": "float64",
+       "cn": "同比变动下限(%)",
+       "optional": true
+      },
+      {
+       "name": "np_amp_upper",
+       "type": "float64",
+       "cn": "同比变动上限(%)",
+       "optional": true
+      },
+      {
+       "name": "ann_date",
+       "type": "string",
+       "cn": "公告日",
+       "optional": true
+      },
+      {
+       "name": "content",
+       "type": "string",
+       "cn": "预告原文",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "kline.fmt_bins",
+   "cn": "涨跌幅分桶格式化",
+   "example": "kline.fmt_bins(bins, total)",
+   "returns": "ARR/MAP · 分桶展示",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "分桶",
+    "items": {
+     "type": "map[string]any"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "bins_raw",
+     "type": "any"
+    },
+    {
+     "name": "total_count",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "kline.fmt_line",
+   "cn": "单根 K 线文本",
+   "example": "kline.fmt_line(row)",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.fmt_lines",
+   "cn": "K 线文本行",
+   "example": "kline.fmt_lines(rows)",
+   "returns": "ARR · 文本",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "kline.fmt_maps",
+   "cn": "K 线规范化 MAP 列表",
+   "example": "kline.fmt_maps(rows)",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.fmt_snapshot_line",
+   "cn": "快照一行文本",
+   "example": "kline.fmt_snapshot_line(\"600519\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_breadth_bin_industries",
+   "cn": "分桶行业分布",
+   "example": "kline.index_breadth_bin_industries(LatestIndexKey())",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "动态列表",
+    "items": {
+     "type": "any",
+     "cn": "项"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_breadth_bins",
+   "cn": "涨跌幅分桶结果",
+   "example": "kline.index_breadth_bins(LatestIndexKey())",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "动态列表",
+    "items": {
+     "type": "any",
+     "cn": "项"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_breadth_summary",
+   "cn": "全市场涨跌全景",
+   "example": "kline.index_breadth_summary(LatestIndexKey())",
+   "returns": "MAP · 涨跌统计",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "涨跌全景",
+    "fields": [
+     {
+      "name": "up",
+      "type": "int",
+      "cn": "上涨家数",
+      "optional": true
+     },
+     {
+      "name": "down",
+      "type": "int",
+      "cn": "下跌家数",
+      "optional": true
+     },
+     {
+      "name": "flat",
+      "type": "int",
+      "cn": "平盘家数",
+      "optional": true
+     },
+     {
+      "name": "limit_up",
+      "type": "int",
+      "cn": "涨停",
+      "optional": true
+     },
+     {
+      "name": "limit_down",
+      "type": "int",
+      "cn": "跌停",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_field_load",
+   "cn": "索引字段预加载",
+   "example": "kline.index_field_load(LatestIndexKey(), [\"percent\"])",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "索引预加载句柄/结果",
+    "fields": [
+     {
+      "name": "idx",
+      "type": "any",
+      "cn": "索引",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    },
+    {
+     "name": "fields",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_field_load_analysis",
+   "cn": "分析字段预加载",
+   "example": "kline.index_field_load_analysis(LatestIndexKey())",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "索引预加载句柄/结果",
+    "fields": [
+     {
+      "name": "idx",
+      "type": "any",
+      "cn": "索引",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_field_load_breadth",
+   "cn": "涨跌全景字段预加载",
+   "example": "kline.index_field_load_breadth(LatestIndexKey())",
+   "returns": "any",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "索引预加载句柄/结果",
+    "fields": [
+     {
+      "name": "idx",
+      "type": "any",
+      "cn": "索引",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.index_fields_analysis",
+   "cn": "分析字段列表",
+   "example": "kline.index_fields_analysis()",
+   "returns": "ARR · 字段名",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "kline.index_fields_basic",
+   "cn": "基础字段列表",
+   "example": "kline.index_fields_basic()",
+   "returns": "ARR · 字段名",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "kline.index_fields_breadth",
+   "cn": "涨跌全景字段列表",
+   "example": "kline.index_fields_breadth()",
+   "returns": "ARR · 字段名",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "kline.index_pct_bin_expr",
+   "cn": "涨跌幅分桶 where 表达式",
+   "example": "kline.index_pct_bin_expr()",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "kline.index_top_movers",
+   "cn": "涨跌榜",
+   "example": "kline.index_top_movers(LatestIndexKey(), 20, true)",
+   "returns": "ARR · 行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "map[string]any"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "idx",
+     "type": "any"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "desc",
+     "type": "bool"
+    }
+   ]
+  },
+  {
+   "name": "kline.is_etf",
+   "cn": "是否场内 ETF",
+   "example": "kline.is_etf(\"510300\")",
+   "returns": "bool · true=场内 ETF",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_at_anchor",
+   "cn": "锚点前 K 线",
+   "example": "kline.query_at_anchor(\"600519\", 30, anchor.date())",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "anchor_date",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_at_anchor_adj",
+   "cn": "锚点前 K 线（复权）",
+   "example": "kline.query_at_anchor_adj(\"600519\", 30, anchor.date(), \"qfq\")",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 3,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "anchor_date",
+     "type": "string"
+    },
+    {
+     "name": "adj",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_bars",
+   "cn": "历史 K 线",
+   "example": "kline.query_bars(\"600519\", 30)",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_bars_adj",
+   "cn": "历史 K 线（复权）",
+   "example": "kline.query_bars_adj(\"600519\", 30, \"qfq\")",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "adj",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_bars_live",
+   "cn": "盘中日K序列",
+   "example": "kline.query_bars_live(\"000807\", 5)",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "盘中日K",
+     "fields": [
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_bars_props",
+   "cn": "历史 K 线（指定字段）",
+   "example": "kline.query_bars_props(\"600519\", 30, [\"close\"])",
+   "returns": "MAP · 列式字段序列",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "props",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_bars_props_adj",
+   "cn": "历史 K 线（字段+复权）",
+   "example": "kline.query_bars_props_adj(\"600519\", 30, [\"close\"], \"qfq\")",
+   "returns": "MAP · 列式字段序列",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 3,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "props",
+     "type": "array"
+    },
+    {
+     "name": "adj",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_index_last_live",
+   "cn": "指数盘中点位tip",
+   "example": "kline.query_index_last_live(\"index.hs300\")",
+   "returns": "MAP/any",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "key",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_index_last_live_many",
+   "cn": "指数盘中点位tip批量",
+   "example": "kline.query_index_last_live_many([\"index.shzs\",\"index.hs300\"])",
+   "returns": "MAP",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "keys",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_index_min1_live",
+   "cn": "指数盘中1分钟分时",
+   "example": "kline.query_index_min1_live(\"index.hs300\")",
+   "returns": "MAP/any",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "key",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_index_min1_live_meta",
+   "cn": "指数盘中1分钟分时头",
+   "example": "kline.query_index_min1_live_meta(\"index.hs300\")",
+   "returns": "MAP/any",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "key",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_last",
+   "cn": "最新一根 K 线",
+   "example": "kline.query_last(\"600519\")",
+   "returns": "MAP/any · bar",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "K 线 bar",
+    "fields": [
+     {
+      "name": "sas",
+      "type": "string",
+      "cn": "SAS",
+      "optional": true
+     },
+     {
+      "name": "date",
+      "type": "string",
+      "cn": "日期",
+      "optional": true
+     },
+     {
+      "name": "open",
+      "type": "float64",
+      "cn": "开",
+      "optional": true
+     },
+     {
+      "name": "high",
+      "type": "float64",
+      "cn": "高",
+      "optional": true
+     },
+     {
+      "name": "low",
+      "type": "float64",
+      "cn": "低",
+      "optional": true
+     },
+     {
+      "name": "close",
+      "type": "float64",
+      "cn": "收",
+      "optional": true
+     },
+     {
+      "name": "volume",
+      "type": "float64",
+      "cn": "量",
+      "optional": true
+     },
+     {
+      "name": "amount",
+      "type": "float64",
+      "cn": "额",
+      "optional": true
+     },
+     {
+      "name": "percent",
+      "type": "float64",
+      "cn": "涨跌幅",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_last_adj",
+   "cn": "最新一根 K 线（复权）",
+   "example": "kline.query_last_adj(\"600519\", \"qfq\")",
+   "returns": "MAP/any · bar",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "K 线 bar",
+    "fields": [
+     {
+      "name": "sas",
+      "type": "string",
+      "cn": "SAS",
+      "optional": true
+     },
+     {
+      "name": "date",
+      "type": "string",
+      "cn": "日期",
+      "optional": true
+     },
+     {
+      "name": "open",
+      "type": "float64",
+      "cn": "开",
+      "optional": true
+     },
+     {
+      "name": "high",
+      "type": "float64",
+      "cn": "高",
+      "optional": true
+     },
+     {
+      "name": "low",
+      "type": "float64",
+      "cn": "低",
+      "optional": true
+     },
+     {
+      "name": "close",
+      "type": "float64",
+      "cn": "收",
+      "optional": true
+     },
+     {
+      "name": "volume",
+      "type": "float64",
+      "cn": "量",
+      "optional": true
+     },
+     {
+      "name": "amount",
+      "type": "float64",
+      "cn": "额",
+      "optional": true
+     },
+     {
+      "name": "percent",
+      "type": "float64",
+      "cn": "涨跌幅",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "adj",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_last_live",
+   "cn": "盘中日K快照",
+   "example": "kline.query_last_live(\"000807\")",
+   "returns": "MAP/any · 盘中 bar",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "盘中日K",
+    "fields": [
+     {
+      "name": "date",
+      "type": "string",
+      "cn": "日期",
+      "optional": true
+     },
+     {
+      "name": "open",
+      "type": "float64",
+      "cn": "开",
+      "optional": true
+     },
+     {
+      "name": "high",
+      "type": "float64",
+      "cn": "高",
+      "optional": true
+     },
+     {
+      "name": "low",
+      "type": "float64",
+      "cn": "低",
+      "optional": true
+     },
+     {
+      "name": "close",
+      "type": "float64",
+      "cn": "收/现价",
+      "optional": true
+     },
+     {
+      "name": "volume",
+      "type": "float64",
+      "cn": "量(手)",
+      "optional": true
+     },
+     {
+      "name": "amount",
+      "type": "float64",
+      "cn": "额(元)",
+      "optional": true
+     },
+     {
+      "name": "percent",
+      "type": "float64",
+      "cn": "涨跌幅(小数)",
+      "optional": true
+     },
+     {
+      "name": "mv",
+      "type": "float64",
+      "cn": "市值亿",
+      "optional": true
+     },
+     {
+      "name": "source",
+      "type": "string",
+      "cn": "来源标识枚举",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_last_live_many",
+   "cn": "盘中日K批量快照",
+   "example": "kline.query_last_live_many([\"600519\",\"000807\"])",
+   "returns": "MAP · symbol→bar",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "syms",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_min1_live",
+   "cn": "盘中1分钟分时(当日)",
+   "example": "kline.query_min1_live(\"600519\")",
+   "returns": "MAP/any · 分时包",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_min1_live_meta",
+   "cn": "盘中1分钟分时头",
+   "example": "kline.query_min1_live_meta(\"600519\")",
+   "returns": "MAP/any · 分时头",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_valid",
+   "cn": "有效 K 线序列",
+   "example": "kline.query_valid(\"600519\", 30)",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "kline.query_valid_adj",
+   "cn": "有效 K 线（复权）",
+   "example": "kline.query_valid_adj(\"600519\", 30, \"qfq\")",
+   "returns": "ARR · bars",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "K 线序列",
+    "items": {
+     "kind": "object",
+     "cn": "K 线 bar",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "open",
+       "type": "float64",
+       "cn": "开",
+       "optional": true
+      },
+      {
+       "name": "high",
+       "type": "float64",
+       "cn": "高",
+       "optional": true
+      },
+      {
+       "name": "low",
+       "type": "float64",
+       "cn": "低",
+       "optional": true
+      },
+      {
+       "name": "close",
+       "type": "float64",
+       "cn": "收",
+       "optional": true
+      },
+      {
+       "name": "volume",
+       "type": "float64",
+       "cn": "量",
+       "optional": true
+      },
+      {
+       "name": "amount",
+       "type": "float64",
+       "cn": "额",
+       "optional": true
+      },
+      {
+       "name": "percent",
+       "type": "float64",
+       "cn": "涨跌幅",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "adj",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_above_ma120",
+   "cn": "收盘价在 MA120 之上",
+   "example": "kline.screen_above_ma120(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_above_ma20",
+   "cn": "收盘价在 MA20 之上",
+   "example": "kline.screen_above_ma20(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_above_ma60",
+   "cn": "收盘价在 MA60 之上",
+   "example": "kline.screen_above_ma60(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_active",
+   "cn": "当日有成交",
+   "example": "kline.screen_active(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_breakout_ma20",
+   "cn": "突破 MA20",
+   "example": "kline.screen_breakout_ma20(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_down_today",
+   "cn": "今日下跌",
+   "example": "kline.screen_down_today(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_flat_today",
+   "cn": "今日平盘",
+   "example": "kline.screen_flat_today(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_limit_down",
+   "cn": "跌停",
+   "example": "kline.screen_limit_down(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_limit_up",
+   "cn": "涨停",
+   "example": "kline.screen_limit_up(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_ma60_up",
+   "cn": "MA60 上行",
+   "example": "kline.screen_ma60_up(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_momentum_20d",
+   "cn": "近 20 日涨幅达标",
+   "example": "kline.screen_momentum_20d(\"600519\", 0.1)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_chg",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_pullback_20d",
+   "cn": "近 20 日回撤可控",
+   "example": "kline.screen_pullback_20d(\"600519\", 0.1)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_chg",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_up_today",
+   "cn": "今日上涨",
+   "example": "kline.screen_up_today(\"600519\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.screen_volume_spike",
+   "cn": "放量",
+   "example": "kline.screen_volume_spike(\"600519\", 2.0)",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "min_ratio",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "kline.snapshot",
+   "cn": "单股行情快照",
+   "example": "kline.snapshot(\"600519\")",
+   "returns": "MAP · 快照",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "行情快照",
+    "fields": [
+     {
+      "name": "symbol",
+      "type": "string",
+      "cn": "代码",
+      "optional": true
+     },
+     {
+      "name": "close",
+      "type": "float64",
+      "cn": "最新价",
+      "optional": true
+     },
+     {
+      "name": "percent",
+      "type": "float64",
+      "cn": "涨跌幅",
+      "optional": true
+     },
+     {
+      "name": "chg_20d",
+      "type": "float64",
+      "cn": "20 日涨跌",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.snapshot_chg_20d",
+   "cn": "近 20 日涨跌幅",
+   "example": "kline.snapshot_chg_20d(\"600519\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.snapshot_close",
+   "cn": "最新收盘价",
+   "example": "kline.snapshot_close(\"600519\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "kline.snapshot_percent",
+   "cn": "最新涨跌幅",
+   "example": "kline.snapshot_percent(\"600519\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.fmt_line",
+   "cn": "单条资金流文本",
+   "example": "moneyflow.fmt_line(row)",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.fmt_lines",
+   "cn": "资金流文本行",
+   "example": "moneyflow.fmt_lines(rows)",
+   "returns": "ARR · 文本",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.fmt_maps",
+   "cn": "资金流行规范化",
+   "example": "moneyflow.fmt_maps(rows)",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "资金流行",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "net_mf",
+       "type": "float64",
+       "cn": "主力净流入",
+       "optional": true
+      },
+      {
+       "name": "elg_net",
+       "type": "float64",
+       "cn": "超大单净流入",
+       "optional": true
+      },
+      {
+       "name": "lg_net",
+       "type": "float64",
+       "cn": "大单净流入",
+       "optional": true
+      },
+      {
+       "name": "md_net",
+       "type": "float64",
+       "cn": "中单净流入",
+       "optional": true
+      },
+      {
+       "name": "sm_net",
+       "type": "float64",
+       "cn": "小单净流入",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.fmt_snapshot_line",
+   "cn": "资金流快照一行文本",
+   "example": "moneyflow.fmt_snapshot_line(\"600519\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.query_bars",
+   "cn": "资金流向历史",
+   "example": "moneyflow.query_bars(\"600519\", 20)",
+   "returns": "ARR · 资金流行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "资金流行",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "日期",
+       "optional": true
+      },
+      {
+       "name": "net_mf",
+       "type": "float64",
+       "cn": "主力净流入",
+       "optional": true
+      },
+      {
+       "name": "elg_net",
+       "type": "float64",
+       "cn": "超大单净流入",
+       "optional": true
+      },
+      {
+       "name": "lg_net",
+       "type": "float64",
+       "cn": "大单净流入",
+       "optional": true
+      },
+      {
+       "name": "md_net",
+       "type": "float64",
+       "cn": "中单净流入",
+       "optional": true
+      },
+      {
+       "name": "sm_net",
+       "type": "float64",
+       "cn": "小单净流入",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.query_last",
+   "cn": "最新资金流向",
+   "example": "moneyflow.query_last(\"600519\")",
+   "returns": "any · 资金流行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "资金流行",
+    "fields": [
+     {
+      "name": "sas",
+      "type": "string",
+      "cn": "SAS",
+      "optional": true
+     },
+     {
+      "name": "date",
+      "type": "string",
+      "cn": "日期",
+      "optional": true
+     },
+     {
+      "name": "net_mf",
+      "type": "float64",
+      "cn": "主力净流入",
+      "optional": true
+     },
+     {
+      "name": "elg_net",
+      "type": "float64",
+      "cn": "超大单净流入",
+      "optional": true
+     },
+     {
+      "name": "lg_net",
+      "type": "float64",
+      "cn": "大单净流入",
+      "optional": true
+     },
+     {
+      "name": "md_net",
+      "type": "float64",
+      "cn": "中单净流入",
+      "optional": true
+     },
+     {
+      "name": "sm_net",
+      "type": "float64",
+      "cn": "小单净流入",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.query_last_live",
+   "cn": "盘中日频资金流向",
+   "example": "moneyflow.query_last_live(\"000807\")",
+   "returns": "MAP/any · 资金流快照",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "盘中资金流",
+    "fields": [
+     {
+      "name": "date",
+      "type": "string",
+      "cn": "日期",
+      "optional": true
+     },
+     {
+      "name": "net_mf",
+      "type": "float64",
+      "cn": "主力净流入",
+      "optional": true
+     },
+     {
+      "name": "elg_net",
+      "type": "float64",
+      "cn": "超大单",
+      "optional": true
+     },
+     {
+      "name": "lg_net",
+      "type": "float64",
+      "cn": "大单",
+      "optional": true
+     },
+     {
+      "name": "md_net",
+      "type": "float64",
+      "cn": "中单",
+      "optional": true
+     },
+     {
+      "name": "sm_net",
+      "type": "float64",
+      "cn": "小单",
+      "optional": true
+     },
+     {
+      "name": "source",
+      "type": "string",
+      "cn": "live",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.query_valid",
+   "cn": "有效资金流向",
+   "example": "moneyflow.query_valid(\"600519\", 20)",
+   "returns": "ARR · 资金流行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "资金流行",
+     "fields": [
+      {
+       "name": "sas",
+       "type": "string",
+       "cn": "SAS",
+       "optional": true
+      },
+      {
+       "name": "net_mf",
+       "type": "float64",
+       "cn": "主力净流入",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.snapshot",
+   "cn": "资金流向快照",
+   "example": "moneyflow.snapshot(\"600519\")",
+   "returns": "MAP · 快照",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "资金流向快照",
+    "fields": [
+     {
+      "name": "net_mf",
+      "type": "float64",
+      "cn": "主力净流入",
+      "optional": true
+     },
+     {
+      "name": "lg_net",
+      "type": "float64",
+      "cn": "大单净流入",
+      "optional": true
+     },
+     {
+      "name": "elg_net",
+      "type": "float64",
+      "cn": "超大单净流入",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "moneyflow.snapshot_net_mf",
+   "cn": "最新主力净流入",
+   "example": "moneyflow.snapshot_net_mf(\"600519\")",
+   "returns": "float",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.fmt_count_by_type",
+   "cn": "按公告类型计数",
+   "example": "notice.fmt_count_by_type(rows)",
+   "returns": "MAP · 类型→条数",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "类型计数",
+    "fields": []
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "notice.fmt_line",
+   "cn": "单条公告格式化为文本",
+   "example": "notice.fmt_line(row)",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "notice.fmt_lines",
+   "cn": "公告行格式化为文本行",
+   "example": "notice.fmt_lines(rows)",
+   "returns": "ARR · 文本行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "文本行",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "notice.fmt_maps",
+   "cn": "公告行规范化为 MAP 列表",
+   "example": "notice.fmt_maps(rows)",
+   "returns": "ARR · 规范化公告",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "规范化公告列表",
+    "items": {
+     "kind": "object",
+     "cn": "公告规范化行",
+     "fields": [
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "公告日"
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日（同 date）"
+      },
+      {
+       "name": "available_at",
+       "type": "string",
+       "cn": "入库可见时间",
+       "optional": true
+      },
+      {
+       "name": "code",
+       "type": "string",
+       "cn": "证券代码"
+      },
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "证券简称"
+      },
+      {
+       "name": "type",
+       "type": "string",
+       "cn": "公告类型"
+      },
+      {
+       "name": "title",
+       "type": "string",
+       "cn": "标题"
+      },
+      {
+       "name": "url",
+       "type": "string",
+       "cn": "网页链接",
+       "optional": true
+      },
+      {
+       "name": "pdf_url",
+       "type": "string",
+       "cn": "PDF 链接",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_build",
+   "cn": "构建公告 Mongo filter",
+   "example": "notice.query_build(\"2026-01-01\", \"2026-07-01\", \"减持\", \"600519\")",
+   "returns": "MAP · store filter",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "Mongo filter",
+    "fields": [
+     {
+      "name": "NOTICE_DATE",
+      "type": "map[string]any",
+      "cn": "日期条件",
+      "optional": true
+     },
+     {
+      "name": "NOTICE_TYPE",
+      "type": "map[string]any",
+      "cn": "类型正则",
+      "optional": true
+     },
+     {
+      "name": "stock_code",
+      "type": "string",
+      "cn": "代码",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "from_date",
+     "type": "string"
+    },
+    {
+     "name": "to_date",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "stock_code",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_build_visible",
+   "cn": "构建可见日公告 Mongo filter",
+   "example": "notice.query_build_visible(\"2026-07-26\", \"2026-07-26\", \"\", \"600809\")",
+   "returns": "MAP · store filter",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "Mongo filter"
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "from_date",
+     "type": "string"
+    },
+    {
+     "name": "to_date",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "stock_code",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_by_category",
+   "cn": "按类别查公告",
+   "example": "notice.query_by_category(\"forecast\", \"7d\", 50)",
+   "returns": "ARR · 原始公告行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "公告行列表",
+    "items": {
+     "type": "any",
+     "cn": "原始或规范化行"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "category",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "market",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_by_symbol",
+   "cn": "单票公告列表",
+   "example": "notice.query_by_symbol(\"600519\", \"1m\", \"\", 50)",
+   "returns": "ARR · 原始公告行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "公告行列表",
+    "items": {
+     "type": "any",
+     "cn": "原始或规范化行"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_date_range",
+   "cn": "公告日期区间条件",
+   "example": "notice.query_date_range(\"2026-01-01\", \"2026-07-01\")",
+   "returns": "MAP · $gte/$lte",
+   "returns_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "$gte",
+      "type": "string",
+      "cn": "起"
+     },
+     {
+      "name": "$lte",
+      "type": "string",
+      "cn": "止"
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "from_date",
+     "type": "string"
+    },
+    {
+     "name": "to_date",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_find",
+   "cn": "按日期区间查公告",
+   "example": "notice.query_find(\"2026-01-01\", \"2026-07-01\", \"\", \"600519\", 50)",
+   "returns": "ARR · 原始公告行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "公告行列表",
+    "items": {
+     "type": "any",
+     "cn": "原始或规范化行"
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "from_date",
+     "type": "string"
+    },
+    {
+     "name": "to_date",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "stock_code",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "market",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_on_date",
+   "cn": "指定日期公告",
+   "example": "notice.query_on_date(\"2026-07-01\", \"\", 100)",
+   "returns": "ARR · 原始公告行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "公告行列表",
+    "items": {
+     "type": "any",
+     "cn": "原始或规范化行"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "date",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "market",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_recent",
+   "cn": "近期公告",
+   "example": "notice.query_recent(\"7d\", \"\", 50)",
+   "returns": "ARR · 原始公告行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "公告行列表",
+    "items": {
+     "type": "any",
+     "cn": "原始或规范化行"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "window",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    },
+    {
+     "name": "market",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_stats_recent",
+   "cn": "近期公告类别计数",
+   "example": "notice.query_stats_recent(\"7d\")",
+   "returns": "MAP · 类别→条数",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "类别计数",
+    "fields": [
+     {
+      "name": "reduction",
+      "type": "int",
+      "cn": "减持"
+     },
+     {
+      "name": "insider_buy",
+      "type": "int",
+      "cn": "增持"
+     },
+     {
+      "name": "buyback",
+      "type": "int",
+      "cn": "回购"
+     },
+     {
+      "name": "equity_incentive",
+      "type": "int",
+      "cn": "股权激励"
+     },
+     {
+      "name": "forecast",
+      "type": "int",
+      "cn": "业绩预告"
+     },
+     {
+      "name": "dividend",
+      "type": "int",
+      "cn": "分红"
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_symbols_on_date",
+   "cn": "指定日期出现公告的代码列表",
+   "example": "notice.query_symbols_on_date(\"2026-07-01\", \"\")",
+   "returns": "ARR · 证券代码",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "date",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.query_ts_range",
+   "cn": "入库时间区间条件",
+   "example": "notice.query_ts_range(\"2026-07-26\", \"2026-07-26\")",
+   "returns": "MAP · $gte/$lt",
+   "returns_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "$gte",
+      "type": "int",
+      "cn": "起"
+     },
+     {
+      "name": "$lt",
+      "type": "int",
+      "cn": "止（开区间）"
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "from_date",
+     "type": "string"
+    },
+    {
+     "name": "to_date",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_evidence",
+   "cn": "信号证据（规范化）",
+   "example": "notice.signal_evidence(\"600519\", \"减持\", \"1m\", 3)",
+   "returns": "ARR · 规范化公告",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "规范化公告列表",
+    "items": {
+     "kind": "object",
+     "cn": "公告规范化行",
+     "fields": [
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "公告日"
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日（同 date）"
+      },
+      {
+       "name": "code",
+       "type": "string",
+       "cn": "证券代码"
+      },
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "证券简称"
+      },
+      {
+       "name": "type",
+       "type": "string",
+       "cn": "公告类型"
+      },
+      {
+       "name": "title",
+       "type": "string",
+       "cn": "标题"
+      },
+      {
+       "name": "url",
+       "type": "string",
+       "cn": "网页链接",
+       "optional": true
+      },
+      {
+       "name": "pdf_url",
+       "type": "string",
+       "cn": "PDF 链接",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    },
+    {
+     "name": "lim",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_evidence_buyback",
+   "cn": "回购证据（规范化行）",
+   "example": "notice.signal_evidence_buyback(\"600519\", \"1m\")",
+   "returns": "ARR · 规范化公告",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "规范化公告列表",
+    "items": {
+     "kind": "object",
+     "cn": "公告规范化行",
+     "fields": [
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "公告日"
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日（同 date）"
+      },
+      {
+       "name": "code",
+       "type": "string",
+       "cn": "证券代码"
+      },
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "证券简称"
+      },
+      {
+       "name": "type",
+       "type": "string",
+       "cn": "公告类型"
+      },
+      {
+       "name": "title",
+       "type": "string",
+       "cn": "标题"
+      },
+      {
+       "name": "url",
+       "type": "string",
+       "cn": "网页链接",
+       "optional": true
+      },
+      {
+       "name": "pdf_url",
+       "type": "string",
+       "cn": "PDF 链接",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_evidence_reduction",
+   "cn": "减持证据（规范化行）",
+   "example": "notice.signal_evidence_reduction(\"600519\", \"1m\")",
+   "returns": "ARR · 规范化公告",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "规范化公告列表",
+    "items": {
+     "kind": "object",
+     "cn": "公告规范化行",
+     "fields": [
+      {
+       "name": "date",
+       "type": "string",
+       "cn": "公告日"
+      },
+      {
+       "name": "announce_date",
+       "type": "string",
+       "cn": "公告日（同 date）"
+      },
+      {
+       "name": "code",
+       "type": "string",
+       "cn": "证券代码"
+      },
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "证券简称"
+      },
+      {
+       "name": "type",
+       "type": "string",
+       "cn": "公告类型"
+      },
+      {
+       "name": "title",
+       "type": "string",
+       "cn": "标题"
+      },
+      {
+       "name": "url",
+       "type": "string",
+       "cn": "网页链接",
+       "optional": true
+      },
+      {
+       "name": "pdf_url",
+       "type": "string",
+       "cn": "PDF 链接",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_evidence_rows",
+   "cn": "信号证据（原始行）",
+   "example": "notice.signal_evidence_rows(\"600519\", \"减持\", \"1m\", 3)",
+   "returns": "ARR · 原始公告行",
+   "returns_shape": {
+    "kind": "array",
+    "cn": "公告行列表",
+    "items": {
+     "type": "any",
+     "cn": "原始或规范化行"
+    }
+   },
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    },
+    {
+     "name": "lim",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_has",
+   "cn": "窗口内是否匹配类型正则",
+   "example": "notice.signal_has(\"600519\", \"减持\", \"1m\", \"\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "type_regex",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    },
+    {
+     "name": "anchor_date",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_has_buyback",
+   "cn": "窗口内是否有回购公告",
+   "example": "notice.signal_has_buyback(\"600519\", \"1m\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_has_category",
+   "cn": "窗口内是否有指定类别公告",
+   "example": "notice.signal_has_category(\"600519\", \"forecast\", \"7d\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "category",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_has_equity_incentive",
+   "cn": "窗口内是否有股权激励公告",
+   "example": "notice.signal_has_equity_incentive(\"600519\", \"1m\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_has_insider_buy",
+   "cn": "窗口内是否有增持公告",
+   "example": "notice.signal_has_insider_buy(\"600519\", \"1m\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_has_reduction",
+   "cn": "窗口内是否有减持公告",
+   "example": "notice.signal_has_reduction(\"600519\", \"1m\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "notice.signal_no_reduction",
+   "cn": "窗口内是否无减持公告",
+   "example": "notice.signal_no_reduction(\"600519\", \"1m\")",
+   "returns": "bool",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "window",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "rptdom.statement",
+   "cn": "三报表科目×期次透视（合并/母公司）",
+   "example": "rptdom.statement(\"600519\", \"fin.income_statement\", {\"scope\": \"合并\", \"n\": 5})",
+   "returns": "ARR",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "rptdom.statement_audit",
+   "cn": "审计意见（多源混合，Q4 年轴）",
+   "example": "rptdom.statement_audit(\"600519\")",
+   "returns": "MAP",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "rptdom.statement_compare",
+   "cn": "合并vs母公司报表比较（差额/差额占比）",
+   "example": "rptdom.statement_compare(\"600519\", \"fin.income_statement\", {\"n\": 2})",
+   "returns": "ARR",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "rptdom.statement_tree",
+   "cn": "三表目录树视图（树序+比率/占比行，标准目录结构）",
+   "example": "rptdom.statement_tree(\"600519\", \"fin.balance_sheet\", {\"scope\": \"合并\", \"n\": 5})",
+   "returns": "ARR",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "rptdom.statement_years",
+   "cn": "报表可用年报（Q4 档，降序）",
+   "example": "rptdom.statement_years(\"600519\", \"fin.income_statement\")",
+   "returns": "ARR",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "string"
+    }
+   ]
+  }
+ ]
+}

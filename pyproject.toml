@@ -10,6 +10,27 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "PolyForm-Noncommercial-1.0.0"
 license-files = ["LICENSE"]
+authors = [{ name = "finpipe contributors" }]
+keywords = [
+    "A股", "stock", "finance", "financial-data", "quant",
+    "dividend", "kline", "financial-statements", "screener",
+    "sdk", "china-stock", "pandas", "market-data",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "requests>=2.28",
     "PyYAML>=6",

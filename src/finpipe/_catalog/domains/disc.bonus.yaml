@@ -1,5 +1,5 @@
 id: disc.bonus
-version: 1.1.1
+version: 1.1.2
 cn: 分红
 kind: raw
 category: disclosure
@@ -84,6 +84,7 @@ functions:
       - {name: window, type: string, required: true}
     returns: {desc: int}
     example: 'bonus.query_count_window("600519", "5y")'
+    notes: ['已知问题：上游 count 聚合当前恒为 0（同窗口 sum 正常），待上游修复；SDK 的 window_stats 暂不返回该值']
   - name: bonus.query_valid
     cn: 有效分红序列（过滤无效行）
     kind: raw

@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -16,12 +18,35 @@ import requests
 
 from finpipe._experience import credentials as _experience_credentials
 from finpipe.catalog import Catalog, load
+from finpipe.errors import (
+    ApiError, AuthError, CatalogError, FinPipeError, LimitError, ServerError,
+    TransportError, UsageError,
+)
 
 DEFAULT_BASE_URL = "https://api.winmale.com"
 
 
-class FinPipeError(RuntimeError):
-    """带修复建议的统一错误。"""
+_SYM_PREFIX = re.compile(r"^(?:cn|sh|sz|bj)\.", re.IGNORECASE)
+_SYM_SUFFIX = re.compile(r"\.(?:SH|SZ|BJ)$", re.IGNORECASE)
+
+
+def normalize_symbol(symbol: str) -> str:
+    """标的代码归一：去 cn./sh./sz./bj. 前缀与 .SH/.SZ/.BJ 后缀，字母转大写。
+
+    例：``sh.600519.SH`` → ``600519``；``cn.000001`` → ``000001``；``aapl`` → ``AAPL``。
+    """
+    s = str(symbol).strip()
+    s = _SYM_PREFIX.sub("", s)
+    s = _SYM_SUFFIX.sub("", s)
+    return s.upper()
+
+
+@dataclass
+class BatchResult:
+    """批量调用结果：成功项与逐标的错误（on_error="skip" 时）。"""
+
+    results: dict[str, Any] = field(default_factory=dict)
+    errors: dict[str, str] = field(default_factory=dict)
 
 
 def _xs_literal(v: Any) -> str:
@@ -33,12 +58,12 @@ def _to_dataframe(result: Any) -> Any:
     try:
         import pandas as pd  # optional dependency
     except ImportError as e:  # pragma: no cover
-        raise FinPipeError("_df=True 需要安装 pandas：pip install pandas") from e
+        raise UsageError("_df=True 需要安装 pandas：pip install pandas", code="pandas") from e
     if isinstance(result, list):
         return pd.DataFrame(result)
     if isinstance(result, dict):
         return pd.DataFrame([result])
-    raise FinPipeError(f"结果类型 {type(result).__name__} 无法转 DataFrame")
+    raise UsageError(f"结果类型 {type(result).__name__} 无法转 DataFrame", code="dataframe")
 
 
 class Client:
@@ -59,9 +84,9 @@ class Client:
         self.client_id = client_id or ""
         self.client_secret = client_secret or ""
         if bool(self.client_id) != bool(self.client_secret):
-            raise FinPipeError(
+            raise AuthError(
                 "client_id 与 client_secret 需成对提供；两者都不传则使用内置体验 appid"
-                "（额度有限，正式使用请在赢麻了开放平台申请自己的 appid）")
+                "（额度有限，正式使用请在赢麻了开放平台申请自己的 appid）", code="config")
         if not self.client_id:
             cid, sec = _experience_credentials()
             self.client_id = cid
@@ -124,7 +149,8 @@ class Client:
                 resp = self.session.post(url, **kw)
             except requests.RequestException as e:
                 if i == attempts - 1:
-                    raise FinPipeError(f"网络请求失败（已重试 {self.retries} 次）：{e}") from e
+                    raise TransportError(
+                        f"网络请求失败（已重试 {self.retries} 次）：{e}", code="network") from e
                 self._sleep(self._delay(i, None))
                 continue
             last = resp
@@ -152,7 +178,9 @@ class Client:
         data = doc.get("data") or doc
         token = data.get("access_token")
         if not token:
-            raise FinPipeError(f"OAuth 未返回 access_token：{json.dumps(doc, ensure_ascii=False)[:300]}")
+            raise AuthError(
+                f"OAuth 未返回 access_token：{json.dumps(doc, ensure_ascii=False)[:300]}",
+                code="oauth")
         self._token = token
         self._token_exp = time.time() + float(data.get("expires_in", 3600))
         return token
@@ -164,7 +192,7 @@ class Client:
         """执行 XS，返回完整响应 doc（成功时 data.result 为顶层 return 值）。"""
         lines = xs if isinstance(xs, list) else [ln for ln in xs.splitlines() if ln.strip()]
         body: dict[str, Any] = {
-            "symbol": symbol,
+            "symbol": normalize_symbol(symbol),
             "xs_lines": lines,
             "args": {"print.plain": True, **(args or {})},
             "script_files": {},
@@ -185,12 +213,20 @@ class Client:
             self._token_exp = 0.0
             resp = call_once()
         if resp.status_code != 200:
-            raise FinPipeError(f"eval HTTP {resp.status_code}: {resp.text[:300]}")
+            if resp.status_code in (401, 403):
+                raise AuthError(f"eval HTTP {resp.status_code}: {resp.text[:300]}",
+                                code="denied", status=resp.status_code)
+            if resp.status_code >= 500:
+                raise ServerError(f"eval HTTP {resp.status_code}: {resp.text[:300]}",
+                                  code="server", status=resp.status_code)
+            raise ApiError(f"eval HTTP {resp.status_code}: {resp.text[:300]}",
+                           code="http", status=resp.status_code)
         doc = resp.json()
         if not doc.get("success", True):
             err = doc.get("error") or {}
-            raise FinPipeError(
-                f"eval 失败: {err.get('code', '')} {err.get('message', json.dumps(doc)[:200])}")
+            raise ApiError(
+                f"eval 失败: {err.get('code', '')} {err.get('message', json.dumps(doc)[:200])}",
+                code=str(err.get("code", "eval")))
         return doc
 
     def eval_result(self, xs: str | list[str], **kw: Any) -> Any:
@@ -208,6 +244,43 @@ class Client:
         entry = (inv.get("domains") or {}).get(ns, {}).get("entry")
         return [f'xs.require("{entry}")'] if entry else []
 
+    SYMBOL_PARAMS = ("sym", "symbol", "stk")
+
+    def _build_call_line(self, name: str, params: list[dict], kwargs: dict[str, Any],
+                         *, sym_override: str | None = None,
+                         sym_param: str | None = None) -> str:
+        """校验参数并生成单次调用字面量（含标的一体化归一）。"""
+        known = {p["name"] for p in params}
+        unknown = set(kwargs) - known
+        if unknown:
+            raise UsageError(f"{name}: 未知参数 {sorted(unknown)}；合法参数 {sorted(known)}",
+                             code="params")
+        for p in params:
+            provided = p["name"] in kwargs or (sym_override is not None and p["name"] == sym_param)
+            if not provided and "default" not in p and p.get("required"):
+                raise UsageError(f"{name}: 缺少必填参数 {p['name']}", code="params")
+        if self.max_limit is not None:
+            for p in params:
+                if p["name"] in ("limit", "lim") and p["type"] == "int":
+                    v = kwargs.get(p["name"], p.get("default"))
+                    if isinstance(v, int) and not isinstance(v, bool) and v > self.max_limit:
+                        raise LimitError(
+                            f"{name}: {p['name']}={v} 超过单次请求上限 {self.max_limit}"
+                            "（防止单次拉取过大；可在 Client(max_limit=...) 调整，设 None 关闭）",
+                            code="limit")
+        args = []
+        for p in params:
+            if sym_override is not None and p["name"] == sym_param:
+                args.append(_xs_literal(normalize_symbol(sym_override)))
+            elif p["name"] in kwargs:
+                v = kwargs[p["name"]]
+                if p.get("type") == "string" and p["name"] in self.SYMBOL_PARAMS:
+                    v = normalize_symbol(v)
+                args.append(_xs_literal(v))
+            elif "default" in p:
+                args.append(_xs_literal(p["default"]))
+        return f"{name}({', '.join(args)})"
+
     def call(self, name: str, /, _raw: bool = False, _df: bool = False, **kwargs: Any) -> Any:
         """按目录合同调用目录内函数：校验参数 → 生成 XS（自动 require + 规范化）→ eval(call)。
 
@@ -215,31 +288,11 @@ class Client:
           _raw=True  跳过 normalize_with，返回 store 原始 Unit
           _df=True   结果为 list[dict] 时转 pandas.DataFrame（需安装 pandas）
         参数合同：优先用域目录精修 params；L1 精简条目回退到 inventory 的签名参数。
+        标的参数（sym/symbol/stk）自动归一：去 cn./sh./sz./bj. 前缀与 .SH/.SZ/.BJ 后缀。
         """
         fn = self.catalog.function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
-        known = {p["name"] for p in params}
-        unknown = set(kwargs) - known
-        if unknown:
-            raise FinPipeError(f"{name}: 未知参数 {sorted(unknown)}；合法参数 {sorted(known)}")
-        for p in params:
-            if p["name"] not in kwargs and "default" not in p and p.get("required"):
-                raise FinPipeError(f"{name}: 缺少必填参数 {p['name']}")
-        if self.max_limit is not None:
-            for p in params:
-                if p["name"] in ("limit", "lim") and p["type"] == "int":
-                    v = kwargs.get(p["name"], p.get("default"))
-                    if isinstance(v, int) and not isinstance(v, bool) and v > self.max_limit:
-                        raise FinPipeError(
-                            f"{name}: {p['name']}={v} 超过单次请求上限 {self.max_limit}"
-                            "（防止单次拉取过大；可在 Client(max_limit=...) 调整，设 None 关闭）")
-        args = []
-        for p in params:
-            if p["name"] in kwargs:
-                args.append(_xs_literal(kwargs[p["name"]]))
-            elif "default" in p:
-                args.append(_xs_literal(p["default"]))
-        call_line = f"{name}({', '.join(args)})"
+        call_line = self._build_call_line(name, params, kwargs)
         normalizer = fn.get("normalize_with")
         if normalizer and not _raw:
             lines = [f"__r := {call_line}", f"return {normalizer}(__r)"]
@@ -248,11 +301,75 @@ class Client:
         xs = self._require_lines(name) + lines
         symbol = "600519"
         for p in params:
-            if p["name"] in kwargs and p["type"] == "string" and p["name"] in ("sym", "symbol", "stk"):
-                symbol = str(kwargs[p["name"]])
+            if p["name"] in kwargs and p["type"] == "string" and p["name"] in self.SYMBOL_PARAMS:
+                symbol = normalize_symbol(str(kwargs[p["name"]]))
                 break
         result = self.eval_result(xs, symbol=symbol)
         return _to_dataframe(result) if _df else result
+
+    def call_batch(self, name: str, symbols: list[str], /, on_error: str = "raise",
+                   _raw: bool = False, _df: bool = False, **kwargs: Any) -> BatchResult:
+        """同一目录函数在多个标的上的批量调用。
+
+        on_error="raise"（默认）：把所有标的组装成**一次** eval（map 字面量），单次 HTTP；
+        任一标的失败则整体抛出（服务端无 try/catch，无法在单次请求内隔离）。
+        on_error="skip"：逐标的调用并捕获错误，成功项进 results、失败项进 errors（N 次 HTTP）。
+        _df=True 时对每个成功结果转 DataFrame。
+        """
+        if on_error not in ("raise", "skip"):
+            raise UsageError('on_error 只支持 "raise" 或 "skip"', code="params")
+        fn = self.catalog.function(name)
+        params = fn.get("params") or self.catalog.inventory_params(name)
+        sym_param = next((p["name"] for p in params
+                          if p.get("type") == "string" and p["name"] in self.SYMBOL_PARAMS), None)
+        if sym_param is None:
+            raise UsageError(f"{name}: 没有标的参数（sym/symbol/stk），不支持批量调用",
+                             code="params")
+        if sym_param in kwargs:
+            raise UsageError(f"{name}: 批量调用请用 symbols 指定标的，不要在 kwargs 传 {sym_param}",
+                             code="params")
+        syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
+        if not syms:
+            return BatchResult()
+        if self.max_limit is not None and len(syms) > self.max_limit:
+            raise LimitError(f"{name}: 批量标的数 {len(syms)} 超过上限 {self.max_limit}",
+                             code="limit")
+        if on_error == "skip":
+            results: dict[str, Any] = {}
+            errors: dict[str, str] = {}
+            for s in syms:
+                try:
+                    results[s] = self.call(name, _raw=_raw, _df=_df, **kwargs, **{sym_param: s})
+                except FinPipeError as e:
+                    errors[s] = str(e)
+            return BatchResult(results=results, errors=errors)
+
+        normalizer = fn.get("normalize_with")
+        pairs = []
+        for s in syms:
+            line = self._build_call_line(name, params, kwargs, sym_override=s, sym_param=sym_param)
+            pairs.append(f'{_xs_literal(s)}: {normalizer}({line})' if normalizer and not _raw
+                         else f"{_xs_literal(s)}: {line}")
+        xs = self._require_lines(name) + [f"return {{{', '.join(pairs)}}}"]
+        result = self.eval_result(xs, symbol=syms[0])
+        if not isinstance(result, dict):
+            raise ApiError(f"{name}: 批量返回不是 MAP（{type(result).__name__}）", code="batch")
+        if _df:
+            result = {k: _to_dataframe(v) for k, v in result.items()}
+        return BatchResult(results=result)
+
+    # ---- 生命周期 ----
+    def close(self) -> None:
+        """关闭底层 HTTP 会话（注入的 session 也由调用方决定是否关闭）。"""
+        close = getattr(self.session, "close", None)
+        if callable(close):
+            close()
+
+    def __enter__(self) -> "Client":
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        self.close()
 
     def __getattr__(self, ns: str) -> Any:
         """client.bonus.query_list(...) —— 友好 API 优先，其次类型化门面，最后通用门面。"""

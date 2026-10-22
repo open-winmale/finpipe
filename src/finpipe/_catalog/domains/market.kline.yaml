@@ -1,5 +1,5 @@
 id: market.kline
-version: 1.1.0
+version: 1.2.0
 cn: 行情K线
 kind: raw
 category: market
@@ -162,7 +162,12 @@ functions:
     returns: {desc: string · 可用于 INDEX_QUERY where}
     example: 'kline.index_pct_bin_expr()'
   # ---- L1：复权 / 字段 / 锚点变体（raw）----
-  - {name: kline.query_bars_adj, cn: 历史 K 线（复权）, kind: raw, layer: L1}
+  - name: kline.query_bars_adj
+    cn: 历史 K 线（复权）
+    kind: raw
+    layer: L1
+    normalize_with: kline.fmt_maps
+    notes: [输出字段与 query_bars 一致（date/open/high/low/close/volume/amount/percent）]
   - {name: kline.query_bars_props, cn: 历史 K 线（指定字段）, kind: raw, layer: L1}
   - {name: kline.query_bars_props_adj, cn: 历史 K 线（字段+复权）, kind: raw, layer: L1}
   - {name: kline.query_last_adj, cn: 最新一根 K 线（复权）, kind: raw, layer: L1}

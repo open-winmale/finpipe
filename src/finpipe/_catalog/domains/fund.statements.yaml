@@ -1,5 +1,5 @@
 id: fund.statements
-version: 1.1.0
+version: 1.1.1
 cn: 财务报表
 kind: raw
 category: fundamentals
@@ -64,5 +64,5 @@ functions:
     layer: L0
     params:
       - {name: sym, type: string, required: true}
-    returns: {desc: ARR · 年份×审计意见}
+    returns: {desc: 'MAP · {年份: 审计意见}'}
     example: 'rptdom.statement_audit("600519")'

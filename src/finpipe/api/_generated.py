@@ -57,7 +57,7 @@ class BonusNS(_Ns):
     def dps_rpt(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
         """财报期每股分红
 
-:returns: 按报告期的 DPS 序列
+:returns: float · 财报期每股分红（元/股）
         """
         return self._client.call("bonus.dps_rpt", sym=sym, _raw=_raw, _df=_df)
 
@@ -114,14 +114,14 @@ class BonusNS(_Ns):
     def snapshot_yield_ttm(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
         """LTM 股息率
 
-:returns: float · 百分数
+:returns: float · 小数（0.0396 = 3.96%）
         """
         return self._client.call("bonus.snapshot_yield_ttm", sym=sym, _raw=_raw, _df=_df)
 
     def snapshot_payout_ttm(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
         """TTM 派息率
 
-:returns: float · 百分数
+:returns: float · 小数（0.799 = 79.9%）
         """
         return self._client.call("bonus.snapshot_payout_ttm", sym=sym, _raw=_raw, _df=_df)
 
@@ -1075,7 +1075,7 @@ class RptdomNS(_Ns):
     def statement_audit(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
         """审计意见（Q4 年轴）
 
-:returns: ARR · 年份×审计意见
+:returns: MAP · {年份: 审计意见}
         """
         return self._client.call("rptdom.statement_audit", sym=sym, _raw=_raw, _df=_df)
 

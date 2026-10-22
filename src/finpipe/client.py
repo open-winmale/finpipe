@@ -52,6 +52,8 @@ class Client:
         session: requests.Session | None = None,
         timeout: float = 30.0,
         max_limit: int | None = 500,
+        retries: int = 2,
+        backoff: float = 0.5,
     ):
         self.base_url = (base_url or DEFAULT_BASE_URL).rstrip("/")
         self.client_id = client_id or ""
@@ -69,6 +71,9 @@ class Client:
         self.session = session or requests.Session()
         self.timeout = timeout
         self.max_limit = max_limit
+        self.retries = max(0, int(retries))
+        self.backoff = backoff
+        self._sleep = time.sleep  # 测试注入点：不真实等待
         self._token: str = ""
         self._token_exp: float = 0.0
 
@@ -96,10 +101,44 @@ class Client:
             kw.setdefault("client_secret", sec)
         return cls(**kw)
 
+    # ---- 传输 ----
+    RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+
+    def _delay(self, attempt: int, resp: requests.Response | None) -> float:
+        """退避秒数：优先 Retry-After，其次指数退避（封顶 10s）。"""
+        if resp is not None:
+            ra = resp.headers.get("Retry-After") if hasattr(resp, "headers") else None
+            if ra:
+                try:
+                    return min(10.0, max(0.0, float(ra)))
+                except (TypeError, ValueError):
+                    pass
+        return min(10.0, self.backoff * (2 ** attempt))
+
+    def _request(self, url: str, **kw: Any) -> requests.Response:
+        """POST + 429/5xx 指数退避重试；网络异常同样重试并在耗尽后转 FinPipeError。"""
+        attempts = self.retries + 1
+        last: requests.Response | None = None
+        for i in range(attempts):
+            try:
+                resp = self.session.post(url, **kw)
+            except requests.RequestException as e:
+                if i == attempts - 1:
+                    raise FinPipeError(f"网络请求失败（已重试 {self.retries} 次）：{e}") from e
+                self._sleep(self._delay(i, None))
+                continue
+            last = resp
+            if resp.status_code in self.RETRY_STATUS and i < attempts - 1:
+                self._sleep(self._delay(i, resp))
+                continue
+            return resp
+        assert last is not None  # 循环必然 return 或 raise
+        return last
+
     def _get_token(self) -> str:
         if self._token and time.time() < self._token_exp - 60:
             return self._token
-        resp = self.session.post(
+        resp = self._request(
             f"{self.base_url}/v1/oauth/token",
             data={
                 "grant_type": "client_credentials",
@@ -133,12 +172,18 @@ class Client:
         }
         if market := (market or self.market):
             body["market"] = market
-        resp = self.session.post(
-            f"{self.base_url}/v1/analysis/xs/eval",
-            json=body,
-            headers={"Authorization": f"Bearer {self._get_token()}"},
-            timeout=self.timeout,
-        )
+        url = f"{self.base_url}/v1/analysis/xs/eval"
+
+        def call_once() -> requests.Response:
+            return self._request(url, json=body, timeout=self.timeout,
+                                 headers={"Authorization": f"Bearer {self._get_token()}"})
+
+        resp = call_once()
+        if resp.status_code == 401:
+            # 令牌可能已失效：清缓存强制刷新后重试一次（仅一次，避免环路）
+            self._token = ""
+            self._token_exp = 0.0
+            resp = call_once()
         if resp.status_code != 200:
             raise FinPipeError(f"eval HTTP {resp.status_code}: {resp.text[:300]}")
         doc = resp.json()

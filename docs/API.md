@@ -35,7 +35,7 @@
 | `cli.statements.balance(...)` | 资产负债表 | `symbol:str, years:int=5, scope:str='合并'` | ARR · 科目行（科目代码/中文名×期次列） | `cli.statements.balance("600519", years=3, scope="合并")` |
 | `cli.statements.income(...)` | 利润表 | `symbol:str, years:int=5, scope:str='合并'` | ARR · 科目行（科目代码/中文名×期次列） | `cli.statements.income("600519", years=3, scope="合并")` |
 | `cli.statements.cashflow(...)` | 现金流量表 | `symbol:str, years:int=5, scope:str='合并'` | ARR · 科目行（科目代码/中文名×期次列） | `cli.statements.cashflow("600519", years=3, scope="合并")` |
-| `cli.statements.audit(...)` | 审计意见 | `symbol:str` | ARR · 年份×审计意见 | `cli.statements.audit("600519")` |
+| `cli.statements.audit(...)` | 审计意见 | `symbol:str` | MAP · {年份: 审计意见} | `cli.statements.audit("600519")` |
 | `cli.indicator.get(...)` | 取单个指标 | `symbol:str, code:str` | 数值 · 单指标当前值 | `cli.indicator.get("600519", code="$PE_TTM_LAST")` |
 | `cli.indicator.metrics(...)` | 批量取指标 | `symbol:str, codes:list[str]` | MAP · {code: 值} | `cli.indicator.metrics("600519", codes=["$PE_TTM_LAST", "$ROE_TTM_LAST"])` |
 
@@ -197,9 +197,9 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 | `cli.forecast.next_disclosure(...)` | 下次预约披露 | `symbol:str` | 预约披露行 MAP 或 nil | `cli.forecast.next_disclosure("600519")` |
 | `cli.dividend.history(...)` | 分红历史 | `symbol:str, limit:int=20` | ARR · 分红行（预案/除权除息日/每10股派息等） | `cli.dividend.history("600519", limit=10)` |
 | `cli.dividend.last(...)` | 最近一次分红 | `symbol:str` | 分红行 MAP 或 nil | `cli.dividend.last("600519")` |
-| `cli.dividend.dps(...)` | 每股分红序列 | `symbol:str` | 按报告期的 DPS 序列 | `cli.dividend.dps("600519")` |
-| `cli.dividend.yield_ttm(...)` | TTM 股息率 | `symbol:str` | float · 百分数 | `cli.dividend.yield_ttm("600519")` |
-| `cli.dividend.payout_ttm(...)` | TTM 派息率 | `symbol:str` | float · 百分数 | `cli.dividend.payout_ttm("600519")` |
+| `cli.dividend.dps(...)` | 每股分红序列 | `symbol:str` | float · 财报期每股分红（元/股） | `cli.dividend.dps("600519")` |
+| `cli.dividend.yield_ttm(...)` | TTM 股息率 | `symbol:str` | float · 小数（0.0396 = 3.96%） | `cli.dividend.yield_ttm("600519")` |
+| `cli.dividend.payout_ttm(...)` | TTM 派息率 | `symbol:str` | float · 小数（0.799 = 79.9%） | `cli.dividend.payout_ttm("600519")` |
 
 ## 参考数据
 
@@ -218,7 +218,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 #### 行情K线（`market.kline`）
 
-**性质**：原始数据 · **版本**：1.1.0  
+**性质**：原始数据 · **版本**：1.2.0  
 个股日 K（不复权 / 前复权 / 后复权）、最新一根、盘中最新快照、分钟分时、 单股快照与均线类筛选、全市场涨跌宽度。ETF 日线已入库；指数键自动桥接指数点位。
 数据来源：交易所行情、外部行情源(盘中/live)。
 单位口径：price=元；volume=手(CN) / 股(HK,US)；amount=本币；percent=小数（0.01 = 1%）。
@@ -316,7 +316,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 
 #### 财务报表（`fund.statements`）
 
-**性质**：原始数据 · **版本**：1.1.0  
+**性质**：原始数据 · **版本**：1.1.1  
 三大报表科目原值（资产负债 / 利润 / 现金流）多期透视、合并 vs 母公司比较、 报表目录树与审计意见。科目为披露原值；树视图中的派生比率行（__ 前缀 / pct 行）另注。 外部源主要指标（源端算好直采）亦归本域。
 数据来源：定期报告披露原值、外部数据服务(主要指标)。
 单位口径：amount=报表原币（CN=元，HK=港币，US=美元）；period=报告期（年-采样，如 2024-Q4 / 2024 年报）。
@@ -330,31 +330,31 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 亿元
 | `rptdom.statement_years` | 报表可用年报（Q4 档，降序） | 原始数据 | L0 | `sym:string` · `domain:string` | ARR · 年份 | 例：`cli.call("rptdom.statement_years", sym='600519', domain='fin.income_statement')`
 | `rptdom.statement_compare` | 合并 vs 母公司报表比较 | 指标 | L0 | `sym:string` · `domain:string` · `opts:object?` — 同 statement（差额/差额占比%为派生计算） | ARR · 科目行 + 合并/母公司/差额/差额占比 | 例：`cli.call("rptdom.statement_compare", sym='600519', domain='fin.income_statement', opts={'n': 2})`
 | `rptdom.statement_tree` | 三表目录树视图（树序 + 比率/占比行） | 原始数据 | L0 | `sym:string` · `domain:string` · `opts:object?` — 同 statement | ARR · 树序科目行；含派生比率行（LD/IBD_RATE/GM 等 pct 行） | 例：`cli.call("rptdom.statement_tree", sym='600519', domain='fin.balance_sheet', opts={'scope': '合并', 'n': 5})`
-| `rptdom.statement_audit` | 审计意见（Q4 年轴） | 原始数据 | L0 | `sym:string` | ARR · 年份×审计意见 | 例：`cli.call("rptdom.statement_audit", sym='600519')`
+| `rptdom.statement_audit` | 审计意见（Q4 年轴） | 原始数据 | L0 | `sym:string` | MAP · {年份: 审计意见} | 例：`cli.call("rptdom.statement_audit", sym='600519')`
 
 ### 信息披露
 
 #### 分红（`disc.bonus`）
 
-**性质**：原始数据 · **版本**：1.1.0  
+**性质**：原始数据 · **版本**：1.1.1  
 分红历史明细（预案/实施）、每股股利、窗口合计。列表与 DPS 为披露原值； 股息率/派息率 TTM 快照及全市场筛选为计算派生（函数级标注性质）。
 数据来源：公司公告披露。
-单位口径：dps=元/股；total=元（窗口合计金额）；window=如 "3y" / "5y" 窗口字符串；rate=百分数。
+单位口径：dps=元/股；total=元（窗口合计金额）；window=如 "3y" / "5y" 窗口字符串；rate=小数（0.03 = 3%）。
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 |
 |---|---|---|---|---|---|
 | `bonus.query_list` | 分红历史明细 | 原始数据 | L0 | `sym:string` — 6 位裸码 · `limit:int?` — 条数 | ARR · 分红行（预案/除权除息日/每10股派息等） | 例：`cli.call("bonus.query_list", sym='600519', limit=20)`
 | `bonus.query_last` | 最近一次分红 | 原始数据 | L0 | `sym:string` | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_last", sym='600519')`
 | `bonus.query_at_sas` | 指定报告期分红 | 原始数据 | L0 | `sym:string` · `sas:string` — 报告期，如 "2024-Q4" | 分红行 MAP 或 nil | 例：`cli.call("bonus.query_at_sas", sym='600519', sas='2024-Q4')`
-| `bonus.dps_rpt` | 财报期每股分红 | 原始数据 | L0 | `sym:string` | 按报告期的 DPS 序列 | 例：`cli.call("bonus.dps_rpt", sym='600519')`
+| `bonus.dps_rpt` | 财报期每股分红 | 原始数据 | L0 | `sym:string` | float · 财报期每股分红（元/股） | 例：`cli.call("bonus.dps_rpt", sym='600519')`
 | `bonus.dps_rpt_asof` | 财报期每股分红（截至日） | 原始数据 | L0 | `rows:array` — dps_rpt 结果 · `asof:string` — 截至日期 | 截至日的 DPS |
 | `bonus.query_dps_window` | 窗口内每股股利合计 | 指标 | L0 | `sym:string` · `window:string` — 窗口（如 3y） | float · 元/股 | 例：`cli.call("bonus.query_dps_window", sym='600519', window='3y')`
 | `bonus.query_total_window` | 窗口内总分红 | 指标 | L0 | `sym:string` · `window:string` | float · 元 | 例：`cli.call("bonus.query_total_window", sym='600519', window='3y')`
 | `bonus.query_count_window` | 窗口内分红次数 | 指标 | L0 | `sym:string` · `window:string` | int | 例：`cli.call("bonus.query_count_window", sym='600519', window='5y')`
 | `bonus.query_valid` | 有效分红序列（过滤无效行） | 原始数据 | L0 | `sym:string` · `limit:int?` | ARR · 分红行 | 例：`cli.call("bonus.query_valid", sym='600519', limit=20)`
 | `bonus.snapshot` | 股息快照 | 指标 | L0 | `sym:string` | MAP · 股息/率快照 | 例：`cli.call("bonus.snapshot", sym='600519')`
-| `bonus.snapshot_yield_ttm` | LTM 股息率 | 指标 | L0 | `sym:string` | float · 百分数 | 例：`cli.call("bonus.snapshot_yield_ttm", sym='600519')`
-| `bonus.snapshot_payout_ttm` | TTM 派息率 | 指标 | L0 | `sym:string` | float · 百分数 | 例：`cli.call("bonus.snapshot_payout_ttm", sym='600519')`
+| `bonus.snapshot_yield_ttm` | LTM 股息率 | 指标 | L0 | `sym:string` | float · 小数（0.0396 = 3.96%） | 例：`cli.call("bonus.snapshot_yield_ttm", sym='600519')`
+| `bonus.snapshot_payout_ttm` | TTM 派息率 | 指标 | L0 | `sym:string` | float · 小数（0.799 = 79.9%） | 例：`cli.call("bonus.snapshot_payout_ttm", sym='600519')`
 | `bonus.screen_active` | 近年有分红 | 指标 | L1 | `sym:string`（签名） | bool | 例：`cli.call("bonus.screen_active", sym='600519')`
 | `bonus.screen_has_dividend` | 有分红记录 | 指标 | L1 | `sym:string` · `min_yield:any`（签名） | bool | 例：`cli.call("bonus.screen_has_dividend", sym='600519', min_yield=0.03)`
 | `bonus.screen_high_yield` | 高股息 | 指标 | L1 | `sym:string` · `min_yield:any`（签名） | bool | 例：`cli.call("bonus.screen_high_yield", sym='600519', min_yield=0.03)`

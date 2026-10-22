@@ -43,8 +43,13 @@ class KlineApi(_Api):
                             _raw=_raw, _df=_df)
 
     def last(self, symbol: str, _raw: bool = False) -> Any:
-        """最新一根日 K（MAP 或 None）。"""
-        return self._c.call("kline.query_last", sym=symbol, _raw=_raw)
+        """最新一根日 K（date/open/high/low/close/volume/amount/percent），无数据返回 None。
+
+        经规范化序列取最新一行，字段与 ``bars()`` 一致（底层 query_last 返回的是
+        store 原始行，字段名不同）。
+        """
+        rows = self._c.call("kline.query_bars", sym=symbol, limit=1, _raw=_raw)
+        return rows[0] if rows else None
 
     def live(self, symbol: str, _raw: bool = False) -> Any:
         """盘中最新快照（盘中 tip；休市返回最近收盘快照）。"""
@@ -68,8 +73,13 @@ class MoneyflowApi(_Api):
                             _raw=_raw, _df=_df)
 
     def last(self, symbol: str, _raw: bool = False) -> Any:
-        """最新一行资金流。"""
-        return self._c.call("moneyflow.query_last", sym=symbol, _raw=_raw)
+        """最新一行资金流（date/net_mf/elg_net/lg_net/md_net/sm_net），无数据返回 None。
+
+        经规范化序列取最新一行，字段与 ``bars()`` 一致（底层 query_last 返回的是
+        store 原始行，净流入嵌在 props 下）。
+        """
+        rows = self._c.call("moneyflow.query_bars", sym=symbol, limit=1, _raw=_raw)
+        return rows[0] if rows else None
 
     def live(self, symbol: str, _raw: bool = False) -> Any:
         """盘中资金流快照（短 TTL）。"""
@@ -200,7 +210,7 @@ class ForecastApi(_Api):
 
 
 class DividendApi(_Api):
-    """分红。DPS 单位=元/股；率类为百分数。"""
+    """分红。DPS 单位=元/股；股息率/派息率为小数（0.0396 = 3.96%）。"""
 
     def history(self, symbol: str, limit: int = 20, _raw: bool = False) -> Any:
         """分红历史明细（预案/除权除息日/每 10 股派息）。"""
@@ -211,15 +221,15 @@ class DividendApi(_Api):
         return self._c.call("bonus.query_last", sym=symbol)
 
     def dps(self, symbol: str) -> Any:
-        """按报告期的每股分红序列。"""
+        """财报期每股分红（元/股）。"""
         return self._c.call("bonus.dps_rpt", sym=symbol)
 
     def yield_ttm(self, symbol: str) -> Any:
-        """TTM 股息率（百分数；= TTM 分红总额 / 最新市值）。"""
+        """TTM 股息率（小数，0.0396 = 3.96%；= TTM 分红总额 / 最新市值）。"""
         return self._c.call("bonus.snapshot_yield_ttm", sym=symbol)
 
     def payout_ttm(self, symbol: str) -> Any:
-        """TTM 派息率（百分数；= TTM 分红 / 归母净利 TTM）。"""
+        """TTM 派息率（小数，0.799 = 79.9%；= TTM 分红 / 归母净利 TTM）。"""
         return self._c.call("bonus.snapshot_payout_ttm", sym=symbol)
 
 

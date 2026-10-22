@@ -1,5 +1,5 @@
 id: disc.bonus
-version: 1.1.0
+version: 1.1.1
 cn: 分红
 kind: raw
 category: disclosure
@@ -11,7 +11,7 @@ units:
   dps: 元/股
   total: 元（窗口合计金额）
   window: '如 "3y" / "5y" 窗口字符串'
-  rate: 百分数
+  rate: 小数（0.03 = 3%）
 requires: {path: sys/bonus/init.xs, preloaded: true}
 functions:
   - name: bonus.query_list
@@ -46,7 +46,7 @@ functions:
     layer: L0
     params:
       - {name: sym, type: string, required: true}
-    returns: {desc: 按报告期的 DPS 序列}
+    returns: {desc: float · 财报期每股分红（元/股）}
     example: 'bonus.dps_rpt("600519")'
   - name: bonus.dps_rpt_asof
     cn: 财报期每股分红（截至日）
@@ -107,18 +107,18 @@ functions:
     layer: L0
     params:
       - {name: sym, type: string, required: true}
-    returns: {desc: float · 百分数}
+    returns: {desc: 'float · 小数（0.0396 = 3.96%）'}
     example: 'bonus.snapshot_yield_ttm("600519")'
-    notes: [股息率 = TTM 分红总额 / 最新市值]
+    notes: [股息率 = TTM 分红总额 / 最新市值；数值为小数口径]
   - name: bonus.snapshot_payout_ttm
     cn: TTM 派息率
     kind: computed
     layer: L0
     params:
       - {name: sym, type: string, required: true}
-    returns: {desc: float · 百分数}
+    returns: {desc: 'float · 小数（0.799 = 79.9%）'}
     example: 'bonus.snapshot_payout_ttm("600519")'
-    notes: [派息率 = TTM 分红 / 归母净利 TTM]
+    notes: [派息率 = TTM 分红 / 归母净利 TTM；数值为小数口径]
   # ---- L1：单票质量筛选（computed）----
   - {name: bonus.screen_active, cn: 近年有分红, kind: computed, layer: L1}
   - {name: bonus.screen_has_dividend, cn: 有分红记录, kind: computed, layer: L1}

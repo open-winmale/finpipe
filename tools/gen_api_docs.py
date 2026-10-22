@@ -238,6 +238,23 @@ def render_domain(doc: dict) -> list[str]:
     return lines
 
 
+def overview_table(docs: list[dict]) -> list[str]:
+    """能力总览：数据域｜核心能力（L0 中文名）｜单位口径——全部取自目录，防编造。"""
+    out = ["| 数据域 | 核心能力 | 单位口径 |", "|---|---|---|"]
+    for d in sorted(docs, key=lambda x: (CATEGORY_ORDER.index(x["category"]), x["id"])):
+        l0 = [f["cn"] for f in (d.get("functions") or []) if f.get("layer") == "L0"]
+        if l0:
+            capability = "、".join(l0[:5]) + ("…" if len(l0) > 5 else "")
+        elif d.get("metric_groups"):
+            capability = "指标组：" + "、".join(g["cn"] for g in d["metric_groups"][:5]) + "…"
+        else:
+            capability = "公司档案：名称/行业/组织类型/上市日期"
+        units = "；".join(f"{k}={v}" for k, v in (d.get("units") or {}).items()) or "—"
+        out.append(f"| `{d['id']}`（{d['cn']}） | {esc(capability)} | {esc(units)} |")
+    out.append("")
+    return out
+
+
 def build() -> str:
     docs = [yaml.safe_load(p.read_text(encoding="utf-8")) for p in sorted(DOMAINS.glob("*.yaml"))]
     total_fn = sum(len(d.get("functions") or []) for d in docs)
@@ -256,11 +273,23 @@ def build() -> str:
         f"**{total_groups}** 个指标组（指标目录全量 {metric_count} 个指标代码）；"
         f"全量 {total_fn} 个底层函数见文末折叠附录。",
         "",
+        "## 能力总览",
+        "",
+        "- **免费额度充足**：个人学习、研究等非商业使用完全免费；注册开放平台账号即得免费额度"
+        "（具体额度以开放平台为准）。",
+        "- **开箱即用**：`pip install wm-finpipe` 后 `finpipe.Client()` 无需配置即可调用核心接口"
+        "（内置体验 appid，共享池、额度有限；正式使用可换成自己的 appid）。",
+        "- **目录随包、离线可查**：全部函数与指标代码随 wheel 分发；命名空间带类型签名"
+        "（`py.typed`），IDE 直接补全。",
+        "",
+    ]
+    out += overview_table(docs)
+    out += [
         "性质标注：**原始数据** = 披露/直采数据（含外部源算好的）；**指标** = 平台公式计算的派生指标。",
         "",
-        "**开箱即用**：`pip install wm-finpipe` 后 `finpipe.Client()` 无需配置即可调用核心接口"
-        "（内置体验 appid，额度有限）；参数统一 `symbol`（6 位裸码）。"
-        "机器可读合同：[openapi.json](openapi.json) · 交互浏览：[swagger.html](swagger.html)。",
+        "参数统一 `symbol`（6 位裸码）。机器可读合同：[openapi.json](openapi.json) · "
+        "交互浏览：[swagger.html](swagger.html) · 完整优势与口径说明见 "
+        "[README](../README.md)。",
         "",
         "| 分类 | 数据域 |", "|---|---|",
     ]

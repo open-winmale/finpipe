@@ -1,12 +1,13 @@
 # finpipe
 
 A 股个股数据 Python SDK。数据目录随包内置（离线可查全部接口合同），取数走云端 API，
-**安装后唯一外部依赖是你的 appid（client_id + client_secret）**——不依赖任何仓库或内部工程。
+**开箱即用**：内置体验 appid 自动启用（额度有限、多人共享），不依赖任何仓库或内部工程；
+正式使用建议申请自己的 appid，额度更充足（见[凭证与 AppID](#凭证与-appid)）。
 
 ```python
 import finpipe
 
-cli = finpipe.Client.from_env()          # 凭证：环境变量 FINPIPE_CLIENT_ID / FINPIPE_CLIENT_SECRET
+cli = finpipe.Client.from_env()          # 不配置凭证时自动使用内置体验 appid
 
 cli.kline.bars("600519", n=30)                      # 日 K（自动规范化）
 cli.statements.income("600519", years=5)            # 利润表（合并口径）
@@ -21,17 +22,29 @@ cli.bonus.query_list("600519", limit=10)            # 底层目录函数（类�
 ## 安装
 
 ```bash
-pip install finpipe            # 或源码安装：pip install .
-pip install "finpipe[dataframe]"   # 可选：pandas 支持（_df=True）
+pip install wm-finpipe          # 或源码安装：pip install .
+pip install "wm-finpipe[dataframe]"   # 可选：pandas 支持（_df=True）
 ```
 
-配置凭证（二选一）：
+## 凭证与 AppID
+
+SDK 内置了体验 appid，安装即用；但**额度有限且多人共享**，仅供初次体验。
+正式使用请申请自己的 appid，额度更充足：
+
+1. 打开 [赢麻了开放平台](https://open.winmale.com)，扫码微信登录注册；
+2. 点击右上角「我的」，进入「开放平台」；
+3. 左侧导航「我的应用」→「查看应用信息」，即可查看 `client_id` 与 api-key（即 `client_secret`）。
+
+拿到自己的 appid 后，配置凭证（二选一）：
 
 ```bash
 export FINPIPE_CLIENT_ID=...
 export FINPIPE_CLIENT_SECRET=...
 # 或写入 ~/.finpipe/credentials.env（KEY=VALUE 每行一条）
 ```
+
+配置后即优先使用你的 appid；也可以在代码中直接传入：
+`finpipe.Client(client_id=..., client_secret=...)`。
 
 ## 数据范围（一期，9 个数据域）
 

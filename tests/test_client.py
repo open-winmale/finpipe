@@ -112,6 +112,47 @@ def test_max_limit_caps_limit_params(client):
     c2.call("kline.query_bars", sym="600519", limit=5000)  # None 关闭上限
 
 
+# ---- 凭证解析：内置体验 appid（混淆存放于 _experience.py，测试不写明文） ----
+
+def test_client_defaults_to_experience_credentials():
+    from finpipe._experience import credentials
+    c = Client(base_url="https://t", catalog=load(), session=FakeSession())
+    assert (c.client_id, c.client_secret) == credentials()
+
+
+def test_partial_credentials_rejected():
+    with pytest.raises(FinPipeError, match="成对"):
+        Client(base_url="https://t", client_id="only-id",
+               catalog=load(), session=FakeSession())
+    with pytest.raises(FinPipeError, match="成对"):
+        Client(base_url="https://t", client_secret="only-sec",
+               catalog=load(), session=FakeSession())
+
+
+def test_from_env_prefers_explicit_env():
+    c = Client.from_env(env={"FINPIPE_CLIENT_ID": "id-1", "FINPIPE_CLIENT_SECRET": "sec-1"},
+                        base_url="https://t", catalog=load(), session=FakeSession())
+    assert (c.client_id, c.client_secret) == ("id-1", "sec-1")
+
+
+def test_from_env_partial_raises():
+    with pytest.raises(FinPipeError, match="成对"):
+        Client.from_env(env={"FINPIPE_CLIENT_ID": "id-1"},
+                        base_url="https://t", catalog=load(), session=FakeSession())
+
+
+def test_from_env_open_platform_fallback():
+    c = Client.from_env(env={"OPEN_PLATFORM_CLIENT_ID": "pid",
+                             "OPEN_PLATFORM_CLIENT_SECRET": "psec"},
+                        base_url="https://t", catalog=load(), session=FakeSession())
+    assert c.client_id == "pid"
+
+
+def test_from_env_empty_uses_experience():
+    c = Client.from_env(env={}, base_url="https://t", catalog=load(), session=FakeSession())
+    assert c.client_id.startswith("wm_open_")
+
+
 def test_object_param_serialized(client):
     client.call("rptdom.statement", sym="600519", domain="fin.income_statement",
                 opts={"scope": "合并", "n": 5})

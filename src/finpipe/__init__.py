@@ -7,7 +7,7 @@
     cat = finpipe.catalog.load()                     # 数据目录（域/函数/参数/返回 schema）
     fn = cat.function("kline.query_bars")
 
-    cli = finpipe.Client.from_env()                  # 凭证：环境变量或 ~/.finpipe/credentials.env
+    cli = finpipe.Client.from_env()                  # 不配置凭证则自动使用内置体验 appid
     bars = cli.call("kline.query_bars", sym="600519", limit=30)
 """
 from finpipe.catalog import Catalog, load

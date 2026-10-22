@@ -14,7 +14,10 @@ from typing import Any
 
 import requests
 
+from finpipe._experience import credentials as _experience_credentials
 from finpipe.catalog import Catalog, load
+
+DEFAULT_BASE_URL = "https://api.winmale.com"
 
 
 class FinPipeError(RuntimeError):
@@ -50,9 +53,17 @@ class Client:
         timeout: float = 30.0,
         max_limit: int | None = 500,
     ):
-        self.base_url = (base_url or "https://api.winmale.com").rstrip("/")
+        self.base_url = (base_url or DEFAULT_BASE_URL).rstrip("/")
         self.client_id = client_id or ""
         self.client_secret = client_secret or ""
+        if bool(self.client_id) != bool(self.client_secret):
+            raise FinPipeError(
+                "client_id 与 client_secret 需成对提供；两者都不传则使用内置体验 appid"
+                "（额度有限，正式使用请在赢麻了开放平台申请自己的 appid）")
+        if not self.client_id:
+            cid, sec = _experience_credentials()
+            self.client_id = cid
+            self.client_secret = sec
         self.market = market
         self.catalog = catalog or load()
         self.session = session or requests.Session()
@@ -75,11 +86,15 @@ class Client:
         base = e.get("FINPIPE_BASE_URL") or e.get("OPEN_PLATFORM_BASE_URL")
         cid = e.get("FINPIPE_CLIENT_ID") or e.get("OPEN_PLATFORM_CLIENT_ID")
         sec = e.get("FINPIPE_CLIENT_SECRET") or e.get("OPEN_PLATFORM_CLIENT_SECRET")
-        if not cid or not sec:
-            raise FinPipeError(
-                "缺少凭证：设置 FINPIPE_CLIENT_ID/FINPIPE_CLIENT_SECRET"
-                "（或 OPEN_PLATFORM_*），或提供 ~/.finpipe/credentials.env")
-        return cls(base_url=base, client_id=cid, client_secret=sec, **kw)
+        # 环境变量只在显式参数缺省时注入；凭证成对性由 __init__ 校验（部分配置报错），
+        # 全部缺省时 __init__ 兜底内置体验 appid
+        if base:
+            kw.setdefault("base_url", base)
+        if cid:
+            kw.setdefault("client_id", cid)
+        if sec:
+            kw.setdefault("client_secret", sec)
+        return cls(**kw)
 
     def _get_token(self) -> str:
         if self._token and time.time() < self._token_exp - 60:

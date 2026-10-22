@@ -7,3 +7,6 @@ dist/
 .venv/
 .env
 .internal/
+.coverage
+htmlcov/
+.mypy_cache/

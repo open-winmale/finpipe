@@ -27,7 +27,7 @@ def test_api_docs_no_drift():
 def test_extractor_check_no_drift():
     r = _run(["tools/extract_from_scripts.py", "--check"])
     out = r.stdout + r.stderr
-    if "scripts repo not found" in out:
+    if "not found" in out and "upstream" in out:
         import pytest
-        pytest.skip("scripts 仓不可见，跳过 extractor 漂移检查")
+        pytest.skip("upstream 不可见（维护者本机才有），跳过 extractor 漂移检查")
     assert r.returncode == 0, out

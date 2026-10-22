@@ -14,8 +14,9 @@ pytest --cov=finpipe --cov-fail-under=85   # 全部测试（不联网）+ 覆盖
 python3 -m mypy                     # 类型检查
 ```
 
-真实取数冒烟（需要凭证）：`FINPIPE_LIVE=1 pytest tests/test_live.py`——覆盖全部 32 个
-核心接口与多个标的，做数值合理性断言（日期有序、价格为正、率类口径等）。
+真实取数冒烟（需要凭证）：`FINPIPE_LIVE=1 pytest tests/test_live.py`——覆盖全部 44 个
+核心接口与多个标的，做数值合理性断言（日期有序、价格为正、率类口径等）。内置体验
+AppID 是共享池，遇到 401/429 请按 README「免费额度与凭证」申请自己的 AppID。
 
 文档一致性由 `tests/test_docs.py` 强制：API.md 的参数/示例/指标组/附录与目录逐项比对，
 README 代码块真实执行，README 引用的指标代码与接口必须存在，docstring 单位口径必须与

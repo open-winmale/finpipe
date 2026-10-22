@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate docs/openapi.json (OpenAPI 3.1) + docs/swagger.html from the friendly API layer.
 
-核心接口（友好层 31 个方法）映射为语义化路径 POST /{ns}/{method}：参数 schema 来自方法
+核心接口（友好层 44 个方法）映射为语义化路径 POST /{ns}/{method}：参数 schema 来自方法
 签名，说明来自 docstring，返回 schema 来自目录 returns_shape；另含一条真实网关路径
 POST /v1/analysis/xs/eval。确定性输出；`--check` 校验磁盘文件一致（漂移门禁，进
 tests/test_drift.py）。docs/swagger.html 为单文件 Swagger UI（CDN），亦可导入
@@ -24,7 +24,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import finpipe  # noqa: E402
 from _introspect import (  # noqa: E402
-    FALLBACK_RETURNS, method_doc, method_params, shape_to_schema, underlying_fn,
+    FALLBACK_RETURNS, method_doc, method_params, return_shape_for, shape_to_schema,
+    underlying_fn,
 )
 from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
 from finpipe.catalog import load  # noqa: E402
@@ -46,8 +47,8 @@ SWAGGER_HTML = """<!doctype html>
   <div id="swagger-ui"></div>
   <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
   <script>
-    window SwaggerUIBundle({
-      url: "./openapi.json",
+    window.SwaggerUIBundle({
+      spec: __SPEC__,
       dom_id: "#swagger-ui",
       persistAuthorization: true,
     });
@@ -55,6 +56,12 @@ SWAGGER_HTML = """<!doctype html>
 </body>
 </html>
 """
+
+
+def render_swagger(spec: dict) -> str:
+    """把 spec 内联进 HTML，避免 file:// 下 fetch 相对 JSON 被 CORS 拦截。"""
+    data = json.dumps(spec, ensure_ascii=False).replace("</", "<\\/")
+    return SWAGGER_HTML.replace("__SPEC__", data)
 
 
 def _core_paths(catalog) -> dict:
@@ -71,7 +78,7 @@ def _core_paths(catalog) -> dict:
             props[p.name] = prop
         fn_key = underlying_fn(underlying)
         if fn_key:
-            resp = shape_to_schema(catalog.function(fn_key).get("returns_shape"))
+            resp = shape_to_schema(return_shape_for(catalog, ns, method, underlying))
             call_note = f"底层目录函数 `{underlying}`"
         else:
             resp = {}
@@ -143,9 +150,9 @@ def build() -> dict:
             "title": "finpipe 数据 API",
             "version": finpipe.__version__,
             "description": (
-                "A 股个股数据核心接口（SDK：`pip install wm-finpipe`，`import finpipe`）。"
+                "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。"
                 "个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；"
-                "SDK 内置体验 appid，开箱即用（正式使用可申请自己的 appid，额度更充足）。"
+                "SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。"
                 "覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表"
                 "（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、"
                 "公告与业绩披露、资金流与指标层。"
@@ -170,12 +177,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
-    spec = json.dumps(build(), ensure_ascii=False, indent=2) + "\n"
+    spec_doc = build()
+    spec = json.dumps(spec_doc, ensure_ascii=False, indent=2) + "\n"
+    html = render_swagger(spec_doc)
     drift: list[str] = []
     if args.check:
         if not SPEC_PATH.is_file() or SPEC_PATH.read_text(encoding="utf-8") != spec:
             drift.append(str(SPEC_PATH.relative_to(REPO)))
-        if not HTML_PATH.is_file() or HTML_PATH.read_text(encoding="utf-8") != SWAGGER_HTML:
+        if not HTML_PATH.is_file() or HTML_PATH.read_text(encoding="utf-8") != html:
             drift.append(str(HTML_PATH.relative_to(REPO)))
         if drift:
             print("gen_openapi drift:", ", ".join(drift), file=sys.stderr)
@@ -183,7 +192,7 @@ def main() -> int:
         print("gen_openapi ok")
         return 0
     SPEC_PATH.write_text(spec, encoding="utf-8")
-    HTML_PATH.write_text(SWAGGER_HTML, encoding="utf-8")
+    HTML_PATH.write_text(html, encoding="utf-8")
     print(f"wrote {SPEC_PATH.relative_to(REPO)} ({len(spec)} bytes) + swagger.html")
     return 0
 

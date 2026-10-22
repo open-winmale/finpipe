@@ -39,6 +39,20 @@ def test_raw_vs_computed_distinction():
     assert cat.domain("fund.statements")["kind"] == "raw"
 
 
+def test_normalized_function_shapes_follow_fmt_maps():
+    """公告/分红规范化后，目录里的 returns_shape 也必须是扁平字段。"""
+    cat = load()
+    notice = cat.function("notice.query_by_symbol")
+    assert notice["normalize_with"] == "notice.fmt_maps"
+    notice_fields = {f["name"] for f in notice["returns_shape"]["items"]["fields"]}
+    assert {"date", "announce_date", "code", "title", "url"} <= notice_fields
+
+    bonus = cat.function("bonus.query_list")
+    assert bonus["normalize_with"] == "bonus.fmt_maps"
+    bonus_fields = {f["name"] for f in bonus["returns_shape"]["items"]["fields"]}
+    assert {"sas", "announce", "ex_date", "ex_div", "pay", "dps", "total"} <= bonus_fields
+
+
 def test_namespaces_and_metrics():
     cat = load()
     assert {"kline", "moneyflow", "notice", "filings", "forecast",

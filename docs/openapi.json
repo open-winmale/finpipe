@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "finpipe 数据 API",
-    "version": "0.1.0",
-    "description": "A 股个股数据核心接口（SDK：`pip install wm-finpipe`，`import finpipe`）。个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；SDK 内置体验 appid，开箱即用（正式使用可申请自己的 appid，额度更充足）。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
+    "version": "1.0.0",
+    "description": "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
     "license": {
       "name": "PolyForm Noncommercial 1.0.0",
       "url": "https://github.com/open-winmale/finpipe/blob/main/LICENSE"
@@ -177,47 +177,44 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "K 线序列",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "sas": {
-                        "type": "string",
-                        "description": "SAS"
-                      },
-                      "date": {
-                        "type": "string",
-                        "description": "日期"
-                      },
-                      "open": {
-                        "type": "number",
-                        "description": "开"
-                      },
-                      "high": {
-                        "type": "number",
-                        "description": "高"
-                      },
-                      "low": {
-                        "type": "number",
-                        "description": "低"
-                      },
-                      "close": {
-                        "type": "number",
-                        "description": "收"
-                      },
-                      "volume": {
-                        "type": "number",
-                        "description": "量"
-                      },
-                      "amount": {
-                        "type": "number",
-                        "description": "额"
-                      },
-                      "percent": {
-                        "type": "number",
-                        "description": "涨跌幅"
-                      }
+                  "description": "K 线 bar 或 None（无数据）",
+                  "type": "object",
+                  "properties": {
+                    "sas": {
+                      "type": "string",
+                      "description": "SAS"
+                    },
+                    "date": {
+                      "type": "string",
+                      "description": "日期"
+                    },
+                    "open": {
+                      "type": "number",
+                      "description": "开"
+                    },
+                    "high": {
+                      "type": "number",
+                      "description": "高"
+                    },
+                    "low": {
+                      "type": "number",
+                      "description": "低"
+                    },
+                    "close": {
+                      "type": "number",
+                      "description": "收"
+                    },
+                    "volume": {
+                      "type": "number",
+                      "description": "量"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "额"
+                    },
+                    "percent": {
+                      "type": "number",
+                      "description": "涨跌幅"
                     }
                   }
                 }
@@ -607,38 +604,36 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "sas": {
-                        "type": "string",
-                        "description": "SAS"
-                      },
-                      "date": {
-                        "type": "string",
-                        "description": "日期"
-                      },
-                      "net_mf": {
-                        "type": "number",
-                        "description": "主力净流入"
-                      },
-                      "elg_net": {
-                        "type": "number",
-                        "description": "超大单净流入"
-                      },
-                      "lg_net": {
-                        "type": "number",
-                        "description": "大单净流入"
-                      },
-                      "md_net": {
-                        "type": "number",
-                        "description": "中单净流入"
-                      },
-                      "sm_net": {
-                        "type": "number",
-                        "description": "小单净流入"
-                      }
+                  "description": "资金流行 或 None（无数据）",
+                  "type": "object",
+                  "properties": {
+                    "sas": {
+                      "type": "string",
+                      "description": "SAS"
+                    },
+                    "date": {
+                      "type": "string",
+                      "description": "日期"
+                    },
+                    "net_mf": {
+                      "type": "number",
+                      "description": "主力净流入"
+                    },
+                    "elg_net": {
+                      "type": "number",
+                      "description": "超大单净流入"
+                    },
+                    "lg_net": {
+                      "type": "number",
+                      "description": "大单净流入"
+                    },
+                    "md_net": {
+                      "type": "number",
+                      "description": "中单净流入"
+                    },
+                    "sm_net": {
+                      "type": "number",
+                      "description": "小单净流入"
                     }
                   }
                 }
@@ -1135,7 +1130,7 @@
     "/notice/list": {
       "post": {
         "operationId": "notice_list",
-        "summary": "单票公告列表（日期/标题/类别/链接）。",
+        "summary": "单票公告列表（date/title/type/url/pdf_url）。",
         "description": "底层目录函数 `notice.query_by_symbol`。SDK 调用：`cli.notice.list(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
@@ -1173,8 +1168,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "公告行列表",
-                  "type": "array"
+                  "description": "规范化公告列表",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "公告日"
+                      },
+                      "announce_date": {
+                        "type": "string",
+                        "description": "公告日（同 date）"
+                      },
+                      "available_at": {
+                        "type": "string",
+                        "description": "入库可见时间"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "证券代码"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "证券简称"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "公告类型"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "标题"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "网页链接"
+                      },
+                      "pdf_url": {
+                        "type": "string",
+                        "description": "PDF 链接"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1220,8 +1256,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "公告行列表",
-                  "type": "array"
+                  "description": "规范化公告列表",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "公告日"
+                      },
+                      "announce_date": {
+                        "type": "string",
+                        "description": "公告日（同 date）"
+                      },
+                      "available_at": {
+                        "type": "string",
+                        "description": "入库可见时间"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "证券代码"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "证券简称"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "公告类型"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "标题"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "网页链接"
+                      },
+                      "pdf_url": {
+                        "type": "string",
+                        "description": "PDF 链接"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1267,8 +1344,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "公告行列表",
-                  "type": "array"
+                  "description": "规范化公告列表",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "公告日"
+                      },
+                      "announce_date": {
+                        "type": "string",
+                        "description": "公告日（同 date）"
+                      },
+                      "available_at": {
+                        "type": "string",
+                        "description": "入库可见时间"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "证券代码"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "证券简称"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "公告类型"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "标题"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "网页链接"
+                      },
+                      "pdf_url": {
+                        "type": "string",
+                        "description": "PDF 链接"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1325,8 +1443,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "公告行列表",
-                  "type": "array"
+                  "description": "规范化公告列表",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "公告日"
+                      },
+                      "announce_date": {
+                        "type": "string",
+                        "description": "公告日（同 date）"
+                      },
+                      "available_at": {
+                        "type": "string",
+                        "description": "入库可见时间"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "证券代码"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "证券简称"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "公告类型"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "标题"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "网页链接"
+                      },
+                      "pdf_url": {
+                        "type": "string",
+                        "description": "PDF 链接"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1372,8 +1531,49 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "公告行列表",
-                  "type": "array"
+                  "description": "规范化公告列表",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "description": "公告日"
+                      },
+                      "announce_date": {
+                        "type": "string",
+                        "description": "公告日（同 date）"
+                      },
+                      "available_at": {
+                        "type": "string",
+                        "description": "入库可见时间"
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "证券代码"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "证券简称"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "公告类型"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "标题"
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "网页链接"
+                      },
+                      "pdf_url": {
+                        "type": "string",
+                        "description": "PDF 链接"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1980,6 +2180,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "规范化分红行列表",
                   "type": "array",
                   "items": {
                     "type": "object",
@@ -1988,29 +2189,41 @@
                         "type": "string",
                         "description": "SAS"
                       },
+                      "ex_date": {
+                        "type": "string",
+                        "description": "除权日"
+                      },
+                      "ex_div": {
+                        "type": "string",
+                        "description": "除权除息日"
+                      },
                       "dps": {
                         "type": "number",
                         "description": "每股股利"
                       },
                       "total": {
                         "type": "number",
-                        "description": "总分红"
+                        "description": "分红总额"
                       },
-                      "announce_date": {
+                      "ccy": {
+                        "type": "string",
+                        "description": "货币"
+                      },
+                      "announce": {
                         "type": "string",
                         "description": "公告日"
                       },
-                      "ex_div_date": {
-                        "type": "string",
-                        "description": "除权日"
-                      },
-                      "pay_date": {
+                      "pay": {
                         "type": "string",
                         "description": "派息日"
                       },
                       "content": {
                         "type": "string",
                         "description": "方案摘要"
+                      },
+                      "net_profit": {
+                        "type": "number",
+                        "description": "归母净利润"
                       },
                       "payout_ratio": {
                         "type": "number",
@@ -2028,8 +2241,8 @@
     "/dividend/last": {
       "post": {
         "operationId": "dividend_last",
-        "summary": "最近一次分红。",
-        "description": "底层目录函数 `bonus.query_last`。SDK 调用：`cli.dividend.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "summary": "最近一次分红（announce/ex_date/pay/dps/total/content/sas/payout_ratio），无数据返回 None。",
+        "description": "复用规范化历史序列取最新一行，字段与 ``history(limit=1)[0]`` 一致；、``_raw=True`` 时返回 store 原始行。、底层目录函数 `bonus.query_list`。SDK 调用：`cli.dividend.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
         ],
@@ -2057,12 +2270,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "description": "分红行",
+                  "description": "分红行 或 None（无数据）",
                   "type": "object",
                   "properties": {
                     "sas": {
                       "type": "string",
                       "description": "SAS"
+                    },
+                    "ex_date": {
+                      "type": "string",
+                      "description": "除权日"
+                    },
+                    "ex_div": {
+                      "type": "string",
+                      "description": "除权除息日"
                     },
                     "dps": {
                       "type": "number",
@@ -2070,23 +2291,27 @@
                     },
                     "total": {
                       "type": "number",
-                      "description": "总分红"
+                      "description": "分红总额"
                     },
-                    "announce_date": {
+                    "ccy": {
+                      "type": "string",
+                      "description": "货币"
+                    },
+                    "announce": {
                       "type": "string",
                       "description": "公告日"
                     },
-                    "ex_div_date": {
-                      "type": "string",
-                      "description": "除权日"
-                    },
-                    "pay_date": {
+                    "pay": {
                       "type": "string",
                       "description": "派息日"
                     },
                     "content": {
                       "type": "string",
                       "description": "方案摘要"
+                    },
+                    "net_profit": {
+                      "type": "number",
+                      "description": "归母净利润"
                     },
                     "payout_ratio": {
                       "type": "number",

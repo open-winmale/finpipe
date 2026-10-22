@@ -34,8 +34,9 @@ def main() -> None:
 
     # ---- 函数合同：参数 / 返回 / 示例 ----
     fn = cat.function("bonus.screen_quality")
+    params = fn.get("params") or cat.inventory_params("bonus.screen_quality")
     print(f"\n--- 合同：bonus.screen_quality（{fn.get('cn')}）---")
-    for p in fn["params"]:
+    for p in params:
         req = "必填" if p.get("required") else "可选"
         print(f"  :param {p['name']} ({p.get('type', 'any')}, {req}) {p.get('desc', '')}")
     print(f"  :returns {fn.get('returns', {}).get('desc', '')}")

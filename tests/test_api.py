@@ -99,11 +99,76 @@ def test_statements_translation(cli):
 
 def test_notice_and_dividend(cli):
     cli.notice.list("600519", window="3m", keyword="回购", limit=5)
-    assert last_xs(cli) == ['return notice.query_by_symbol("600519", "3m", "回购", 5)']
+    assert last_xs(cli) == ['__r := notice.query_by_symbol("600519", "90", "回购", 5)',
+                            'return notice.fmt_maps(__r)']
+    cli.notice.list("600519", window="3m", keyword="回购", limit=5, _raw=True)
+    assert last_xs(cli) == ['return notice.query_by_symbol("600519", "90", "回购", 5)']
     cli.notice.find("600519", "2026-01-01", "2026-03-31", keyword="回购", limit=10)
-    assert last_xs(cli) == ['return notice.query_find("2026-01-01", "2026-03-31", "回购", "600519", 10)']
+    assert last_xs(cli) == ['__r := notice.query_find("2026-01-01", "2026-03-31", "回购", "600519", 10)',
+                            'return notice.fmt_maps(__r)']
     cli.dividend.yield_ttm("600519")
     assert last_xs(cli) == ['return bonus.snapshot_yield_ttm("600519")']
+
+
+def test_notice_window_rejects_unknown_token(cli):
+    from finpipe import UsageError
+    with pytest.raises(UsageError, match="未知窗口"):
+        cli.notice.list("600519", window="2w")
+    with pytest.raises(UsageError, match="未知窗口"):
+        cli.notice.recent(window="2w")
+    with pytest.raises(UsageError, match="未知窗口"):
+        cli.notice.by_category("回购", window="2w")
+
+
+def test_dividend_last_returns_normalized_latest_row(cli):
+    cli.session.eval_result = [{"announce": "2026-06-22", "ex_div": "2026-06-26",
+                                "dps": 28.02}]
+    assert cli.dividend.last("600519") == cli.session.eval_result[0]
+    assert last_xs(cli) == ['__r := bonus.query_list("600519", 1)',
+                            'return bonus.fmt_maps(__r)']
+    cli.session.eval_result = []
+    assert cli.dividend.last("600519") is None
+
+
+def test_dynamic_facade_accepts_positional_args(cli):
+    cli.kline.screen_above_ma20("600519")
+    assert last_xs(cli) == ['return kline.screen_above_ma20("600519")']
+    cli.dividend.query_dps_window("600519", "3y")
+    assert last_xs(cli) == ['return bonus.query_dps_window("600519", "3y")']
+    with pytest.raises(FinPipeError, match="同时以位置和关键字"):
+        cli.kline.screen_above_ma20("600519", sym="600519")
+    with pytest.raises(FinPipeError, match="最多接受"):
+        cli.kline.screen_above_ma20("600519", "extra")
+
+
+def test_notice_find_normalizes_stock_code(cli):
+    cli.notice.find("sh.600519.SH", "2026-01-01", "2026-01-31")
+    assert last_xs(cli)[0] == ('__r := notice.query_find("2026-01-01", "2026-01-31", '
+                               '"", "600519", 50)')
+
+
+def test_raw_plus_date_range_is_rejected(cli):
+    from finpipe import UsageError
+    with pytest.raises(UsageError, match="_raw=True"):
+        cli.kline.bars("600519", begin="2026-01-01", end="2026-01-31", _raw=True)
+    with pytest.raises(UsageError, match="_raw=True"):
+        cli.moneyflow.bars("600519", begin="2026-01-01", end="2026-01-31", _raw=True)
+
+
+def test_close_respects_injected_session():
+    class S:
+        closed = False
+        def close(self):
+            self.closed = True
+    s = S()
+    c = Client(base_url="https://t.example", client_id="i", client_secret="s",
+               catalog=load(), session=s)
+    c.close()
+    assert s.closed is False
+    owned = Client(base_url="https://t.example", client_id="i", client_secret="s",
+                   catalog=load())
+    owned.session.close = lambda: None
+    owned.close()  # 自建 session 应可关闭且不抛错
 
 
 def test_indicator_anti_fabrication(cli):

@@ -1,5 +1,5 @@
 id: fund.indicators
-version: 1.1.1
+version: 1.2.0
 cn: 指标层
 kind: computed
 category: fundamentals
@@ -9,13 +9,12 @@ description: 平台公式计算的派生指标——数值不存在于任何披�
   代码随包内数据目录分发（generated/metrics.json）。
 data_origin: [平台计算]
 units:
-  pct: 百分数（如 15.0 = 15%）
-  ratio: 倍 / 小数
+  ratio: 小数（如 0.332 = 33.2%；指标层比率统一为小数，不是 15.0=15%）
   money: 亿元（_LAST 截面多为亿元，个别元，见指标 note）
 requires: {path: sys/metric, preloaded: true}
 notes:
   - 指标代码带 _LAST 后缀 = 最新截面值；不带后缀 = 随最新财报期取值
-  - 单位负例：ROE 类指标比较请直接用指标值；自算比例时源数据 percent 为小数（0.15=15%），指标层 pct 为百分数（15.0=15%）——两者勿混
+  - 指标层比率统一为小数（0.332=33.2%），与行情 percent 口径一致；业绩预告的 yoy/amp 字段是百分数（14.67=14.67%），两者勿混
   - 新旧会计准则适配在指标计算内部完成，输出口径已归一
 metric_groups:
   - id: valuation
@@ -41,7 +40,7 @@ metric_groups:
     cn: 盈利与回报（含杜邦）
     caliber: '利润表/资产负债表派生：ROE=归母净利TTM/归母净资产；杜邦分解 ROE=rNT×rTT×rTTS（净利率×周转×权益乘数）'
     depends_on: [fund.statements]
-    unit: 百分数 / 倍
+    unit: 小数 / 倍
     metrics:
       - {code: '$ROE_TTM_LAST', cn: 最新ROE(TTM)}
       - {code: '$ROE_AVG3', cn: 最近3年平均ROE}
@@ -56,7 +55,7 @@ metric_groups:
     cn: 成长
     caliber: TTM 同比（当期TTM/上年同期TTM-1）与多年年化均值
     depends_on: [fund.statements]
-    unit: 百分数
+    unit: 小数（0.1467 = 14.67%）
     metrics:
       - {code: '$TR_TTM_YOY_LAST', cn: 营业收入TTM同比-最新}
       - {code: '$NPTS_TTM_YOY_LAST', cn: 归母净利润TTM同比-最新}
@@ -80,7 +79,7 @@ metric_groups:
     cn: 现金流
     caliber: 现金流量表 TTM 聚合与比率（FCF=经营净额-资本开支；NCFO_NP=经营净额/净利润）
     depends_on: [fund.statements]
-    unit: 亿元 / 百分数
+    unit: 亿元 / 小数
     metrics:
       - {code: '$NCFO_TTM_LAST', cn: 经营活动现金流净额TTM}
       - {code: '$NCFO_NP', cn: 经营现金流量净额对净利润比率}
@@ -92,7 +91,7 @@ metric_groups:
     cn: 资产负债与偿债
     caliber: 负债/资产结构比率与流动性倍数；有息负债=短借+一年内到期+长借+债券+租赁负债
     depends_on: [fund.statements]
-    unit: 百分数 / 倍
+    unit: 小数 / 倍
     metrics:
       - {code: '$TL_RATE_LAST', cn: 资产负债率}
       - {code: '$IBD_RATE_LAST', cn: 有息负债率}
@@ -104,7 +103,7 @@ metric_groups:
     cn: 运营效率
     caliber: 周转天数=360/周转率；CCC=应收+存货-应付天数；费用率=费用/营收
     depends_on: [fund.statements]
-    unit: 天 / 百分数
+    unit: 天 / 小数
     metrics:
       - {code: '$TA_TURNOVER', cn: 资产周转率}
       - {code: '$AR_DAYS', cn: 应收账款周转天数}
@@ -119,7 +118,7 @@ metric_groups:
     cn: 分红
     caliber: 股息率=TTM 分红总额/市值；派息率=TTM 分红/归母净利 TTM
     depends_on: [disc.bonus, market.kline, fund.statements]
-    unit: 百分数 / 元
+    unit: 小数 / 元
     metrics:
       - {code: '$DPS_TTM_LAST', cn: 最近一年预测每股分红总额}
       - {code: '$BONUS_TTM', cn: 分红股息TTM}
@@ -129,7 +128,7 @@ metric_groups:
     cn: 行情与风险（K线衍生）
     caliber: 由日 K 与股本计算的截面：市值=收盘价×股本；ROI_N=N 年年化收益（复权）
     depends_on: [market.kline, corp.equity]
-    unit: 价格元 / 市值亿元 / 收益百分数
+    unit: 价格元 / 市值亿元 / 收益小数
     metrics:
       - {code: '$CLOSE_LAST', cn: 最新收盘价}
       - {code: '$PERCENT_LAST', cn: 最新涨跌幅}
@@ -151,7 +150,7 @@ metric_groups:
     cn: 收入构成占比
     caliber: 分区域收入的占比与对应毛利率（指标层计算）
     depends_on: [fund.statements]
-    unit: 百分数
+    unit: 小数
     metrics:
       - {code: '$OP_TR_AREA_DOMESTIC_PCT_LAST', cn: 国内收入占比}
       - {code: '$OP_TR_AREA_FOREIGN_PCT_LAST', cn: 国外收入占比}

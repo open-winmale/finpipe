@@ -1,5 +1,5 @@
 id: disc.notice
-version: 1.0.0
+version: 1.1.0
 cn: 公告
 kind: raw
 category: disclosure
@@ -23,8 +23,9 @@ functions:
       - {name: window, type: string, required: false, desc: 时间窗}
       - {name: type_regex, type: string, required: false, desc: 类型正则}
       - {name: limit, type: int, required: false}
-    returns: {desc: ARR · 公告行（日期/标题/类别/链接）}
+    returns: {desc: ARR · 公告行（date/title/type/url/pdf_url）}
     example: 'notice.query_by_symbol("600519", "3m", "", 20)'
+    normalize_with: notice.fmt_maps
   - name: notice.query_recent
     cn: 近期公告（全市场）
     kind: raw
@@ -34,8 +35,9 @@ functions:
       - {name: type_regex, type: string, required: false}
       - {name: limit, type: int, required: false}
       - {name: market, type: string, required: false, desc: 缺省 cn}
-    returns: {desc: ARR · 公告行}
+    returns: {desc: ARR · 公告行（date/title/type/url/pdf_url）}
     example: 'notice.query_recent("7d", "", 50)'
+    normalize_with: notice.fmt_maps
   - name: notice.query_by_category
     cn: 按类别查公告
     kind: raw
@@ -45,8 +47,9 @@ functions:
       - {name: window, type: string, required: false}
       - {name: limit, type: int, required: false}
       - {name: market, type: string, required: false}
-    returns: {desc: ARR · 公告行}
+    returns: {desc: ARR · 公告行（date/title/type/url/pdf_url）}
     example: 'notice.query_by_category("回购", "1m", 20)'
+    normalize_with: notice.fmt_maps
   - name: notice.query_on_date
     cn: 指定日期公告
     kind: raw
@@ -56,8 +59,9 @@ functions:
       - {name: type_regex, type: string, required: false}
       - {name: limit, type: int, required: false}
       - {name: market, type: string, required: false}
-    returns: {desc: ARR · 公告行}
+    returns: {desc: ARR · 公告行（date/title/type/url/pdf_url）}
     example: 'notice.query_on_date("2026-09-30")'
+    normalize_with: notice.fmt_maps
   - name: notice.query_find
     cn: 按日期区间查公告
     kind: raw
@@ -69,8 +73,9 @@ functions:
       - {name: stock_code, type: string, required: false}
       - {name: limit, type: int, required: false}
       - {name: market, type: string, required: false}
-    returns: {desc: ARR · 公告行}
+    returns: {desc: ARR · 公告行（date/title/type/url/pdf_url）}
     example: 'notice.query_find("2026-01-01", "2026-03-31", "业绩", "", 50)'
+    normalize_with: notice.fmt_maps
   # ---- L0：信号（窗口判定薄计算，证据行=公告原值）----
   - name: notice.signal_has_buyback
     cn: 窗口内是否有回购公告

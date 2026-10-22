@@ -21,14 +21,15 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _introspect import (  # noqa: E402
-    FALLBACK_RETURNS, method_example, method_params, underlying_fn,
+    FALLBACK_RETURNS, method_example, method_params, return_shape_for, underlying_fn,
 )
 from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
-from finpipe.catalog import catalog_dir  # noqa: E402
+from finpipe.catalog import catalog_dir, load  # noqa: E402
 
 DOMAINS = catalog_dir() / "domains"
 INVENTORY = json.loads((catalog_dir() / "generated" / "inventory.json").read_text(encoding="utf-8"))
 INV = {f["name"]: f for f in INVENTORY["functions"]}
+CAT = load()
 OUT = REPO / "docs" / "API.md"
 
 KIND_CN = {"raw": "原始数据", "computed": "指标", "mixed": "混合"}
@@ -71,10 +72,13 @@ def fmt_params(fn: dict, inv: dict) -> str:
     return " · ".join(parts)
 
 
-def fmt_returns(fn: dict, inv: dict) -> str:
+def fmt_returns(fn: dict, inv: dict, shape: dict | None = None) -> str:
     ret = fn.get("returns") or {}
     desc = ret.get("desc") or inv.get("returns") or "—"
-    shape = inv.get("returns_shape") if ret.get("shape_ref") == "inventory" else None
+    if shape is None and ret.get("shape_ref") == "inventory":
+        shape = inv.get("returns_shape")
+    if shape and shape.get("kind") == "object":
+        desc = "MAP · " + (shape.get("cn") or "结果")
     if shape:
         fields = (shape.get("items") or shape).get("fields") or []
         if fields:
@@ -179,7 +183,8 @@ def core_table(cat: str, merged: dict[str, dict]) -> list[str]:
             for p in params) or "—"
         fn_key = underlying_fn(underlying)
         if fn_key:
-            ret = fmt_returns(merged.get(fn_key, {}), INV.get(fn_key, {}))
+            shape = return_shape_for(CAT, ns, method, underlying)
+            ret = fmt_returns(merged.get(fn_key, {}), INV.get(fn_key, {}), shape=shape)
         else:
             ret = FALLBACK_RETURNS.get((ns, method), "—")
         ex = method_example(ns, method, params)
@@ -225,10 +230,17 @@ def render_domain(doc: dict) -> list[str]:
             inv = INV.get(fn["name"], {})
             k = fn.get("kind") or kind
             ex = sdk_example(fn, inv)
+            shape = None
+            # 附录只对规范化函数与显式 shape_ref 展开字段，避免无关大 shape 膨胀。
+            if fn.get("normalize_with") or (fn.get("returns") or {}).get("shape_ref") == "inventory":
+                try:
+                    shape = CAT.function(fn["name"]).get("returns_shape")
+                except Exception:
+                    shape = None
             status = f" ({fn['status']})" if fn.get("status") and fn["status"] != "stable" else ""
             lines.append(
                 f"| `{fn['name']}` | {esc(fn['cn'])} | {KIND_CN.get(k, k)} | {fn['layer']}{status} | "
-                f"{fmt_params(fn, inv)} | {fmt_returns(fn, inv)} |"
+                f"{fmt_params(fn, inv)} | {fmt_returns(fn, inv, shape=shape)} |"
                 + (f" 例：`{esc(ex)}`" if ex else ""))
         lines.append("")
         hidden_n = len(doc.get("functions") or []) - len(fns)
@@ -277,8 +289,10 @@ def build() -> str:
         "",
         "- **免费额度充足**：个人学习、研究等非商业使用完全免费；注册开放平台账号即得免费额度"
         "（具体额度以开放平台为准）。",
-        "- **开箱即用**：`pip install wm-finpipe` 后 `finpipe.Client()` 无需配置即可调用核心接口"
-        "（内置体验 appid，共享池、额度有限；正式使用可换成自己的 appid）。",
+        "- **开箱即用**：按 README 源码安装后 `finpipe.Client()` 无需配置即可调用核心接口"
+        "（内置体验 AppID，共享池、额度有限；正式使用可换成自己的 AppID）。",
+        "- **认证与限流**：401/403 抛 `AuthError`，429 抛 `LimitError(code=\"rate_limited\")`；"
+        "错误消息会给出申请自己的 AppID 的步骤，详见 README「免费额度与凭证」。",
         "- **目录随包、离线可查**：全部函数与指标代码随 wheel 分发；命名空间带类型签名"
         "（`py.typed`），IDE 直接补全。",
         "",

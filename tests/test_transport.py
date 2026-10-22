@@ -7,6 +7,7 @@ import requests
 
 from finpipe.catalog import load
 from finpipe.client import Client, FinPipeError
+from finpipe.errors import AuthError, LimitError
 
 
 class Resp:
@@ -139,3 +140,95 @@ def test_token_endpoint_also_retried():
                catalog=load(), session=s, backoff=0.5)
     c._sleep = lambda seconds: None
     assert c.call("kline.query_last", sym="600519") == 5
+
+
+def test_oauth_401_is_auth_error_with_appid_guidance():
+    class OAuth401(SeqSession):
+        def post(self, url, json=None, data=None, headers=None, timeout=None):
+            if url.endswith("/v1/oauth/token"):
+                return Resp(status_code=401, json_body={
+                    "error": "invalid_client",
+                    "error_description": "client authentication failed",
+                })
+            return super().post(url, json=json, data=data, headers=headers, timeout=timeout)
+
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=OAuth401([]), retries=0)
+    with pytest.raises(AuthError) as ei:
+        c.call("kline.query_last", sym="600519")
+    assert ei.value.status == 401
+    assert "open.winmale.com" in str(ei.value)
+    assert "FINPIPE_CLIENT_ID" in str(ei.value)
+
+
+def test_oauth_429_is_limit_error_with_appid_guidance():
+    class OAuth429(SeqSession):
+        def post(self, url, json=None, data=None, headers=None, timeout=None):
+            if url.endswith("/v1/oauth/token"):
+                return Resp(status_code=429, headers={"Retry-After": "3"},
+                            json_body={"error": "rate_limited"})
+            return super().post(url, json=json, data=data, headers=headers, timeout=timeout)
+
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=OAuth429([]), retries=0)
+    with pytest.raises(LimitError) as ei:
+        c.call("kline.query_last", sym="600519")
+    assert ei.value.status == 429
+    assert ei.value.code == "rate_limited"
+    assert "open.winmale.com" in str(ei.value)
+
+
+def test_eval_429_is_limit_error():
+    c, s, _ = make([("status", 429)], retries=0)
+    with pytest.raises(LimitError) as ei:
+        c.call("kline.query_last", sym="600519")
+    assert ei.value.status == 429
+    assert ei.value.code == "rate_limited"
+    assert "AppID" in str(ei.value)
+
+
+def test_eval_403_policy_denied_includes_guidance():
+    class PolicyDenied(SeqSession):
+        def post(self, url, json=None, data=None, headers=None, timeout=None):
+            if url.endswith("/v1/oauth/token"):
+                return super().post(url, json=json, data=data, headers=headers, timeout=timeout)
+            return Resp(status_code=403, json_body={
+                "success": False,
+                "error": {"code": "POLICY_DENIED", "message": "策略拒绝"},
+            })
+
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=PolicyDenied([]), retries=0)
+    with pytest.raises(AuthError) as ei:
+        c.call("kline.query_last", sym="600519")
+    assert ei.value.status == 403
+    assert "POLICY_DENIED" in str(ei.value)
+    assert "open.winmale.com" in str(ei.value)
+
+
+def test_experience_credential_failure_is_auth_error(monkeypatch):
+    import finpipe.client as client_mod
+
+    def boom():
+        raise RuntimeError("corrupt")
+
+    monkeypatch.setattr(client_mod, "_experience_credentials", boom)
+    with pytest.raises(AuthError) as ei:
+        Client(catalog=load(), session=SeqSession([]))
+    assert ei.value.code == "experience"
+    assert "open.winmale.com" in str(ei.value)
+
+
+def test_call_batch_skip_isolates_auth_failure():
+    class OAuth401(SeqSession):
+        def post(self, url, json=None, data=None, headers=None, timeout=None):
+            if url.endswith("/v1/oauth/token"):
+                return Resp(status_code=401, json_body={"error": "invalid_client"})
+            return super().post(url, json=json, data=data, headers=headers, timeout=timeout)
+
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=OAuth401([]), retries=0)
+    out = c.call_batch("kline.query_last", ["600519", "000001"], on_error="skip")
+    assert not out.results
+    assert set(out.errors) == {"600519", "000001"}
+    assert all("open.winmale.com" in msg for msg in out.errors.values())

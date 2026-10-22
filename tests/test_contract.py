@@ -1,4 +1,4 @@
-"""全接口合同测试：32 个核心接口 + 155 个底层函数都必须能按目录构造出合法调用。
+"""全接口合同测试：44 个核心接口 + 155 个底层函数都必须能按目录构造出合法调用。
 
 这是覆盖面最广的一层——不校验业务数值（那由 live 测试负责），而是保证：
 参数名/必填性/类型/默认值/规范化/命名空间 require 在全部接口上自洽。
@@ -77,7 +77,7 @@ def last_xs(cli) -> list[str]:
 
 @pytest.mark.parametrize("core_id", CORE_IDS)
 def test_core_interface_dispatches(cli, core_id):
-    """32 个核心接口：按签名必填参数调用，必须生成合法取数脚本。"""
+    """44 个核心接口：按签名必填参数调用，必须生成合法取数脚本。"""
     ns, method = core_id.split(".", 1)
     cls = FRIENDLY_NAMESPACES[ns]
     sig = inspect.signature(getattr(cls, method))
@@ -135,7 +135,7 @@ def test_generated_facade_signatures_match_catalog():
 
 
 def test_every_core_interface_has_openapi_operation():
-    """32 个核心接口在 OpenAPI spec 中都必须有对应操作（文档-代码一致性）。"""
+    """44 个核心接口在 OpenAPI spec 中都必须有对应操作（文档-代码一致性）。"""
     import json
     from pathlib import Path
     spec = json.loads((Path(__file__).resolve().parents[1] / "docs" / "openapi.json")

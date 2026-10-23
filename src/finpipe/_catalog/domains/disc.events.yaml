@@ -1,5 +1,5 @@
 id: disc.events
-version: 1.0.0
+version: 1.1.0
 cn: 业绩披露事件
 kind: raw
 category: disclosure
@@ -8,12 +8,14 @@ description: 业绩预告（yjyg：净利/扣非/营收区间+同比+修正轨�
   财报预约披露日历（disclosure）。均为交易所披露文件的结构化直采。
 data_origin: [交易所披露]
 units:
-  money: 元（预告区间金额）
-  yoy: 百分数或小数（以返回字段注释为准）
+  money: 元（预告/快报区间与单期金额）
+  yoy: 小数（0.1467 = 14.67%；SDK 自动由脚本的百分数口径换算）
   date: YYYY-MM-DD
 requires: {path: sys/forecast/init.xs, preloaded: false}
 notes:
   - 预告为区间（下限/上限）；快报为披露的近似单值——两者在报告期正式报表发布前使用
+  - 脚本原生 np_amp_* / rev_amp_* / np_yoy / rev_yoy / roe 为百分数；SDK 已换算为
+    小数并守护范围；_units="native"/_raw=True 取脚本原值
 functions:
   - name: forecast.yjyg_rows
     cn: 业绩预告历史
@@ -24,6 +26,8 @@ functions:
       - {name: limit, type: int, required: false, desc: 条数}
     returns: {desc: ARR · 预告行（报告期/类型/净利与扣非区间/同比/修正轨迹）}
     example: 'forecast.yjyg_rows("688008", 8)'
+    units: {np_amp_lower: percent, np_amp_upper: percent, rev_amp_lower: percent, rev_amp_upper: percent}
+    ranges: {np_amp_lower: [-1, 1000], np_amp_upper: [-1, 1000], rev_amp_lower: [-1, 1000], rev_amp_upper: [-1, 1000]}
   - name: forecast.yjyg_latest
     cn: 最新业绩预告
     kind: raw
@@ -32,6 +36,8 @@ functions:
       - {name: sym, type: string, required: true}
     returns: {desc: 预告行 MAP 或 nil}
     example: 'forecast.yjyg_latest("688008")'
+    units: {np_amp_lower: percent, np_amp_upper: percent, rev_amp_lower: percent, rev_amp_upper: percent}
+    ranges: {np_amp_lower: [-1, 1000], np_amp_upper: [-1, 1000], rev_amp_lower: [-1, 1000], rev_amp_upper: [-1, 1000]}
   - name: forecast.yjkb_rows
     cn: 业绩快报历史
     kind: raw
@@ -41,6 +47,8 @@ functions:
       - {name: limit, type: int, required: false}
     returns: {desc: ARR · 快报行}
     example: 'forecast.yjkb_rows("603092", 8)'
+    units: {np_yoy: percent, rev_yoy: percent, roe: percent}
+    ranges: {np_yoy: [-1, 1000], rev_yoy: [-1, 1000], roe: [-2, 5]}
   - name: forecast.yjkb_latest
     cn: 最新业绩快报
     kind: raw
@@ -49,6 +57,8 @@ functions:
       - {name: sym, type: string, required: true}
     returns: {desc: 快报行 MAP 或 nil}
     example: 'forecast.yjkb_latest("603092")'
+    units: {np_yoy: percent, rev_yoy: percent, roe: percent}
+    ranges: {np_yoy: [-1, 1000], rev_yoy: [-1, 1000], roe: [-2, 5]}
   - name: forecast.disclosure_rows
     cn: 财报预约披露历史
     kind: raw
@@ -74,6 +84,8 @@ functions:
       - {name: sym, type: string, required: true}
     returns: {desc: MAP · 快照}
     example: 'forecast.snapshot("688008")'
+    units: {np_amp_lower: percent, np_amp_upper: percent, rev_amp_lower: percent, rev_amp_upper: percent, np_yoy: percent, rev_yoy: percent, roe: percent}
+    ranges: {np_amp_lower: [-1, 1000], np_amp_upper: [-1, 1000], rev_amp_lower: [-1, 1000], rev_amp_upper: [-1, 1000], np_yoy: [-1, 1000], rev_yoy: [-1, 1000], roe: [-2, 5]}
   # ---- L1：格式化 ----
   - {name: forecast.fmt_line, cn: 预告文本行, kind: raw, layer: L1}
   - {name: forecast.fmt_lines, cn: 预告文本行列表, kind: raw, layer: L1}

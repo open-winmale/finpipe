@@ -22,6 +22,7 @@ from finpipe.errors import (
     APPID_GUIDANCE, ApiError, AuthError, CatalogError, FinPipeError, LimitError,
     ServerError, TransportError, UsageError,
 )
+from finpipe.units import apply_units
 
 DEFAULT_BASE_URL = "https://api.winmale.com"
 
@@ -96,6 +97,7 @@ class Client:
         max_limit: int | None = 500,
         retries: int = 2,
         backoff: float = 0.5,
+        validate: bool = True,
     ):
         self.base_url = (base_url or DEFAULT_BASE_URL).rstrip("/")
         self.client_id = client_id or ""
@@ -121,6 +123,7 @@ class Client:
         self.max_limit = max_limit
         self.retries = max(0, int(retries))
         self.backoff = backoff
+        self._validate = validate  # False=关闭单位量级/不变量校验（换算仍执行）
         self._sleep = time.sleep  # 测试注入点：不真实等待
         self._token: str = ""
         self._token_exp: float = 0.0
@@ -376,15 +379,21 @@ class Client:
                 args.append(_xs_literal(p["default"]))
         return f"{name}({', '.join(args)})"
 
-    def call(self, name: str, /, _raw: bool = False, _df: bool = False, **kwargs: Any) -> Any:
+    def call(self, name: str, /, _raw: bool = False, _df: bool = False,
+             _units: str = "base", **kwargs: Any) -> Any:
         """按目录合同调用目录内函数：校验参数 → 生成 XS（自动 require + 规范化）→ eval(call)。
 
         选项以下划线开头，避免与 XS 参数名（如 etf_build 的 raw）冲突：
-          _raw=True  跳过 normalize_with，返回 store 原始 Unit
-          _df=True   结果为 list[dict] 时转 pandas.DataFrame（需安装 pandas）
+          _raw=True        跳过 normalize_with 与单位换算，返回 store 原始 Unit
+          _units="native"  保留脚本输出的原有单位（字段名仍规范化）；默认 "base" 把
+                           目录声明的非基础单位换算为小数/元/股，并做量级与不变量校验
+          _df=True         结果为 list[dict] 时转 pandas.DataFrame（需安装 pandas）
         参数合同：优先用域目录精修 params；L1 精简条目回退到 inventory 的签名参数。
         标的参数（sym/symbol/stk）自动归一：去 cn./sh./sz./bj. 前缀与 .SH/.SZ/.BJ 后缀。
         """
+        if _units not in ("base", "native"):
+            raise UsageError('_units 只支持 "base"（默认，换算基础单位）或 "native"（脚本原值）',
+                             code="units")
         fn = self.catalog.function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
         call_line = self._build_call_line(name, params, kwargs)
@@ -400,19 +409,25 @@ class Client:
                 symbol = normalize_symbol(str(kwargs[p["name"]]))
                 break
         result = self.eval_result(xs, symbol=symbol)
+        if not _raw and _units == "base":
+            result = apply_units(result, fn, fname=name, validate=self._validate)
         return _to_dataframe(result) if _df else result
 
     def call_batch(self, name: str, symbols: list[str], /, on_error: str = "raise",
-                   _raw: bool = False, _df: bool = False, **kwargs: Any) -> BatchResult:
+                   _raw: bool = False, _df: bool = False, _units: str = "base",
+                   **kwargs: Any) -> BatchResult:
         """同一目录函数在多个标的上的批量调用。
 
         on_error="raise"（默认）：把所有标的组装成**一次** eval（map 字面量），单次 HTTP；
         任一标的失败则整体抛出（服务端无 try/catch，无法在单次请求内隔离）。
         on_error="skip"：逐标的调用并捕获错误，成功项进 results、失败项进 errors（N 次 HTTP）。
-        _df=True 时对每个成功结果转 DataFrame。
+        _raw/_df/_units 语义与 call() 一致（_units="native" 时跳过单条 HTTP 路径的单位换算）。
         """
         if on_error not in ("raise", "skip"):
             raise UsageError('on_error 只支持 "raise" 或 "skip"', code="params")
+        if _units not in ("base", "native"):
+            raise UsageError('_units 只支持 "base"（默认，换算基础单位）或 "native"（脚本原值）',
+                             code="units")
         fn = self.catalog.function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
         sym_param = next((p["name"] for p in params
@@ -434,7 +449,8 @@ class Client:
             errors: dict[str, str] = {}
             for s in syms:
                 try:
-                    results[s] = self.call(name, _raw=_raw, _df=_df, **kwargs, **{sym_param: s})
+                    results[s] = self.call(name, _raw=_raw, _df=_df, _units=_units,
+                                           **kwargs, **{sym_param: s})
                 except FinPipeError as e:
                     errors[s] = str(e)
             return BatchResult(results=results, errors=errors)
@@ -449,6 +465,9 @@ class Client:
         result = self.eval_result(xs, symbol=syms[0])
         if not isinstance(result, dict):
             raise ApiError(f"{name}: 批量返回不是 MAP（{type(result).__name__}）", code="batch")
+        if not _raw and _units == "base":
+            for s, v in result.items():
+                result[s] = apply_units(v, fn, fname=name, validate=self._validate)
         if _df:
             result = {k: _to_dataframe(v) for k, v in result.items()}
         return BatchResult(results=result)

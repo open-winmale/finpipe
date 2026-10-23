@@ -17,6 +17,7 @@ from typing import Any
 import yaml
 
 from finpipe.errors import CatalogError
+from finpipe.units import _metric_meta_valid, validate_meta
 
 _PACKAGE_CATALOG = Path(__file__).resolve().parent / "_catalog"
 SUPPORTED_SCHEMA_VERSION = 2
@@ -73,8 +74,21 @@ class Catalog:
                 self._yaml_functions[fn["name"]] = fn
         # 两阶段：先收集全部 YAML 函数，再合并；这样 normalize_with 可以
         # 读取到同域内尚未合并的格式化函数 shape。
+        self._metric_meta: dict[str, dict] = {}
+        for doc in docs:
+            for g in doc.get("metric_groups") or []:
+                for m in g.get("metrics") or []:
+                    if m.get("unit") or m.get("range"):
+                        meta = {"unit": m.get("unit"), "range": m.get("range"),
+                                "group": g["id"], "cn": m.get("cn", "")}
+                        _metric_meta_valid(meta, m["code"])
+                        self._metric_meta[m["code"]] = meta
         for doc in docs:
             for fn in doc.get("functions") or []:
+                meta = {"units": fn.get("units"), "ranges": fn.get("ranges"),
+                        "checks": fn.get("checks")}
+                if any(meta.values()):
+                    validate_meta(meta, fn["name"])
                 merged = self._merge_with_inventory(fn, doc["id"])
                 self._functions[fn["name"]] = merged
                 self._fn_domain[fn["name"]] = doc
@@ -124,8 +138,16 @@ class Catalog:
                 f"未知函数 {name!r}；目录共 {len(self._functions)} 条", code="function") from None
 
     def metric(self, code: str) -> dict | None:
-        """按代码取指标（O(1) 索引，2197 条不逐项扫描）。"""
-        return self._metric_by_code.get(code)
+        """按代码取指标（O(1) 索引，2197 条不逐项扫描）。精选组条目带 unit/range 声明。"""
+        base = self._metric_by_code.get(code)
+        meta = self._metric_meta.get(code)
+        if meta and base:
+            return {**base, **meta, "cn": base.get("cn") or meta["cn"]}
+        return meta or base
+
+    def metric_meta(self, code: str) -> dict | None:
+        """精选指标的单位/范围声明（unit/range/group），非精选代码返回 None。"""
+        return self._metric_meta.get(code)
 
     def metrics_in_group(self, group_id: str) -> list[dict]:
         """某指标组的全部指标（code/cn），如 metrics_in_group("valuation")。"""

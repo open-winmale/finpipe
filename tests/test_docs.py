@@ -28,7 +28,7 @@ CAT = load()
 CORE_ROW = re.compile(
     r"^\| `cli\.(\w+)\.(\w+)\(\.\.\.\)` \| (.*?) \| `([^`]*)` \| (.*?) \| `(cli\.[^`]*)` \|$")
 GROUP_HEAD = re.compile(r"^#### 指标组 (.+?)（([\w.]+)）$")
-GROUP_ROW = re.compile(r"^\| `(\$[\w.]+)` \| (.*?) \|$")
+GROUP_ROW = re.compile(r"^\| `(\$[\w.]+)` \| (.*?) \| (.*?) \|$")
 FN_ROW = re.compile(r"^\| `([a-z][\w]*\.[a-z][\w]*)` \| (.*?) \| (?:原始数据|指标) \|")
 
 
@@ -158,7 +158,7 @@ def test_indicator_units_documented_as_decimal():
 
 
 def test_api_md_metric_groups_match_catalog():
-    doc_groups: dict[str, list[tuple[str, str]]] = {}
+    doc_groups: dict[str, list[tuple[str, str, str]]] = {}
     current = None
     for line in API_MD.splitlines():
         m = GROUP_HEAD.match(line)
@@ -170,7 +170,7 @@ def test_api_md_metric_groups_match_catalog():
             current = None
             continue
         if current and (g := GROUP_ROW.match(line)):
-            doc_groups[current].append((g.group(1), g.group(2)))
+            doc_groups[current].append((g.group(1), g.group(2), g.group(3).strip()))
 
     catalog_groups = {}
     for d in CAT.domains.values():
@@ -179,7 +179,17 @@ def test_api_md_metric_groups_match_catalog():
 
     assert set(doc_groups) == set(catalog_groups), "指标组集合不一致"
     for gid, pairs in catalog_groups.items():
-        assert doc_groups[gid] == pairs, f"指标组 {gid} 的指标代码/中文名与目录不一致"
+        got = [(c, cn) for c, cn, _ in doc_groups[gid]]
+        assert got == pairs, f"指标组 {gid} 的指标代码/中文名与目录不一致"
+        # 守护列：目录声明了 range/unit 的指标，文档必须带守护标注（反之不得空穴来风）
+        by_code = {m["code"]: m for d in CAT.domains.values()
+                   for g in d.get("metric_groups") or [] for m in g.get("metrics") or []}
+        for code, _, guard in doc_groups[gid]:
+            m = by_code[code]
+            if m.get("range") or m.get("unit"):
+                assert guard, f"{code} 目录声明了守护，文档守护列为空"
+            else:
+                assert not guard, f"{code} 目录无守护声明，文档却写了：{guard}"
 
 
 def visible_catalog_functions(cat) -> list[str]:
@@ -210,17 +220,99 @@ def test_api_md_examples_execute(cli):
         eval(example, {"cli": cli})  # noqa: S307 - 文档内生成的示例，受仓库控制
 
 
-def test_readme_python_blocks_execute(cli):
+class ReadmeClient:
+    """README 示例执行用的罐头客户端：返回值与示例注释里的预期输出同量级。
+
+    与 test_units.py 的罐头数据同源（真实 probe 样本），保证注释值不腐烂。
+    """
+
+    INDICATORS = {"$PCT_PE_TTM_10Y_LAST": 0.42, "$CUR_IND_ROE_PCT_LAST": 0.08,
+                  "$PE_TTM_LAST": 25.5}
+
+    def __init__(self):
+        import types
+        self.kline = types.SimpleNamespace(
+            bars=lambda *a, **k: [{"date": "2026-10-20", "close": 1331.88,
+                                   "volume": 3413500.0, "amount": 4525398959.0,
+                                   "percent": 0.005215}],
+            screen_above_ma20=lambda *a, **k: True,
+            index_breadth_summary=lambda *a, **k: {"up": 3200, "down": 2100},
+        )
+        self.dividend = types.SimpleNamespace(
+            yield_ttm=lambda *a, **k: 0.0396,
+            screen_quality=lambda *a, **k: True,
+            history=lambda *a, **k: [],
+        )
+        self.indicator = types.SimpleNamespace(
+            get=lambda sym, code: self.INDICATORS.get(code, 0.5),
+        )
+        self.notice = types.SimpleNamespace(
+            list=lambda *a, **k: [],
+            has_buyback=lambda *a, **k: True,
+        )
+        self.statements = types.SimpleNamespace(
+            income=lambda *a, **k: [], compare=lambda *a, **k: [],
+        )
+        self.info = types.SimpleNamespace(profile=lambda *a, **k: {})
+
+    @classmethod
+    def from_env(cls, *a, **k):
+        return cls()
+
+    def call(self, name, **kw):
+        return []
+
+
+@pytest.fixture(scope="module")
+def readme_cli():
+    return ReadmeClient()
+
+
+def test_readme_python_blocks_execute(readme_cli):
+    import textwrap
+
     import finpipe
     blocks = re.findall(r"```python\n(.*?)```", README, re.S)
     assert blocks, "README 缺少 python 示例"
     original = finpipe.Client
-    finpipe.Client = lambda *a, **k: cli  # 示例里的构造不访问网络
+    finpipe.Client = type("PatchedClient", (ReadmeClient,), {})  # from_env/构造都不联网
     try:
         for block in blocks:
-            exec(compile(block, "README.md", "exec"), {"__name__": "__readme__"})
+            exec(compile(textwrap.dedent(block), "README.md", "exec"),
+                 {"__name__": "__readme__"})
     finally:
         finpipe.Client = original
+
+
+def test_readme_example_outputs_documented():
+    """示例注释里的预期输出必须与罐头数据同值——注释值从此有测试守护。"""
+    pairs = [("yield_ttm", "0.0396"),
+             ("$PCT_PE_TTM_10Y_LAST", "0.42"),
+             ("$CUR_IND_ROE_PCT_LAST", "0.08")]
+    for call, value in pairs:
+        line = next((ln for ln in README.splitlines() if call in ln and value in ln), None)
+        assert line is not None, f"README 示例缺少 {call} 与预期输出 {value} 的对应注释"
+
+
+def test_readme_units_and_guards_documented():
+    """基础单位与数据正确性承诺必须在 README 成文（单位事故防线的一部分）。"""
+    for kw in ("数据正确性保障", "DataError", '_units="native"', "validate=False",
+               "指标体系：算好的增值数据", "分位计算", "专业的股息计算"):
+        assert kw in README, f"README 缺少关键内容：{kw}"
+    assert "量=手" not in README and "volume in lots" not in README, \
+        "成交量已统一为股，README 不得再写手"
+    # API.md 同步：catalog 章节存在、旧口径文案绝迹
+    assert "数据目录（离线）" in API_MD and "cat.search" in API_MD
+    assert "差额 / 合并值 × 100" not in API_MD
+    assert "diffp ≈ 差额/合并值" in README or "diffp ≈" in README
+
+
+def test_readme_catalog_references_valid():
+    """行内 `cat.xxx(...)` 引用必须是 Catalog 真实方法（防止文档凭空写方法名）。"""
+    from finpipe.catalog import Catalog
+    for meth in set(re.findall(r"cat\.(\w+)\(", README)):
+        assert meth == "load" or callable(getattr(Catalog, meth, None)), \
+            f"README 引用了不存在的目录方法 cat.{meth}()"
 
 
 def test_quickstart_calls_are_valid():
@@ -278,15 +370,17 @@ def test_unit_wording_matches_catalog():
     assert not problems, problems
 
 
-def test_readme_references_are_valid():
+def test_readme_references_are_valid(cli):
     # 指标代码必须存在于指标目录
     codes = set(re.findall(r"\$[A-Za-z_][A-Za-z0-9_]*", README))
     metrics = {m["code"] for m in CAT.metrics["metrics"]}
     assert codes <= metrics, f"README 引用了不存在的指标代码：{codes - metrics}"
-    # cli.ns.method 必须真实存在
+    # cli.ns.method 必须运行时可触达：显式方法或目录动态委托（与真实语义一致）
     for ns, method in set(re.findall(r"cli\.(\w+)\.(\w+)\(", README)):
-        cls = FRIENDLY_NAMESPACES.get(ns) or GENERATED_NAMESPACES.get(ns)
-        assert cls is not None and hasattr(cls, method), f"README 引用了不存在的接口 {ns}.{method}"
+        try:
+            getattr(getattr(cli, ns), method)
+        except AttributeError:
+            raise AssertionError(f"README 引用了不存在的接口 {ns}.{method}") from None
     # 反引号里的域 id 必须存在
     for dom in re.findall(r"`([a-z]+\.[a-z_]+)`", README):
         if dom.split(".")[0] in {d.split(".")[0] for d in CAT.domains}:

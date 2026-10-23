@@ -49,6 +49,19 @@ def gh_slug(title: str) -> str:
 
 
 TYPE_SHORT = {"float64": "float", "int64": "int"}
+UNIT_CN = {"percent": "百分数→小数", "yi_yuan": "亿元→元", "lot": "手→股"}
+
+
+def fmt_guards(fn: dict) -> str:
+    """单位换算与守护声明的紧凑渲染（无声明时为 —）。"""
+    parts = [f"`{f}`:{UNIT_CN[u]}" for f, u in (fn.get("units") or {}).items()]
+    rng = fn.get("ranges") or {}
+    if rng:
+        parts.append("量级界 " + "、".join(f"`{f}`" for f in rng))
+    checks = [f"`{c}`" for c in fn.get("checks") or []]
+    if checks:
+        parts.append("不变量 " + "、".join(checks))
+    return "；".join(parts) if parts else "—"
 
 
 def fmt_params(fn: dict, inv: dict) -> str:
@@ -199,9 +212,14 @@ def metric_groups_lines(doc: dict) -> list[str]:
         lines.append(f"#### 指标组 {g['cn']}（{g['id']}）")
         lines.append(f"{esc(g['caliber'])}" + (f"（单位 {esc(g['unit'])}）" if g.get("unit") else ""))
         lines.append("")
-        lines += ["| 指标代码 | 中文名 |", "|---|---|"]
+        lines += ["| 指标代码 | 中文名 | 量级守护 |", "|---|---|---|"]
         for m in g.get("metrics") or []:
-            lines.append(f"| `{m['code']}` | {esc(m.get('cn', ''))} |")
+            guard = ""
+            if m.get("unit") or m.get("range"):
+                unit = UNIT_CN.get(m.get("unit", ""), "")
+                rng = f"范围 {m['range'][0]}…{m['range'][1]}" if m.get("range") else ""
+                guard = " · ".join(x for x in (unit, rng) if x)
+            lines.append(f"| `{m['code']}` | {esc(m.get('cn', ''))} | {guard} |")
         lines.append("")
     return lines
 
@@ -225,7 +243,8 @@ def render_domain(doc: dict) -> list[str]:
 
     fns = [f for f in (doc.get("functions") or []) if not doc_hidden(f)]
     if fns:
-        lines += ["| 函数 | 中文 | 性质 | 层 | 参数 | 返回 |", "|---|---|---|---|---|---|"]
+        lines += ["| 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |",
+                  "|---|---|---|---|---|---|---|"]
         for fn in fns:
             inv = INV.get(fn["name"], {})
             k = fn.get("kind") or kind
@@ -240,7 +259,7 @@ def render_domain(doc: dict) -> list[str]:
             status = f" ({fn['status']})" if fn.get("status") and fn["status"] != "stable" else ""
             lines.append(
                 f"| `{fn['name']}` | {esc(fn['cn'])} | {KIND_CN.get(k, k)} | {fn['layer']}{status} | "
-                f"{fmt_params(fn, inv)} | {fmt_returns(fn, inv, shape=shape)} |"
+                f"{fmt_params(fn, inv)} | {fmt_returns(fn, inv, shape=shape)} | {fmt_guards(fn)} |"
                 + (f" 例：`{esc(ex)}`" if ex else ""))
         lines.append("")
         hidden_n = len(doc.get("functions") or []) - len(fns)
@@ -295,6 +314,10 @@ def build() -> str:
         "错误消息会给出申请自己的 AppID 的步骤，详见 README「免费额度与凭证」。",
         "- **目录随包、离线可查**：全部函数与指标代码随 wheel 分发；命名空间带类型签名"
         "（`py.typed`），IDE 直接补全。",
+        "- **单位统一 + 数据守护**：返回值统一基础单位（比率/涨跌幅=小数、金额/市值=元、"
+        "A 股成交量=股）；每次返回前按目录声明做量级守护与关系不变量校验，违例抛 "
+        "`DataError` 而非交给你错误量级的数据。取原始口径：`_raw=True`（store 原始行）、"
+        "`_units=\"native\"`（脚本输出单位）、`Client(validate=False)`（关校验留换算）。",
         "",
     ]
     out += overview_table(docs)
@@ -310,7 +333,34 @@ def build() -> str:
     for cat in CATEGORY_ORDER:
         cells = ", ".join(f"`{d['id']}`（{d['cn']}）" for d in by_cat[cat])
         out.append(f"| **{CATEGORY_CN[cat]}** | {cells} |")
-    out.append("")
+    out += [
+        "",
+        "## 数据目录（离线）",
+        "",
+        "目录随包分发、纯本地读取（零网络）：",
+        "",
+        "```python",
+        "import finpipe",
+        "",
+        "cat = finpipe.load()          # 数据目录对象（离线，不产生任何请求）",
+        "hits = cat.search(\"股息\")     # 跨函数 + 指标代码混合检索（默认返回 ≤20 条）",
+        "cat.function(\"bonus.snapshot_yield_ttm\")[\"params\"]   # 函数合同：参数/返回/示例",
+        "```",
+        "",
+        "| 方法 | 说明 |", "|---|---|",
+        f"| `cat.function(name)` | 函数合同：params / returns_shape / 单位与守护声明 / 示例 |",
+        "| `cat.domain(id)` | 域合同：描述 / 单位口径 / notes |",
+        "| `cat.metric(code)` | 指标条目（精选组带单位与守护声明） |",
+        "| `cat.metric_meta(code)` | 精选指标的单位换算 / 量级守护声明 |",
+        "| `cat.metric_groups()` | 全部指标组摘要（id / cn / 数量） |",
+        "| `cat.metrics_in_group(group)` | 组内全部精选指标 |",
+        f"| `cat.search(query, kind=, limit=)` | 函数 + 指标混合检索（kind: all/function/metric） |",
+        "| `cat.functions_by_domain()` | 域 → 函数名清单 |",
+        "| `cat.namespaces()` | 全部 XS 命名空间 |",
+        "| `cat.inventory_params(name)` | 底层签名参数（L1 精简条目兜底） |",
+        "| `cat.stats()` | 域 / 函数 / 指标计数与 upstream rev |",
+        "",
+    ]
 
     for cat in CATEGORY_ORDER:
         out.append(f"## {CATEGORY_CN[cat]}")

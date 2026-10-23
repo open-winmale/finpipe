@@ -1,5 +1,5 @@
 id: fund.statements
-version: 1.1.2
+version: 1.2.0
 cn: 财务报表
 kind: raw
 category: fundamentals
@@ -10,6 +10,7 @@ description: 三大报表科目原值（资产负债 / 利润 / 现金流）多�
 data_origin: [定期报告披露原值, 外部数据服务(主要指标)]
 units:
   amount: 报表原币（CN=元，HK=港币，US=美元）
+  ratio: 小数（compare 的差额占比已由 SDK 从百分数换算；树视图 pct 行为原生百分数未换算）
   period: 报告期（年-采样，如 2024-Q4 / 2024 年报）
 requires: {path: sys/rptdom/init.xs, preloaded: false}
 stores: [fin.balance, fin.income, fin.cashflow, fin.indicator]
@@ -47,7 +48,12 @@ functions:
       - {name: opts, type: object, required: false, desc: 同 statement（差额/差额占比%为派生计算）}
     returns: {desc: 'ARR · 科目行 + 合并/母公司/差额/差额占比'}
     example: 'rptdom.statement_compare("600519", "fin.income_statement", {"n": 2})'
-    notes: ['差额占比 = 差额 / 合并值（百分数）；母公司未披露的科目差额为空']
+    units: {diffp: percent}
+    checks: [diffp_ratio]
+    notes: ['差额占比 diffp = 差额 / 合并值，SDK 已由脚本百分数换算为小数（0.078 = 7.8%）；
+      母公司未披露的科目差额为空；_units="native"/_raw=True 取脚本原值（百分数）。
+      守护用精确不变量 diffp_ratio（diffp≈diff/合并值）而非量级范围：合并值≈0 的科目
+      diffp 会合法地极大，范围界必然误报']
   - name: rptdom.statement_tree
     cn: 三表目录树视图（树序 + 比率/占比行）
     kind: raw
@@ -58,7 +64,9 @@ functions:
       - {name: opts, type: object, required: false, desc: 同 statement}
     returns: {desc: ARR · 树序科目行；含派生比率行（LD/IBD_RATE/GM 等 pct 行）}
     example: 'rptdom.statement_tree("600519", "fin.balance_sheet", {"scope": "合并", "n": 5})'
-    notes: ['主体为披露原值科目；drv 派生行（比率/合计）为计算值，行内可辨']
+    notes: ['主体为披露原值科目；drv 派生行为计算值，数值口径按行内标记区分：
+      pct 行 vals 为原生百分数（未换算，如 DART 16.4 = 16.4%）、fmt="x" 行为倍数、
+      其余科目行为报表原币元——树视图适合展示核对，跨接口运算请用 statement_compare']
   - name: rptdom.statement_audit
     cn: 审计意见（Q4 年轴）
     kind: raw

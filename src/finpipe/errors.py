@@ -57,5 +57,15 @@ class ApiError(FinPipeError):
     """服务端返回业务错误（success=false 或其他 4xx）。"""
 
 
+class DataError(FinPipeError):
+    """返回数据未通过单位量级守护或关系不变量校验（code="range" / "invariant"）。
+
+    换算声明与实际数据不符、上游口径变化都会在这里暴露，而不是把错误量级的
+    数据静默交给用户。消息包含字段/实际值/期望范围与逃生口：
+    ``_raw=True``（store 原始行）、``_units="native"``（保留脚本输出单位）、
+    ``Client(validate=False)``（关闭校验、保留换算）。
+    """
+
+
 class CatalogError(FinPipeError, KeyError):
     """目录中不存在该函数/域/指标/不兼容版本（同时兼容 KeyError 捕获）。"""

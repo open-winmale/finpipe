@@ -5,7 +5,9 @@
     pytest tests/test_live.py
 
 覆盖：友好层 FRIENDLY_INDEX 的每个核心接口至少一条真实调用；K 线/资金流额外做
-多标的（沪深主板 + 创业板）校验，断言数值口径而非仅类型。
+多标的（沪深主板 + 创业板）校验，断言数值口径而非仅类型。单位口径守护为**关系型
+不变量**并参数化跑样本宇宙（不同板块/行业/规模 + 一只 ETF），不绑定任何单一公司
+的绝对量级。
 
 已知服务端不可用（2026-10-22 实测，两套凭证均 403 POLICY_DENIED，非 SDK 问题）：
 kline.live / kline.is_etf / kline.query_bars_live —— 以 strict xfail 标记，
@@ -24,6 +26,10 @@ pytestmark = pytest.mark.skipif(
 
 SYMBOLS = ["600519", "000001", "300750"]
 MAIN = SYMBOLS[0]
+
+# 单位审计样本宇宙：大市值消费 / 金融 / 创业板制造 / 科创板 / 高杠杆周期 + ETF
+UNIVERSE = ["600519", "601318", "300750", "688981", "601857"]
+ETF = "510300"
 
 BLOCKED_REASON = ("服务端间歇性 403 POLICY_DENIED（state.write.runtime）："
                   "kline live/is_etf 路由偶发被拒，待上游修复")
@@ -153,14 +159,19 @@ def test_statements_compare_tree_years(cli):
     assert {"c", "p", "diff", "diffp", "k"} <= set(cmp_rows[0])
     diff_rows = [r for r in cmp_rows if r.get("diff")]
     assert diff_rows, "资产负债表应有部分科目可比出差额"
-    # 差额占比 = 差额 / 合并值 × 100
+    # 差额占比为小数：diffp = diff / 合并值（SDK 已由脚本百分数自动 ÷100）
     r = diff_rows[0]
     year = sorted(r["diff"])[0]
-    assert abs(r["diffp"][year] - r["diff"][year] / r["c"][year] * 100) < 1e-6
+    assert abs(r["diffp"][year] - r["diff"][year] / r["c"][year]) < 1e-6
 
     tree = cli.statements.tree(MAIN, "balance", years=2)
     assert isinstance(tree, list) and tree
     assert {"k", "cn", "vals"} <= set(tree[0])
+    # 树视图派生行保留原生口径：pct 行为百分数（如 DART 16.4 = 16.4%）
+    dart = next((x for x in tree if x.get("k") == "DART" and x.get("vals")), None)
+    if dart:
+        v = next(iter(dart["vals"].values()))
+        assert v > 1, f"资产负债率 pct 行应为百分数口径，实际 {v}"
 
     years = cli.statements.years(MAIN, "income")
     assert isinstance(years, list) and years
@@ -299,6 +310,74 @@ def test_info_profile(cli):
     assert prof.get("industry")
 
 
+# ---------------------------------------------------------------- 单位口径：样本宇宙关系型不变量
+@pytest.mark.parametrize("symbol", [*UNIVERSE, ETF])
+def test_universe_invariants(cli, symbol):
+    """每家样本公司一组调用（3 次 HTTP），全部关系型断言——不绑定任何单一公司量级：
+
+    - volume(股)×close ≈ amount(元)（ETF 与个股同口径）
+    - $MV_FREE_LAST ≤ $MV_LAST；分位 [0,1]；ROE 小数量级
+    - $AMOUNT_LAST 与日 K amount 同量级（同为中心元，容时间戳差）
+    - dividend.yield_ttm == $BONUS_RATE_TTM_LAST（分红公司跨接口恒等）
+    运行时量级守护（声明 range）已内置于这些调用，未抛 DataError 本身即一项通过。
+    """
+    metrics_only = symbol == ETF
+    codes = ["$MV_LAST", "$MV_FREE_LAST", "$AMOUNT_LAST", "$BONUS_RATE_TTM_LAST",
+             "$PCT_PE_TTM_10Y_LAST", "$ROE_TTM_LAST"]
+    m = {} if metrics_only else cli.indicator.metrics(symbol, codes)
+
+    bars = cli.kline.bars(symbol, n=3)
+    bar = bars[-1]
+    v, c, a = bar["volume"], bar["close"], bar["amount"]
+    assert v * c / a == pytest.approx(1.0, abs=1.5), \
+        f"{symbol}: volume×close/amount={v * c / a:.4f}（volume 应为股、amount 应为元）"
+
+    if metrics_only:
+        return
+    if _is_num(m.get("$MV_FREE_LAST")) and _is_num(m.get("$MV_LAST")):
+        assert m["$MV_FREE_LAST"] <= m["$MV_LAST"] * 1.01, f"{symbol}: 流通市值 > 总市值"
+    pct = m.get("$PCT_PE_TTM_10Y_LAST")
+    if _is_num(pct):
+        assert 0 <= pct <= 1, f"{symbol}: 10 年分位应为 [0,1] 小数，实际 {pct}"
+    roe = m.get("$ROE_TTM_LAST")
+    if _is_num(roe):
+        assert -20 < roe < 20, f"{symbol}: ROE 应为小数量级，实际 {roe}"
+    scale = m["$AMOUNT_LAST"] / a
+    assert 0.02 < scale < 50, f"{symbol}: $AMOUNT_LAST/bars.amount={scale:.3g}，量级不一致"
+    rate = m.get("$BONUS_RATE_TTM_LAST")
+    if _is_num(rate) and rate > 0:  # 未分红公司跳过恒等式
+        y = cli.dividend.yield_ttm(symbol)
+        assert y == pytest.approx(rate, abs=1e-9), \
+            f"{symbol}: yield_ttm={y} != $BONUS_RATE_TTM_LAST={rate}"
+
+
+def test_forecast_amp_is_decimal(cli):
+    """预告幅度已由 SDK 换算为小数：|amp| 远小于百分数口径（预增 153.6% → 1.536）。"""
+    rows = cli.forecast.yjyg("688008", limit=2)  # 样本期内有预告的标的
+    amps = [r[k] for r in rows for k in ("np_amp_lower", "np_amp_upper")
+            if _is_num(r.get(k))]
+    assert amps, "样本应包含预告幅度字段"
+    assert all(abs(a) < 20 for a in amps), f"预告幅度应为小数口径，实际 {amps}"
+
+
+def test_yjkb_yoy_matches_underlying(cli):
+    """快报同比为小数且与行内金额自洽：np_yoy ≈ netprofit/netprofit_ly - 1。"""
+    rows = cli.forecast.yjkb("603092", limit=1)
+    assert rows
+    r = rows[0]
+    if _is_num(r.get("np_yoy")) and r.get("netprofit") and r.get("netprofit_ly"):
+        expected = r["netprofit"] / r["netprofit_ly"] - 1
+        assert r["np_yoy"] == pytest.approx(expected, rel=0.01), \
+            f"np_yoy={r['np_yoy']} 与金额同比 {expected:.4f} 不一致"
+
+
+def test_kline_volume_native_escape(cli):
+    """逃生口语义：_units="native" 返回脚本原生单位（手），与默认（股）差 ×100。"""
+    base = cli.kline.bars(MAIN, n=1)[0]
+    native = cli.call("kline.query_bars", sym=MAIN, limit=1, _units="native")
+    row = native[0] if isinstance(native, list) else native
+    assert row["volume"] * 100 == pytest.approx(base["volume"], rel=1e-9), \
+        "native 应为手原值、默认应为股（×100）"
 # ---------------------------------------------------------------- 覆盖面守护
 def test_all_core_interfaces_are_exercised_here():
     """本文件必须覆盖 FRIENDLY_INDEX 的每个核心接口（防冒烟面回退）。"""

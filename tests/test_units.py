@@ -1,0 +1,249 @@
+"""单位契约层：目录声明 → 单点换算 + 量级/不变量守护。
+
+全部离线（可编排 FakeSession 回放罐头数据，数值取自真实 probe 样本）。
+"""
+import pytest
+
+from finpipe.catalog import load
+from finpipe.client import Client
+from finpipe.errors import CatalogError, DataError
+from finpipe.units import apply_units, convert_field, validate_meta
+
+# 与 tests/test_transport.py 同款最小回放会话：eval 恒返回罐头结果。
+BAR = {"date": "2026-10-20", "open": 1321.01, "high": 1335, "low": 1316.14,
+       "close": 1331.88, "volume": 34135, "amount": 4525398959.0, "percent": 0.005215}
+COMPARE_ROW = {"cn": "营业成本", "k": "operating_cost", "t": 1,
+               "c": {"2025": 14892277570.91}, "p": {"2025": 16048785720.71},
+               "diff": {"2025": -1156508149.8}, "diffp": {"2025": -7.765824564397575}}
+YJYG_ROW = {"ann_date": "2026-10-21", "predict_type": "预增",
+            "np_amp_lower": 153.6, "np_amp_upper": 174.7,
+            "rev_amp_lower": 46.0, "rev_amp_upper": 46.0,
+            "np_lower": 1200000000, "np_upper": 1300000000}
+YJKB_ROW = {"ann_date": "2026-10-21", "basic_eps": 1.5778, "bvps": 14.8,
+            "np_yoy": 0.200365203859, "rev_yoy": -0.478779830389, "roe": 11.28,
+            "netprofit": 631114132.36}
+
+
+class CannedSession:
+    """eval 每次返回 result 的深拷贝（模拟真实 HTTP：每次全新 JSON，允许就地换算）。"""
+
+    def __init__(self, result):
+        self.result = result
+        self.calls = []
+
+    def post(self, url, json=None, data=None, headers=None, timeout=None):
+        self.calls.append(url)
+        if url.endswith("/v1/oauth/token"):
+            return Resp({"data": {"access_token": "tok", "expires_in": 3600}})
+        import copy
+        return Resp({"success": True, "data": {"result": copy.deepcopy(self.result)}})
+
+
+class Resp:
+    def __init__(self, body):
+        self.status_code = 200
+        self._body = body
+        self.headers = {}
+        self.text = "{}"
+
+    def json(self):
+        return self._body
+
+
+def make(result, **kw):
+    s = CannedSession(result)
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=s, **kw)
+    return c, s
+
+
+# ---- call() 换算 ----
+
+def test_kline_volume_lot_converted_to_shares():
+    c, _ = make([dict(BAR)])
+    out = c.call("kline.query_bars", sym="600519", limit=1)
+    assert out[0]["volume"] == 3413500.0  # 手 → 股
+    assert out[0]["close"] == BAR["close"]  # 基础单位字段不动
+
+
+def test_volume_amount_invariant_passes_and_violates():
+    c, _ = make([dict(BAR)])
+    c.call("kline.query_bars", sym="600519", limit=1)  # 不抛 = 不变量通过
+
+    bad = dict(BAR, volume=3413500.0)  # 已是股的值再被换算一次 → ×100 偏离
+    c2, _ = make([bad])
+    with pytest.raises(DataError, match="volume_amount"):
+        c2.call("kline.query_bars", sym="600519", limit=1)
+
+
+def test_invariant_message_carries_escape_hatch():
+    c, _ = make([dict(BAR, volume=3413500.0)])
+    with pytest.raises(DataError) as ei:
+        c.call("kline.query_bars", sym="600519", limit=1)
+    msg = str(ei.value)
+    assert "_raw=True" in msg and 'native' in msg and "validate=False" in msg
+    assert ei.value.code == "invariant"
+
+
+def test_range_guard_raises_data_error():
+    c, _ = make([dict(BAR, percent=123.0)])  # 换算后超出 [-1, 30]
+    with pytest.raises(DataError, match="超出声明范围") as ei:
+        c.call("kline.query_bars", sym="600519", limit=1)
+    assert ei.value.code == "range"
+
+
+def test_diffp_converted_to_decimal_and_invariant():
+    c, _ = make([dict(COMPARE_ROW)])
+    out = c.statements.compare("600519", kind="income", years=1)
+    assert out[0]["diffp"]["2025"] == pytest.approx(-0.07765824564397575)
+    # 同源数据必然满足 diffp ≈ diff/c（不变量在换算后执行）
+
+    wrong = dict(COMPARE_ROW, diffp={"2025": -1.5})
+    c2, _ = make([wrong])
+    with pytest.raises(DataError, match="diffp_ratio"):
+        c2.statements.compare("600519", kind="income", years=1)
+
+
+def test_yjyg_amp_percent_converted():
+    c, _ = make([dict(YJYG_ROW)])
+    out = c.call("forecast.yjyg_rows", sym="688008", limit=1)
+    assert out[0]["np_amp_lower"] == pytest.approx(1.536)
+    assert out[0]["rev_amp_upper"] == pytest.approx(0.46)
+    assert out[0]["np_lower"] == 1200000000  # 金额已是元
+
+
+def test_yjkb_yoy_and_roe_converted():
+    c, _ = make([dict(YJKB_ROW)])
+    out = c.call("forecast.yjkb_rows", sym="603092", limit=1)
+    assert out[0]["np_yoy"] == pytest.approx(0.00200365203859)
+    assert out[0]["roe"] == pytest.approx(0.1128)
+    assert out[0]["netprofit"] == YJKB_ROW["netprofit"]
+
+
+def test_snapshot_nested_container_converted():
+    snap = {"symbol": "688008", "next_disclosure": {"report_date": "2026-09-30"},
+            "yjyg": dict(YJYG_ROW), "yjkb": dict(YJKB_ROW)}
+    c, _ = make(dict(snap))
+    out = c.call("forecast.snapshot", sym="688008")
+    assert out["yjyg"]["np_amp_upper"] == pytest.approx(1.747)
+    assert out["yjkb"]["roe"] == pytest.approx(0.1128)
+    assert out["next_disclosure"]["report_date"] == "2026-09-30"
+
+
+# ---- 参数语义：native / raw / validate=False ----
+
+def test_units_native_keeps_script_values():
+    c, _ = make([dict(YJYG_ROW)])
+    out = c.call("forecast.yjyg_rows", sym="688008", limit=1, _units="native")
+    assert out[0]["np_amp_lower"] == 153.6  # 脚本原值（百分数），字段名仍规范化
+
+
+def test_units_native_skips_validation_too():
+    c, _ = make([dict(BAR, volume=3413500.0)])
+    out = c.call("kline.query_bars", sym="600519", limit=1, _units="native")
+    assert out[0]["volume"] == 3413500.0  # 不换算也不守护
+
+
+def test_raw_skips_everything():
+    c, _ = make([dict(YJYG_ROW)])
+    out = c.call("forecast.yjyg_rows", sym="688008", limit=1, _raw=True)
+    assert out[0]["np_amp_lower"] == 153.6
+
+
+def test_validate_false_keeps_conversion_skips_checks():
+    c, _ = make([dict(BAR, volume=3413500.0)], validate=False)
+    out = c.call("kline.query_bars", sym="600519", limit=1)
+    assert out[0]["volume"] == 341350000.0  # 换算仍执行
+    # 不抛：volume_amount 不变量被关闭
+
+
+def test_invalid_units_token_rejected():
+    c, _ = make([dict(BAR)])
+    with pytest.raises(Exception, match='_units'):
+        c.call("kline.query_bars", sym="600519", limit=1, _units="foo")
+
+
+# ---- call_batch 两条路径 ----
+
+def _two_symbol_result():
+    return {"600519": dict(BAR), "000001": dict(BAR)}
+
+
+def test_call_batch_map_path_converts():
+    c, _ = make(_two_symbol_result())
+    out = c.call_batch("kline.query_bars", ["600519", "000001"], limit=1)
+    assert out.results["600519"]["volume"] == 3413500.0
+    assert out.results["000001"]["volume"] == 3413500.0
+
+
+def test_call_batch_skip_path_converts_and_isolates():
+    c, _ = make(dict(BAR))  # skip 路径逐标的单 HTTP，罐头为单行
+    out = c.call_batch("kline.query_bars", ["600519", "000001"], limit=1, on_error="skip")
+    assert not out.errors
+    assert all(r["volume"] == 3413500.0 for r in out.results.values())
+
+
+def test_call_batch_native_keeps_raw():
+    c, _ = make(_two_symbol_result())
+    out = c.call_batch("kline.query_bars", ["600519"], limit=1, _units="native")
+    assert out.results["600519"]["volume"] == 34135
+
+
+# ---- IndicatorApi：精选指标 range 守护 ----
+
+def test_indicator_get_range_guard():
+    c, _ = make(0.42)
+    assert c.indicator.get("600519", "$PCT_PE_TTM_10Y_LAST") == 0.42
+    c2, _ = make(42.0)  # ×100 量级 → 超出 [0, 1]
+    with pytest.raises(DataError, match="PCT_PE_TTM_10Y"):
+        c2.indicator.get("600519", "$PCT_PE_TTM_10Y_LAST")
+
+
+def test_indicator_metrics_none_and_unmeta_codes():
+    c, _ = make({"$GM": None, "$PE_TTM_LAST": 25.5})
+    out = c.indicator.metrics("601318", ["$GM", "$PE_TTM_LAST"])
+    assert out["$GM"] is None          # None 原样透传
+    assert out["$PE_TTM_LAST"] == 25.5  # 未声明 range 的代码不守护
+
+
+def test_indicator_range_violation_in_batch():
+    c, _ = make({"$ROE_TTM_LAST": 3324.0})  # ×100 量级
+    with pytest.raises(DataError, match="ROE_TTM"):
+        c.indicator.metrics("600519", ["$ROE_TTM_LAST"])
+
+
+# ---- 目录透传与声明自检 ----
+
+def test_catalog_passthrough_and_metric_meta():
+    cat = load()
+    kb = cat.function("kline.query_bars")
+    assert kb["units"] == {"volume": "lot"} and kb["checks"] == ["volume_amount"]
+    sc = cat.function("rptdom.statement_compare")
+    assert sc["units"] == {"diffp": "percent"} and sc["checks"] == ["diffp_ratio"]
+    assert cat.metric_meta("$ROE_TTM_LAST")["range"] == [-20, 20]
+    m = cat.metric("$ROE_TTM_LAST")
+    assert m["code"] == "$ROE_TTM_LAST" and m["range"] == [-20, 20]
+    assert cat.metric_meta("$ACC") is None  # 非精选代码无声明
+
+
+def test_validate_meta_rejects_bad_declarations():
+    with pytest.raises(CatalogError, match="单位声明"):
+        validate_meta({"units": {"x": "liang"}}, "demo")
+    with pytest.raises(CatalogError, match="不在注册表"):
+        validate_meta({"checks": ["nope"]}, "demo")
+    with pytest.raises(CatalogError, match="range"):
+        validate_meta({"ranges": {"x": [3, 1]}}, "demo")
+    validate_meta({"units": {"v": "lot"}, "checks": ["volume_amount"],
+                   "ranges": {"percent": [-1, 30]}}, "demo")
+
+
+def test_apply_units_scalar_and_odd_shapes():
+    assert convert_field("percent", None) is None
+    assert convert_field("percent", "文本") == "文本"
+    assert convert_field("lot", {"a": 34135, "b": None}) == {"a": 3413500.0, "b": None}
+    assert convert_field("percent", [14.67, None]) == [0.1467, None]
+    # 无声明的函数：结果原样返回
+    cat = load()
+    fn = cat.function("kline.snapshot")  # 未声明 units/ranges/checks
+    out = apply_units({"close": 1.0}, fn, fname="kline.snapshot")
+    assert out == {"close": 1.0}

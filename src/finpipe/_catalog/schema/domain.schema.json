@@ -55,6 +55,23 @@
         },
         "example": {"type": "string"},
         "normalize_with": {"type": "string", "description": "结果规范化函数（XS 调用，如 kline.fmt_maps）；call() 会自动套用，raw=True 可跳过"},
+        "units": {
+          "type": "object",
+          "description": "字段→非基础单位声明（SDK 换算到基础单位）：percent=百分数→小数, yi_yuan=亿元→元, lot=手→股",
+          "additionalProperties": {"enum": ["percent", "yi_yuan", "lot"]}
+        },
+        "ranges": {
+          "type": "object",
+          "description": "字段→[lo, hi] 宽松量级守护界（返回前校验，违例抛 DataError）",
+          "additionalProperties": {
+            "type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}
+          }
+        },
+        "checks": {
+          "type": "array",
+          "description": "关系不变量 id 列表（引用 SDK CHECKS 注册表，违例抛 DataError）",
+          "items": {"type": "string"}
+        },
         "notes": {"type": "array", "items": {"type":"string"}}
       },
       "additionalProperties": false
@@ -90,7 +107,16 @@
             "properties": {
               "code": {"type": "string", "pattern": "^\\$[A-Za-z0-9_]+$"},
               "cn": {"type": "string"},
-              "note": {"type": "string"}
+              "note": {"type": "string"},
+              "unit": {
+                "enum": ["percent", "yi_yuan", "lot"],
+                "description": "非基础单位声明（SDK 换算到基础单位），缺省=值已是基础单位"
+              },
+              "range": {
+                "type": "array", "minItems": 2, "maxItems": 2,
+                "items": {"type": "number"},
+                "description": "量级守护界（返回前校验，违例抛 DataError）"
+              }
             },
             "additionalProperties": false
           }

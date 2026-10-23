@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "finpipe 数据 API",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
     "license": {
       "name": "PolyForm Noncommercial 1.0.0",
@@ -862,7 +862,7 @@
       "post": {
         "operationId": "statements_compare",
         "summary": "合并 vs 母公司比较：科目行 + 合并值/母公司值/差额/差额占比。",
-        "description": "差额占比为**百分数**（差额 / 合并值 × 100）；母公司未披露的科目差额为空。、底层目录函数 `rptdom.statement_compare`。SDK 调用：`cli.statements.compare(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "差额占比为**小数**（diffp = 差额 / 合并值，0.078 = 7.8%；SDK 自动由脚本、的百分数口径换算，``_units=\"native\"`` 可取原值）；母公司未披露的科目差额为空。、底层目录函数 `rptdom.statement_compare`。SDK 调用：`cli.statements.compare(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "财务基本面"
         ],
@@ -909,7 +909,7 @@
       "post": {
         "operationId": "statements_tree",
         "summary": "报表目录树视图：按树序输出科目行，含派生比率行（流动比率/资产负债率/毛利率等）。",
-        "description": "底层目录函数 `rptdom.statement_tree`。SDK 调用：`cli.statements.tree(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "注意：派生行的数值口径按行内标记区分——``pct`` 行的 vals 为百分数（原生，、未换算）、``fmt=\"x\"`` 行为倍数、其余科目行为报表原币元；与 compare() 的统一、小数口径不同，树视图适合展示/核对而非跨接口运算。、底层目录函数 `rptdom.statement_tree`。SDK 调用：`cli.statements.tree(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "财务基本面"
         ],
@@ -1086,7 +1086,7 @@
     "/indicator/metrics": {
       "post": {
         "operationId": "indicator_metrics",
-        "summary": "批量取多个指标当前值，返回 {code: value}。",
+        "summary": "批量取多个指标当前值，返回 {code: value}（精选代码带换算与量级守护）。",
         "description": "指标代码批量直查。SDK 调用：`cli.indicator.metrics(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "财务基本面"

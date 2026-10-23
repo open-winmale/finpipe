@@ -1,0 +1,23 @@
+name: unit-audit
+
+# 单位口径持续审计：夜间对样本宇宙跑量级守护 + 关系不变量 + 跨接口一致性。
+# 使用包内内置体验 AppID（共享池、额度有限），非阻塞：违例在日志中显式报告，
+# 不挡 main；连续 FAIL 说明上游口径漂移或目录声明过期，需人工核查。
+on:
+  schedule:
+    - cron: "0 1 * * 1-5"  # 工作日 UTC 01:00（北京时间上午）
+  workflow_dispatch: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install .
+      - name: Unit audit (sample universe + cross-interface invariants)
+        continue-on-error: true
+        run: python tools/audit_units.py

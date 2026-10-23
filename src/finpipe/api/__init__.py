@@ -23,6 +23,7 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
 from finpipe.errors import CatalogError, LimitError, UsageError
+from finpipe.units import finish_metric
 
 if TYPE_CHECKING:  # pragma: no cover
     from finpipe.client import Client
@@ -314,7 +315,8 @@ class StatementsApi(_Api):
                 _raw: bool = False, _df: bool = False) -> Any:
         """合并 vs 母公司比较：科目行 + 合并值/母公司值/差额/差额占比。
 
-        差额占比为**百分数**（差额 / 合并值 × 100）；母公司未披露的科目差额为空。
+        差额占比为**小数**（diffp = 差额 / 合并值，0.078 = 7.8%；SDK 自动由脚本
+        的百分数口径换算，``_units="native"`` 可取原值）；母公司未披露的科目差额为空。
         """
         return self._c.call("rptdom.statement_compare", sym=symbol,
                             domain=self._domain(kind), opts={"n": years},
@@ -322,7 +324,12 @@ class StatementsApi(_Api):
 
     def tree(self, symbol: str, kind: str = "balance", years: int = 5,
              scope: str = "合并", _raw: bool = False, _df: bool = False) -> Any:
-        """报表目录树视图：按树序输出科目行，含派生比率行（流动比率/资产负债率/毛利率等）。"""
+        """报表目录树视图：按树序输出科目行，含派生比率行（流动比率/资产负债率/毛利率等）。
+
+        注意：派生行的数值口径按行内标记区分——``pct`` 行的 vals 为百分数（原生，
+        未换算）、``fmt="x"`` 行为倍数、其余科目行为报表原币元；与 compare() 的统一
+        小数口径不同，树视图适合展示/核对而非跨接口运算。
+        """
         return self._c.call("rptdom.statement_tree", sym=symbol,
                             domain=self._domain(kind), opts={"scope": scope, "n": years},
                             _raw=_raw, _df=_df)
@@ -338,24 +345,35 @@ class StatementsApi(_Api):
 
 
 class IndicatorApi(_Api):
-    """平台指标（按指标代码寻址）。单位注意：盈利/现金流/偿债等比率类为小数
-    （0.332 = 33.2%），行情涨跌幅同为小数；业绩预告的同比字段才是百分数。"""
+    """平台指标（按指标代码寻址）。
+
+    单位统一为基础单位：比率类为小数（ROE 0.332 = 33.2%）、金额/市值为元、
+    分位为小数（0.42 = 42% 分位）；精选组声明过 range 的指标在返回前做量级守护
+    （违例抛 DataError）。非精选代码按脚本原值返回（目录未声明单位的代码不做换算）。
+    """
 
     def get(self, symbol: str, code: str) -> Any:
         """取单个指标当前值，如 cli.indicator.get("600519", "$PE_TTM_LAST")。"""
-        if self._c.catalog.metric(code) is None:
+        meta = self._c.catalog.metric_meta(code)
+        if meta is None and self._c.catalog.metric(code) is None:
             raise CatalogError(f"未知指标 {code!r}（防编造：code 必须在指标目录内）",
                                code="metric")
-        return self._c.eval_result(f"return {code}", symbol=symbol)
+        value = self._c.eval_result(f"return {code}", symbol=symbol)
+        return finish_metric(value, meta, code=code, validate=self._c._validate)
 
     def metrics(self, symbol: str, codes: list[str]) -> dict:
-        """批量取多个指标当前值，返回 {code: value}。"""
+        """批量取多个指标当前值，返回 {code: value}（精选代码带换算与量级守护）。"""
         missing = [c for c in codes if self._c.catalog.metric(c) is None]
         if missing:
             raise CatalogError(f"未知指标 {missing}（防编造：code 必须在指标目录内）",
                                code="metric")
         body = ", ".join(f'"{c}": {c}' for c in codes)
-        return self._c.eval_result(f"return {{{body}}}", symbol=symbol) or {}
+        values = self._c.eval_result(f"return {{{body}}}", symbol=symbol) or {}
+        if not isinstance(values, dict):  # 上游恒返回 MAP；异常形态原样透传
+            return values
+        return {c: finish_metric(v, self._c.catalog.metric_meta(c), code=c,
+                                 validate=self._c._validate)
+                for c, v in values.items()}
 
 
 # ---------------------------------------------------------------- 披露 disclosure

@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-10-23
+
+### Changed（breaking：返回数值口径）
+
+- **全库统一基础单位，SDK 单点自动换算**：比率/涨跌幅/占比=小数、金额/价格/市值=元
+  （报表原币）、股数/成交量=股。上游脚本永远输出原生口径，`call()` 在返回前按随包
+  目录的 YAML 声明做唯一一次换算。本次实际换算的字段：
+  - `kline.query_bars / query_last / query_bars_adj / query_last_live` 的 `volume`：
+    手 → 股（×100，A 股/港美/ETF 同口径）；
+  - `rptdom.statement_compare` 的 `diffp`（差额占比）：百分数 → 小数；
+  - `forecast.yjyg_*` 的 `np_amp_* / rev_amp_*` 与 `yjkb_*` 的 `np_yoy / rev_yoy / roe`：
+    百分数 → 小数（含 `forecast.snapshot` 嵌套行）。
+- **指标层金额口径文档修正**：实测全部为**元**（历史文档误标"亿元"；上游 cn 名中的
+  "(%)"/"(亿)" 后缀是命名遗留，不代表数值口径），数值本身未变。
+
+### Added
+
+- **数据正确性保障（三层防线）**：① 目录声明式单位契约（函数级 `units`/`ranges`/`checks`
+  与指标级 `unit`/`range`，schema 同步扩展，装载期即校验声明合法性）；② 返回前量级守护 +
+  关系不变量（`diffp_ratio`、`volume_amount`），违例抛新异常 `DataError`（含字段/实际值/
+  期望范围与逃生口指引），换算声明错误会被数据自动暴露；③ `tools/audit_units.py`
+  样本宇宙审计（不同板块/行业/规模 + ETF，全部关系型断言）+ CI 每交易日夜间自动执行。
+- **逃生口参数**（语义有测试守护）：`_units="native"` 保留脚本输出单位（字段名仍规范化）、
+  `_raw=True` 返回 store 原始行、`Client(validate=False)` 保留换算关闭校验。
+- 精选指标量级守护：精选组指标声明量级范围（分位 [0,1]、股息率 [0,1]、市值 (0,1e14) 元等），
+  `indicator.get/metrics` 返回前校验。
+- README 新增「指标体系：算好的增值数据」（速查表 + 可执行示例 + 预期输出注释）与
+  「数据正确性保障」章节；README 示例注释值由离线罐头测试守护，不再腐烂。
+- docs/API.md 新增「数据目录（离线）」章节（`finpipe.load()` + Catalog 方法表），
+  函数附录新增「单位与守护」列，指标组表新增「量级守护」列。
+
+### Fixed
+
+- README 的 `cat.search()` 行内引用补充 `cat = finpipe.load()` 装载步骤；
+  示例风格统一为 `finpipe.load()`。
+- kline 复权 `query_bars_adj` 不套 `volume_amount` 不变量（复权价与成交额不可比）。
+- `rptdom.statement_tree` 派生行口径文档化（pct 行=原生百分数、`fmt="x"` 行=倍数、
+  科目行=元）；树视图适合展示核对，跨接口运算用 `compare()`。
+- 目录 upstream rev 同步至上游 454585e5（函数/指标计数不变）。
+
 ## [1.0.0] - 2026-10-22
 
 First stable release. Install from source until the PyPI publication is enabled.

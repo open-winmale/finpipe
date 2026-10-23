@@ -212,6 +212,40 @@ def test_indicator_range_violation_in_batch():
         c.indicator.metrics("600519", ["$ROE_TTM_LAST"])
 
 
+# ---- segments（经营分部）：值已是基础单位，只守护不换算 ----
+
+SEG_ROW = {"name": "茅台酒", "tr": 77724437925.48, "tr_text": "",
+           "cost": 6000884228.7, "margin": 0.922792825668891, "ratio": 0}
+
+
+def test_segments_rows_pass_through_with_guards():
+    c, _ = make([dict(SEG_ROW)])
+    out = c.segments.business("600519")
+    assert out[0]["tr"] == 77724437925.48                        # 元，原样
+    assert out[0]["margin"] == pytest.approx(0.922792825668891)  # 小数，原样
+
+    c2, _ = make([dict(SEG_ROW, margin=92.28)])  # 百分数口径混入 → 超界
+    with pytest.raises(DataError, match="margin"):
+        c2.segments.business("600519")
+
+
+def test_segments_snapshot_nested_guard():
+    snap = {"coverage": {"has_business": True},
+            "business": [dict(SEG_ROW)],
+            "region": {"source": "clean", "report_sas": "2026:Q2",
+                       "domestic": {"tr": 8.9e10, "pct": 0.9886, "margin": 0.895, "yoy": 0.036},
+                       "overseas": {"tr": 1.0e9, "pct": 0.0114, "margin": 0.918, "yoy": -0.64}}}
+    c, _ = make(dict(snap))
+    out = c.segments.snapshot("600519")
+    assert out["region"]["domestic"]["pct"] == pytest.approx(0.9886)
+
+    bad = dict(snap)
+    bad["region"] = dict(snap["region"], domestic=dict(snap["region"]["domestic"], pct=98.86))
+    c2, _ = make(bad)
+    with pytest.raises(DataError, match="pct"):
+        c2.segments.snapshot("600519")
+
+
 # ---- 目录透传与声明自检 ----
 
 def test_catalog_passthrough_and_metric_meta():

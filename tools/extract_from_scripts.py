@@ -39,7 +39,7 @@ TYPE_MAP = {
 
 # ---- 发布政策 -------------------------------------------------------------
 # 一期数据面白名单：只发布这些命名空间（.internal/MAINTENANCE.md §3）
-INCLUDED_NS = frozenset({"kline", "moneyflow", "notice", "filings", "forecast", "bonus", "rptdom"})
+INCLUDED_NS = frozenset({"kline", "moneyflow", "notice", "filings", "forecast", "bonus", "rptdom", "segments"})
 # rptdom 只保留三表透视族（年报 PDF 提取类 rows/notes/note_index 不发布）
 RPTDOM_KEEP = frozenset({"statement", "statement_years", "statement_compare", "statement_tree", "statement_audit"})
 

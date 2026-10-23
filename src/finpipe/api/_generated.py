@@ -1082,6 +1082,100 @@ class RptdomNS(_Ns):
         """
         return self._client.call("rptdom.statement_audit", sym=sym, _raw=_raw, _df=_df)
 
+class SegmentsNS(_Ns):
+    """经营分部（fund.segments）"""
+
+    def query_products(self, sym: str, opts: dict | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """产品/商品分部
+
+:param sym: 6 位裸码
+:param opts: {source: clean|raw, limit: 条数}
+
+:returns: ARR · 分部行（名称/收入/成本/毛利率）
+        """
+        kw: dict[str, Any] = {"sym": sym}
+        if opts is not None:
+            kw["opts"] = opts
+        return self._client.call("segments.query_products", **kw, _raw=_raw, _df=_df)
+
+    def query_business(self, sym: str, opts: dict | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """业务线分部
+
+:param opts: 同 query_products
+
+:returns: ARR · 分部行（结构同 query_products）
+        """
+        kw: dict[str, Any] = {"sym": sym}
+        if opts is not None:
+            kw["opts"] = opts
+        return self._client.call("segments.query_business", **kw, _raw=_raw, _df=_df)
+
+    def query_income(self, sym: str, opts: dict | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """主营标签占比
+
+:param opts: {limit: 条数}（source 不适用，固定标签口径）
+
+:returns: ARR · 分部行（name + ratio 占比，小数；tr/cost 恒 0，margin 为 nil）
+        """
+        kw: dict[str, Any] = {"sym": sym}
+        if opts is not None:
+            kw["opts"] = opts
+        return self._client.call("segments.query_income", **kw, _raw=_raw, _df=_df)
+
+    def query_region(self, sym: str, opts: dict | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """地区/境内外分部
+
+:param opts: {source: clean|raw, limit: 条数}
+
+:returns: MAP · clean 口径 {domestic, overseas, report_sas}（境内/外 各含 tr/pct/margin/yoy）； raw 返回 ARR 明细；无数据 nil
+        """
+        kw: dict[str, Any] = {"sym": sym}
+        if opts is not None:
+            kw["opts"] = opts
+        return self._client.call("segments.query_region", **kw, _raw=_raw, _df=_df)
+
+    def snapshot(self, sym: str, opts: dict | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """经营分部截面快照
+
+:param opts: 同 query_products
+
+:returns: MAP · 快照 {overview, income, region, product, business, coverage}
+        """
+        kw: dict[str, Any] = {"sym": sym}
+        if opts is not None:
+            kw["opts"] = opts
+        return self._client.call("segments.snapshot", **kw, _raw=_raw, _df=_df)
+
+    def coverage(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """分部披露覆盖度
+
+:returns: MAP · 各维是否有数据（has_income/has_region/has_products/has_business）
+        """
+        return self._client.call("segments.coverage", sym=sym, _raw=_raw, _df=_df)
+
+    def list_sas(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """可用报告期
+
+:returns: MAP · {clean_last, clean_last_q4} 清洗口径锚点报告期
+        """
+        return self._client.call("segments.list_sas", sym=sym, _raw=_raw, _df=_df)
+
+    def fmt_maps(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """分部行规范化
+
+:param rows: 分部行列表
+
+:returns: ARR · 规范化分部行
+        """
+        return self._client.call("segments.fmt_maps", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_item(self, row: dict, _raw: bool = False, _df: bool = False) -> Any:
+        """单条分部规范化
+
+:returns: MAP · 规范化分部行
+        """
+        return self._client.call("segments.fmt_item", row=row, _raw=_raw, _df=_df)
+
 NAMESPACES: dict[str, type[_Ns]] = {
     "bonus": BonusNS,
     "filings": FilingsNS,
@@ -1090,4 +1184,5 @@ NAMESPACES: dict[str, type[_Ns]] = {
     "moneyflow": MoneyflowNS,
     "notice": NoticeNS,
     "rptdom": RptdomNS,
+    "segments": SegmentsNS,
 }

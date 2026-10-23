@@ -344,6 +344,55 @@ class StatementsApi(_Api):
         return self._c.call("rptdom.statement_audit", sym=symbol)
 
 
+class SegmentsApi(_Api):
+    """经营分部：主营构成的多维分解（分产品 / 分业务 / 分区域 / 主营标签占比）。
+
+    行结构统一 ``{name, tr, tr_text, cost, margin, ratio}``：收入/成本为**元**，
+    毛利率与占比为**小数**（margin = (tr-cost)/tr，0.332 = 33.2%）；ratio 仅主营
+    标签维填充、其余维为 0 占位。数据来自定期报告分部披露的平台清洗归一（clean
+    口径，默认）；各维披露覆盖度先用 coverage() 探明。
+
+    :param source: "clean"（默认，清洗归一）或 "raw"（披露明细）
+    """
+
+    def products(self, symbol: str, source: str = "clean", limit: int = 20,
+                 _df: bool = False) -> Any:
+        """分产品/商品收入构成（行按收入降序）。"""
+        return self._c.call("segments.query_products", sym=symbol,
+                            opts={"source": source, "limit": limit}, _df=_df)
+
+    def business(self, symbol: str, source: str = "clean", limit: int = 20,
+                 _df: bool = False) -> Any:
+        """分业务线收入构成（行按收入降序）。"""
+        return self._c.call("segments.query_business", sym=symbol,
+                            opts={"source": source, "limit": limit}, _df=_df)
+
+    def region(self, symbol: str, source: str = "clean", limit: int = 20,
+               _df: bool = False) -> Any:
+        """境内外分部。clean 口径返回 MAP（domestic/overseas 各含 tr/pct/margin/yoy），
+        source="raw" 返回披露明细 ARR；无分部披露时为 None。"""
+        return self._c.call("segments.query_region", sym=symbol,
+                            opts={"source": source, "limit": limit}, _df=_df)
+
+    def income(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """主营标签占比（name + ratio 小数；tr/cost 恒 0，margin 为 None）。"""
+        return self._c.call("segments.query_income", sym=symbol,
+                            opts={"limit": limit}, _df=_df)
+
+    def snapshot(self, symbol: str, source: str = "clean", _df: bool = False) -> Any:
+        """四维合并快照：{overview, income, region, product, business, coverage}。"""
+        return self._c.call("segments.snapshot", sym=symbol,
+                            opts={"source": source}, _df=_df)
+
+    def coverage(self, symbol: str) -> Any:
+        """各维是否有数据（has_income/has_region/has_products/has_business 布尔）。"""
+        return self._c.call("segments.coverage", sym=symbol)
+
+    def periods(self, symbol: str) -> Any:
+        """清洗口径可用报告期（{clean_last, clean_last_q4}）。"""
+        return self._c.call("segments.list_sas", sym=symbol)
+
+
 class IndicatorApi(_Api):
     """平台指标（按指标代码寻址）。
 
@@ -615,6 +664,7 @@ FRIENDLY_NAMESPACES: dict[str, type[_Api]] = {
     "kline": KlineApi,
     "moneyflow": MoneyflowApi,
     "statements": StatementsApi,
+    "segments": SegmentsApi,
     "indicator": IndicatorApi,
     "notice": NoticeApi,
     "filings": FilingsApi,
@@ -644,6 +694,13 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("fundamentals", "statements", "audit", "审计意见", "rptdom.statement_audit"),
     ("fundamentals", "indicator", "get", "取单个指标", "指标代码直查"),
     ("fundamentals", "indicator", "metrics", "批量取指标", "指标代码批量直查"),
+    ("fundamentals", "segments", "products", "分产品收入构成", "segments.query_products"),
+    ("fundamentals", "segments", "business", "分业务收入构成", "segments.query_business"),
+    ("fundamentals", "segments", "region", "境内外分部", "segments.query_region"),
+    ("fundamentals", "segments", "income", "主营标签占比", "segments.query_income"),
+    ("fundamentals", "segments", "snapshot", "分部截面快照", "segments.snapshot"),
+    ("fundamentals", "segments", "coverage", "分部披露覆盖度", "segments.coverage"),
+    ("fundamentals", "segments", "periods", "分部可用报告期", "segments.list_sas"),
     ("disclosure", "notice", "list", "单票公告列表", "notice.query_by_symbol"),
     ("disclosure", "notice", "recent", "全市场近期公告", "notice.query_recent"),
     ("disclosure", "notice", "by_category", "按类别查公告", "notice.query_by_category"),

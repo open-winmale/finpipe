@@ -307,6 +307,14 @@ def test_readme_units_and_guards_documented():
     assert "diffp ≈ 差额/合并值" in README or "diffp ≈" in README
 
 
+def test_readme_tushare_comparison_is_honest():
+    """竞品对比章节必须两面陈述：优势与劣势并存，且劣势至少覆盖面/商用许可两项。"""
+    assert "## 与 Tushare 对比" in README
+    assert "finpipe 的优势" in README and "finpipe 的劣势" in README
+    for kw in ("覆盖面", "商用许可", "数据积累"):
+        assert kw in README, f"对比章节缺少诚实的劣势陈述：{kw}"
+
+
 def test_readme_catalog_references_valid():
     """行内 `cat.xxx(...)` 引用必须是 Catalog 真实方法（防止文档凭空写方法名）。"""
     from finpipe.catalog import Catalog

@@ -22,6 +22,10 @@ from finpipe.units import _metric_meta_valid, validate_meta
 _PACKAGE_CATALOG = Path(__file__).resolve().parent / "_catalog"
 SUPPORTED_SCHEMA_VERSION = 2
 
+#: 随包分发的全市场代码目录（companies.<market>.json，来自上游同步冻结）
+SYMBOLS_DIR = "symbols"
+SUPPORTED_SYMBOL_MARKETS = ("cn", "hk", "us")
+
 
 def _check_schema(doc: dict, filename: str) -> None:
     version = doc.get("schema_version")
@@ -227,11 +231,118 @@ class Catalog:
             "curated_metrics": metric_total,
             "metric_catalog_total": self.metrics.get("count", 0),
             "upstream_rev": self.inventory.get("upstream_rev"),
+            "symbols": {m: self.symbols_count(m) for m in SUPPORTED_SYMBOL_MARKETS},
         }
 
     # ---- 装载辅助：_load_domains 时设置当前域 id ----
     def _set_loading(self, domain_id: str) -> None:
         self._loading_domain = domain_id
+
+    # ---- 全市场代码目录（离线，随包分发）----
+    def symbols_freshness(self, market: str | None = None) -> dict:
+        """代码目录的数据新鲜度。
+
+        返回 {"as_of": "2026-06-10", "markets": {"cn": "2026-06-10", ...}}；
+        market 指定时只返回该市场的日期字符串（无 manifest 时 as_of 为 None）。
+        名单为冻结快照，新股/更名可能滞后，精确性以运行时取数为准。
+        """
+        path = self.root / SYMBOLS_DIR / "manifest.json"
+        markets: dict[str, str] = {}
+        if path.exists():
+            try:
+                doc = json.loads(path.read_text(encoding="utf-8"))
+                for mk, info in (doc.get("markets") or {}).items():
+                    if isinstance(info, dict) and info.get("as_of"):
+                        markets[mk] = str(info["as_of"])
+            except (json.JSONDecodeError, OSError):
+                pass
+        if market is not None:
+            market = market.strip().lower()
+            if market not in SUPPORTED_SYMBOL_MARKETS:
+                raise CatalogError(
+                    f"未知市场 {market!r}；支持：{list(SUPPORTED_SYMBOL_MARKETS)}",
+                    code="market")
+            return {"as_of": markets.get(market)}
+        latest = sorted(markets.values())[-1] if markets else None
+        return {"as_of": latest, "markets": markets}
+
+    def _symbols_market(self, market: str) -> list[list[str]]:
+        """读取某市场代码表并做轻量规范化缓存。行格式 [code, name, pinyin, abbr]。"""
+        market = market.strip().lower()
+        if market not in SUPPORTED_SYMBOL_MARKETS:
+            raise CatalogError(
+                f"未知市场 {market!r}；支持：{list(SUPPORTED_SYMBOL_MARKETS)}",
+                code="market")
+        cache: dict[str, list[list[str]]] = getattr(
+            self, "_symbols_cache", None) or {}
+        self._symbols_cache = cache
+        if market not in cache:
+            path = self.root / SYMBOLS_DIR / f"companies.{market}.json"
+            if not path.exists():
+                raise CatalogError(
+                    f"代码目录缺失：{path}（安装损坏？本包版本可能不含 symbols/）",
+                    code="symbols")
+            rows = json.loads(path.read_text(encoding="utf-8"))
+            if market == "us":
+                # us 行为 [code, cn_name, pinyin, abbr]，中文名可能为空 → 回退代码本身
+                cache[market] = [
+                    [str(r[0]), (str(r[1]).strip() or str(r[0])),
+                     str(r[2] or ""), str(r[3] or "")]
+                    for r in rows if r and str(r[0]).strip()
+                ]
+            else:
+                cache[market] = [
+                    [str(r[0]), str(r[1]).strip(), str(r[2] or ""), str(r[3] or "")]
+                    for r in rows if r and str(r[0]).strip() and str(r[1]).strip()
+                ]
+        return cache[market]
+
+    def symbols_count(self, market: str = "cn") -> int:
+        """某市场代码表条数（cn/hk/us）。"""
+        return len(self._symbols_market(market))
+
+    def symbol(self, market: str, code: str) -> dict | None:
+        """按代码精确查一条（A股6位/港股5位/美股字母代码）。未命中返回 None。"""
+        code = code.strip()
+        for row in self._symbols_market(market):
+            if row[0] == code:
+                return {"market": market, "code": row[0], "name": row[1],
+                        "pinyin": row[2], "abbr": row[3]}
+        return None
+
+    def symbols_search(self, query: str, market: str = "cn", limit: int = 20) -> list[dict]:
+        """按 代码/名称/全拼/拼音首字母 搜索标的（大小写不敏感，按匹配质量排序）。
+
+        匹配优先级：精确代码 > 代码前缀 > 名称前缀 > 名称包含 > 缩写包含
+        > 全拼包含。全拼允许任意子串（如 "maotai" 命中 guizhoumaotai）——
+        用户很少记得全拼开头，按词中段搜才是常态。
+        离线可用、零网络零额度；名单为随包冻结快照，新股可能有滞后。
+        """
+        query = (query or "").strip()
+        if not query:
+            return []
+        q = query.casefold()
+        scored: list[tuple[int, dict]] = []
+        for code, name, pinyin, abbr in self._symbols_market(market):
+            name_cf = name.casefold()
+            if code == q:
+                rank = 0
+            elif code.startswith(q):
+                rank = 1
+            elif name_cf.startswith(q):
+                rank = 2
+            elif q in name_cf:
+                rank = 3
+            elif abbr and q in abbr:
+                rank = 4
+            elif pinyin and q in pinyin:
+                rank = 5
+            else:
+                continue
+            scored.append((rank, {"market": market, "code": code, "name": name,
+                                  "pinyin": pinyin, "abbr": abbr}))
+        scored.sort(key=lambda t: (t[0], t[1]["code"]))
+        return [item for _, item in scored[:limit]]
 
 
 def load(path: str | os.PathLike | None = None) -> Catalog:

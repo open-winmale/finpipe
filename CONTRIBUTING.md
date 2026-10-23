@@ -29,6 +29,8 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 1. **禁止第三方产品/数据商引用**：不得出现任何第三方数据产品、数据商或竞品名称
    （包括对标措辞、数据来源点名、商标）。描述数据来源使用中性词（"交易所披露"、
    "平台数据源"等）。新增禁用词在 `tools/check_leak.py` 的 `THIRDPARTY_RE` 维护。
+   **唯一例外**：README 的「与 Tushare 对比」章节允许点名 tushare（经维护者批准的
+   竞品对比例外，见 `THIRDPARTY_ALLOWED_BY_FILE`）；其余名称、其余位置一律禁止。
 2. **禁止内部信息**：内网域名、基础设施路径、开发者机器路径、凭证字面量。
 3. **文档白名单**：对外文档只允许 README / LICENSE / CONTRIBUTING / docs/API.md / examples。
    方案、计划、路线图、内部流程文档一律不入库。

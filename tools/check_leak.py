@@ -55,7 +55,13 @@ FORBIDDEN_PATTERNS = [
 ]
 
 # 携带第三方禁用词表本身的维护工具（策略定义文件），豁免第三方扫描；其余扫描照常
-THIRDPARTY_SKIP = {"tools/check_leak.py", "tools/extract_from_scripts.py"}
+THIRDPARTY_SKIP = {"tools/check_leak.py", "tools/extract_from_scripts.py",
+                   "tests/test_symbols.py"}
+
+# 公司名录是标的数据：上市公司名本身（如港股 00700 腾讯控股）会与数据商/竞品禁词
+# 撞名——这是「标的名」不是「第三方产品引用」，整个目录豁免第三方扫描
+# （内部标识/凭证等其余扫描照常进行）。
+THIRDPARTY_SKIP_PREFIXES = ("src/finpipe/_catalog/symbols/",)
 
 # 凭证赋值（带字面量）
 SECRET_RE = re.compile(
@@ -131,7 +137,8 @@ def scan() -> list[str]:
             if m:
                 findings.append(f"{rel}: 含机器路径 {m.group(0)!r}")
         allowed = THIRDPARTY_ALLOWED_BY_FILE.get(rel)
-        if rel not in THIRDPARTY_SKIP:
+        if not (rel in THIRDPARTY_SKIP
+                or rel.startswith(THIRDPARTY_SKIP_PREFIXES)):
             for m in THIRDPARTY_RE.finditer(text):
                 if not (allowed and allowed.fullmatch(m.group(0))):
                     findings.append(f"{rel}: 含第三方引用 {m.group(0)!r}（项目规范禁止）")

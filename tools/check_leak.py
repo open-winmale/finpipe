@@ -40,6 +40,14 @@ THIRDPARTY_RE = re.compile(
     re.IGNORECASE,
 )
 
+# 经维护者批准的例外：README「与 主流数据服务 对比」章节允许点名 数据服务；CHANGELOG 记录、
+# CONTRIBUTING 规范说明与守护测试同属这一决定的一部分。仅此一名、仅此四文件；
+# 其余第三方名在全部文件仍然禁止。
+THIRDPARTY_ALLOWED_BY_FILE = {
+    rel: re.compile(r"数据服务", re.IGNORECASE)
+    for rel in ("README.md", "CHANGELOG.md", "CONTRIBUTING.md", "tests/test_docs.py")
+}
+
 # 开发者机器路径
 FORBIDDEN_PATTERNS = [
     re.compile(r"/Users/[A-Za-z0-9_]+/"),
@@ -122,9 +130,12 @@ def scan() -> list[str]:
             m = pat.search(text)
             if m:
                 findings.append(f"{rel}: 含机器路径 {m.group(0)!r}")
-        m = THIRDPARTY_RE.search(text) if rel not in THIRDPARTY_SKIP else None
-        if m:
-            findings.append(f"{rel}: 含第三方引用 {m.group(0)!r}（项目规范禁止）")
+        allowed = THIRDPARTY_ALLOWED_BY_FILE.get(rel)
+        if rel not in THIRDPARTY_SKIP:
+            for m in THIRDPARTY_RE.finditer(text):
+                if not (allowed and allowed.fullmatch(m.group(0))):
+                    findings.append(f"{rel}: 含第三方引用 {m.group(0)!r}（项目规范禁止）")
+                    break
         m = SECRET_RE.search(text)
         if m:
             findings.append(f"{rel}: 疑似凭证字面量 {m.group(0)[:40]!r}")

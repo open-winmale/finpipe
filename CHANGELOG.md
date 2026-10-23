@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- README「与 主流数据服务 对比」章节：优势与劣势两面陈述（免费额度/单位口径/数据守护/
+  衍生指标 vs 覆盖面/数据积累/生态/商用许可）。第三方名门禁为此开唯一例外：
+  仅 README 允许点名 数据服务（`check_leak.py` 的 `THIRDPARTY_ALLOWED_BY_FILE`），
+  其余第三方名在全部文件仍然禁止；对比章节由测试守护必须保持两面陈述。
+
 ## [1.1.0] - 2026-10-23
 
 ### Changed（breaking：返回数值口径）

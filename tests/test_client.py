@@ -138,21 +138,27 @@ def test_from_env_prefers_explicit_env():
     assert (c.client_id, c.client_secret) == ("id-1", "sec-1")
 
 
-def test_from_env_partial_raises():
+def test_from_env_partial_raises(tmp_path):
+    # FINPIPE_CREDENTIALS 指向不存在文件：隔离本机 ~/.finpipe/credentials.env
     with pytest.raises(FinPipeError, match="成对"):
-        Client.from_env(env={"FINPIPE_CLIENT_ID": "id-1"},
+        Client.from_env(env={"FINPIPE_CLIENT_ID": "id-1",
+                             "FINPIPE_CREDENTIALS": str(tmp_path / "absent.env")},
                         base_url="https://t", catalog=load(), session=FakeSession())
 
 
-def test_from_env_open_platform_fallback():
+def test_from_env_open_platform_fallback(tmp_path):
     c = Client.from_env(env={"OPEN_PLATFORM_CLIENT_ID": "pid",
-                             "OPEN_PLATFORM_CLIENT_SECRET": "psec"},
+                             "OPEN_PLATFORM_CLIENT_SECRET": "psec",
+                             "FINPIPE_CREDENTIALS": str(tmp_path / "absent.env")},
                         base_url="https://t", catalog=load(), session=FakeSession())
     assert c.client_id == "pid"
 
 
-def test_from_env_empty_uses_experience():
-    c = Client.from_env(env={}, base_url="https://t", catalog=load(), session=FakeSession())
+def test_from_env_empty_uses_experience(tmp_path):
+    # 隔离本机凭证文件（维护者/用户可能已配置 ~/.finpipe/credentials.env），
+    # 确保测的是「无任何配置 → 内置体验 AppID」这条路径
+    c = Client.from_env(env={"FINPIPE_CREDENTIALS": str(tmp_path / "absent.env")},
+                        base_url="https://t", catalog=load(), session=FakeSession())
     assert c.client_id.startswith("wm_open_")
 
 

@@ -1,6 +1,7 @@
 # wm-finpipe
 
 [![CI](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
 [![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/finpipe/py.typed)
@@ -11,17 +12,16 @@
 > dividend history & high-dividend screeners. Ships a machine-readable offline catalog,
 > unified base units with per-response data guards (ratios as decimals, money in CNY,
 > volume in shares), a typed facade, and a zero-config trial AppID.
-> **Install from source** (PyPI release is pending): `git clone` the repo, `pip install .`,
-> then `finpipe.Client()`. Free for non-commercial use; commercial use requires a separate
-> license. See the [English quick start](#english-quick-start).
+> **Install**: `pip install wm-finpipe`, then `finpipe.Client()`. Free for non-commercial use;
+> commercial use requires a separate license. See the [English quick start](#english-quick-start).
 
 > **⚠️ 许可声明（请先阅读）**：本项目采用
 > [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
 > 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
 
 A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K 线与档案等部分接口已覆盖，
-详见目录）。注册即得充足免费额度；源码安装后即可取数，无需任何配置
-（代码中 `import finpipe`）。当前尚未发布到 PyPI，请使用「安装」一节的源码方式。
+详见目录）。注册即得充足免费额度；`pip install wm-finpipe` 后即可取数，无需任何配置
+（代码中 `import finpipe`）。
 
 ```python
 import finpipe
@@ -259,17 +259,23 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 
 ## 安装
 
-当前尚未发布到 PyPI，请从源码安装：
+从 PyPI 安装（推荐）：
+
+```bash
+pip install wm-finpipe                  # 基础安装
+pip install "wm-finpipe[dataframe]"     # 可选：pandas 支持（_df=True）
+```
+
+国内镜像源（如阿里云）同步新版本可能滞后，装不到最新版时可临时指定官方源：
+`pip install -i https://pypi.org/simple wm-finpipe`。
+
+开发/贡献者安装：
 
 ```bash
 git clone https://github.com/open-winmale/finpipe.git
 cd finpipe
-pip install .                          # 基础安装
-pip install ".[dataframe]"             # 可选：pandas 支持（_df=True）
+pip install -e ".[dev,dataframe]"
 ```
-
-开发/贡献者安装：`pip install -e ".[dev,dataframe]"`。  
-PyPI 发布后可直接 `pip install wm-finpipe`，届时会更新本节与 README 徽章。
 
 ## 免费额度与凭证
 

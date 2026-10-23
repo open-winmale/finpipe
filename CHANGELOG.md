@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-23
+
+### Added
+
+- **新数据域「经营分部」（`fund.segments`）**：主营构成多维分解——分产品
+  （`cli.segments.products`）、分业务（`business`）、分区域境内外（`region`）、
+  主营标签占比（`income`），外加四维合并快照（`snapshot`）、披露覆盖度
+  （`coverage`）与可用报告期（`periods`）。数据来自定期报告分部披露的平台清洗
+  归一（clean 口径，默认），可选披露明细（`source="raw"`）。
+- 行结构统一 `{name, tr, tr_text, cost, margin, ratio}`：收入/成本=元、毛利率/占比/
+  同比=小数（margin 服务端算好直出）；量级守护随 1.1.0 单位契约自动生效
+  （tr/cost/margin/ratio/pct/yoy 均已声明范围，误口径会抛 `DataError`）。
+- 核心接口 44 → 51（新增 segments 7 个）；底层函数 155 → 164（10 个数据域）；
+  README「产品线/业务分部口径一期未纳入」欠账兑现。
+- 提取器命名空间白名单 += segments（上游 `sys/segments`，18 个公开函数策展收录
+  9 个；inventory 全量收录 15 个带合同注记的条目）。
+
 ## [Unreleased]
 
 ### Added

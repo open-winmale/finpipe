@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "finpipe 数据 API",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
     "license": {
       "name": "PolyForm Noncommercial 1.0.0",
@@ -1120,6 +1120,469 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/products": {
+      "post": {
+        "operationId": "segments_products",
+        "summary": "分产品/商品收入构成（行按收入降序）。",
+        "description": "底层目录函数 `segments.query_products`。SDK 调用：`cli.segments.products(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "\"clean\"（默认，清洗归一）或 \"raw\"（披露明细）"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "分部名称"
+                      },
+                      "tr": {
+                        "type": "number",
+                        "description": "收入（元）"
+                      },
+                      "tr_text": {
+                        "type": "string",
+                        "description": "收入展示串"
+                      },
+                      "cost": {
+                        "type": "number",
+                        "description": "成本（元）"
+                      },
+                      "margin": {
+                        "type": "number",
+                        "description": "毛利率（小数）"
+                      },
+                      "ratio": {
+                        "type": "number",
+                        "description": "占比占位（income 维才有值）"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/business": {
+      "post": {
+        "operationId": "segments_business",
+        "summary": "分业务线收入构成（行按收入降序）。",
+        "description": "底层目录函数 `segments.query_business`。SDK 调用：`cli.segments.business(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "\"clean\"（默认，清洗归一）或 \"raw\"（披露明细）"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "分部名称"
+                      },
+                      "tr": {
+                        "type": "number",
+                        "description": "收入（元）"
+                      },
+                      "tr_text": {
+                        "type": "string",
+                        "description": "收入展示串"
+                      },
+                      "cost": {
+                        "type": "number",
+                        "description": "成本（元）"
+                      },
+                      "margin": {
+                        "type": "number",
+                        "description": "毛利率（小数）"
+                      },
+                      "ratio": {
+                        "type": "number",
+                        "description": "占比（小数，income 维填充）"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/region": {
+      "post": {
+        "operationId": "segments_region",
+        "summary": "境内外分部。clean 口径返回 MAP（domestic/overseas 各含 tr/pct/margin/yoy），",
+        "description": "source=\"raw\" 返回披露明细 ARR；无分部披露时为 None。、底层目录函数 `segments.query_region`。SDK 调用：`cli.segments.region(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "\"clean\"（默认，清洗归一）或 \"raw\"（披露明细）"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "境内外分部",
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "string",
+                      "description": "口径标识"
+                    },
+                    "report_sas": {
+                      "type": "string",
+                      "description": "报告期"
+                    },
+                    "domestic": {
+                      "description": "境内 {tr, pct, margin, yoy}"
+                    },
+                    "overseas": {
+                      "description": "境外 {tr, pct, margin, yoy}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/income": {
+      "post": {
+        "operationId": "segments_income",
+        "summary": "主营标签占比（name + ratio 小数；tr/cost 恒 0，margin 为 None）。",
+        "description": "底层目录函数 `segments.query_income`。SDK 调用：`cli.segments.income(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "分部名称"
+                      },
+                      "tr": {
+                        "type": "number",
+                        "description": "收入（元）"
+                      },
+                      "tr_text": {
+                        "type": "string",
+                        "description": "收入展示串"
+                      },
+                      "cost": {
+                        "type": "number",
+                        "description": "成本（元）"
+                      },
+                      "margin": {
+                        "type": "number",
+                        "description": "毛利率（小数）"
+                      },
+                      "ratio": {
+                        "type": "number",
+                        "description": "占比（小数，income 维填充）"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/snapshot": {
+      "post": {
+        "operationId": "segments_snapshot",
+        "summary": "四维合并快照：{overview, income, region, product, business, coverage}。",
+        "description": "底层目录函数 `segments.snapshot`。SDK 调用：`cli.segments.snapshot(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "\"clean\"（默认，清洗归一）或 \"raw\"（披露明细）"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "分部快照",
+                  "type": "object",
+                  "properties": {
+                    "overview": {
+                      "description": "概览"
+                    },
+                    "income": {
+                      "description": "主营标签"
+                    },
+                    "region": {
+                      "description": "地区"
+                    },
+                    "product": {
+                      "description": "产品"
+                    },
+                    "business": {
+                      "description": "业务线"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/coverage": {
+      "post": {
+        "operationId": "segments_coverage",
+        "summary": "各维是否有数据（has_income/has_region/has_products/has_business 布尔）。",
+        "description": "底层目录函数 `segments.coverage`。SDK 调用：`cli.segments.coverage(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "覆盖",
+                  "type": "object",
+                  "properties": {
+                    "income": {
+                      "type": "boolean",
+                      "description": "主营"
+                    },
+                    "region": {
+                      "type": "boolean",
+                      "description": "地区"
+                    },
+                    "product": {
+                      "type": "boolean",
+                      "description": "产品"
+                    },
+                    "business": {
+                      "type": "boolean",
+                      "description": "业务"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/segments/periods": {
+      "post": {
+        "operationId": "segments_periods",
+        "summary": "清洗口径可用报告期（{clean_last, clean_last_q4}）。",
+        "description": "底层目录函数 `segments.list_sas`。SDK 调用：`cli.segments.periods(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "income": {
+                      "type": "string"
+                    },
+                    "region": {
+                      "type": "string"
+                    },
+                    "product": {
+                      "type": "string"
+                    },
+                    "business": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }

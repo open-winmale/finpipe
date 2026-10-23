@@ -378,6 +378,56 @@ def test_kline_volume_native_escape(cli):
     row = native[0] if isinstance(native, list) else native
     assert row["volume"] * 100 == pytest.approx(base["volume"], rel=1e-9), \
         "native 应为手原值、默认应为股（×100）"
+
+
+# ---------------------------------------------------------------- 经营分部
+def test_segments_business_and_income(cli):
+    """分部行：收入降序、金额元量级、毛利率小数；income 维占比求和≈1。"""
+    rows = cli.segments.business(MAIN)
+    assert isinstance(rows, list) and rows, "茅台应有业务线分部（茅台酒/系列酒）"
+    trs = [r["tr"] for r in rows]
+    assert trs == sorted(trs, reverse=True), "分部行应按收入降序"
+    assert all(0 < r["tr"] < 1e13 for r in rows), "收入应为元量级"
+    for r in rows:
+        if r["margin"] is not None:
+            assert -5 < r["margin"] <= 1, f"毛利率应为小数：{r['name']}={r['margin']}"
+
+    inc = cli.segments.income(MAIN)
+    total = sum(r["ratio"] for r in inc)
+    assert total == pytest.approx(1.0, abs=0.01), f"主营标签占比求和应≈1，实际 {total}"
+
+
+def test_segments_region_and_coverage(cli):
+    """境内外分部：境内+境外占比≈1；coverage 布尔自洽。"""
+    region = cli.segments.region(MAIN)
+    assert isinstance(region, dict) and region.get("source") == "clean"
+    pct_sum = region["domestic"]["pct"] + region["overseas"]["pct"]
+    assert pct_sum == pytest.approx(1.0, abs=0.01), f"境内外占比求和应≈1，实际 {pct_sum}"
+    for side in ("domestic", "overseas"):
+        m = region[side]["margin"]
+        if m is not None:
+            assert -5 < m <= 1, f"{side} 毛利率应为小数：{m}"
+
+    cov = cli.segments.coverage(MAIN)
+    assert isinstance(cov.get("has_business"), bool)
+
+
+def test_segments_products_varies_by_company(cli):
+    """products 维因公司披露而异：制造业有值、无披露公司为空列表（不报错）。"""
+    rows = cli.segments.products("000333")
+    assert isinstance(rows, list) and rows, "美的应有产品分部"
+    assert all(0 < r["tr"] < 1e13 for r in rows)
+    empty = cli.segments.products("600519")  # 茅台产品维为空（走业务维）
+    assert empty == []
+
+
+def test_segments_periods_and_snapshot(cli):
+    periods = cli.segments.periods(MAIN)
+    assert isinstance(periods, dict) and periods.get("clean_last")
+    snap = cli.segments.snapshot(MAIN)
+    assert isinstance(snap, dict) and "business" in snap and "coverage" in snap
+
+
 # ---------------------------------------------------------------- 覆盖面守护
 def test_all_core_interfaces_are_exercised_here():
     """本文件必须覆盖 FRIENDLY_INDEX 的每个核心接口（防冒烟面回退）。"""

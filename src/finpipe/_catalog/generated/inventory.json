@@ -46,6 +46,10 @@
   "rptdom": {
    "entry": "sys/rptdom/init.xs",
    "exports": []
+  },
+  "segments": {
+   "entry": "sys/segments/init.xs",
+   "exports": []
   }
  },
  "preloaded_libs": [
@@ -53,9 +57,10 @@
   "filings",
   "kline",
   "moneyflow",
-  "notice"
+  "notice",
+  "segments"
  ],
- "function_count": 155,
+ "function_count": 170,
  "functions": [
   {
    "name": "bonus.dps_rpt",
@@ -4676,6 +4681,491 @@
     },
     {
      "name": "domain",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "segments.clamp_limit",
+   "cn": "截断 limit 到合法范围",
+   "example": "segments.clamp_limit(20)",
+   "returns": "int",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "segments.coverage",
+   "cn": "各维数据覆盖",
+   "example": "segments.coverage(\"600519\")",
+   "returns": "MAP · 覆盖",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "覆盖",
+    "fields": [
+     {
+      "name": "income",
+      "type": "bool",
+      "cn": "主营",
+      "optional": true
+     },
+     {
+      "name": "region",
+      "type": "bool",
+      "cn": "地区",
+      "optional": true
+     },
+     {
+      "name": "product",
+      "type": "bool",
+      "cn": "产品",
+      "optional": true
+     },
+     {
+      "name": "business",
+      "type": "bool",
+      "cn": "业务",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "segments.dim_to_ui_tab",
+   "cn": "维名 → UI tab",
+   "example": "segments.dim_to_ui_tab(\"income\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "dim",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "segments.fmt_item",
+   "cn": "单条分部规范化",
+   "example": "segments.fmt_item(row)",
+   "returns": "MAP",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "分部行",
+    "fields": [
+     {
+      "name": "name",
+      "type": "string",
+      "cn": "名称",
+      "optional": true
+     },
+     {
+      "name": "value",
+      "type": "float64",
+      "cn": "数值",
+      "optional": true
+     },
+     {
+      "name": "ratio",
+      "type": "float64",
+      "cn": "占比",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "segments.fmt_maps",
+   "cn": "分部行规范化",
+   "example": "segments.fmt_maps(rows)",
+   "returns": "ARR",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分部行",
+     "fields": [
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "名称",
+       "optional": true
+      },
+      {
+       "name": "value",
+       "type": "float64",
+       "cn": "数值",
+       "optional": true
+      },
+      {
+       "name": "ratio",
+       "type": "float64",
+       "cn": "占比",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "segments.list_sas",
+   "cn": "最新有值 SAS",
+   "example": "segments.list_sas(\"600519\")",
+   "returns": "MAP · SAS",
+   "returns_shape": {
+    "kind": "object",
+    "fields": [
+     {
+      "name": "income",
+      "type": "string",
+      "optional": true
+     },
+     {
+      "name": "region",
+      "type": "string",
+      "optional": true
+     },
+     {
+      "name": "product",
+      "type": "string",
+      "optional": true
+     },
+     {
+      "name": "business",
+      "type": "string",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "segments.normalize_dim",
+   "cn": "维名规范化",
+   "example": "segments.normalize_dim(\"region\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "dim",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "segments.normalize_source",
+   "cn": "source 规范化 clean|raw",
+   "example": "segments.normalize_source(\"clean\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "source",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "segments.query_business",
+   "cn": "业务线分部",
+   "example": "segments.query_business(\"600519\", {})",
+   "returns": "ARR",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分部行",
+     "fields": [
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "名称",
+       "optional": true
+      },
+      {
+       "name": "value",
+       "type": "float64",
+       "cn": "数值",
+       "optional": true
+      },
+      {
+       "name": "ratio",
+       "type": "float64",
+       "cn": "占比",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "segments.query_income",
+   "cn": "数据源主营标签占比",
+   "example": "segments.query_income(\"600519\", {})",
+   "returns": "ARR",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分部行",
+     "fields": [
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "名称",
+       "optional": true
+      },
+      {
+       "name": "value",
+       "type": "float64",
+       "cn": "数值",
+       "optional": true
+      },
+      {
+       "name": "ratio",
+       "type": "float64",
+       "cn": "占比",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "segments.query_products",
+   "cn": "产品/商品分部",
+   "example": "segments.query_products(\"600519\", {})",
+   "returns": "ARR",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分部行",
+     "fields": [
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "名称",
+       "optional": true
+      },
+      {
+       "name": "value",
+       "type": "float64",
+       "cn": "数值",
+       "optional": true
+      },
+      {
+       "name": "ratio",
+       "type": "float64",
+       "cn": "占比",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "segments.query_region",
+   "cn": "地区/境内外分部",
+   "example": "segments.query_region(\"600519\", {})",
+   "returns": "ARR/any",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "分部行",
+     "fields": [
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "名称",
+       "optional": true
+      },
+      {
+       "name": "value",
+       "type": "float64",
+       "cn": "数值",
+       "optional": true
+      },
+      {
+       "name": "ratio",
+       "type": "float64",
+       "cn": "占比",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "segments.snapshot",
+   "cn": "经营分部截面快照",
+   "example": "segments.snapshot(\"600519\")",
+   "returns": "MAP · 快照",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "分部快照",
+    "fields": [
+     {
+      "name": "overview",
+      "type": "map[string]any",
+      "cn": "概览",
+      "optional": true
+     },
+     {
+      "name": "income",
+      "type": "[]any",
+      "cn": "主营标签",
+      "optional": true
+     },
+     {
+      "name": "region",
+      "type": "[]any",
+      "cn": "地区",
+      "optional": true
+     },
+     {
+      "name": "product",
+      "type": "[]any",
+      "cn": "产品",
+      "optional": true
+     },
+     {
+      "name": "business",
+      "type": "[]any",
+      "cn": "业务线",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "opts",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "segments.take_limit",
+   "cn": "列表截断",
+   "example": "segments.take_limit(rows, 8)",
+   "returns": "ARR",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "any"
+    }
+   },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "segments.ui_tab_to_dim",
+   "cn": "UI tab → 维名",
+   "example": "segments.ui_tab_to_dim(\"segment\")",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "tab",
      "type": "string"
     }
    ]

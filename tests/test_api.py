@@ -260,6 +260,8 @@ def test_screener_top_movers_limit_clamped(cli):
 
 def test_screener_breadth_supports_df(cli):
     """列表返回的宽度接口支持 _df=True（模块 docstring 的承诺，列表方法逐一对齐）。"""
+    pd = pytest.importorskip("pandas")   # CI 离线环境不装可选依赖
     cli.session.eval_result = [{"label": "i_涨停", "count": 109, "pct_of_total": 1.9}]
     df = cli.screener.index_breadth_bins(_df=True)
+    assert isinstance(df, pd.DataFrame)
     assert list(df.columns) == ["label", "count", "pct_of_total"]

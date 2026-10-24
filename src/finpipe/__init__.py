@@ -25,6 +25,20 @@ __version__ = "1.4.0"
 
 __all__ = [
     "Catalog", "load", "Client", "BatchResult", "normalize_symbol", "__version__",
+    "skill_dir",
     "FinPipeError", "AuthError", "UsageError", "LimitError", "TransportError",
     "ServerError", "ApiError", "DataError", "CatalogError",
 ]
+
+
+def skill_dir():
+    """随包分发的 AI agent skill 目录（Agent Skills 格式，含 SKILL.md）。
+
+    装入 agent（复制到其发现路径之一）::
+
+        cp -r "$(python3 -c 'import finpipe; print(finpipe.skill_dir())')" \\
+            ~/.agents/skills/finpipe
+    """
+    from pathlib import Path
+
+    return Path(__file__).resolve().parent / "skills" / "finpipe"

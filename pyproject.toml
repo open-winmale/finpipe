@@ -59,6 +59,7 @@ finpipe = [
     "_catalog/domains/*.yaml",
     "_catalog/generated/*.json",
     "_catalog/symbols/*.json",
+    "skills/finpipe/*.md",
 ]
 
 [tool.mypy]

@@ -62,6 +62,8 @@ cli.info.profile("600519")                              # 公司档案
   ```
 
   目录对象的全部方法见 [docs/API.md](docs/API.md) 的「数据目录（离线）」一节。
+  **AI 原生**——随包附 Agent Skills 格式的使用技能（`finpipe.skill_dir()`），
+  复制到 AI agent 的 skill 目录，agent 即可按目录先行、单位铁律正确取数（见「更多」）。
 - **单位统一、自动换算**——全库基础单位：比率/涨跌幅=小数（0.332 = 33.2%）、
   金额/价格/市值=元（报表原币）、股数/成交量=股。上游脚本的原生口径（百分数、手等）
   由 SDK 统一换算，你不需要再处理「这个接口是百分数、那个是小数」的问题；
@@ -470,6 +472,14 @@ changes as decimals (0.332 = 33.2%); every response passes declared magnitude gu
 relational invariants (violations raise `DataError`).
 
 ## 更多
+
+- **AI agent skill（随包分发）**：把 skill 装进 agent 的发现目录，AI 即可正确使用
+  SDK（目录先行防臆造指标码、单位铁律、错误引导都在 skill 里）：
+
+  ```bash
+  cp -r "$(python3 -c 'import finpipe; print(finpipe.skill_dir())')" ~/.agents/skills/finpipe
+  # 项目级按工具放入 .zcode/skills/ 或 .claude/skills/
+  ```
 
 - [API 参考](docs/API.md)：四大类 64 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入

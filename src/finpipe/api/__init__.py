@@ -404,13 +404,14 @@ class ValuationApi(_Api):
     """
 
     _METRICS = {"pe": "pe", "pb": "pb", "ps": "ps", "pr": "pr_base"}
-    _WINDOWS = ("1y", "2y", "3y")  # 引擎实测支持 2y；窗口上限 3 年
+    # 引擎支持 <数字><单位> 通用窗口（实测 6m 起可用）；上限 3 年
+    _WINDOWS = ("6m", "1y", "2y", "3y")
 
     def hist_stats(self, symbol: str, metric: str = "pe", window: str = "3y") -> dict:
         """估值指标的历史统计与每日序列（PE=TTM 口径；pr=市赚率 pr_base）。
 
         :param metric: "pe" / "pb" / "ps" / "pr"
-        :param window: "1y" / "2y" / "3y"（上限 3 年）
+        :param window: "6m" / "1y" / "2y" / "3y"（上限 3 年）
         """
         if metric not in self._METRICS:
             raise UsageError(

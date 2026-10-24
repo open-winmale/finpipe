@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- README「与 主流数据服务 对比」章节：优势与劣势两面陈述（免费额度/单位口径/数据守护/
+  衍生指标 vs 覆盖面/数据积累/生态/商用许可）。第三方名门禁为此开唯一例外：
+  仅 README 允许点名 数据服务（`check_leak.py` 的 `THIRDPARTY_ALLOWED_BY_FILE`），
+  其余第三方名在全部文件仍然禁止；对比章节由测试守护必须保持两面陈述。
+
+## [1.3.1] - 2026-10-24
+
+### Changed
+
+- `cli.valuation.hist_stats` 窗口白名单新增 **"6m"**（引擎支持 `<数字><单位>` 通用
+  窗口，实测 6m 可用）：`("6m", "1y", "2y", "3y")`，上限仍为 3 年。
+
+## [1.3.0] - 2026-10-24
+
+### Added
+
+- **数据接口「估值历史统计」**：`cli.valuation.hist_stats(symbol, metric="pe", window="3y")`
+  ——与平台 web「估值通道」取数同源（宿主 HIST_STATS），返回窗口内每日 PE/PB/PS/市赚率
+  序列与统计量（avg/current/median/min/max/pct）。窗口白名单 1y/2y/3y（上限 3 年）；
+  亏损期 PE 无数据、净资产为负期间不参与。下游工具（big-winner 必赢佬）以此为数据源。
+- 核心接口 51 → 52。
+
 ## [1.2.0] - 2026-10-23
 
 ### Added
@@ -21,25 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   README「产品线/业务分部口径一期未纳入」欠账兑现。
 - 提取器命名空间白名单 += segments（上游 `sys/segments`，18 个公开函数策展收录
   9 个；inventory 全量收录 15 个带合同注记的条目）。
-
-## [1.3.0] - 2026-10-24
-
-### Added
-
-- **数据接口「估值历史统计」**：`cli.valuation.hist_stats(symbol, metric="pe", window="3y")`
-  ——与平台 web「估值通道」取数同源（宿主 HIST_STATS），返回窗口内每日 PE/PB/PS/市赚率
-  序列与统计量（avg/current/median/min/max/pct）。窗口白名单 1y/2y/3y（上限 3 年）；
-  亏损期 PE 无数据、净资产为负期间不参与。下游工具（big-winner 必赢佬）以此为数据源。
-- 核心接口 51 → 52。
-
-## [Unreleased]
-
-### Added
-
-- README「与 主流数据服务 对比」章节：优势与劣势两面陈述（免费额度/单位口径/数据守护/
-  衍生指标 vs 覆盖面/数据积累/生态/商用许可）。第三方名门禁为此开唯一例外：
-  仅 README 允许点名 数据服务（`check_leak.py` 的 `THIRDPARTY_ALLOWED_BY_FILE`），
-  其余第三方名在全部文件仍然禁止；对比章节由测试守护必须保持两面陈述。
 
 ## [1.1.0] - 2026-10-23
 

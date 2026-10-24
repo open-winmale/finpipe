@@ -325,7 +325,7 @@ def test_readme_example_outputs_documented():
 def test_readme_units_and_guards_documented():
     """基础单位与数据正确性承诺必须在 README 成文（单位事故防线的一部分）。"""
     for kw in ("数据正确性保障", "DataError", '_units="native"', "validate=False",
-               "指标体系：算好的增值数据", "分位计算", "专业的股息计算"):
+               "算好的增值数据", "专业的股息计算", "能力一览"):
         assert kw in README, f"README 缺少关键内容：{kw}"
     assert "量=手" not in README and "volume in lots" not in README, \
         "成交量已统一为股，README 不得再写手"
@@ -335,12 +335,15 @@ def test_readme_units_and_guards_documented():
     assert "diffp ≈ 差额/合并值" in README or "diffp ≈" in README
 
 
-def test_readme_数据服务_comparison_is_honest():
-    """竞品对比章节必须两面陈述：优势与劣势并存，且劣势至少覆盖面/商用许可两项。"""
-    assert "## 与 主流数据服务 对比" in README
-    assert "finpipe 的优势" in README and "finpipe 的劣势" in README
-    for kw in ("覆盖面", "商用许可", "数据积累"):
-        assert kw in README, f"对比章节缺少诚实的劣势陈述：{kw}"
+def test_readme_no_competitor_names():
+    """README 零竞品名（2026-10-24 用户定版）：差异化卖点一律自证式表述，防回潮。"""
+    assert "数据服务" not in README.lower(), "README 不得出现竞品名（对比历史留在 CHANGELOG）"
+
+
+def test_readme_is_lean():
+    """店面纪律：README 保持精炼（2026-10-24 重构后 274 行），超限先删内容再提限。"""
+    assert len(README.splitlines()) <= 280, \
+        f"README 膨胀到 {len(README.splitlines())} 行（上限 280）；长内容下沉 docs/ 或删除"
 
 
 def test_readme_catalog_references_valid():

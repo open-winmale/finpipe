@@ -9,10 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **数据接口「选股与全景」**：新 `cli.screener` 门面，核心接口 52 → 64。
+  单票一行布尔筛选：`screen_limit_up` / `screen_limit_down`（涨停/跌停，阈值
+  ±0.10 小数）、`screen_above_ma20` / `screen_ma60_up` / `screen_breakout_ma20`
+  （均线/趋势）、`screen_momentum_20d(min_chg=0.10)` / `screen_pullback_20d(min_chg=-0.10)`
+  （动量/回撤，小数阈值；pullback 语义为涨幅**上限**）、
+  `screen_volume_spike(min_ratio=1.5)`（5 日量比）；全市场宽度（服务端预计算
+  索引直出，`idx` 不传 = 服务端解析 A 股最新查询索引）：`index_breadth_summary`
+  （涨跌家数/占比/中位数）、`index_breadth_bins`（9 档分桶）、
+  `index_breadth_bin_industries`（分桶×行业）、`index_top_movers`（涨跌榜，
+  行含 symbol/name/percent）。kline 目录其余筛选函数经 `cli.screener.*` 属性直达。
+- README 新增「选股与全景」独立小节（筛选阈值表 + 宽度返回口径表 + 可执行示例）；
+  API.md 核心接口表改为按命名空间分节（生成器自动成节）；口径速查新增「筛选阈值」
+  行（宽度返回的 `*_pct`/`pct_of_total` 为百分数数值、涨跌幅/中位数为小数）。
+- 示例 `examples/screener.py`；`.internal/ROADMAP-1.3.md` 规划二期任意条件选股
+  （上游 `kline.index_query`）与三期策略库候选。
+
+### Fixed
+
+- 宽度接口索引键：臆造字面量 `"index.cn.all"` 实测 500（索引键为动态 cache_key，
+  无稳定字面量）；`cli.screener` 宽度四件套改为 `idx=None` 时由服务端
+  `LatestIndexKey()` 解析。README/速查表中旧键示例已移除。
+- 上游配套（7615b7ea，待部署）：`kline.index_top_movers` 原返回行仅含行号与
+  `$` 原始字段、无标的代码——改 `INDEX_ROW_VALUES_MANY_SPEC` 投影并拍平为
+  `{symbol, name, percent}`；SDK live 测试对部署前的旧形态 xfail。
+
+### Docs
+
 - README「与 主流数据服务 对比」章节：优势与劣势两面陈述（免费额度/单位口径/数据守护/
   衍生指标 vs 覆盖面/数据积累/生态/商用许可）。第三方名门禁为此开唯一例外：
   仅 README 允许点名 数据服务（`check_leak.py` 的 `THIRDPARTY_ALLOWED_BY_FILE`），
   其余第三方名在全部文件仍然禁止；对比章节由测试守护必须保持两面陈述。
+  「衍生计算」行升级为 `cli.screener` 选股门面口径；实时行情行明确免费提供
+  盘中快照与当日 1 分钟分时（主流数据服务 实时分钟为 1000 元/月的独立权限）。
 
 ## [1.3.1] - 2026-10-24
 

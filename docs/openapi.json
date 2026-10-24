@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "finpipe 数据 API",
-    "version": "1.3.1",
+    "version": "1.4.0",
     "description": "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
     "license": {
       "name": "PolyForm Noncommercial 1.0.0",
@@ -705,6 +705,544 @@
                     "source": {
                       "type": "string",
                       "description": "live"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_limit_up": {
+      "post": {
+        "operationId": "screener_screen_limit_up",
+        "summary": "今日涨停（涨幅 > 0.10；停牌返回 False）。",
+        "description": "底层目录函数 `kline.screen_limit_up`。SDK 调用：`cli.screener.screen_limit_up(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_limit_down": {
+      "post": {
+        "operationId": "screener_screen_limit_down",
+        "summary": "今日跌停（涨幅 < -0.10；停牌返回 False）。",
+        "description": "底层目录函数 `kline.screen_limit_down`。SDK 调用：`cli.screener.screen_limit_down(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_above_ma20": {
+      "post": {
+        "operationId": "screener_screen_above_ma20",
+        "summary": "收盘价站上 MA20（60/120 日线变体经属性直达 screen_above_ma60/ma120）。",
+        "description": "底层目录函数 `kline.screen_above_ma20`。SDK 调用：`cli.screener.screen_above_ma20(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_ma60_up": {
+      "post": {
+        "operationId": "screener_screen_ma60_up",
+        "summary": "MA60 上行（中期趋势向上）。",
+        "description": "底层目录函数 `kline.screen_ma60_up`。SDK 调用：`cli.screener.screen_ma60_up(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_breakout_ma20": {
+      "post": {
+        "operationId": "screener_screen_breakout_ma20",
+        "summary": "突破 MA20（站上 MA20 且 MA60 上行的组合确认）。",
+        "description": "底层目录函数 `kline.screen_breakout_ma20`。SDK 调用：`cli.screener.screen_breakout_ma20(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_momentum_20d": {
+      "post": {
+        "operationId": "screener_screen_momentum_20d",
+        "summary": "近 20 日涨幅达标（动量强）。",
+        "description": "底层目录函数 `kline.screen_momentum_20d`。SDK 调用：`cli.screener.screen_momentum_20d(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "min_chg": {
+                    "type": "number",
+                    "description": "20 日累计涨幅下限（小数，0.10 = 10%）"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_pullback_20d": {
+      "post": {
+        "operationId": "screener_screen_pullback_20d",
+        "summary": "近 20 日涨幅低于上限（回撤/未过热）。",
+        "description": "跌超 10%，深度回撤）；传 0.10 表示剔除已涨超 10% 的标的、底层目录函数 `kline.screen_pullback_20d`。SDK 调用：`cli.screener.screen_pullback_20d(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "min_chg": {
+                    "type": "number",
+                    "description": "20 日累计涨幅的**上限**（小数）：默认 -0.10（近 20 日"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/screen_volume_spike": {
+      "post": {
+        "operationId": "screener_screen_volume_spike",
+        "summary": "放量（5 日量比超阈值）。",
+        "description": "底层目录函数 `kline.screen_volume_spike`。SDK 调用：`cli.screener.screen_volume_spike(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "min_ratio": {
+                    "type": "number",
+                    "description": "量比下限，默认 1.5（5 日均量的 1.5 倍）"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/index_breadth_summary": {
+      "post": {
+        "operationId": "screener_index_breadth_summary",
+        "summary": "全市场涨跌全景（上涨/下跌/平盘家数、占比与涨跌幅中位数）。",
+        "description": "底层目录函数 `kline.index_breadth_summary`。SDK 调用：`cli.screener.index_breadth_summary(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "string",
+                    "description": "服务端索引键（高级；默认不传 = A 股最新查询索引）"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "涨跌全景",
+                  "type": "object",
+                  "properties": {
+                    "up": {
+                      "type": "integer",
+                      "description": "上涨家数"
+                    },
+                    "down": {
+                      "type": "integer",
+                      "description": "下跌家数"
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "description": "平盘家数"
+                    },
+                    "limit_up": {
+                      "type": "integer",
+                      "description": "涨停"
+                    },
+                    "limit_down": {
+                      "type": "integer",
+                      "description": "跌停"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/index_breadth_bins": {
+      "post": {
+        "operationId": "screener_index_breadth_bins",
+        "summary": "涨跌幅 9 档分桶（涨停/±5%/±3%/平盘/…/跌停），行含 label/count/pct_of_total。",
+        "description": "底层目录函数 `kline.index_breadth_bins`。SDK 调用：`cli.screener.index_breadth_bins(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "string",
+                    "description": "服务端索引键（高级；默认不传 = A 股最新查询索引）"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "动态列表",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/index_breadth_bin_industries": {
+      "post": {
+        "operationId": "screener_index_breadth_bin_industries",
+        "summary": "涨跌幅分桶 × 一级行业分布（行含 bin/industry/count）。",
+        "description": "底层目录函数 `kline.index_breadth_bin_industries`。SDK 调用：`cli.screener.index_breadth_bin_industries(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "string",
+                    "description": "服务端索引键（高级；默认不传 = A 股最新查询索引）"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "动态列表",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/screener/index_top_movers": {
+      "post": {
+        "operationId": "screener_index_top_movers",
+        "summary": "涨跌榜（按当日涨跌幅排序，行含 symbol/name/percent；percent 为小数）。",
+        "description": "底层目录函数 `kline.index_top_movers`。SDK 调用：`cli.screener.index_top_movers(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  },
+                  "desc": {
+                    "type": "boolean",
+                    "description": "true=涨幅榜（默认）；false=跌幅榜"
+                  },
+                  "idx": {
+                    "type": "string",
+                    "description": "服务端索引键（高级；默认不传 = A 股最新查询索引）"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "symbol": {
+                        "type": "string",
+                        "description": "标的代码"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "证券简称"
+                      },
+                      "percent": {
+                        "type": "number",
+                        "description": "当日涨跌幅（小数）"
+                      }
                     }
                   }
                 }

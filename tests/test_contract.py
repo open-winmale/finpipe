@@ -21,7 +21,7 @@ SAMPLES = {
     "begin": "2026-01-01", "end": "2026-03-31",
     "from_date": "2026-01-01", "to_date": "2026-03-31",
     "domain": "fin.income_statement", "type_key": "annual", "kind": "annual",
-    "idx": "index.cn.all", "key": "index.hs300", "keys": ["index.hs300"],
+    "idx": None, "key": "index.hs300", "keys": ["index.hs300"],
     "rows": [], "props": ["close"], "sas": "2024-Q4", "asof": "2026-06-30",
     "category": "回购", "window": "3y", "adj": "qfq", "scope": "合并",
     "metric": "pe",

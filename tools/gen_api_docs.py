@@ -21,7 +21,8 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _introspect import (  # noqa: E402
-    FALLBACK_RETURNS, method_example, method_params, return_shape_for, underlying_fn,
+    FALLBACK_RETURNS, RETURNS_OVERRIDES, method_example, method_params,
+    return_shape_for, underlying_fn,
 )
 from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
 from finpipe.catalog import catalog_dir, load  # noqa: E402
@@ -182,27 +183,49 @@ def sdk_example(fn: dict, inv: dict) -> str:
     return f'cli.call("{fn["name"]}"{", " + kw if kw else ""})'
 
 
+def ns_title(ns: str) -> str:
+    """命名空间标题：取类 docstring 首句（到句号/括号/冒号为止），防编造。"""
+    import inspect
+    import re as _re
+    doc = inspect.getdoc(FRIENDLY_NAMESPACES[ns]) or ""
+    head = _re.split(r"[。：（(:]", doc.strip(), 1)[0].strip()
+    return head or ns
+
+
 def core_table(cat: str, merged: dict[str, dict]) -> list[str]:
-    """核心接口表：接口｜说明｜参数｜返回｜示例（自友好层签名与目录 shape 机械生成）。"""
+    """核心接口表：接口｜说明｜参数｜返回｜示例（自友好层签名与目录 shape 机械生成）。
+
+    同一命名空间的接口归入一个 `###` 小节（保持 FRIENDLY_INDEX 顺序），文档
+    组织随门面结构走：新命名空间自动成节。
+    """
     rows = [r for r in FRIENDLY_INDEX if r[0] == cat]
     if not rows:
         return []
-    out = ["| 接口 | 说明 | 参数 | 返回 | 示例 |", "|---|---|---|---|---|"]
-    for _, ns, method, cn, underlying in rows:
-        cls = FRIENDLY_NAMESPACES[ns]
-        params = method_params(cls, method)
-        sig = ", ".join(
-            f"{p.name}:{p.py_ann}" if p.required else f"{p.name}:{p.py_ann}={p.default}"
-            for p in params) or "—"
-        fn_key = underlying_fn(underlying)
-        if fn_key:
-            shape = return_shape_for(CAT, ns, method, underlying)
-            ret = fmt_returns(merged.get(fn_key, {}), INV.get(fn_key, {}), shape=shape)
-        else:
-            ret = FALLBACK_RETURNS.get((ns, method), "—")
-        ex = method_example(ns, method, params)
-        out.append(f"| `cli.{ns}.{method}(...)` | {esc(cn)} | `{esc(sig)}` | {ret} | `{esc(ex)}` |")
-    out.append("")
+    groups: list[tuple[str, list[tuple[str, str, str, str, str]]]] = []
+    for r in rows:
+        if not groups or groups[-1][0] != r[1]:
+            groups.append((r[1], []))
+        groups[-1][1].append(r)
+    out: list[str] = []
+    for ns, grp in groups:
+        out += [f"### {ns_title(ns)}（`cli.{ns}`）", ""]
+        out += ["| 接口 | 说明 | 参数 | 返回 | 示例 |", "|---|---|---|---|---|"]
+        for _, ns_, method, cn, underlying in grp:
+            cls = FRIENDLY_NAMESPACES[ns]
+            params = method_params(cls, method)
+            sig = ", ".join(
+                f"{p.name}:{p.py_ann}" if p.required else f"{p.name}:{p.py_ann}={p.default}"
+                for p in params) or "—"
+            fn_key = underlying_fn(underlying)
+            if fn_key:
+                shape = return_shape_for(CAT, ns, method, underlying)
+                ret = fmt_returns(merged.get(fn_key, {}), INV.get(fn_key, {}), shape=shape)
+                ret = RETURNS_OVERRIDES.get((ns, method), ret)
+            else:
+                ret = FALLBACK_RETURNS.get((ns, method), "—")
+            ex = method_example(ns, method, params)
+            out.append(f"| `cli.{ns}.{method}(...)` | {esc(cn)} | `{esc(sig)}` | {ret} | `{esc(ex)}` |")
+        out.append("")
     return out
 
 
@@ -366,6 +389,8 @@ def build() -> str:
         out.append(f"## {CATEGORY_CN[cat]}")
         out.append("")
         out += core_table(cat, merged)
+        if any(d.get("metric_groups") for d in by_cat[cat]):
+            out += ["---", ""]
         for d in by_cat[cat]:
             out += metric_groups_lines(d)
 

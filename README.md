@@ -8,7 +8,8 @@
 
 > **English TL;DR** — `wm-finpipe` is a source-available Python SDK for A-share market data:
 > k-line (3 adjustment modes), money flow, the three financial statements, 2,197 metric codes
-> (historical & industry percentiles, TTM dividend analytics, technical screens), announcements,
+> (historical & industry percentiles, TTM dividend analytics), a screener facade
+> (single-stock screens & server-side market breadth), announcements,
 > dividend history & high-dividend screeners. Ships a machine-readable offline catalog,
 > unified base units with per-response data guards (ratios as decimals, money in CNY,
 > volume in shares), a typed facade, and a zero-config trial AppID.
@@ -30,6 +31,8 @@ cli = finpipe.Client()                  # 零配置：内置体验 appid 自动�
 
 cli.kline.bars("600519", n=30)                          # 日 K（不复权）
 cli.kline.bars("600519", n=30, adj="qfq")               # 前复权 / "hfq"=后复权
+cli.screener.screen_limit_up("600519")                  # 今日涨停了吗（bool）
+cli.screener.index_breadth_summary()                    # 全市场涨跌全景（服务端直出）
 cli.statements.income("600519", years=5)                # 利润表（合并口径，多期）
 cli.dividend.history("600519", limit=10)                # 分红历史明细
 cli.dividend.yield_ttm("600519")                        # TTM 股息率（小数）
@@ -44,9 +47,11 @@ cli.info.profile("600519")                              # 公司档案
   足够使用（具体额度以开放平台为准）；盘中快照、当日 1 分钟分时等实时数据也包含在内，
   不单独收费、不设积分墙。
 - **开箱即用**——SDK 内置体验 appid，`Client()` 零配置即可取数；正式使用换成自己的 appid。
-- **目录随包、离线可查**——164 个底层函数、52 个核心接口、2197 个指标代码随 wheel 分发，
+- **选股免计算**——`cli.screener` 一行布尔筛选（涨停/均线/动量/放量）+ 全市场涨跌全景/
+  分桶/行业分布/涨跌榜，全部由平台预计算索引在服务端直出，你不拉全市场数据、不算均线。
+- **目录随包、离线可查**——164 个底层函数、64 个核心接口、2197 个指标代码随 wheel 分发，
   断网也能查全部接口合同。类型支持说明：目录命名空间与生成层带类型签名（`py.typed`），
-  52 个核心接口的方法有显式签名；其余底层函数经动态委托访问，IDE 补全以目录为准：
+  64 个核心接口的方法有显式签名；其余底层函数经动态委托访问，IDE 补全以目录为准：
 
   ```python
   import finpipe
@@ -80,7 +85,7 @@ cli.info.profile("600519")                              # 公司档案
 | 上手成本 | 源码安装即用；**离线数据目录随包分发**——164 个函数合同、2197 个指标代码可编程查询（`cat.search("股息")`），断网也能查 | 网页文档查参数/权限/积分要求 |
 | 单位口径 | **全库统一基础单位**（比率=小数、金额=元、成交量=股），SDK 自动换算，返回前做量级守护与关系不变量校验（违例抛 `DataError`，错误量级到不了你的代码） | 各接口单位混杂（万元/元/百分数并存），以文档为准、无运行时校验，踩坑靠自己 |
 | 财务口径 | 新旧会计准则已在平台内部归一，跨年/跨公司直接比较 | 披露原值为主，跨准则比较需自行适配 |
-| 衍生计算 | **服务端算好直出**：TTM 股息率/派息率、PE/PB/股息率的 3/5/10 年历史分位、192 个行业内分位、分红质量筛选器、均线/涨跌停一行布尔——省掉大量胶水代码 | 提供原始与常用指标；估值历史分位、行业分位等衍生口径需自拉数据自算 |
+| 衍生计算 | **服务端算好直出**：TTM 股息率/派息率、PE/PB/股息率的 3/5/10 年历史分位、192 个行业内分位、分红质量筛选器、`cli.screener` 选股门面（技术面一行布尔 + 涨跌全景/分桶/行业分布/涨跌榜）——省掉大量胶水代码 | 提供原始与常用指标；估值历史分位、行业分位等衍生口径需自拉数据自算 |
 | 工程体验 | 类型化门面（`py.typed`，IDE 补全）、参数校验、单次请求上限保护、`call_batch` 单次 HTTP 批量、错误消息带修复步骤 | 字符串参数式调用，依赖文档与社区经验 |
 | 数据质量承诺 | 每次返回经过声明式校验 + 每交易日夜间自动化审计 | 社区成熟稳定，但无对外的口径守护机制 |
 
@@ -88,7 +93,7 @@ cli.info.profile("600519")                              # 公司档案
 
 **finpipe 的劣势（诚实地说）**
 
-- **覆盖面**：主流数据服务 是全品类数据超市（300+ 接口）；finpipe 一期聚焦 A 股个股的 9 个
+- **覆盖面**：主流数据服务 是全品类数据超市（300+ 接口）；finpipe 一期聚焦 A 股个股的 10 个
   数据域，基金净值、期货、期权、债券、外汇暂未覆盖（宏观仅指标形式的横截面）。
 - **数据积累**：主流数据服务 运营多年、历史深、字段广；finpipe 刚起步，历史长度与字段广度
   在持续补充（F10 深度页等未纳入）。
@@ -110,14 +115,57 @@ cli.info.profile("600519")                              # 公司档案
 - **最新与盘中**：最新一根日 K；盘中快照（单票 `live` / 多标的 `batch_live`，单次请求）；
   当日 1 分钟分时（`min1`，有损合成采样，非逐笔，休市读上一交易日）。
 - **ETF 与指数**：ETF 日线已入库；指数键自动桥接指数点位（指数无复权）。
-- **筛选与全景**（底层目录能力，`cli.call`）：均线类（MA20/60/120、突破）、
-  事件类（涨停/跌停/放量/回踩）筛选；全市场涨跌全景、涨跌榜、涨跌幅分桶。
+- **筛选与全景**：独立成节，见下方[选股与全景](#选股与全景)（`cli.screener` 一等门面）。
 - **回测口径**：财报季取数不因披露进度截断；日频回测口径按已披露数据截断。
 - **日期区间**：`bars(..., begin="2026-01-01", end="2026-06-30")` 按自然日筛选
   （最多 5 年；单次取数受 `max_limit` 约束，覆盖不足会明确报错，不会静默截断）。
 - 单位：价格=元，量=**股**（脚本原生为手，SDK 自动 ×100 换算，A 股/港美/ETF 同口径），
   额=元，涨跌幅=小数（0.01 = 1%）。
 - 标的代码自动归一：`sh.600519.SH`、`cn.000001` 均可直接传入。
+
+### 选股与全景
+
+`cli.screener`：单票一行布尔筛选 + 全市场涨跌宽度，全部由平台预计算索引在服务端完成——
+你不拉全市场数据、也不自己算均线。阈值统一**小数**（0.10 = 10%）。
+
+**单票筛选器**（返回 `bool`；以「当日有成交」为前置，停牌恒 `False`）：
+
+| 能力 | 一行代码 | 阈值口径 |
+|---|---|---|
+| 今日涨停 / 跌停 | `cli.screener.screen_limit_up(sym)` / `screen_limit_down(sym)` | 涨跌幅 > ±0.10 |
+| 站上均线 | `cli.screener.screen_above_ma20(sym)`（60/120 经属性直达） | 收盘价 > 均线 |
+| MA60 上行 / 突破 MA20 | `cli.screener.screen_ma60_up(sym)` / `screen_breakout_ma20(sym)` | 趋势组合确认 |
+| 20 日动量 | `cli.screener.screen_momentum_20d(sym, min_chg=0.10)` | 涨幅下限（小数） |
+| 20 日回撤 / 未过热 | `cli.screener.screen_pullback_20d(sym, min_chg=-0.10)` | 涨幅**上限**（小数） |
+| 放量 | `cli.screener.screen_volume_spike(sym, min_ratio=1.5)` | 5 日量比下限 |
+
+**全市场宽度**（`idx` 不传 = 服务端解析 A 股最新查询索引；单次请求直出，免本地计算）：
+
+| 能力 | 一行代码 | 返回 |
+|---|---|---|
+| 涨跌全景 | `cli.screener.index_breadth_summary()` | 涨/跌/平家数、占比（百分数数值）、涨跌幅中位数（小数） |
+| 涨跌幅 9 档分桶 | `cli.screener.index_breadth_bins()` | 行 label / count / pct_of_total（百分数数值） |
+| 分桶 × 行业分布 | `cli.screener.index_breadth_bin_industries()` | 行 bin / industry（行业代码）/ count |
+| 涨跌榜 | `cli.screener.index_top_movers(limit=20)` | 行 symbol / name / percent（小数），跌幅榜传 `desc=False` |
+
+```python
+import finpipe
+
+cli = finpipe.Client.from_env()
+
+# 全市场涨跌全景：*_pct 为百分数数值（80.3 = 80.3%），median_pct 为小数
+print(cli.screener.index_breadth_summary())
+# {'total': 5685, 'up': 4567, 'down': 934, 'flat': 184,
+#  'up_pct': 80.3, 'down_pct': 16.4, 'flat_pct': 3.2, 'median_pct': 0.015363}
+
+# 涨跌榜：按当日涨跌幅排序，percent 为小数（0.0052 = 0.52%）
+print(cli.screener.index_top_movers(limit=3)[0])
+# {'symbol': '600519', 'name': '贵州茅台', 'percent': 0.0052}
+```
+
+其余目录筛选函数经属性直达：`cli.screener.screen_up_today(sym)`、
+`screen_above_ma120(sym)` 等，`cat.search("screen")` 查全部；股息质量筛选器
+见「分红」一节的 `cli.dividend.screen_*`。
 
 ### 资金流向
 
@@ -214,8 +262,9 @@ cli.info.profile("600519")                              # 公司档案
 | 判断估值贵不贵 | `cli.indicator.get(sym, "$PCT_PE_TTM_10Y_LAST")` | 拉十年估值史自己算百分位 |
 | 看公司在行业里的位置 | `$CUR_IND_ROE_PCT_LAST`（行业内 ROE 分位） | 拉全行业成分→逐票取 ROE→排序 |
 | 筛高股息且派息可持续 | `cli.dividend.screen_quality(sym)` | 自写股息/派息率质量模型 |
-| 站上 20 日线了吗 | `cli.kline.screen_above_ma20(sym)` | 拉 K 线→算均线→比较 |
-| 全市场今天涨跌如何 | `cli.kline.index_breadth_summary("index.cn.all")` | 全市场扫描→聚合统计 |
+| 站上 20 日线了吗 | `cli.screener.screen_above_ma20(sym)` | 拉 K 线→算均线→比较 |
+| 全市场今天涨跌如何 | `cli.screener.index_breadth_summary()` | 全市场扫描→聚合统计 |
+| 今日涨幅榜前十 | `cli.screener.index_top_movers(limit=10)` | 全市场扫描→排序→取头部 |
 | 近半年有无回购/减持 | `cli.notice.has_buyback(sym, "6m")` | 拉公告列表→分类匹配→截窗 |
 | 合并与母公司差多少 | `cli.statements.compare(sym)` | 双表对齐→逐科目相除 |
 
@@ -236,7 +285,11 @@ print(cli.indicator.get("600519", "$PCT_PE_TTM_10Y_LAST"))   # 0.42
 print(cli.indicator.get("600519", "$CUR_IND_ROE_PCT_LAST"))  # 0.08
 
 # 技术面一行布尔：是否站上 20 日均线
-print(cli.kline.screen_above_ma20("600519"))                 # True
+print(cli.screener.screen_above_ma20("600519"))              # True
+
+# 全市场涨跌全景：服务端索引直出，免本地扫描（*_pct 百分数、median_pct 小数）
+print(cli.screener.index_breadth_summary())
+# {'total': 5685, 'up': 4567, 'down': 934, 'flat': 184, 'up_pct': 80.3, ...}
 
 # 分红质量：高股息 + 派息可持续
 print(cli.dividend.screen_quality("600519"))                 # True
@@ -257,9 +310,9 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
    都是服务端一次取数直出，不用拉十年历史或全行业成分自算。
 3. **窗口化衍生口径**——TTM 口径 586 个、同比 68 个、3/5/10 年年化/均值/最低/趋势 394 个；
    命名窗口（`7d`…`5y` 或天数）在分红/公告域通用，未知 token 显式报错。
-4. **服务端算好的筛选与汇总**——14 个技术面筛选（均线/动量/量比/涨跌停，一行布尔）+
-   6 个全市场宽度汇总（涨跌全景/分桶/行业分布/涨跌榜）；公告域的回购/减持/增持/股权激励
-   窗口判定与证据行；财报域的合并 vs 母公司差额占比与杜邦分解。
+4. **服务端算好的筛选与汇总**——选股门面 `cli.screener`（单票技术面一行布尔 +
+   全市场涨跌全景/分桶/行业分布/涨跌榜，详见「选股与全景」）；公告域的回购/减持/增持/
+   股权激励窗口判定与证据行；财报域的合并 vs 母公司差额占比与杜邦分解。
    另有约 224 个宏观/行业横截面指标（CPI/PPI/M2/用电量/社零…）与 54 个指数加权指标
    （等权/市值/调和加权股息率、相对指数 Alpha/Beta），行业层面数据不必另找源。
 
@@ -302,6 +355,7 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 | 价格 / 金额 / 市值 | 元 | 报表原币；指标层与报表同口径，可直接混算 |
 | 成交量 | 股 | A 股/港美/ETF 同口径（脚本手原值由 SDK 自动 ×100） |
 | 涨跌幅 / 比率 | 小数 | 0.01 = 1%；0.332 = 33.2%（ROE/毛利率/资产负债率等） |
+| 筛选阈值 | 小数 | `screen_momentum_20d(min_chg=0.10)` = 10%；宽度返回的 `*_pct`/`pct_of_total` 为百分数数值（80.3 = 80.3%） |
 | 业绩预告同比 | 小数 | 脚本原生百分数已由 SDK 自动换算（1.467 = 146.7%） |
 | 分红率 | 小数 | 0.0396 = 3.96% |
 | 数据守护 | 每次返回默认校验 | 违例抛 `DataError`；逃生口见「数据正确性保障」 |
@@ -370,7 +424,7 @@ export FINPIPE_CLIENT_SECRET=...
 
 | 分类 | 数据域 | 性质 |
 |------|--------|------|
-| 市场行情 | 行情K线（日K/复权/盘中快照）、资金流向 | 原始数据 |
+| 市场行情 | 行情K线（日K/复权/盘中快照）、资金流向、选股与全景（`cli.screener`：单票筛选 + 涨跌全景/分桶/榜单） | 行情=原始数据；筛选/宽度=指标 |
 | 财务基本面 | 三大报表（资产负债/利润/现金流）、经营分部（分产品/业务/区域）、指标层（2197 个指标代码：估值/盈利/成长/现金流/杜邦…） | 报表/分部=原始数据，指标=派生指标 |
 | 信息披露 | 公告、定期报告清单、业绩预告/快报/披露日历、分红 | 原始数据（率类为指标） |
 | 参考数据 | 公司档案 / 股本 | 原始数据 |
@@ -416,7 +470,7 @@ relational invariants (violations raise `DataError`).
 
 ## 更多
 
-- [API 参考](docs/API.md)：四大类 52 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
+- [API 参考](docs/API.md)：四大类 64 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
   Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；
   Swagger UI 资源来自 CDN，若浏览器限制 `file://` 可在 docs 目录起 `python -m http.server`）

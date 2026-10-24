@@ -9,6 +9,8 @@
   - 本层是目录合同的薄翻译：高频方法显式包装；目录内其余函数经 ``__getattr__``
     属性直达（如 ``cli.kline.screen_above_ma20``、``cli.dividend.screen_quality``），
     目录之外的名字显式 AttributeError——155 个底层函数零遮蔽。
+  - 选股能力集中在 ``cli.screener``：单票筛选器（bool）与全市场宽度（服务端
+    预计算索引直出）显式包装，kline 目录的其余筛选函数经属性直达。
 
 使用：
     cli = finpipe.Client.from_env()
@@ -99,6 +101,7 @@ def _to_df(result: Any) -> Any:
 # 是聚合层（indicator/info 走指标 eval，无目录函数）。
 _FRIENDLY_NS_TO_CATALOG: dict[str, str] = {
     "kline": "kline",
+    "screener": "kline",
     "moneyflow": "moneyflow",
     "statements": "rptdom",
     "notice": "notice",
@@ -268,6 +271,109 @@ class MoneyflowApi(_Api):
     def live(self, symbol: str, _raw: bool = False) -> Any:
         """盘中资金流快照（短 TTL）；数据源暂无快照时返回 None。"""
         return self._c.call("moneyflow.query_last_live", sym=symbol, _raw=_raw)
+
+
+# ---------------------------------------------------------------- 选股 market
+class ScreenerApi(_Api):
+    """选股与全景：单票筛选器（bool）+ 全市场涨跌宽度（服务端预计算索引直出）。
+
+    筛选阈值统一**小数**（0.10 = 10%）；事件筛选以「当日有成交」为前置
+    （停牌恒 False）。全市场四件套（全景/分桶/行业分布/涨跌榜）由服务端索引
+    聚合直出、免本地计算；``idx`` 不传时由服务端解析 A 股最新查询索引。
+    口径注记：宽度返回中 ``up_pct``/``down_pct``/``flat_pct`` 与分桶
+    ``pct_of_total`` 为百分数数值（52.3 = 52.3%），``median_pct`` 与涨跌幅为
+    小数（0.01 = 1%）。kline 目录的其余筛选函数经属性直达
+    （如 ``cli.screener.screen_up_today("600519")``），``cat.search("screen")``
+    可查全部；股息质量筛选器见 ``cli.dividend.screen_*``。
+    """
+
+    # ---- 单票事件筛选 ----
+    def screen_limit_up(self, symbol: str) -> bool:
+        """今日涨停（涨幅 > 0.10；停牌返回 False）。"""
+        return bool(self._c.call("kline.screen_limit_up", sym=symbol))
+
+    def screen_limit_down(self, symbol: str) -> bool:
+        """今日跌停（涨幅 < -0.10；停牌返回 False）。"""
+        return bool(self._c.call("kline.screen_limit_down", sym=symbol))
+
+    # ---- 单票均线/量能/动量筛选 ----
+    def screen_above_ma20(self, symbol: str) -> bool:
+        """收盘价站上 MA20（60/120 日线变体经属性直达 screen_above_ma60/ma120）。"""
+        return bool(self._c.call("kline.screen_above_ma20", sym=symbol))
+
+    def screen_ma60_up(self, symbol: str) -> bool:
+        """MA60 上行（中期趋势向上）。"""
+        return bool(self._c.call("kline.screen_ma60_up", sym=symbol))
+
+    def screen_breakout_ma20(self, symbol: str) -> bool:
+        """突破 MA20（站上 MA20 且 MA60 上行的组合确认）。"""
+        return bool(self._c.call("kline.screen_breakout_ma20", sym=symbol))
+
+    def screen_momentum_20d(self, symbol: str, min_chg: float = 0.10) -> bool:
+        """近 20 日涨幅达标（动量强）。
+
+        :param min_chg: 20 日累计涨幅下限（小数，0.10 = 10%）
+        """
+        return bool(self._c.call("kline.screen_momentum_20d", sym=symbol, min_chg=min_chg))
+
+    def screen_pullback_20d(self, symbol: str, min_chg: float = -0.10) -> bool:
+        """近 20 日涨幅低于上限（回撤/未过热）。
+
+        :param min_chg: 20 日累计涨幅的**上限**（小数）：默认 -0.10（近 20 日
+            跌超 10%，深度回撤）；传 0.10 表示剔除已涨超 10% 的标的
+        """
+        return bool(self._c.call("kline.screen_pullback_20d", sym=symbol, min_chg=min_chg))
+
+    def screen_volume_spike(self, symbol: str, min_ratio: float = 1.5) -> bool:
+        """放量（5 日量比超阈值）。
+
+        :param min_ratio: 量比下限，默认 1.5（5 日均量的 1.5 倍）
+        """
+        return bool(self._c.call("kline.screen_volume_spike", sym=symbol,
+                                 min_ratio=min_ratio))
+
+    # ---- 全市场宽度（服务端索引直出，免本地计算）----
+    # idx 不传时由服务端解析最新 A 股查询索引（LatestIndexKey，动态 cache_key，
+    # 无稳定字面量——不要臆造 "index.cn.all" 之类的键，实测 500）。
+    def _breadth(self, fn: str, idx: str | None) -> Any:
+        if idx is None:
+            return self._c.eval_result(f"return {fn}(LatestIndexKey())")
+        return self._c.call(fn, idx=idx)
+
+    def index_breadth_summary(self, idx: str | None = None) -> dict:
+        """全市场涨跌全景（上涨/下跌/平盘家数、占比与涨跌幅中位数）。
+
+        :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
+        """
+        return self._breadth("kline.index_breadth_summary", idx)
+
+    def index_breadth_bins(self, idx: str | None = None) -> list:
+        """涨跌幅 9 档分桶（涨停/±5%/±3%/平盘/…/跌停），行含 label/count/pct_of_total。
+
+        :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
+        """
+        return self._breadth("kline.index_breadth_bins", idx)
+
+    def index_breadth_bin_industries(self, idx: str | None = None) -> list:
+        """涨跌幅分桶 × 一级行业分布（行含 bin/industry/count）。
+
+        :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
+        """
+        return self._breadth("kline.index_breadth_bin_industries", idx)
+
+    def index_top_movers(self, limit: int = 20, desc: bool = True,
+                         idx: str | None = None) -> list:
+        """涨跌榜（按当日涨跌幅排序，行含 symbol/name/percent；percent 为小数）。
+
+        :param limit: 条数，默认 20
+        :param desc: true=涨幅榜（默认）；false=跌幅榜
+        :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
+        """
+        if idx is None:
+            xs = (f"return kline.index_top_movers(LatestIndexKey(), {int(limit)}, "
+                  f"{'true' if desc else 'false'})")
+            return self._c.eval_result(xs)
+        return self._c.call("kline.index_top_movers", idx=idx, limit=limit, desc=desc)
 
 
 # ---------------------------------------------------------------- 财务 fundamentals
@@ -693,6 +799,7 @@ class InfoApi(_Api):
 
 FRIENDLY_NAMESPACES: dict[str, type[_Api]] = {
     "kline": KlineApi,
+    "screener": ScreenerApi,
     "moneyflow": MoneyflowApi,
     "statements": StatementsApi,
     "segments": SegmentsApi,
@@ -717,6 +824,20 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("market", "moneyflow", "bars", "资金流历史", "moneyflow.query_bars"),
     ("market", "moneyflow", "last", "最新资金流", "moneyflow.query_bars"),
     ("market", "moneyflow", "live", "盘中资金流快照", "moneyflow.query_last_live"),
+    ("market", "screener", "screen_limit_up", "今日涨停筛选", "kline.screen_limit_up"),
+    ("market", "screener", "screen_limit_down", "今日跌停筛选", "kline.screen_limit_down"),
+    ("market", "screener", "screen_above_ma20", "站上 MA20 筛选", "kline.screen_above_ma20"),
+    ("market", "screener", "screen_ma60_up", "MA60 上行筛选", "kline.screen_ma60_up"),
+    ("market", "screener", "screen_breakout_ma20", "突破 MA20 筛选", "kline.screen_breakout_ma20"),
+    ("market", "screener", "screen_momentum_20d", "20 日动量筛选", "kline.screen_momentum_20d"),
+    ("market", "screener", "screen_pullback_20d", "20 日回撤筛选", "kline.screen_pullback_20d"),
+    ("market", "screener", "screen_volume_spike", "放量筛选", "kline.screen_volume_spike"),
+    ("market", "screener", "index_breadth_summary", "全市场涨跌全景",
+     "kline.index_breadth_summary"),
+    ("market", "screener", "index_breadth_bins", "涨跌幅分桶", "kline.index_breadth_bins"),
+    ("market", "screener", "index_breadth_bin_industries", "分桶行业分布",
+     "kline.index_breadth_bin_industries"),
+    ("market", "screener", "index_top_movers", "涨跌榜", "kline.index_top_movers"),
     ("fundamentals", "statements", "balance", "资产负债表", "rptdom.statement"),
     ("fundamentals", "statements", "income", "利润表", "rptdom.statement"),
     ("fundamentals", "statements", "cashflow", "现金流量表", "rptdom.statement"),

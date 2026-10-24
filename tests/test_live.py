@@ -302,6 +302,58 @@ def test_kline_query_bars_live(cli):
     assert isinstance(rows, list)
 
 
+# ---------------------------------------------------------------- 选股 screener
+def test_screener_predicates(cli):
+    """单票筛选器恒返回 bool（涨停/跌停/均线/动量/回撤/放量各抽一；未命中 False 合法）。"""
+    assert isinstance(_call_or_xfail(cli.screener.screen_limit_up, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_limit_down, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_above_ma20, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_ma60_up, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_breakout_ma20, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_momentum_20d, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_pullback_20d, MAIN), bool)
+    assert isinstance(_call_or_xfail(cli.screener.screen_volume_spike, MAIN), bool)
+
+
+def test_screener_breadth_summary(cli):
+    """涨跌全景：家数守恒；up_pct 为百分数（0~100）、median_pct 为小数。"""
+    s = _call_or_xfail(lambda: cli.screener.index_breadth_summary())
+    assert {"total", "up", "down", "flat", "up_pct", "median_pct"} <= set(s)
+    assert s["up"] + s["down"] + s["flat"] == s["total"] and s["total"] > 1000
+    assert 0 <= s["up_pct"] <= 100 and 0 <= s["down_pct"] <= 100
+    assert -0.5 <= s["median_pct"] <= 0.5
+
+
+def test_screener_breadth_bins(cli):
+    """涨跌幅分桶：档位行齐全、家数合计与全景同量级。"""
+    bins = _call_or_xfail(lambda: cli.screener.index_breadth_bins())
+    assert isinstance(bins, list) and len(bins) >= 5
+    assert {"label", "count", "pct_of_total"} <= set(bins[0])
+    assert sum(b["count"] for b in bins) > 1000
+
+
+def test_screener_bin_industries(cli):
+    """分桶行业分布：行含 bin/industry/count（industry 为行业代码）。"""
+    rows = _call_or_xfail(lambda: cli.screener.index_breadth_bin_industries())
+    assert isinstance(rows, list) and rows
+    assert {"bin", "industry", "count"} <= set(rows[0])
+
+
+def test_screener_top_movers(cli):
+    """涨跌榜：新合同行含 symbol/name/percent（小数）且按涨跌幅降序。
+
+    服务端跑的是已部署脚本副本：本地上游 7615b7ea 的字段投影未部署前为
+    values.$XXX 旧形态，此时 xfail（部署后自动转正）。
+    """
+    rows = _call_or_xfail(cli.screener.index_top_movers, 5)
+    assert isinstance(rows, list) and len(rows) == 5
+    if "symbol" not in rows[0]:
+        pytest.xfail("上游部署未含 7615b7ea 的 top_movers 字段投影（旧形态 values.$XXX）")
+    assert {"symbol", "name", "percent"} <= set(rows[0])
+    percents = [r["percent"] for r in rows]
+    assert percents == sorted(percents, reverse=True), "涨幅榜应按涨跌幅降序"
+
+
 # ---------------------------------------------------------------- 参考 reference
 def test_info_profile(cli):
     prof = cli.info.profile(MAIN)

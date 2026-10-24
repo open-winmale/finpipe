@@ -22,6 +22,7 @@ EXAMPLE_VALUES = {
     "kind": '"annual"', "keyword": '"回购"', "window": '"3m"',
     "years": "3", "scope": '"合并"', "n": "30", "limit": "10",
     "symbols": '["600519", "000001"]', "date": '"2026-06-30"',
+    "min_chg": "0.10", "min_ratio": "1.5", "desc": "True",
 }
 
 # 方法级示例值覆盖（同一参数名在不同接口语义不同，如 kind）
@@ -30,6 +31,17 @@ METHOD_EXAMPLE_VALUES = {
     ("statements", "tree"): {"kind": '"balance"'},
     ("statements", "years"): {"kind": '"income"'},
     ("valuation", "hist_stats"): {"metric": '"pe"', "window": '"3y"'},
+    # 回撤筛选的示例取上游默认语义（近 20 日跌超 10%）
+    ("screener", "screen_pullback_20d"): {"min_chg": "-0.10"},
+}
+
+# 返回说明覆盖（目录 shape 过粗的动态列表返回，按上游实现补字段级说明；
+# pct_of_total 为百分数数值（52.3=52.3%），涨跌幅/median_pct 为小数）
+RETURNS_OVERRIDES = {
+    ("screener", "index_breadth_bins"):
+        "ARR · 行 label:str（档位） count:int pct_of_total:float（百分数，52.3=52.3%）",
+    ("screener", "index_breadth_bin_industries"):
+        "ARR · 行 bin:str（档位） industry:str（行业代码，如 industry.S77） count:int",
 }
 
 # 返回说明兜底（FRIENDLY_INDEX 底层列不可回溯目录 shape 的核心接口）

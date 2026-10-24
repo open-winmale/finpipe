@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.1] - 2026-10-24
 
 ### Changed
 
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `test_readme_no_competitor_names`（防回潮）与 `test_readme_is_lean`（行数 ≤280，
   防再膨胀）守护；新增「目录」导航与「能力一览」一屏表（12 个门面 × 能力 × 单位口径）；
   「我想做 X」速查表、可执行示例、数据正确性保障、口径速查、免费额度与凭证保留。
+  本次为纯文档发布，随包代码与 1.4.0 一致；发布目的之一是刷新 PyPI 项目页描述。
 - README 生态工具「波段」介绍与工具实现对齐：区间设置只保留**推荐区间**（四条约束
   自动搜点）与**自定义区间**两种来源，移除通道轨表述（工具侧 1c1cfa3 已删该选项）。
 

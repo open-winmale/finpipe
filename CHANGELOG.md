@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- README「更多」新增生态工具入口：[big-winner](https://github.com/open-winmale/big-winner)
+  （基于本 SDK 构建）——收息佬（分红日历/持仓透视/派息稳定性）与波段（估值通道/
+  推荐区间/安全边界/波段 vs 长持回放）。
 - **AI 原生 skill（随 wheel 分发）**：Agent Skills 格式的 `SKILL.md`
   （`finpipe.skill_dir()` 定位，`skills/finpipe/*.md` 进 package-data），教 AI
   agent 正确使用 SDK——环境前置与 AppID 申请引导、单位铁律（小数/元/股 +

@@ -238,6 +238,25 @@ class ReadmeClient:
             screen_above_ma20=lambda *a, **k: True,
             index_breadth_summary=lambda *a, **k: {"up": 3200, "down": 2100},
         )
+        self.screener = types.SimpleNamespace(
+            screen_limit_up=lambda *a, **k: False,
+            screen_above_ma20=lambda *a, **k: True,
+            screen_momentum_20d=lambda *a, **k: False,
+            screen_volume_spike=lambda *a, **k: True,
+            # 数值取自 2026-10-24 真实 probe（A 股全市场截面）
+            index_breadth_summary=lambda *a, **k: {"total": 5685, "up": 4567, "down": 934,
+                                                   "flat": 184, "up_pct": 80.3,
+                                                   "down_pct": 16.4, "flat_pct": 3.2,
+                                                   "median_pct": 0.015363},
+            index_breadth_bins=lambda *a, **k: [
+                {"label": "i_涨停", "count": 109, "pct_of_total": 1.9},
+                {"label": "h_+5%~10%", "count": 464, "pct_of_total": 8.2},
+                {"label": "g_+3%~5%", "count": 829, "pct_of_total": 14.6},
+            ],
+            index_top_movers=lambda *a, **k: [
+                {"symbol": "600519", "name": "贵州茅台", "percent": 0.0052},
+            ],
+        )
         self.dividend = types.SimpleNamespace(
             yield_ttm=lambda *a, **k: 0.0396,
             screen_quality=lambda *a, **k: True,

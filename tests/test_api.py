@@ -228,3 +228,22 @@ def test_dividend_screeners_promoted(cli):
     assert last_xs(cli) == ['return bonus.screen_high_yield("600519")']
     cli.dividend.screen_undervalued_yield("600519", min_yield=0.04)
     assert last_xs(cli) == ['return bonus.screen_undervalued_yield("600519", 0.04)']
+
+
+def test_screener_translation(cli):
+    """选股门面：单票筛选器直译目录合同；宽度接口默认由服务端解析最新查询索引。"""
+    cli.screener.screen_limit_up("600519")
+    assert last_xs(cli) == ['return kline.screen_limit_up("600519")']
+    cli.screener.screen_momentum_20d("600519", min_chg=0.15)
+    assert last_xs(cli) == ['return kline.screen_momentum_20d("600519", 0.15)']
+    cli.screener.screen_volume_spike("600519")
+    assert last_xs(cli) == ['return kline.screen_volume_spike("600519", 1.5)']
+    cli.screener.index_breadth_summary()
+    assert last_xs(cli) == ['return kline.index_breadth_summary(LatestIndexKey())']
+    cli.screener.index_top_movers(limit=10, desc=False)
+    assert last_xs(cli) == ['return kline.index_top_movers(LatestIndexKey(), 10, false)']
+    # 其余 kline 目录筛选器经属性直达（委托），零遮蔽
+    cli.screener.screen_above_ma120("600519")
+    assert last_xs(cli) == ['return kline.screen_above_ma120("600519")']
+    with pytest.raises(AttributeError, match="cat.search"):
+        cli.screener.no_such_fn

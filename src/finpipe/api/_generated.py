@@ -509,7 +509,7 @@ class KlineNS(_Ns):
     def index_breadth_summary(self, idx: Any, _raw: bool = False, _df: bool = False) -> Any:
         """全市场涨跌全景
 
-:param idx: 指数键字符串，如 "index.cn.all"
+:param idx: 服务端索引键（动态解析、无稳定字面量；推荐经 cli.screener 门面免传）
 
 :returns: MAP · 涨跌统计
         """

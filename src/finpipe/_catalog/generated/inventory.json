@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "upstream_rev": "a8e0a15b",
+ "upstream_rev": "7615b7ea",
  "domains": {
   "bonus": {
    "entry": "sys/bonus/init.xs",
@@ -1914,7 +1914,24 @@
    "returns_shape": {
     "kind": "array",
     "items": {
-     "type": "map[string]any"
+     "type": "map[string]any",
+     "fields": [
+      {
+       "name": "symbol",
+       "type": "string",
+       "cn": "标的代码"
+      },
+      {
+       "name": "name",
+       "type": "string",
+       "cn": "证券简称"
+      },
+      {
+       "name": "percent",
+       "type": "float",
+       "cn": "当日涨跌幅（小数）"
+      }
+     ]
     }
    },
    "min_args": 1,

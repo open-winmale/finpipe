@@ -393,6 +393,36 @@ class SegmentsApi(_Api):
         return self._c.call("segments.list_sas", sym=symbol)
 
 
+class ValuationApi(_Api):
+    """估值历史统计（与平台 web「估值通道」取数同源，宿主函数 HIST_STATS）。
+
+    返回窗口内每日估值序列与统计量：``{avg, current, median, min, max, pct,
+    count, series}``——pct 为当前值的历史分位（小数，0.42 = 42% 分位）；
+    series 为 ``[[unix 秒, 值], ...]`` 升序；引擎不返回 stddev，需要通道带宽时
+    由调用方按总体口径（÷N）自算。
+    口径注记：亏损期 PE 无数据、净资产为负期间不参与统计（与平台免责一致）。
+    """
+
+    _METRICS = {"pe": "pe", "pb": "pb", "ps": "ps", "pr": "pr_base"}
+    _WINDOWS = ("1y", "2y", "3y")  # 引擎实测支持 2y；窗口上限 3 年
+
+    def hist_stats(self, symbol: str, metric: str = "pe", window: str = "3y") -> dict:
+        """估值指标的历史统计与每日序列（PE=TTM 口径；pr=市赚率 pr_base）。
+
+        :param metric: "pe" / "pb" / "ps" / "pr"
+        :param window: "1y" / "2y" / "3y"（上限 3 年）
+        """
+        if metric not in self._METRICS:
+            raise UsageError(
+                f"metric 只支持 {sorted(self._METRICS)}（pe=市盈率TTM、pb=市净率、"
+                "ps=市销率、pr=市赚率；金融/亏损股建议用 pb）", code="params")
+        if window not in self._WINDOWS:
+            raise UsageError(
+                f"window 只支持 {list(self._WINDOWS)}（上限 3 年）", code="params")
+        return self._c.eval_result(
+            f'return HIST_STATS("{window}", "{self._METRICS[metric]}")', symbol=symbol)
+
+
 class IndicatorApi(_Api):
     """平台指标（按指标代码寻址）。
 
@@ -665,6 +695,7 @@ FRIENDLY_NAMESPACES: dict[str, type[_Api]] = {
     "moneyflow": MoneyflowApi,
     "statements": StatementsApi,
     "segments": SegmentsApi,
+    "valuation": ValuationApi,
     "indicator": IndicatorApi,
     "notice": NoticeApi,
     "filings": FilingsApi,
@@ -701,6 +732,7 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("fundamentals", "segments", "snapshot", "分部截面快照", "segments.snapshot"),
     ("fundamentals", "segments", "coverage", "分部披露覆盖度", "segments.coverage"),
     ("fundamentals", "segments", "periods", "分部可用报告期", "segments.list_sas"),
+    ("fundamentals", "valuation", "hist_stats", "估值历史统计", "组合接口（宿主 HIST_STATS）"),
     ("disclosure", "notice", "list", "单票公告列表", "notice.query_by_symbol"),
     ("disclosure", "notice", "recent", "全市场近期公告", "notice.query_recent"),
     ("disclosure", "notice", "by_category", "按类别查公告", "notice.query_by_category"),

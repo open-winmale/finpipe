@@ -428,6 +428,18 @@ def test_segments_periods_and_snapshot(cli):
     assert isinstance(snap, dict) and "business" in snap and "coverage" in snap
 
 
+# ---------------------------------------------------------------- 估值历史统计
+def test_valuation_hist_stats_live(cli):
+    """600900 PB 3y：字段齐全、序列升序且与 count 一致、分位在 [0,1]。"""
+    r = cli.valuation.hist_stats("600900", metric="pb", window="3y")
+    assert {"avg", "current", "median", "min", "max", "pct", "count", "series"} <= set(r)
+    assert r["count"] > 100 and len(r["series"]) == r["count"]
+    assert 0 <= r["pct"] <= 1
+    assert r["min"] <= r["median"] <= r["max"]
+    dates = [pt[0] for pt in r["series"]]
+    assert dates == sorted(dates), "估值序列应按时间升序"
+
+
 # ---------------------------------------------------------------- 覆盖面守护
 def test_all_core_interfaces_are_exercised_here():
     """本文件必须覆盖 FRIENDLY_INDEX 的每个核心接口（防冒烟面回退）。"""

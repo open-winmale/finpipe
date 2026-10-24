@@ -29,6 +29,7 @@ METHOD_EXAMPLE_VALUES = {
     ("statements", "compare"): {"kind": '"income"'},
     ("statements", "tree"): {"kind": '"balance"'},
     ("statements", "years"): {"kind": '"income"'},
+    ("valuation", "hist_stats"): {"metric": '"pe"', "window": '"3y"'},
 }
 
 # 返回说明兜底（FRIENDLY_INDEX 底层列不可回溯目录 shape 的核心接口）
@@ -36,6 +37,8 @@ FALLBACK_RETURNS = {
     ("indicator", "get"): "数值 · 单指标当前值",
     ("indicator", "metrics"): "MAP · {code: 值}",
     ("info", "profile"): "MAP · 档案（name/industry/style_industry/org_type/listing_date）",
+    ("valuation", "hist_stats"):
+        "MAP · {avg, current, median, min, max, pct, count, series:[unix秒,值]}（窗口上限 3 年）",
 }
 
 _PARAM_RE = re.compile(r"^:param (\w+):\s*(.*)$")

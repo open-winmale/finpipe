@@ -43,9 +43,9 @@ cli.info.profile("600519")                              # 公司档案
 - **免费额度充足**——注册开放平台账号即得免费额度，个人学习、研究等非商业用途完全免费且
   足够使用（具体额度以开放平台为准）。
 - **开箱即用**——SDK 内置体验 appid，`Client()` 零配置即可取数；正式使用换成自己的 appid。
-- **目录随包、离线可查**——164 个底层函数、51 个核心接口、2197 个指标代码随 wheel 分发，
+- **目录随包、离线可查**——164 个底层函数、52 个核心接口、2197 个指标代码随 wheel 分发，
   断网也能查全部接口合同。类型支持说明：目录命名空间与生成层带类型签名（`py.typed`），
-  51 个核心接口的方法有显式签名；其余底层函数经动态委托访问，IDE 补全以目录为准：
+  52 个核心接口的方法有显式签名；其余底层函数经动态委托访问，IDE 补全以目录为准：
 
   ```python
   import finpipe
@@ -146,6 +146,9 @@ cli.info.profile("600519")                              # 公司档案
 - **经营与财务多口径**：合并/母公司、单期/多期/TTM、披露原值/派生指标；
   收入构成的**分部明细**见经营分部域（`cli.segments.products/business/region/income`）——
   分产品、分业务、分区域（境内外）收入与毛利率，平台清洗归一直出。
+- **估值历史统计**：`cli.valuation.hist_stats(sym, metric="pe", window="3y")` 返回窗口内
+  每日 PE/PB/PS/市赚率序列与统计量（均值/中位/分位），窗口上限 3 年——估值通道类
+  工具（如 big-winner 的必赢佬）以此为数据源。
 
 ### 公告
 
@@ -408,7 +411,7 @@ relational invariants (violations raise `DataError`).
 
 ## 更多
 
-- [API 参考](docs/API.md)：四大类 51 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
+- [API 参考](docs/API.md)：四大类 52 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
   Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；
   Swagger UI 资源来自 CDN，若浏览器限制 `file://` 可在 docs 目录起 `python -m http.server`）

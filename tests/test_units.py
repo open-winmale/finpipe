@@ -281,3 +281,21 @@ def test_apply_units_scalar_and_odd_shapes():
     fn = cat.function("kline.snapshot")  # 未声明 units/ranges/checks
     out = apply_units({"close": 1.0}, fn, fname="kline.snapshot")
     assert out == {"close": 1.0}
+
+
+# ---- valuation.hist_stats（估值历史统计，组合接口）----
+
+HIST = {"avg": 3.027, "current": 3.334, "median": 3.032, "min": 2.473,
+        "max": 3.661, "pct": 0.889, "count": 2,
+        "series": [[1698076800, 2.55], [1792684800, 3.33]]}
+
+
+def test_valuation_hist_stats_passthrough_and_validation():
+    c, _ = make(dict(HIST))
+    out = c.valuation.hist_stats("600900", metric="pb", window="3y")
+    assert out["avg"] == 3.027 and out["pct"] == 0.889  # 引擎结果原样透传
+
+    with pytest.raises(Exception, match="metric"):
+        c.valuation.hist_stats("600900", metric="roe")
+    with pytest.raises(Exception, match="window"):
+        c.valuation.hist_stats("600900", window="5y")  # 上限 3 年

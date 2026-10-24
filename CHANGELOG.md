@@ -22,6 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 提取器命名空间白名单 += segments（上游 `sys/segments`，18 个公开函数策展收录
   9 个；inventory 全量收录 15 个带合同注记的条目）。
 
+## [1.3.0] - 2026-10-24
+
+### Added
+
+- **数据接口「估值历史统计」**：`cli.valuation.hist_stats(symbol, metric="pe", window="3y")`
+  ——与平台 web「估值通道」取数同源（宿主 HIST_STATS），返回窗口内每日 PE/PB/PS/市赚率
+  序列与统计量（avg/current/median/min/max/pct）。窗口白名单 1y/2y/3y（上限 3 年）；
+  亏损期 PE 无数据、净资产为负期间不参与。下游工具（big-winner 必赢佬）以此为数据源。
+- 核心接口 51 → 52。
+
 ## [Unreleased]
 
 ### Added

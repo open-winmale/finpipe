@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **AI 原生 skill（随 wheel 分发）**：Agent Skills 格式的 `SKILL.md`
+  （`finpipe.skill_dir()` 定位，`skills/finpipe/*.md` 进 package-data），教 AI
+  agent 正确使用 SDK——环境前置与 AppID 申请引导、单位铁律（小数/元/股 +
+  混口径标注）、目录先行防臆造指标码、意图→接口决策树、工作流与返回解读、
+  坑位清单、错误处理速查。装入方式：复制到 agent 的 skill 发现目录
+  （`~/.agents/skills/` 等）。新增 `tests/test_skill.py`：frontmatter 合法性、
+  **文中全部调用防臆造守护**（命名空间/方法/目录函数逐一校验 + 签名可绑定）、
+  wheel 分发声明、关键措辞守护。
 - **数据接口「选股与全景」**：新 `cli.screener` 门面，核心接口 52 → 64。
   单票一行布尔筛选：`screen_limit_up` / `screen_limit_down`（涨停/跌停，阈值
   ±0.10 小数）、`screen_above_ma20` / `screen_ma60_up` / `screen_breakout_ma20`

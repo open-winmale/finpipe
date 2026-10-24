@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **选股门面对齐审查修复**：三个列表返回的宽度接口（`index_breadth_bins` /
+  `index_breadth_bin_industries` / `index_top_movers`）补 `_df=True` 支持
+  （对齐模块「返回列表的方法支持 _df」承诺）；`index_top_movers` 的 `limit` 在
+  eval 拼脚本路径补 `Client(max_limit=...)` / 10000 行硬上限钳制（此前只走目录
+  路径才受钳制）；门面模块 docstring 底层函数计数 155 → 164 并加测试守护；
+  README 与示例中 `index_where_*` 的表述修正为「服务端筛选条件表达式」
+  （原文案误写为可直接使用的股票池）。
 - 宽度接口索引键：臆造字面量 `"index.cn.all"` 实测 500（索引键为动态 cache_key，
   无稳定字面量）；`cli.screener` 宽度四件套改为 `idx=None` 时由服务端
   `LatestIndexKey()` 解析。README/速查表中旧键示例已移除。

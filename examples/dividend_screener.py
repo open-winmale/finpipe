@@ -30,12 +30,12 @@ def main() -> None:
     if batch.errors:
         print(f"  错误隔离：{len(batch.errors)} 个失败 → {dict(list(batch.errors.items())[:3])}")
 
-    # ---- 底层选股函数经属性直达（__getattr__ 兜底，155 函数零遮蔽）----
+    # ---- 底层选股函数经属性直达（__getattr__ 兜底，164 函数零遮蔽）----
+    # 注意：index_where_* 返回的是服务端查询引擎的筛选表达式（非本地可执行的票池）
     print("\n--- 底层函数直达：cli.dividend.index_where_high_yield_5() ---")
     try:
-        pool = cli.dividend.index_where_high_yield_5()  # 连续 5 年高股息的股票池
-        n = len(pool) if isinstance(pool, list) else pool
-        print(f"  连续 5 年高股息池：{str(n)[:80]}")
+        expr = cli.dividend.index_where_high_yield_5()  # 「连续 5 年高股息」筛选条件表达式
+        print(f"  筛选表达式：{str(expr)[:80]}")
     except FinPipeError as e:
         print(f"  跳过：code={e.code} {e}")
 

@@ -1205,7 +1205,7 @@
                 "properties": {
                   "limit": {
                     "type": "integer",
-                    "description": "条数，默认 20"
+                    "description": "条数，默认 20；受 Client(max_limit=...) 与单次 10000 行硬上限钳制"
                   },
                   "desc": {
                     "type": "boolean",

@@ -247,3 +247,19 @@ def test_screener_translation(cli):
     assert last_xs(cli) == ['return kline.screen_above_ma120("600519")']
     with pytest.raises(AttributeError, match="cat.search"):
         cli.screener.no_such_fn
+
+
+def test_screener_top_movers_limit_clamped(cli):
+    """eval 拼脚本路径同样受 max_limit/10000 防脱库钳制（不发请求直接拒绝）。"""
+    from finpipe import LimitError
+    with pytest.raises(LimitError, match="超过单次上限"):
+        cli.screener.index_top_movers(limit=20000)
+    cli.screener.index_top_movers(limit=10)
+    assert last_xs(cli) == ['return kline.index_top_movers(LatestIndexKey(), 10, true)']
+
+
+def test_screener_breadth_supports_df(cli):
+    """列表返回的宽度接口支持 _df=True（模块 docstring 的承诺，列表方法逐一对齐）。"""
+    cli.session.eval_result = [{"label": "i_涨停", "count": 109, "pct_of_total": 1.9}]
+    df = cli.screener.index_breadth_bins(_df=True)
+    assert list(df.columns) == ["label", "count", "pct_of_total"]

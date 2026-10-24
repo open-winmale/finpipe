@@ -116,6 +116,15 @@ def test_readme_counts_match_catalog():
     assert f"{curated} 个精选常用指标代码" in README
 
 
+def test_api_module_docstring_counts_match_catalog():
+    """门面模块 docstring 的底层函数计数必须与目录一致（曾停留 155 而目录已 164）。"""
+    src = (REPO / "src" / "finpipe" / "api" / "__init__.py").read_text(encoding="utf-8")
+    m = re.search(r"(\d+) 个底层函数零遮蔽", src)
+    assert m, "模块 docstring 缺少底层函数计数"
+    assert int(m.group(1)) == CAT.stats()["functions"], \
+        "api/__init__.py 模块 docstring 的函数计数与目录漂移"
+
+
 def test_api_md_core_interfaces_exact():
     rows = core_rows()
     got = [(ns, m) for ns, m, _, _, _ in rows]

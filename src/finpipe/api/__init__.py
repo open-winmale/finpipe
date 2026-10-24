@@ -8,7 +8,7 @@
     ``_raw=True`` 取未规范化原始行（仅部分方法）；
   - 本层是目录合同的薄翻译：高频方法显式包装；目录内其余函数经 ``__getattr__``
     属性直达（如 ``cli.kline.screen_above_ma20``、``cli.dividend.screen_quality``），
-    目录之外的名字显式 AttributeError——155 个底层函数零遮蔽。
+    目录之外的名字显式 AttributeError——164 个底层函数零遮蔽。
   - 选股能力集中在 ``cli.screener``：单票筛选器（bool）与全市场宽度（服务端
     预计算索引直出）显式包装，kline 目录的其余筛选函数经属性直达。
 
@@ -335,45 +335,56 @@ class ScreenerApi(_Api):
     # ---- 全市场宽度（服务端索引直出，免本地计算）----
     # idx 不传时由服务端解析最新 A 股查询索引（LatestIndexKey，动态 cache_key，
     # 无稳定字面量——不要臆造 "index.cn.all" 之类的键，实测 500）。
-    def _breadth(self, fn: str, idx: str | None) -> Any:
+    def _breadth(self, fn: str, idx: str | None, _df: bool) -> Any:
         if idx is None:
-            return self._c.eval_result(f"return {fn}(LatestIndexKey())")
-        return self._c.call(fn, idx=idx)
+            rows = self._c.eval_result(f"return {fn}(LatestIndexKey())")
+        else:
+            rows = self._c.call(fn, idx=idx)
+        return _to_df(rows) if _df else rows
 
     def index_breadth_summary(self, idx: str | None = None) -> dict:
         """全市场涨跌全景（上涨/下跌/平盘家数、占比与涨跌幅中位数）。
 
         :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
         """
-        return self._breadth("kline.index_breadth_summary", idx)
+        return self._breadth("kline.index_breadth_summary", idx, _df=False)
 
-    def index_breadth_bins(self, idx: str | None = None) -> list:
+    def index_breadth_bins(self, idx: str | None = None, _df: bool = False) -> Any:
         """涨跌幅 9 档分桶（涨停/±5%/±3%/平盘/…/跌停），行含 label/count/pct_of_total。
 
         :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
         """
-        return self._breadth("kline.index_breadth_bins", idx)
+        return self._breadth("kline.index_breadth_bins", idx, _df)
 
-    def index_breadth_bin_industries(self, idx: str | None = None) -> list:
+    def index_breadth_bin_industries(self, idx: str | None = None,
+                                     _df: bool = False) -> Any:
         """涨跌幅分桶 × 一级行业分布（行含 bin/industry/count）。
 
         :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
         """
-        return self._breadth("kline.index_breadth_bin_industries", idx)
+        return self._breadth("kline.index_breadth_bin_industries", idx, _df)
 
     def index_top_movers(self, limit: int = 20, desc: bool = True,
-                         idx: str | None = None) -> list:
+                         idx: str | None = None, _df: bool = False) -> Any:
         """涨跌榜（按当日涨跌幅排序，行含 symbol/name/percent；percent 为小数）。
 
-        :param limit: 条数，默认 20
+        :param limit: 条数，默认 20；受 Client(max_limit=...) 与单次 10000 行硬上限钳制
         :param desc: true=涨幅榜（默认）；false=跌幅榜
         :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
         """
+        cap = min(self._c.max_limit or 10000, 10000)
+        if limit > cap:
+            raise LimitError(
+                f"index_top_movers: limit={limit} 超过单次上限 {cap}"
+                "（防止单次拉取过大；可在 Client(max_limit=...) 调整，设 None 关闭）",
+                code="limit")
         if idx is None:
             xs = (f"return kline.index_top_movers(LatestIndexKey(), {int(limit)}, "
                   f"{'true' if desc else 'false'})")
-            return self._c.eval_result(xs)
-        return self._c.call("kline.index_top_movers", idx=idx, limit=limit, desc=desc)
+            rows = self._c.eval_result(xs)
+        else:
+            rows = self._c.call("kline.index_top_movers", idx=idx, limit=limit, desc=desc)
+        return _to_df(rows) if _df else rows
 
 
 # ---------------------------------------------------------------- 财务 fundamentals

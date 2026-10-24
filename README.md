@@ -483,8 +483,8 @@ relational invariants (violations raise `DataError`).
 
 - **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**（基于本 SDK 构建的开源工具）：
   **收息佬**——攒股收息驾驶舱（分红日历、A/H 持仓透视、派息稳定性看板）；
-  **波段**——估值通道与买卖点参考（PE/PB 均值±Nσ 通道、推荐区间、安全边界、
-  「波段 vs 长持」历史回放）。
+  **波段**——估值买卖点参考：区间设置支持**推荐区间**（四条约束自动搜点，含成交次数）
+  与**自定义区间**两种来源，附安全边界（高位介入回撤统计）与「波段 vs 长持」历史回放。
 - [API 参考](docs/API.md)：四大类 64 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
   Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；

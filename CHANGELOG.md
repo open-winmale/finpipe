@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- README 生态工具「波段」介绍与工具实现对齐：区间设置只保留**推荐区间**（四条约束
+  自动搜点）与**自定义区间**两种来源，移除通道轨表述（工具侧 1c1cfa3 已删该选项）。
+
 ## [1.4.0] - 2026-10-24
 
 ### Added

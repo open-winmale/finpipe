@@ -299,3 +299,5 @@ def test_valuation_hist_stats_passthrough_and_validation():
         c.valuation.hist_stats("600900", metric="roe")
     with pytest.raises(Exception, match="window"):
         c.valuation.hist_stats("600900", window="5y")  # 上限 3 年
+    out6 = c.valuation.hist_stats("600900", metric="pb", window="6m")  # 半年窗口
+    assert out6["current"] == 3.334  # 引擎结果原样透传

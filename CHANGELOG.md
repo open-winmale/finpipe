@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **README 店面化重构（495 → 274 行）**：按用户定版要求移除「与 Tushare 对比」整节
+  （含价格表与官方页注释）、「finpipe 的劣势」节、九个数据域详解长文、「指标体系」
+  长文与「数据范围」节——README 零竞品名、差异化卖点改自证式表述，并新增
+  `test_readme_no_competitor_names`（防回潮）与 `test_readme_is_lean`（行数 ≤280，
+  防再膨胀）守护；新增「目录」导航与「能力一览」一屏表（12 个门面 × 能力 × 单位口径）；
+  「我想做 X」速查表、可执行示例、数据正确性保障、口径速查、免费额度与凭证保留。
 - README 生态工具「波段」介绍与工具实现对齐：区间设置只保留**推荐区间**（四条约束
   自动搜点）与**自定义区间**两种来源，移除通道轨表述（工具侧 1c1cfa3 已删该选项）。
 

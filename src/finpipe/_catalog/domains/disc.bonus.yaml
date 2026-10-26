@@ -13,6 +13,10 @@ units:
   window: '如 "3y" / "5y" 窗口字符串'
   rate: 小数（0.03 = 3%）
 requires: {path: sys/bonus/init.xs, preloaded: true}
+notes:
+  - '已知问题：最新年度/中期分红记录的 net_profit/payout_ratio 可能回填滞后（暂为 0），
+    默认阈值的 screen_quality 对此类标的可能保守判 False；三阈值全传
+    （min_yield + payout_min + payout_max，走 TTM 派息口径）可绕开，数据回填后自动恢复'
 functions:
   - name: bonus.query_list
     cn: 分红历史明细

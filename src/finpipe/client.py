@@ -227,6 +227,15 @@ class Client:
                 f"{APPID_GUIDANCE}",
                 code=code or "oauth_denied", status=status)
         if status in (401, 403):
+            if status == 403 and (code == "POLICY_DENIED" or "策略拒绝" in (detail or "")):
+                raise AuthError(
+                    f"服务端策略拒绝该调用（{label}）{suffix}。"
+                    f"这是 AppID 的接口权限范围限制，与额度/凭证无关，换 AppID 不解决，"
+                    f"勿反复重试：请到 open.winmale.com 开放平台检查应用权限，"
+                    f"或改用可用接口（单票实时快照/分时被拦时，盘中数据可用 "
+                    f"cli.kline.batch_live(...) 或 cli.kline.snapshot() 获取，"
+                    f"历史数据接口不受影响）。",
+                    code=code or "policy_denied", status=status)
             raise AuthError(
                 f"认证或权限被拒绝（{label}）{suffix}。"
                 f"请检查凭证；若使用内置体验 AppID，请申请自己的 AppID。"

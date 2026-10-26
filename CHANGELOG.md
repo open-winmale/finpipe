@@ -18,6 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ROE 分位=1.0，即行业最高——原示例注释值无实测依据且"越小越靠前"的语义说明有误）。
 - 随包目录同步上游 rev（066985a8，函数/指标合同零变化）；symbols manifest hk 计数
   对齐实际名单（2655 → 2673）。
+- **403 处理指引补全（错误消息 / SKILL / README 三层）**：403 POLICY_DENIED（策略拒绝）
+  是 AppID 接口权限范围、与额度无关——`AuthError` 不再误导"申请自己的 AppID"，改为
+  指引开放平台查应用权限并给出可用替代：单票实时（live/min1/is_etf）当前被服务端策略
+  拦截（2026-10-22 起已知，待上游修复），盘中数据用 `batch_live`/`snapshot` 获取，
+  历史接口不受影响。SKILL.md 错误速查拆分 401 凭证与 403 权限两类，决策树与坑位清单
+  同步标注。
+- **核实并文档化分红回填缺口**：最新年度/中期分红记录的 net_profit/payout_ratio 存在
+  回填滞后（暂为 0，如 600519 2025:Q4 记录），默认阈值的 `screen_quality` 对茅台/工行
+  等标的可能保守判 False；**三阈值全传**（min_yield + payout_min + payout_max，走
+  TTM 派息口径）实测可靠（600900/600519/601398 全 True）。README 示例改用
+  600900 + 显式阈值，目录 notes 记录该已知问题，待上游回填后自动恢复。
 
 ## [1.4.2] - 2026-10-26
 

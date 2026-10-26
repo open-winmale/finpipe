@@ -86,7 +86,7 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 | 估值指标当前值 | `cli.indicator.get(sym, "$PE_TTM_LAST")`（码先查目录） |
 | 估值历史分位 | `cli.valuation.hist_stats(sym, metric="pe", window="3y")` |
 | TTM 股息率 / 分红历史 | `cli.dividend.yield_ttm(sym)` / `cli.dividend.history(sym)` |
-| 分红质量筛选 | `cli.dividend.screen_quality(sym, min_yield=0.02, payout_min=0.1, payout_max=1.5)`（三阈值全传最可靠，见 §6 回填滞后） |
+| 分红质量筛选 | `cli.dividend.screen_quality(sym)`（默认精品窗口：股息率>3% 且派息率 30%–70%；窗口不合适就显式传 min_yield/payout_min/payout_max） |
 | 公告 / 有无回购 | `cli.notice.list(sym, window="3m")` / `cli.notice.has_buyback(sym, "6m")` |
 | 业绩预告 | `cli.forecast.yjyg_latest(sym)` |
 | 公司档案 | `cli.info.profile(sym)` |
@@ -135,14 +135,14 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
 - **单次拉取上限**：`Client(max_limit=500)` 可调；超限显式报错。
 - **盘中语义**：休市时 `live`/`min1` 返回最近收盘快照 / 上一交易日；事件筛选
   （涨停等）以「当日有成交」为前置，停牌恒 `False`。
-- **403「策略拒绝」（POLICY_DENIED）≠ 额度不足**：单票实时接口（`live`/`min1`/
-  `is_etf`）当前被服务端策略拦截（2026-10 起已知，待上游修复，换 AppID 不解决、
-  勿反复重试）。盘中数据改用 `cli.kline.batch_live(["600519"])`（批量路由可用）或
-  `cli.kline.snapshot(sym)`；历史数据接口不受影响。
-- **分红最新记录的 net_profit/payout_ratio 可能回填滞后（为 0）**：默认阈值
-  `screen_quality(sym)` 对最新记录未回填的标的可能保守判 `False`（如茅台/工行）；
-  **三阈值全传**（`min_yield + payout_min + payout_max`，走 TTM 派息口径）实测可靠。
-  判 False 时先看 `cli.dividend.history(sym)[0]` 的字段再下结论，数据回填后自动恢复。
+- **403「策略拒绝」（POLICY_DENIED）≠ 额度不足**：是 AppID 的接口权限范围限制
+  （换 AppID 不解决、勿反复重试），按错误消息到开放平台检查应用权限，或改用
+  无此限制的其他接口。
+- **screen_quality 判 False 先看窗口语义**：默认 = 股息率>3% 且派息率 ∈[30%,70%]
+  （「精品」定义——茅台 ~80% 派息率出界属设计而非误判）；窗口不合适就显式传阈值。
+  分红 `history` 明细里最新记录的 net_profit/payout_ratio 列可能回填滞后为 0，
+  只影响展示、不影响筛选与窗口统计（筛选走 TTM 派息指标）。判读用
+  `cli.dividend.yield_ttm(sym)` 与 `cli.indicator.get(sym, "$BONUS_TTM_RATE_LAST")`。
 - **宽度接口的 `idx` 不要传臆造键**：不传 = 服务端自动解析 A 股最新查询索引。
 - **空结果 ≠ 市场为空**：先核对 symbol 与窗口再下结论。
 - `_df=True` 转 DataFrame 需要安装 pandas（可选依赖）。
@@ -153,7 +153,7 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
 | 异常 | 含义 | 怎么做 |
 |---|---|---|
 | `AuthError`（401/OAuth） | 凭证无效或过期 | 按第 1 节申请自己的 AppID 并配置环境变量 |
-| `AuthError`（403 策略拒绝） | AppID 无此接口权限（当前已知：单票 `live`/`min1`/`is_etf`） | 与额度无关，勿重试：盘中数据改用 `cli.kline.batch_live([...])` / `cli.kline.snapshot()`；历史接口不受影响；或到开放平台查应用权限 |
+| `AuthError`（403 策略拒绝） | AppID 无此接口权限范围 | 与额度无关，勿重试：按错误消息到 open.winmale.com 开放平台查应用权限，或改用无此限制的接口 |
 | `LimitError` | 429 限流 / 超上限 | 体验 AppID 共享池限额：稍等重试或换自己的 AppID；区间类缩小 begin/end |
 | `UsageError` | 参数不合法 | 按消息修正；参数合同查 `cat.function(name)["params"]` |
 | `DataError` | 单位/守护校验违例 | 数据在报警：换指标或核实口径，勿静默吞掉 |

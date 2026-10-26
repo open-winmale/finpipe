@@ -223,7 +223,8 @@ def test_getattr_rejects_non_catalog_names(cli):
 def test_dividend_screeners_promoted(cli):
     """杀手锏筛选器提为显式方法，可经 cli.dividend.screen_* 调用。"""
     cli.dividend.screen_quality("600519", min_yield=0.03, payout_max=1.0)
-    assert last_xs(cli) == ['return bonus.screen_quality("600519", 0.03, 1.0)']
+    # payout_min 未传 → 补 nil 保位（调用字面量按位置绑定，跳洞会把 1.0 错绑进 payout_min）
+    assert last_xs(cli) == ['return bonus.screen_quality("600519", 0.03, nil, 1.0)']
     cli.dividend.screen_high_yield("600519")
     assert last_xs(cli) == ['return bonus.screen_high_yield("600519")']
     cli.dividend.screen_undervalued_yield("600519", min_yield=0.04)

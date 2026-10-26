@@ -86,6 +86,18 @@ def test_default_fills_positional(client):
     ]
 
 
+def test_missing_middle_param_fills_nil(client):
+    """中段可选参数未传时必须补 nil 保位：调用字面量按位置绑定，跳洞会把后值错绑到前槽
+    （实证：screen_quality(sym, payout_max=1.5) 曾生成 (sym, 1.5)，1.5 错进 payout_min）。"""
+    client.call("bonus.screen_quality", sym="600519", min_yield=0.02, payout_max=1.5)
+    lines = last_eval(client)["json"]["xs_lines"]
+    assert 'return bonus.screen_quality("600519", 0.02, nil, 1.5)' in lines
+    # 尾部未传仍按省略处理，不补尾 nil
+    client.call("bonus.screen_quality", sym="600519", min_yield=0.02)
+    lines = last_eval(client)["json"]["xs_lines"]
+    assert 'return bonus.screen_quality("600519", 0.02)' in lines
+
+
 def test_auto_require_for_unpreloaded_ns(client):
     client.call("rptdom.statement_years", sym="600519", domain="fin.income_statement")
     lines = last_eval(client)["json"]["xs_lines"]

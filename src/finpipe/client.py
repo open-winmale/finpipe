@@ -232,9 +232,7 @@ class Client:
                     f"服务端策略拒绝该调用（{label}）{suffix}。"
                     f"这是 AppID 的接口权限范围限制，与额度/凭证无关，换 AppID 不解决，"
                     f"勿反复重试：请到 open.winmale.com 开放平台检查应用权限，"
-                    f"或改用可用接口（单票实时快照/分时被拦时，盘中数据可用 "
-                    f"cli.kline.batch_live(...) 或 cli.kline.snapshot() 获取，"
-                    f"历史数据接口不受影响）。",
+                    f"或改用无此权限要求的其他接口。",
                     code=code or "policy_denied", status=status)
             raise AuthError(
                 f"认证或权限被拒绝（{label}）{suffix}。"
@@ -375,8 +373,12 @@ class Client:
                             f"{name}: {p['name']}={v} 超过单次请求上限 {self.max_limit}"
                             "（防止单次拉取过大；可在 Client(max_limit=...) 调整，设 None 关闭）",
                             code="limit")
+        def _provided(p: dict) -> bool:
+            return p["name"] in kwargs or (sym_override is not None and p["name"] == sym_param)
+
+        last_provided = max((i for i, p in enumerate(params) if _provided(p)), default=-1)
         args = []
-        for p in params:
+        for i, p in enumerate(params):
             if sym_override is not None and p["name"] == sym_param:
                 args.append(_xs_literal(normalize_symbol(sym_override)))
             elif p["name"] in kwargs:
@@ -386,6 +388,10 @@ class Client:
                 args.append(_xs_literal(v))
             elif "default" in p:
                 args.append(_xs_literal(p["default"]))
+            elif i < last_provided:
+                # 中段未传且无目录 default：补 nil 保位。调用字面量按位置绑定，
+                # 跳过中段参数会把后值错绑到前槽（曾把 payout_max 绑进 payout_min）。
+                args.append("nil")
         return f"{name}({', '.join(args)})"
 
     def call(self, name: str, /, _raw: bool = False, _df: bool = False,

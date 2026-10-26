@@ -18,17 +18,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ROE 分位=1.0，即行业最高——原示例注释值无实测依据且"越小越靠前"的语义说明有误）。
 - 随包目录同步上游 rev（066985a8，函数/指标合同零变化）；symbols manifest hk 计数
   对齐实际名单（2655 → 2673）。
-- **403 处理指引补全（错误消息 / SKILL / README 三层）**：403 POLICY_DENIED（策略拒绝）
-  是 AppID 接口权限范围、与额度无关——`AuthError` 不再误导"申请自己的 AppID"，改为
-  指引开放平台查应用权限并给出可用替代：单票实时（live/min1/is_etf）当前被服务端策略
-  拦截（2026-10-22 起已知，待上游修复），盘中数据用 `batch_live`/`snapshot` 获取，
-  历史接口不受影响。SKILL.md 错误速查拆分 401 凭证与 403 权限两类，决策树与坑位清单
-  同步标注。
-- **核实并文档化分红回填缺口**：最新年度/中期分红记录的 net_profit/payout_ratio 存在
-  回填滞后（暂为 0，如 600519 2025:Q4 记录），默认阈值的 `screen_quality` 对茅台/工行
-  等标的可能保守判 False；**三阈值全传**（min_yield + payout_min + payout_max，走
-  TTM 派息口径）实测可靠（600900/600519/601398 全 True）。README 示例改用
-  600900 + 显式阈值，目录 notes 记录该已知问题，待上游回填后自动恢复。
+- **根因修复：live/min1/is_etf/bars_live 的 403 POLICY_DENIED（上游 script a9bce960）**。
+  根因不是权限配置也不是体验池限制：`kline.is_etf` 的 per-eval 缓存写
+  （`kline._etf_cache[bare] = v`）是对预存命名空间全局的写 = `state.write.runtime`，
+  OpenAPI 沙箱按设计拒绝任何外部调用方写共享状态；`etf_block→is_etf` 是四类查询的
+  公共首行入口，一处缓存写导致全部 403（「不允许调用 assign」是引擎对 LHS 不可静态
+  判定赋值的保守 fallback 标签）；batch_live 不经该入口所以幸存。上游修复确立
+  「查询路径不落写」纪律：is_etf 去缓存改纯读（每调用 1 次 ref_info 点查，与旧
+  skhub.is_etf 同代价），`query_bars_live` 的死代码运行时写改正。已上线并实测：
+  live/min1 返回盘中数据、is_etf 判定正常。SDK 侧保留 403 策略拒绝的专门错误引导
+  （权限范围 ≠ 额度，勿重试、指引开放平台）。
+- **根因修复：`screen_quality` 部分传参错绑（SDK `_build_call_line` 参数洞不补位）**。
+  调用字面量按位置绑定，未传的中段参数曾被整体跳过——`screen_quality(sym, payout_max=1.5)`
+  会生成 `(sym, 1.5)`，1.5 错进 `payout_min` 槽。现中段未传参数补 `nil` 保位（尾部未传
+  仍省略）。此前"茅台误判 False"的两处误诊一并更正：①那不是数据回填问题——筛选读
+  TTM 派息指标（$BONUS_TTM_RATE_LAST），不读 history 记录的 payout_ratio 列（该列
+  回填滞后仅影响明细展示）；②默认 False 是「精品」窗口设计使然——默认要求股息率>3%
+  且派息率 ∈[30%,70%]，茅台 ~80% 派息率出界属设计。README/SKILL 示例与坑位清单按
+  真实语义改写。
 
 ## [1.4.2] - 2026-10-26
 

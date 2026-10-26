@@ -125,8 +125,8 @@ print(cli.screener.screen_above_ma20("600519"))              # True
 print(cli.screener.index_breadth_summary())
 # {'total': 5685, 'up': 4567, 'down': 934, 'flat': 184, 'up_pct': 80.3, ...}
 
-# 分红质量：高股息 + 派息可持续（三阈值全传走 TTM 派息口径，避开最新记录回填滞后）
-print(cli.dividend.screen_quality("600900", min_yield=0.02, payout_min=0.1, payout_max=1.5))  # True
+# 分红质量：高股息 + 派息可持续（默认精品窗口=派息率 30%–70%，可显式放宽）
+print(cli.dividend.screen_quality("600519", min_yield=0.02, payout_max=1.5))  # True
 
 # 公告信号：近 6 个月是否有回购公告
 print(cli.notice.has_buyback("600519", "6m"))                # True
@@ -174,8 +174,7 @@ export FINPIPE_CLIENT_SECRET=...
 
 401/403（`AuthError`）与 429（`LimitError`，限流）的错误消息里都附有申请步骤；
 体验 AppID 是共享池、限额较低，批量或连跑容易触发 429——按上面三步换成自己的 AppID 即可。
-403「策略拒绝」（POLICY_DENIED）则是接口权限范围、与额度无关：已知单票实时（`live`/
-`min1`）当前被服务端策略拦截，盘中数据可先用 `batch_live` / `snapshot` 获取。
+403「策略拒绝」（POLICY_DENIED）则是 AppID 接口权限范围、与额度无关，按错误消息指引处理。
 
 ## 使用限制（必读）
 

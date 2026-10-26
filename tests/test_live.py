@@ -9,9 +9,9 @@
 不变量**并参数化跑样本宇宙（不同板块/行业/规模 + 一只 ETF），不绑定任何单一公司
 的绝对量级。
 
-已知服务端不可用（2026-10-22 实测，两套凭证均 403 POLICY_DENIED，非 SDK 问题）：
-kline.live / kline.is_etf / kline.query_bars_live —— 以 strict xfail 标记，
-上游修复后 XPASS 会主动报警。
+历史已知问题（2026-10-22 发现，2026-10-26 上游 a9bce960 修复）：kline.live/min1/
+is_etf/query_bars_live 曾因 is_etf 的命名空间缓存写被 OpenAPI 沙箱以 403 POLICY_DENIED
+拒绝。`_call_or_xfail` 保留为非 strict 容忍，防间歇性策略拒绝造成假红。
 """
 import os
 from pathlib import Path
@@ -31,8 +31,8 @@ MAIN = SYMBOLS[0]
 UNIVERSE = ["600519", "601318", "300750", "688981", "601857"]
 ETF = "510300"
 
-BLOCKED_REASON = ("服务端间歇性 403 POLICY_DENIED（state.write.runtime）："
-                  "kline live/is_etf 路由偶发被拒，待上游修复")
+BLOCKED_REASON = ("间歇性 403 POLICY_DENIED：策略拒绝非 SDK 问题；"
+                  "is_etf 缓存写根因已于上游修复（a9bce960），此路径仅兜底偶发")
 
 
 def _call_or_xfail(fn, *args, **kwargs):

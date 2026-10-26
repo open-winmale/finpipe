@@ -1,9 +1,21 @@
 {
  "schema_version": 2,
- "upstream_rev": "a9bce960",
+ "upstream_rev": "639c3a1e",
  "domains": {
   "bonus": {
    "entry": "sys/bonus/init.xs",
+   "exports": []
+  },
+  "cbond": {
+   "entry": "sys/cbond/init.xs",
+   "exports": []
+  },
+  "equity": {
+   "entry": "sys/equity/init.xs",
+   "exports": []
+  },
+  "estimates": {
+   "entry": "sys/estimates/init.xs",
    "exports": []
   },
   "filings": {
@@ -12,6 +24,14 @@
   },
   "forecast": {
    "entry": "sys/forecast/init.xs",
+   "exports": []
+  },
+  "index": {
+   "entry": "sys/index/init.xs",
+   "exports": []
+  },
+  "intl": {
+   "entry": "sys/intl/init.xs",
    "exports": []
   },
   "kline": {
@@ -35,6 +55,10 @@
     "kline.snapshot"
    ]
   },
+  "margin": {
+   "entry": "sys/margin/init.xs",
+   "exports": []
+  },
   "moneyflow": {
    "entry": "sys/moneyflow/init.xs",
    "exports": []
@@ -50,17 +74,26 @@
   "segments": {
    "entry": "sys/segments/init.xs",
    "exports": []
+  },
+  "workout": {
+   "entry": "sys/workout/init.xs",
+   "exports": []
   }
  },
  "preloaded_libs": [
   "bonus",
+  "equity",
+  "estimates",
   "filings",
+  "index",
+  "intl",
   "kline",
+  "margin",
   "moneyflow",
   "notice",
   "segments"
  ],
- "function_count": 170,
+ "function_count": 255,
  "functions": [
   {
    "name": "bonus.dps_rpt",
@@ -1004,6 +1037,1706 @@
    ]
   },
   {
+   "name": "cbond.call_hits",
+   "cn": "强赎触发计数",
+   "example": "cbond.call_hits(\"113050\", 130)",
+   "returns": "int",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "code",
+     "type": "any"
+    },
+    {
+     "name": "trig",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.event_list",
+   "cn": "转债条款事件列表",
+   "example": "cbond.event_list()",
+   "returns": "ARR · 条款事件行",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": []
+  },
+  {
+   "name": "cbond.event_rows_of",
+   "cn": "单标的条款事件",
+   "example": "cbond.event_rows_of(\"600519\")",
+   "returns": "ARR · 条款事件行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.fmt_event",
+   "cn": "条款事件行规范化",
+   "example": "cbond.fmt_event(row)",
+   "returns": "MAP · 规范化事件行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "row",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "cbond.fmt_quote",
+   "cn": "快照行规范化",
+   "example": "cbond.fmt_quote(row)",
+   "returns": "MAP · 规范化快照行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "row",
+     "type": "object"
+    }
+   ]
+  },
+  {
+   "name": "cbond.kline_window",
+   "cn": "转债日K窗口",
+   "example": "cbond.kline_window(\"113050\", 60)",
+   "returns": "MAP · K线列",
+   "returns_shape": null,
+   "min_args": 2,
+   "params": [
+    {
+     "name": "code",
+     "type": "any"
+    },
+    {
+     "name": "n",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.latest_quotes",
+   "cn": "转债最新快照",
+   "example": "cbond.latest_quotes()",
+   "returns": "ARR · 规范化快照行",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": []
+  },
+  {
+   "name": "cbond.min1_live",
+   "cn": "转债盘中1分钟",
+   "example": "cbond.min1_live(\"113050\")",
+   "returns": "MAP · 分钟条",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "code",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.min1_meta",
+   "cn": "转债盘中元信息",
+   "example": "cbond.min1_meta(\"113050\")",
+   "returns": "MAP · 元信息",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "code",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.of_stock",
+   "cn": "正股关联转债",
+   "example": "cbond.of_stock(\"600519\")",
+   "returns": "ARR · 规范化快照行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "stk",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.query",
+   "cn": "按标的查条款事件",
+   "example": "cbond.query(\"600519\")",
+   "returns": "ARR · 规范化事件行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "cbond.quote_list",
+   "cn": "转债合约快照全表",
+   "example": "cbond.quote_list()",
+   "returns": "ARR · 合约快照行",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": []
+  },
+  {
+   "name": "cbond.universe_codes",
+   "cn": "转债代码全集",
+   "example": "cbond.universe_codes()",
+   "returns": "ARR · 代码",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": []
+  },
+  {
+   "name": "equity.fmt_buyback_detail",
+   "cn": "回购明细规范化",
+   "example": "equity.fmt_buyback_detail(equity.query_buyback_detail(\"300347\"))",
+   "returns": "MAP · 回购明细",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "回购明细",
+    "fields": [
+     {
+      "name": "repurchase_shares",
+      "type": "float64",
+      "cn": "回购数量",
+      "optional": true
+     },
+     {
+      "name": "repurchase_amount",
+      "type": "float64",
+      "cn": "回购金额",
+      "optional": true
+     },
+     {
+      "name": "notice_date",
+      "type": "string",
+      "cn": "公告日期",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "props",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_buyback_plan",
+   "cn": "回购方案规范化",
+   "example": "equity.fmt_buyback_plan(equity.query_buyback_plan(\"688496\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "回购方案行",
+     "fields": [
+      {
+       "name": "progress",
+       "type": "string",
+       "cn": "回购进度",
+       "optional": true
+      },
+      {
+       "name": "price_cap",
+       "type": "float64",
+       "cn": "回购价格上限",
+       "optional": true
+      },
+      {
+       "name": "amount_limit",
+       "type": "float64",
+       "cn": "回购金额上限",
+       "optional": true
+      },
+      {
+       "name": "start_date",
+       "type": "string",
+       "cn": "开始日期",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_capital_change",
+   "cn": "股本结构规范化",
+   "example": "equity.fmt_capital_change(equity.query_capital_change(\"600519\"))",
+   "returns": "MAP · 股本行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "股本行",
+    "fields": [
+     {
+      "name": "total_shares",
+      "type": "float64",
+      "cn": "总股份",
+      "optional": true
+     },
+     {
+      "name": "free_shares",
+      "type": "float64",
+      "cn": "流通股份",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "props",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_concert",
+   "cn": "一致行动人规范化",
+   "example": "equity.fmt_concert(equity.query_concert(\"688211\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "一致行动人行",
+     "fields": [
+      {
+       "name": "holder_names",
+       "type": "string",
+       "cn": "股东名称(组)"
+      },
+      {
+       "name": "hold_ratio",
+       "type": "float64",
+       "cn": "持股比例(百分数)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_exec_change",
+   "cn": "增减持规范化",
+   "example": "equity.fmt_exec_change(equity.query_exec_change(\"600519\"))",
+   "returns": "MAP · 增减持行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "增减持行",
+    "fields": [
+     {
+      "name": "end_date",
+      "type": "string",
+      "cn": "截止日期",
+      "optional": true
+     },
+     {
+      "name": "holder_name",
+      "type": "string",
+      "cn": "持股人名称",
+      "optional": true
+     },
+     {
+      "name": "change_num",
+      "type": "float64",
+      "cn": "变动数量(股)",
+      "optional": true
+     },
+     {
+      "name": "average_price",
+      "type": "float64",
+      "cn": "交易均价(元)",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "props",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_executives",
+   "cn": "高管名册规范化",
+   "example": "equity.fmt_executives(equity.query_executives(\"600519\"))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "高管行",
+     "fields": [
+      {
+       "name": "person_name",
+       "type": "string",
+       "cn": "姓名"
+      },
+      {
+       "name": "position",
+       "type": "string",
+       "cn": "职位",
+       "optional": true
+      },
+      {
+       "name": "salary",
+       "type": "float64",
+       "cn": "薪酬",
+       "optional": true
+      },
+      {
+       "name": "hold_num",
+       "type": "float64",
+       "cn": "持股数(股)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_guarantee",
+   "cn": "对外担保规范化",
+   "example": "equity.fmt_guarantee(equity.query_guarantee(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "担保行",
+     "fields": [
+      {
+       "name": "guarantor",
+       "type": "string",
+       "cn": "担保方",
+       "optional": true
+      },
+      {
+       "name": "guarantee_amt",
+       "type": "float64",
+       "cn": "担保金额",
+       "optional": true
+      },
+      {
+       "name": "is_performed",
+       "type": "string",
+       "cn": "是否履行",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_hgt",
+   "cn": "沪港通持股规范化",
+   "example": "equity.fmt_hgt(equity.query_hgt(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "沪港通行",
+     "fields": [
+      {
+       "name": "org_name",
+       "type": "string",
+       "cn": "持股机构"
+      },
+      {
+       "name": "hold_shares",
+       "type": "float64",
+       "cn": "持股数量(股)",
+       "optional": true
+      },
+      {
+       "name": "hold_market_cap",
+       "type": "float64",
+       "cn": "持股市值",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_holder10",
+   "cn": "十大股东规范化",
+   "example": "equity.fmt_holder10(equity.query_holder10(\"600519\"))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "股东行",
+     "fields": [
+      {
+       "name": "holder_name",
+       "type": "string",
+       "cn": "股东名称"
+      },
+      {
+       "name": "hold_num",
+       "type": "float64",
+       "cn": "持股数量(股)",
+       "optional": true
+      },
+      {
+       "name": "hold_num_ratio",
+       "type": "float64",
+       "cn": "持股比例(百分数)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_holdernum",
+   "cn": "股东户数规范化",
+   "example": "equity.fmt_holdernum(equity.query_holdernum(\"600519\"))",
+   "returns": "MAP · 户数行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "户数行",
+    "fields": [
+     {
+      "name": "end_date",
+      "type": "string",
+      "cn": "截止日期",
+      "optional": true
+     },
+     {
+      "name": "hold_focus",
+      "type": "float64",
+      "cn": "持股集中度",
+      "optional": true
+     },
+     {
+      "name": "avg_hold_amt",
+      "type": "float64",
+      "cn": "平均持股金额",
+      "optional": true
+     }
+    ]
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "props",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_institution_detail",
+   "cn": "机构明细规范化",
+   "example": "equity.fmt_institution_detail(equity.query_institution_detail(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "机构明细行",
+     "fields": [
+      {
+       "name": "holder_name",
+       "type": "string",
+       "cn": "机构名称"
+      },
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期",
+       "optional": true
+      },
+      {
+       "name": "total_shares",
+       "type": "float64",
+       "cn": "持股总数(股)",
+       "optional": true
+      },
+      {
+       "name": "hold_value",
+       "type": "float64",
+       "cn": "持股市值",
+       "optional": true
+      },
+      {
+       "name": "total_shares_ratio",
+       "type": "float64",
+       "cn": "持股比例(百分数)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_institution_summary",
+   "cn": "机构占比规范化",
+   "example": "equity.fmt_institution_summary(equity.query_institution_summary(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "机构占比行",
+     "fields": [
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期"
+      },
+      {
+       "name": "org_num",
+       "type": "int",
+       "cn": "机构总数",
+       "optional": true
+      },
+      {
+       "name": "total_shares_ratio",
+       "type": "float64",
+       "cn": "总股本比例(百分数)",
+       "optional": true
+      },
+      {
+       "name": "change_ratio",
+       "type": "float64",
+       "cn": "变化比例(百分数)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_lines",
+   "cn": "规范化行转文本",
+   "example": "equity.fmt_lines(equity.fmt_release(equity.query_release(\"600900\", 5)))",
+   "returns": "ARR · 文本",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "maps",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_litigation",
+   "cn": "诉讼规范化",
+   "example": "equity.fmt_litigation(equity.query_litigation(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "诉讼行",
+     "fields": [
+      {
+       "name": "case_name",
+       "type": "string",
+       "cn": "案件名称",
+       "optional": true
+      },
+      {
+       "name": "case_amount",
+       "type": "float64",
+       "cn": "案件金额",
+       "optional": true
+      },
+      {
+       "name": "plaintiff",
+       "type": "string",
+       "cn": "原告",
+       "optional": true
+      },
+      {
+       "name": "defence",
+       "type": "string",
+       "cn": "被告",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_national_team",
+   "cn": "国家队持股规范化",
+   "example": "equity.fmt_national_team(equity.query_national_team(\"000088\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "国家队行",
+     "fields": [
+      {
+       "name": "security_code",
+       "type": "string",
+       "cn": "证券代码"
+      },
+      {
+       "name": "report_date",
+       "type": "string",
+       "cn": "报告期",
+       "optional": true
+      },
+      {
+       "name": "shares_ratio",
+       "type": "float64",
+       "cn": "持股比例合计(百分数)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_pledge_detail",
+   "cn": "质押明细规范化",
+   "example": "equity.fmt_pledge_detail(equity.query_pledge_detail(\"002424\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "质押明细行",
+     "fields": [
+      {
+       "name": "holder_name",
+       "type": "string",
+       "cn": "股东名称"
+      },
+      {
+       "name": "pf_org",
+       "type": "string",
+       "cn": "质押机构",
+       "optional": true
+      },
+      {
+       "name": "pf_num",
+       "type": "float64",
+       "cn": "质押数量(股)",
+       "optional": true
+      },
+      {
+       "name": "pf_tsr",
+       "type": "float64",
+       "cn": "质押总股本比例(百分数)",
+       "optional": true
+      },
+      {
+       "name": "notice_date",
+       "type": "string",
+       "cn": "公告日期",
+       "optional": true
+      },
+      {
+       "name": "unfreeze_state",
+       "type": "string",
+       "cn": "解押状态",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_pledge_industry",
+   "cn": "行业质押规范化",
+   "example": "equity.fmt_pledge_industry(equity.query_pledge_industry(10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "行业质押行",
+     "fields": [
+      {
+       "name": "industry",
+       "type": "string",
+       "cn": "行业名称"
+      },
+      {
+       "name": "trade_date",
+       "type": "string",
+       "cn": "交易日期"
+      },
+      {
+       "name": "avg_pledge_ratio",
+       "type": "float64",
+       "cn": "平均质押比例(百分数)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_pledge_market",
+   "cn": "市场质押规范化",
+   "example": "equity.fmt_pledge_market(equity.query_pledge_market(10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "市场质押行",
+     "fields": [
+      {
+       "name": "trade_date",
+       "type": "string",
+       "cn": "交易日期"
+      },
+      {
+       "name": "pledge_ratio_total",
+       "type": "float64",
+       "cn": "A股质押总比例(百分数)",
+       "optional": true
+      },
+      {
+       "name": "pledge_company_num",
+       "type": "int",
+       "cn": "质押公司数",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_pledge_org",
+   "cn": "质押机构分布规范化",
+   "example": "equity.fmt_pledge_org(equity.query_pledge_org(10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "机构分布行",
+     "fields": [
+      {
+       "name": "org_name",
+       "type": "string",
+       "cn": "质押机构"
+      },
+      {
+       "name": "pforg_type",
+       "type": "string",
+       "cn": "机构类型",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_pledge_summary",
+   "cn": "质押比例规范化",
+   "example": "equity.fmt_pledge_summary(equity.query_pledge_summary(\"600196\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "质押比例行",
+     "fields": [
+      {
+       "name": "trade_date",
+       "type": "string",
+       "cn": "交易日期"
+      },
+      {
+       "name": "pledge_ratio",
+       "type": "float64",
+       "cn": "质押比例(百分数)"
+      },
+      {
+       "name": "pledge_shares",
+       "type": "float64",
+       "cn": "质押股数(股)",
+       "optional": true
+      },
+      {
+       "name": "pledge_market_cap",
+       "type": "float64",
+       "cn": "质押市值",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_related_trade",
+   "cn": "关联交易规范化",
+   "example": "equity.fmt_related_trade(equity.query_related_trade(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "关联交易行",
+     "fields": [
+      {
+       "name": "related_party",
+       "type": "string",
+       "cn": "交易方"
+      },
+      {
+       "name": "trade_amt",
+       "type": "float64",
+       "cn": "交易金额",
+       "optional": true
+      },
+      {
+       "name": "notice_date",
+       "type": "string",
+       "cn": "公告日期",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_release",
+   "cn": "解禁规范化",
+   "example": "equity.fmt_release(equity.query_release(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "解禁行",
+     "fields": [
+      {
+       "name": "lift_date",
+       "type": "string",
+       "cn": "解禁日期"
+      },
+      {
+       "name": "lift_num",
+       "type": "float64",
+       "cn": "解禁数量(股)"
+      },
+      {
+       "name": "total_shares_ratio",
+       "type": "float64",
+       "cn": "总股本比例(百分数)",
+       "optional": true
+      },
+      {
+       "name": "lift_type",
+       "type": "string",
+       "cn": "解禁类型",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_reorg",
+   "cn": "并购重组规范化",
+   "example": "equity.fmt_reorg(equity.query_reorg(\"603363\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "重组行",
+     "fields": [
+      {
+       "name": "progress",
+       "type": "string",
+       "cn": "进度",
+       "optional": true
+      },
+      {
+       "name": "deal_amount",
+       "type": "float64",
+       "cn": "交易金额",
+       "optional": true
+      },
+      {
+       "name": "notice_date",
+       "type": "string",
+       "cn": "公告日期",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.fmt_violation",
+   "cn": "处罚规范化",
+   "example": "equity.fmt_violation(equity.query_violation(\"600900\", 10))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "处罚行",
+     "fields": [
+      {
+       "name": "violate_type",
+       "type": "string",
+       "cn": "违规类型",
+       "optional": true
+      },
+      {
+       "name": "punish_type",
+       "type": "string",
+       "cn": "处罚类型",
+       "optional": true
+      },
+      {
+       "name": "punish_amt",
+       "type": "float64",
+       "cn": "处罚金额",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_buyback_detail",
+   "cn": "回购执行明细",
+   "example": "equity.query_buyback_detail(\"300347\")",
+   "returns": "MAP · 回购明细",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_buyback_plan",
+   "cn": "回购方案全览",
+   "example": "equity.query_buyback_plan(\"688496\", 40)",
+   "returns": "ARR · 回购方案行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_capital_change",
+   "cn": "股本结构最新",
+   "example": "equity.query_capital_change(\"600519\")",
+   "returns": "MAP · 股本行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_capital_change_at",
+   "cn": "指定报告期股本",
+   "example": "equity.query_capital_change_at(\"600519\", 2024, \"Q4\")",
+   "returns": "MAP · 股本行",
+   "returns_shape": null,
+   "min_args": 3,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "annual",
+     "type": "int"
+    },
+    {
+     "name": "sampling",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_concert",
+   "cn": "一致行动人",
+   "example": "equity.query_concert(\"688211\", 40)",
+   "returns": "ARR · 一致行动人行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_exec_change",
+   "cn": "高管增减持最新",
+   "example": "equity.query_exec_change(\"600519\")",
+   "returns": "MAP · 增减持行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_exec_change_at",
+   "cn": "指定报告期增减持",
+   "example": "equity.query_exec_change_at(\"600519\", 2024, \"Q4\")",
+   "returns": "MAP · 增减持行",
+   "returns_shape": null,
+   "min_args": 3,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "annual",
+     "type": "int"
+    },
+    {
+     "name": "sampling",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_executives",
+   "cn": "高管名册",
+   "example": "equity.query_executives(\"600519\")",
+   "returns": "ARR · 高管行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_guarantee",
+   "cn": "对外担保",
+   "example": "equity.query_guarantee(\"600900\", 40)",
+   "returns": "ARR · 担保行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_hgt",
+   "cn": "沪港通持股",
+   "example": "equity.query_hgt(\"600900\", 40)",
+   "returns": "ARR · 沪港通行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_holder10",
+   "cn": "最新一期十大股东",
+   "example": "equity.query_holder10(\"600519\")",
+   "returns": "ARR · 股东行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_holdernum",
+   "cn": "最新股东户数",
+   "example": "equity.query_holdernum(\"600519\")",
+   "returns": "MAP · 户数行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_institution_detail",
+   "cn": "机构持股明细",
+   "example": "equity.query_institution_detail(\"600900\", 40)",
+   "returns": "ARR · 机构明细行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_institution_summary",
+   "cn": "机构持仓占比",
+   "example": "equity.query_institution_summary(\"600900\", 40)",
+   "returns": "ARR · 机构占比行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_litigation",
+   "cn": "诉讼记录",
+   "example": "equity.query_litigation(\"600900\", 40)",
+   "returns": "ARR · 诉讼行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_national_team",
+   "cn": "国家队持股",
+   "example": "equity.query_national_team(\"000088\", 40)",
+   "returns": "ARR · 国家队行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_pledge_detail",
+   "cn": "主要股东质押明细",
+   "example": "equity.query_pledge_detail(\"002424\", 40)",
+   "returns": "ARR · 质押明细行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_pledge_industry",
+   "cn": "行业质押比例",
+   "example": "equity.query_pledge_industry(20)",
+   "returns": "ARR · 行业质押行",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": [
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_pledge_market",
+   "cn": "市场整体质押",
+   "example": "equity.query_pledge_market(10)",
+   "returns": "ARR · 市场质押行",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": [
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_pledge_org",
+   "cn": "质押机构分布",
+   "example": "equity.query_pledge_org(20)",
+   "returns": "ARR · 机构分布行",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": [
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_pledge_summary",
+   "cn": "公司质押比例",
+   "example": "equity.query_pledge_summary(\"600196\", 40)",
+   "returns": "ARR · 质押比例行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_related_trade",
+   "cn": "关联交易",
+   "example": "equity.query_related_trade(\"600900\", 40)",
+   "returns": "ARR · 关联交易行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_release",
+   "cn": "限售解禁日程",
+   "example": "equity.query_release(\"600900\", 40)",
+   "returns": "ARR · 解禁行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_reorg",
+   "cn": "并购重组",
+   "example": "equity.query_reorg(\"603363\", 40)",
+   "returns": "ARR · 重组行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "equity.query_violation",
+   "cn": "违规处罚",
+   "example": "equity.query_violation(\"600900\", 40)",
+   "returns": "ARR · 处罚行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "estimates.fmt_maps",
+   "cn": "预测行规范化",
+   "example": "estimates.fmt_maps(estimates.query_forecast(\"600900\", 5))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "预测行",
+     "fields": [
+      {
+       "name": "org_name",
+       "type": "string",
+       "cn": "机构名称",
+       "optional": true
+      },
+      {
+       "name": "publish_date",
+       "type": "string",
+       "cn": "发布日期",
+       "optional": true
+      },
+      {
+       "name": "eps1",
+       "type": "float64",
+       "cn": "第一年每股收益",
+       "optional": true
+      },
+      {
+       "name": "pe1",
+       "type": "float64",
+       "cn": "第一年市盈率",
+       "optional": true
+      },
+      {
+       "name": "rating",
+       "type": "string",
+       "cn": "评级",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "estimates.query_forecast",
+   "cn": "机构盈利预测",
+   "example": "estimates.query_forecast(\"600900\", 20)",
+   "returns": "ARR · 预测行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "estimates.query_forecast_detail",
+   "cn": "盈利预测明细",
+   "example": "estimates.query_forecast_detail(\"600900\", 20)",
+   "returns": "ARR · 明细行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "estimates.query_rating",
+   "cn": "评级统计",
+   "example": "estimates.query_rating(\"600660\", 20)",
+   "returns": "ARR · 评级行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "estimates.query_reports",
+   "cn": "个股研报",
+   "example": "estimates.query_reports(\"000001\", 20)",
+   "returns": "ARR · 研报行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
    "name": "filings.fmt_date_short",
    "cn": "日期缩短为 YYYY-MM-DD",
    "example": "filings.fmt_date_short(\"20260701\")",
@@ -1524,6 +3257,248 @@
      "name": ""
     }
    },
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "index.keys",
+   "cn": "指数键列表",
+   "example": "index.keys()",
+   "returns": "ARR · 指数键",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": []
+  },
+  {
+   "name": "index.members",
+   "cn": "指数成分",
+   "example": "index.members(\"index.hs300\", \"mv\", 10)",
+   "returns": "ARR · 成分行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "key",
+     "type": "string"
+    },
+    {
+     "name": "sort_by",
+     "type": "string"
+    },
+    {
+     "name": "top_n",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "index.valuation",
+   "cn": "指数估值时序",
+   "example": "index.valuation(\"index.hs300\", 12)",
+   "returns": "MAP · 估值时序",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "key",
+     "type": "string"
+    },
+    {
+     "name": "points",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "index.weights",
+   "cn": "指数权重股",
+   "example": "index.weights(\"index.hs300\", 10)",
+   "returns": "ARR · 权重行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "key",
+     "type": "string"
+    },
+    {
+     "name": "top_n",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "intl.fmt_issue",
+   "cn": "美股发行规范化",
+   "example": "intl.fmt_issue(intl.issue_info(\"BRK_B\"))",
+   "returns": "MAP · 发行行",
+   "returns_shape": {
+    "kind": "object",
+    "cn": "发行行",
+    "fields": []
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "props",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "intl.fmt_maps",
+   "cn": "港美股行规范化",
+   "example": "intl.fmt_maps(intl.query_ccass(\"00700\", 5))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "规范化行",
+     "fields": [
+      {
+       "name": "participant_name",
+       "type": "string",
+       "cn": "参与者名称",
+       "optional": true
+      },
+      {
+       "name": "shareholding",
+       "type": "float64",
+       "cn": "持股数(股)",
+       "optional": true
+      },
+      {
+       "name": "holder_name",
+       "type": "string",
+       "cn": "股东名称",
+       "optional": true
+      },
+      {
+       "name": "rating_name",
+       "type": "string",
+       "cn": "评级",
+       "optional": true
+      },
+      {
+       "name": "short_selling_shares",
+       "type": "float64",
+       "cn": "未平仓做空(股)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "intl.issue_info",
+   "cn": "美股发行信息",
+   "example": "intl.issue_info(\"BRK_B\")",
+   "returns": "MAP · 发行行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "intl.query_ccass",
+   "cn": "港股CCASS持仓",
+   "example": "intl.query_ccass(\"00700\", 20)",
+   "returns": "ARR · CCASS行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "intl.query_org_rating",
+   "cn": "港股机构评级",
+   "example": "intl.query_org_rating(\"00700\", 20)",
+   "returns": "ARR · 评级行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "intl.query_profit_forecast",
+   "cn": "港股盈利预测",
+   "example": "intl.query_profit_forecast(\"00700\", 20)",
+   "returns": "ARR · 预测行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "intl.query_sellshort",
+   "cn": "港美沽空",
+   "example": "intl.query_sellshort(\"BRK_B\", 10)",
+   "returns": "ARR · 沽空行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "intl.query_shareholders",
+   "cn": "港股主要股东",
+   "example": "intl.query_shareholders(\"00700\", 20)",
+   "returns": "ARR · 股东行",
+   "returns_shape": null,
    "min_args": 1,
    "params": [
     {
@@ -3308,6 +5283,116 @@
     {
      "name": "sym",
      "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "margin.fmt_line",
+   "cn": "两融单行文本",
+   "example": "margin.fmt_line(margin.latest(\"000568\"))",
+   "returns": "string",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "row",
+     "type": "any"
+    }
+   ]
+  },
+  {
+   "name": "margin.fmt_maps",
+   "cn": "两融行规范化",
+   "example": "margin.fmt_maps(margin.query(\"000568\", 5))",
+   "returns": "ARR · 规范化行",
+   "returns_shape": {
+    "kind": "array",
+    "items": {
+     "kind": "object",
+     "cn": "两融行",
+     "fields": [
+      {
+       "name": "trade_date",
+       "type": "string",
+       "cn": "交易日期"
+      },
+      {
+       "name": "fin_buy_amt",
+       "type": "float64",
+       "cn": "融资买入额(元)",
+       "optional": true
+      },
+      {
+       "name": "fin_repay_amt",
+       "type": "float64",
+       "cn": "融资偿还额(元)",
+       "optional": true
+      },
+      {
+       "name": "fin_balance",
+       "type": "float64",
+       "cn": "融资余额(元)",
+       "optional": true
+      },
+      {
+       "name": "loan_sell_vol",
+       "type": "float64",
+       "cn": "融券卖出量(股)",
+       "optional": true
+      },
+      {
+       "name": "loan_repay_vol",
+       "type": "float64",
+       "cn": "融券偿还量(股)",
+       "optional": true
+      },
+      {
+       "name": "loan_balance",
+       "type": "float64",
+       "cn": "融券余量(股)",
+       "optional": true
+      }
+     ],
+     "name": ""
+    }
+   },
+   "min_args": null,
+   "params": [
+    {
+     "name": "rows",
+     "type": "array"
+    }
+   ]
+  },
+  {
+   "name": "margin.latest",
+   "cn": "最新两融",
+   "example": "margin.latest(\"000568\")",
+   "returns": "MAP · 两融行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "margin.query",
+   "cn": "个股融资融券",
+   "example": "margin.query(\"000568\", 20)",
+   "returns": "ARR · 两融行",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "sym",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
     }
    ]
   },
@@ -5183,6 +7268,29 @@
    "params": [
     {
      "name": "tab",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "workout.board",
+   "cn": "进行中契约套利看板",
+   "example": "workout.board()",
+   "returns": "MAP · as_of/deals/quotes",
+   "returns_shape": null,
+   "min_args": null,
+   "params": []
+  },
+  {
+   "name": "workout.query",
+   "cn": "单票契约套利条款",
+   "example": "workout.query(\"601059\")",
+   "returns": "ARR · 规范化条款行",
+   "returns_shape": null,
+   "min_args": null,
+   "params": [
+    {
+     "name": "sym",
      "type": "string"
     }
    ]

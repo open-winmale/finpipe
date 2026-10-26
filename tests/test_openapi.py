@@ -4,15 +4,16 @@
 版本、路径、operationId 唯一、请求/响应 schema 自洽、鉴权定义、核心接口全覆盖。
 """
 import json
+import re
 from pathlib import Path
 
-import pytest
-
 from finpipe.api import FRIENDLY_INDEX
+from finpipe.catalog import load
 
 SPEC = json.loads((Path(__file__).resolve().parents[1] / "docs" / "openapi.json")
                   .read_text(encoding="utf-8"))
 CORE_OPS = {f"{ns}_{m}" for _, ns, m, _, _ in FRIENDLY_INDEX}
+CAT = load()
 
 
 def _operations():
@@ -54,12 +55,24 @@ def test_gateway_path_present():
 
 
 def test_request_schemas_self_consistent():
-    """每个请求体是 object；required 字段必须都在 properties 中。"""
+    """每个请求体是 object；required 字段必须都在 properties 中。
+
+    例外以目录合同为准：底层目录函数零参数的核心接口（如 cbond.latest_quotes /
+    workout.board / index.keys）请求体允许空 properties；有参接口不得为空。
+    """
+    underlying_by_op = {f"{ns}_{m}": u for _, ns, m, _, u in FRIENDLY_INDEX}
     for path, _, op in _operations():
         schema = op["requestBody"]["content"]["application/json"]["schema"]
         assert schema["type"] == "object", f"{path} 请求体非 object"
         props = schema.get("properties") or {}
-        assert props, f"{path} 请求体无参数"
+        if not props:
+            fn_key = underlying_by_op.get(op["operationId"], "").split("[")[0]
+            assert re.fullmatch(r"[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*", fn_key or ""), \
+                f"{path} 请求体无参数且底层不可回溯目录函数"
+            fn = CAT.function(fn_key)
+            params = fn.get("params") or CAT.inventory_params(fn_key)
+            assert not params, \
+                f"{path} 请求体无参数，但目录函数 {fn_key} 声明了 {len(params)} 个参数"
         for name in schema.get("required") or []:
             assert name in props, f"{path} required {name} 不在 properties 中"
 

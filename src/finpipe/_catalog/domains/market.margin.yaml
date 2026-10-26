@@ -1,0 +1,21 @@
+id: market.margin
+version: 1.0.0
+cn: 融资融券
+kind: raw
+category: market
+priority: P1
+description: 个股融资融券日频——融资买入/偿还/余额，融券卖出/偿还/余量。金额=元、
+  量=股，与全库基础单位一致。
+data_origin: [交易所披露, 平台数据服务]
+units:
+  money: 元（融资买入额/偿还额/余额）
+  shares: 股（融券卖出量/偿还量/余量）
+requires: {path: sys/margin/init.xs, preloaded: true}
+notes:
+  - '仅个股口径；市场级两融汇总上游无独立数据集'
+  - 'latest(sym) 返回最新一日单行'
+functions:
+  - {name: margin.query, cn: 个股融资融券, layer: L0, normalize_with: margin.fmt_maps}
+  - {name: margin.latest, cn: 最新两融, layer: L0, normalize_with: margin.fmt_maps}
+  - {name: margin.fmt_maps, cn: 两融行规范化, layer: L1}
+  - {name: margin.fmt_line, cn: 两融单行文本, layer: L1}

@@ -1,0 +1,27 @@
+id: market.intl
+version: 1.0.0
+cn: 港美股披露
+kind: raw
+category: reference
+priority: P2
+description: 港美股公司披露维度——港股 CCASS 经纪持仓、主要股东/董事权益、机构评级、
+  盈利预测（中文键披露原文），港美沽空 interest，美股发行信息。市场按标的代码自动识别。
+data_origin: [交易所披露, 平台数据服务]
+units:
+  shares: 股（持股数/沽空量）
+  ratio: 小数（占比字段已由百分数换算）
+  price: 披露币种（目标价/发行价随市场币种，不做汇率换算）
+requires: {path: sys/intl/init.xs, preloaded: true}
+notes:
+  - 'A股标的调用多返回空（对应数据集为港美股口径）'
+  - '港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）'
+  - 'issue_info 为美股发行快照（发行价/数量/日期），字段以披露源为准'
+functions:
+  - {name: intl.query_ccass, cn: 港股CCASS持仓, layer: L0, normalize_with: intl.fmt_maps, units: {pct_of_issued: percent}}
+  - {name: intl.query_shareholders, cn: 港股主要股东, layer: L0, normalize_with: intl.fmt_maps, units: {total_shares_ratio: percent}}
+  - {name: intl.query_org_rating, cn: 港股机构评级, layer: L0, normalize_with: intl.fmt_maps}
+  - {name: intl.query_profit_forecast, cn: 港股盈利预测, layer: L0, normalize_with: intl.fmt_maps}
+  - {name: intl.query_sellshort, cn: 港美沽空, layer: L0, normalize_with: intl.fmt_maps}
+  - {name: intl.issue_info, cn: 美股发行信息, layer: L0, normalize_with: intl.fmt_issue}
+  - {name: intl.fmt_maps, cn: 港美股行规范化, layer: L1}
+  - {name: intl.fmt_issue, cn: 发行行规范化, layer: L1}

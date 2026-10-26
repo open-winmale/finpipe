@@ -1,0 +1,24 @@
+id: fund.estimates
+version: 1.0.0
+cn: 盈利预测与研报
+kind: raw
+category: fundamentals
+priority: P1
+description: 卖方研究数据——机构盈利预测（逐年 EPS/PE，A=实际 E=预测）、预测明细
+  （机构/研究员/归母净利/评级）、评级统计（综合评级与买卖家数按窗口）、个股研报列表。
+  金额=元、EPS=元/股、PE=倍。
+data_origin: [券商研究披露, 平台数据服务]
+units:
+  eps: 元/股
+  money: 元（归母净利润）
+  pe: 倍（预测市盈率）
+requires: {path: sys/estimates/init.xs, preloaded: true}
+notes:
+  - 'year_mark A=实际值 E=预测值；YEAR1..YEAR4 为预测年份序列'
+  - '研报行含标题/机构/作者/行业/报告链接；研报正文不在接口范围'
+functions:
+  - {name: estimates.query_forecast, cn: 机构盈利预测, layer: L0, normalize_with: estimates.fmt_maps}
+  - {name: estimates.query_forecast_detail, cn: 盈利预测明细, layer: L0, normalize_with: estimates.fmt_maps}
+  - {name: estimates.query_rating, cn: 评级统计, layer: L0, normalize_with: estimates.fmt_maps}
+  - {name: estimates.query_reports, cn: 个股研报, layer: L0, normalize_with: estimates.fmt_maps}
+  - {name: estimates.fmt_maps, cn: 预测行规范化, layer: L1}

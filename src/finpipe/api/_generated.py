@@ -278,6 +278,346 @@ class BonusNS(_Ns):
         """股息快照一行文本"""
         return self._client.call("bonus.fmt_snapshot_line", sym=sym, _raw=_raw, _df=_df)
 
+class CbondNS(_Ns):
+    """可转债（market.cbond）"""
+
+    def quote_list(self, _raw: bool = False, _df: bool = False) -> Any:
+        """转债合约快照全表"""
+        return self._client.call("cbond.quote_list", _raw=_raw, _df=_df)
+
+    def latest_quotes(self, _raw: bool = False, _df: bool = False) -> Any:
+        """转债最新快照"""
+        return self._client.call("cbond.latest_quotes", _raw=_raw, _df=_df)
+
+    def of_stock(self, stk: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """正股关联转债"""
+        return self._client.call("cbond.of_stock", stk=stk, _raw=_raw, _df=_df)
+
+    def event_list(self, _raw: bool = False, _df: bool = False) -> Any:
+        """转债条款事件列表"""
+        return self._client.call("cbond.event_list", _raw=_raw, _df=_df)
+
+    def event_rows_of(self, sym: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """单标的条款事件"""
+        return self._client.call("cbond.event_rows_of", sym=sym, _raw=_raw, _df=_df)
+
+    def query(self, sym: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """按标的查条款事件"""
+        return self._client.call("cbond.query", sym=sym, _raw=_raw, _df=_df)
+
+    def call_hits(self, code: Any, trig: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """强赎触发计数"""
+        return self._client.call("cbond.call_hits", code=code, trig=trig, _raw=_raw, _df=_df)
+
+    def kline_window(self, code: Any, n: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """转债日K窗口"""
+        return self._client.call("cbond.kline_window", code=code, n=n, _raw=_raw, _df=_df)
+
+    def min1_live(self, code: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """转债盘中1分钟"""
+        return self._client.call("cbond.min1_live", code=code, _raw=_raw, _df=_df)
+
+    def min1_meta(self, code: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """转债盘中元信息"""
+        return self._client.call("cbond.min1_meta", code=code, _raw=_raw, _df=_df)
+
+    def universe_codes(self, _raw: bool = False, _df: bool = False) -> Any:
+        """转债代码全集"""
+        return self._client.call("cbond.universe_codes", _raw=_raw, _df=_df)
+
+    def fmt_quote(self, row: dict, _raw: bool = False, _df: bool = False) -> Any:
+        """快照行规范化"""
+        return self._client.call("cbond.fmt_quote", row=row, _raw=_raw, _df=_df)
+
+    def fmt_event(self, row: dict, _raw: bool = False, _df: bool = False) -> Any:
+        """条款事件行规范化"""
+        return self._client.call("cbond.fmt_event", row=row, _raw=_raw, _df=_df)
+
+class EquityNS(_Ns):
+    """股东与股本（corp.equity）"""
+
+    def query_holder10(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """最新一期十大股东"""
+        return self._client.call("equity.query_holder10", sym=sym, _raw=_raw, _df=_df)
+
+    def query_holdernum(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """最新股东户数"""
+        return self._client.call("equity.query_holdernum", sym=sym, _raw=_raw, _df=_df)
+
+    def query_pledge_detail(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """主要股东质押明细"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_pledge_detail", **kw, _raw=_raw, _df=_df)
+
+    def query_pledge_summary(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """公司质押比例"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_pledge_summary", **kw, _raw=_raw, _df=_df)
+
+    def query_pledge_market(self, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """市场整体质押"""
+        kw: dict[str, Any] = {}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_pledge_market", **kw, _raw=_raw, _df=_df)
+
+    def query_pledge_industry(self, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """行业质押比例"""
+        kw: dict[str, Any] = {}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_pledge_industry", **kw, _raw=_raw, _df=_df)
+
+    def query_pledge_org(self, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """质押机构分布"""
+        kw: dict[str, Any] = {}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_pledge_org", **kw, _raw=_raw, _df=_df)
+
+    def query_institution_detail(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """机构持股明细"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_institution_detail", **kw, _raw=_raw, _df=_df)
+
+    def query_institution_summary(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """机构持仓占比"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_institution_summary", **kw, _raw=_raw, _df=_df)
+
+    def query_hgt(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """沪港通持股"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_hgt", **kw, _raw=_raw, _df=_df)
+
+    def query_national_team(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """国家队持股"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_national_team", **kw, _raw=_raw, _df=_df)
+
+    def query_release(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """限售解禁日程"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_release", **kw, _raw=_raw, _df=_df)
+
+    def query_buyback_plan(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """回购方案全览"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_buyback_plan", **kw, _raw=_raw, _df=_df)
+
+    def query_buyback_detail(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """回购执行明细"""
+        return self._client.call("equity.query_buyback_detail", sym=sym, _raw=_raw, _df=_df)
+
+    def query_reorg(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """并购重组"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_reorg", **kw, _raw=_raw, _df=_df)
+
+    def query_related_trade(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """关联交易"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_related_trade", **kw, _raw=_raw, _df=_df)
+
+    def query_concert(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """一致行动人"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_concert", **kw, _raw=_raw, _df=_df)
+
+    def query_guarantee(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """对外担保"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_guarantee", **kw, _raw=_raw, _df=_df)
+
+    def query_litigation(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """诉讼记录"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_litigation", **kw, _raw=_raw, _df=_df)
+
+    def query_violation(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """违规处罚"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("equity.query_violation", **kw, _raw=_raw, _df=_df)
+
+    def query_executives(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """高管名册"""
+        return self._client.call("equity.query_executives", sym=sym, _raw=_raw, _df=_df)
+
+    def query_exec_change(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """高管增减持最新"""
+        return self._client.call("equity.query_exec_change", sym=sym, _raw=_raw, _df=_df)
+
+    def query_exec_change_at(self, sym: str, annual: int, sampling: str, _raw: bool = False, _df: bool = False) -> Any:
+        """指定报告期增减持"""
+        return self._client.call("equity.query_exec_change_at", sym=sym, annual=annual, sampling=sampling, _raw=_raw, _df=_df)
+
+    def query_capital_change(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """股本结构最新"""
+        return self._client.call("equity.query_capital_change", sym=sym, _raw=_raw, _df=_df)
+
+    def query_capital_change_at(self, sym: str, annual: int, sampling: str, _raw: bool = False, _df: bool = False) -> Any:
+        """指定报告期股本"""
+        return self._client.call("equity.query_capital_change_at", sym=sym, annual=annual, sampling=sampling, _raw=_raw, _df=_df)
+
+    def fmt_holder10(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """十大股东行规范化"""
+        return self._client.call("equity.fmt_holder10", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_holdernum(self, props: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """股东户数规范化"""
+        return self._client.call("equity.fmt_holdernum", props=props, _raw=_raw, _df=_df)
+
+    def fmt_pledge_detail(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """质押明细规范化"""
+        return self._client.call("equity.fmt_pledge_detail", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_pledge_summary(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """质押比例规范化"""
+        return self._client.call("equity.fmt_pledge_summary", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_pledge_market(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """市场质押规范化"""
+        return self._client.call("equity.fmt_pledge_market", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_pledge_industry(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """行业质押规范化"""
+        return self._client.call("equity.fmt_pledge_industry", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_pledge_org(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """质押机构分布规范化"""
+        return self._client.call("equity.fmt_pledge_org", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_institution_detail(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """机构明细规范化"""
+        return self._client.call("equity.fmt_institution_detail", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_institution_summary(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """机构占比规范化"""
+        return self._client.call("equity.fmt_institution_summary", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_hgt(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """沪港通行规范化"""
+        return self._client.call("equity.fmt_hgt", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_national_team(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """国家队行规范化"""
+        return self._client.call("equity.fmt_national_team", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_release(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """解禁行规范化"""
+        return self._client.call("equity.fmt_release", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_buyback_plan(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """回购方案行规范化"""
+        return self._client.call("equity.fmt_buyback_plan", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_buyback_detail(self, props: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """回购明细规范化"""
+        return self._client.call("equity.fmt_buyback_detail", props=props, _raw=_raw, _df=_df)
+
+    def fmt_reorg(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """重组行规范化"""
+        return self._client.call("equity.fmt_reorg", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_related_trade(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """关联交易行规范化"""
+        return self._client.call("equity.fmt_related_trade", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_concert(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """一致行动人行规范化"""
+        return self._client.call("equity.fmt_concert", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_guarantee(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """担保行规范化"""
+        return self._client.call("equity.fmt_guarantee", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_litigation(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """诉讼行规范化"""
+        return self._client.call("equity.fmt_litigation", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_violation(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """处罚行规范化"""
+        return self._client.call("equity.fmt_violation", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_executives(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """高管行规范化"""
+        return self._client.call("equity.fmt_executives", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_exec_change(self, props: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """增减持行规范化"""
+        return self._client.call("equity.fmt_exec_change", props=props, _raw=_raw, _df=_df)
+
+    def fmt_capital_change(self, props: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """股本行规范化"""
+        return self._client.call("equity.fmt_capital_change", props=props, _raw=_raw, _df=_df)
+
+    def fmt_lines(self, maps: list, _raw: bool = False, _df: bool = False) -> Any:
+        """规范化行转文本"""
+        return self._client.call("equity.fmt_lines", maps=maps, _raw=_raw, _df=_df)
+
+class EstimatesNS(_Ns):
+    """盈利预测与研报（fund.estimates）"""
+
+    def query_forecast(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """机构盈利预测"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("estimates.query_forecast", **kw, _raw=_raw, _df=_df)
+
+    def query_forecast_detail(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """盈利预测明细"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("estimates.query_forecast_detail", **kw, _raw=_raw, _df=_df)
+
+    def query_rating(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """评级统计"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("estimates.query_rating", **kw, _raw=_raw, _df=_df)
+
+    def query_reports(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """个股研报"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("estimates.query_reports", **kw, _raw=_raw, _df=_df)
+
+    def fmt_maps(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """预测行规范化"""
+        return self._client.call("estimates.fmt_maps", rows=rows, _raw=_raw, _df=_df)
+
 class FilingsNS(_Ns):
     """定期报告清单（disc.filings）"""
 
@@ -392,6 +732,86 @@ class ForecastNS(_Ns):
     def fmt_lines(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
         """预告文本行列表"""
         return self._client.call("forecast.fmt_lines", rows=rows, _raw=_raw, _df=_df)
+
+class IndexNS(_Ns):
+    """指数（market.index）"""
+
+    def keys(self, _raw: bool = False, _df: bool = False) -> Any:
+        """指数键列表"""
+        return self._client.call("index.keys", _raw=_raw, _df=_df)
+
+    def members(self, key: str, sort_by: str | None = None, top_n: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """指数成分"""
+        kw: dict[str, Any] = {"key": key}
+        if sort_by is not None:
+            kw["sort_by"] = sort_by
+        if top_n is not None:
+            kw["top_n"] = top_n
+        return self._client.call("index.members", **kw, _raw=_raw, _df=_df)
+
+    def weights(self, key: str, top_n: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """指数权重股"""
+        kw: dict[str, Any] = {"key": key}
+        if top_n is not None:
+            kw["top_n"] = top_n
+        return self._client.call("index.weights", **kw, _raw=_raw, _df=_df)
+
+    def valuation(self, key: str, points: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """指数估值时序"""
+        kw: dict[str, Any] = {"key": key}
+        if points is not None:
+            kw["points"] = points
+        return self._client.call("index.valuation", **kw, _raw=_raw, _df=_df)
+
+class IntlNS(_Ns):
+    """港美股披露（market.intl）"""
+
+    def query_ccass(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """港股CCASS持仓"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("intl.query_ccass", **kw, _raw=_raw, _df=_df)
+
+    def query_shareholders(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """港股主要股东"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("intl.query_shareholders", **kw, _raw=_raw, _df=_df)
+
+    def query_org_rating(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """港股机构评级"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("intl.query_org_rating", **kw, _raw=_raw, _df=_df)
+
+    def query_profit_forecast(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """港股盈利预测"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("intl.query_profit_forecast", **kw, _raw=_raw, _df=_df)
+
+    def query_sellshort(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """港美沽空"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("intl.query_sellshort", **kw, _raw=_raw, _df=_df)
+
+    def issue_info(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """美股发行信息"""
+        return self._client.call("intl.issue_info", sym=sym, _raw=_raw, _df=_df)
+
+    def fmt_maps(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """港美股行规范化"""
+        return self._client.call("intl.fmt_maps", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_issue(self, props: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """发行行规范化"""
+        return self._client.call("intl.fmt_issue", props=props, _raw=_raw, _df=_df)
 
 class KlineNS(_Ns):
     """行情K线（market.kline）"""
@@ -717,6 +1137,28 @@ class KlineNS(_Ns):
     def fmt_bins(self, bins_raw: Any, total_count: int, _raw: bool = False, _df: bool = False) -> Any:
         """涨跌幅分桶格式化"""
         return self._client.call("kline.fmt_bins", bins_raw=bins_raw, total_count=total_count, _raw=_raw, _df=_df)
+
+class MarginNS(_Ns):
+    """融资融券（market.margin）"""
+
+    def query(self, sym: str, limit: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """个股融资融券"""
+        kw: dict[str, Any] = {"sym": sym}
+        if limit is not None:
+            kw["limit"] = limit
+        return self._client.call("margin.query", **kw, _raw=_raw, _df=_df)
+
+    def latest(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """最新两融"""
+        return self._client.call("margin.latest", sym=sym, _raw=_raw, _df=_df)
+
+    def fmt_maps(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+        """两融行规范化"""
+        return self._client.call("margin.fmt_maps", rows=rows, _raw=_raw, _df=_df)
+
+    def fmt_line(self, row: Any, _raw: bool = False, _df: bool = False) -> Any:
+        """两融单行文本"""
+        return self._client.call("margin.fmt_line", row=row, _raw=_raw, _df=_df)
 
 class MoneyflowNS(_Ns):
     """资金流向（market.moneyflow）"""
@@ -1176,13 +1618,31 @@ class SegmentsNS(_Ns):
         """
         return self._client.call("segments.fmt_item", row=row, _raw=_raw, _df=_df)
 
+class WorkoutNS(_Ns):
+    """契约套利（disc.workout）"""
+
+    def board(self, _raw: bool = False, _df: bool = False) -> Any:
+        """进行中契约套利看板"""
+        return self._client.call("workout.board", _raw=_raw, _df=_df)
+
+    def query(self, sym: str, _raw: bool = False, _df: bool = False) -> Any:
+        """单票契约套利条款"""
+        return self._client.call("workout.query", sym=sym, _raw=_raw, _df=_df)
+
 NAMESPACES: dict[str, type[_Ns]] = {
     "bonus": BonusNS,
+    "cbond": CbondNS,
+    "equity": EquityNS,
+    "estimates": EstimatesNS,
     "filings": FilingsNS,
     "forecast": ForecastNS,
+    "index": IndexNS,
+    "intl": IntlNS,
     "kline": KlineNS,
+    "margin": MarginNS,
     "moneyflow": MoneyflowNS,
     "notice": NoticeNS,
     "rptdom": RptdomNS,
     "segments": SegmentsNS,
+    "workout": WorkoutNS,
 }

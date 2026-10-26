@@ -39,7 +39,11 @@ TYPE_MAP = {
 
 # ---- 发布政策 -------------------------------------------------------------
 # 一期数据面白名单：只发布这些命名空间（.internal/MAINTENANCE.md §3）
-INCLUDED_NS = frozenset({"kline", "moneyflow", "notice", "filings", "forecast", "bonus", "rptdom", "segments"})
+# v1.5.0 扩容：股东治理/两融/盈利预测/可转债/套利/指数/港美股（.internal/ROADMAP-1.5.md）
+INCLUDED_NS = frozenset({
+    "kline", "moneyflow", "notice", "filings", "forecast", "bonus", "rptdom", "segments",
+    "equity", "margin", "estimates", "cbond", "workout", "index", "intl",
+})
 # rptdom 只保留三表透视族（年报 PDF 提取类 rows/notes/note_index 不发布）
 RPTDOM_KEEP = frozenset({"statement", "statement_years", "statement_compare", "statement_tree", "statement_audit"})
 

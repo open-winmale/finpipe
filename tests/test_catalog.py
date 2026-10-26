@@ -6,9 +6,9 @@ from finpipe.catalog import load
 def test_load_and_stats():
     cat = load()
     s = cat.stats()
-    assert s["domains"] == 10, s
-    assert s["functions"] == 164, s
-    assert s["raw"] == 91 and s["computed"] == 73, s
+    assert s["domains"] == 16, s
+    assert s["functions"] == 249, s
+    assert s["raw"] == 172 and s["computed"] == 77, s
     assert s["metric_catalog_total"] == 2197, s
     assert s["upstream_rev"], "inventory 应锚定 upstream rev"
 
@@ -56,7 +56,8 @@ def test_normalized_function_shapes_follow_fmt_maps():
 def test_namespaces_and_metrics():
     cat = load()
     assert {"kline", "moneyflow", "notice", "filings", "forecast",
-            "bonus", "rptdom", "segments"} == cat.namespaces()
+            "bonus", "rptdom", "segments", "equity", "margin", "estimates",
+            "cbond", "workout", "index", "intl"} == cat.namespaces()
     m = cat.metric("$PE_TTM_LAST")
     assert m and m["cn"]
     assert cat.metric("$NOT_EXIST") is None
@@ -68,9 +69,10 @@ def test_scope_and_categories():
     assert cats == {"market", "fundamentals", "disclosure", "reference"}
     # 财报提取类域不发布
     assert "fin.report" not in cat.domains
-    # 股本股东（store 域，无函数面）
+    # 股本股东（v1.5 起具备函数面；requires 指向 sys/equity 预载链）
     assert cat.domain("corp.equity")["stores"] == ["biz.equity", "ref.info"]
-    assert cat.domain("corp.equity")["functions"] == []
+    assert cat.domain("corp.equity")["requires"]["path"] == "sys/equity/init.xs"
+    assert len(cat.domain("corp.equity")["functions"]) == 49
 
 
 def test_curated_metric_groups_exist():
@@ -95,6 +97,6 @@ def test_catalog_shipped_inside_package():
     cdir = catmod.catalog_dir()
     assert cdir == pkg_root / "_catalog"
     assert (cdir / "schema" / "domain.schema.json").is_file()
-    assert len(list((cdir / "domains").glob("*.yaml"))) == 10
+    assert len(list((cdir / "domains").glob("*.yaml"))) == 16
     for g in ("inventory.json", "metrics.json"):
         assert (cdir / "generated" / g).is_file()

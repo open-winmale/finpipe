@@ -1,0 +1,32 @@
+id: market.cbond
+version: 1.0.0
+cn: 可转债
+kind: raw
+category: market
+priority: P1
+description: 可转债合约快照、条款事件（下修/回售/赎回等）、正股关联、强赎触发计数、
+  独立日 K 与盘中 1 分钟。日 K 无复权（转债无除权口径）。
+data_origin: [发行条款披露, 平台数据服务]
+units:
+  price: 元（转债价/转股价/目标价，面值 100 口径）
+  ratio: 小数（转股比例等比率字段）
+requires: {path: sys/cbond/init.xs, preloaded: false}
+notes:
+  - 'quote_list/latest_quotes 为全市场快照（按日更新）；of_stock 按正股取关联债'
+  - 'call_hits 统计正股无复权收盘 ≥ 强赎触发价的近窗交易日数，勿以单日价判定已满足'
+  - 'kline_window 返回 store 列式窗口（open/close/high/low/volume/amount）；min1_live
+    为缓存命中制，miss 返回 nil'
+functions:
+  - {name: cbond.quote_list, cn: 转债合约快照全表, layer: L0}
+  - {name: cbond.latest_quotes, cn: 转债最新快照, layer: L0}
+  - {name: cbond.of_stock, cn: 正股关联转债, layer: L0}
+  - {name: cbond.event_list, cn: 转债条款事件列表, layer: L0}
+  - {name: cbond.event_rows_of, cn: 单标的条款事件, layer: L0}
+  - {name: cbond.query, cn: 按标的查条款事件, layer: L0}
+  - {name: cbond.call_hits, cn: 强赎触发计数, layer: L0}
+  - {name: cbond.kline_window, cn: 转债日K窗口, layer: L0}
+  - {name: cbond.min1_live, cn: 转债盘中1分钟, layer: L0}
+  - {name: cbond.min1_meta, cn: 转债盘中元信息, layer: L0}
+  - {name: cbond.universe_codes, cn: 转债代码全集, layer: L0}
+  - {name: cbond.fmt_quote, cn: 快照行规范化, layer: L1}
+  - {name: cbond.fmt_event, cn: 条款事件行规范化, layer: L1}

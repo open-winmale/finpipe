@@ -1252,6 +1252,571 @@
         }
       }
     },
+    "/margin/query": {
+      "post": {
+        "operationId": "margin_query",
+        "summary": "个股两融历史（trade_date/fin_buy_amt/fin_repay_amt/fin_balance/…）。",
+        "description": "底层目录函数 `margin.query`。SDK 调用：`cli.margin.query(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "trade_date": {
+                        "type": "string",
+                        "description": "交易日期"
+                      },
+                      "fin_buy_amt": {
+                        "type": "number",
+                        "description": "融资买入额(元)"
+                      },
+                      "fin_repay_amt": {
+                        "type": "number",
+                        "description": "融资偿还额(元)"
+                      },
+                      "fin_balance": {
+                        "type": "number",
+                        "description": "融资余额(元)"
+                      },
+                      "loan_sell_vol": {
+                        "type": "number",
+                        "description": "融券卖出量(股)"
+                      },
+                      "loan_repay_vol": {
+                        "type": "number",
+                        "description": "融券偿还量(股)"
+                      },
+                      "loan_balance": {
+                        "type": "number",
+                        "description": "融券余量(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/margin/latest": {
+      "post": {
+        "operationId": "margin_latest",
+        "summary": "最新一日两融单行，字段同 ``query()``。",
+        "description": "底层目录函数 `margin.latest`。SDK 调用：`cli.margin.latest(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "trade_date": {
+                        "type": "string",
+                        "description": "交易日期"
+                      },
+                      "fin_buy_amt": {
+                        "type": "number",
+                        "description": "融资买入额(元)"
+                      },
+                      "fin_repay_amt": {
+                        "type": "number",
+                        "description": "融资偿还额(元)"
+                      },
+                      "fin_balance": {
+                        "type": "number",
+                        "description": "融资余额(元)"
+                      },
+                      "loan_sell_vol": {
+                        "type": "number",
+                        "description": "融券卖出量(股)"
+                      },
+                      "loan_repay_vol": {
+                        "type": "number",
+                        "description": "融券偿还量(股)"
+                      },
+                      "loan_balance": {
+                        "type": "number",
+                        "description": "融券余量(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cbond/latest_quotes": {
+      "post": {
+        "operationId": "cbond_latest_quotes",
+        "summary": "全市场转债最新快照（按日更新；行字段经 fmt_quote 规范化）。",
+        "description": "底层目录函数 `cbond.latest_quotes`。SDK 调用：`cli.cbond.latest_quotes(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cbond/of_stock": {
+      "post": {
+        "operationId": "cbond_of_stock",
+        "summary": "正股关联的转债快照行。",
+        "description": "底层目录函数 `cbond.of_stock`。SDK 调用：`cli.cbond.of_stock(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "正股代码（6 位裸码）"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cbond/query": {
+      "post": {
+        "operationId": "cbond_query",
+        "summary": "按转债标的查条款事件（下修/回售/赎回等，规范化事件行）。",
+        "description": "底层目录函数 `cbond.query`。SDK 调用：`cli.cbond.query(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "转债代码"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cbond/call_hits": {
+      "post": {
+        "operationId": "cbond_call_hits",
+        "summary": "正股近窗收盘 ≥ 强赎触发价 trig 的交易日数（int）。",
+        "description": "底层目录函数 `cbond.call_hits`。SDK 调用：`cli.cbond.call_hits(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "正股代码（6 位裸码）"
+                  },
+                  "trig": {
+                    "type": "number",
+                    "description": "强赎触发价（元，面值 100 口径的正股价）"
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "trig"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cbond/kline_window": {
+      "post": {
+        "operationId": "cbond_kline_window",
+        "summary": "转债日 K 窗口（列式 MAP：open/close/high/low/volume/amount；不复权）。",
+        "description": "底层目录函数 `cbond.kline_window`。SDK 调用：`cli.cbond.kline_window(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "转债代码"
+                  },
+                  "n": {
+                    "type": "integer",
+                    "description": "窗口根数"
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "n"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cbond/universe_codes": {
+      "post": {
+        "operationId": "cbond_universe_codes",
+        "summary": "转债代码全集（与快照口径一致）。",
+        "description": "底层目录函数 `cbond.universe_codes`。SDK 调用：`cli.cbond.universe_codes(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index/keys": {
+      "post": {
+        "operationId": "index_keys",
+        "summary": "可用指数键列表（``members``/``weights``/``valuation`` 的 key 取值域）。",
+        "description": "底层目录函数 `index.keys`。SDK 调用：`cli.index.keys(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index/members": {
+      "post": {
+        "operationId": "index_members",
+        "summary": "指数成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps 排序）。",
+        "description": "底层目录函数 `index.members`。SDK 调用：`cli.index.members(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "指数键（见 ``keys()``）"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "description": "排序字段（mv/pe/pb/roe/ps）"
+                  },
+                  "top_n": {
+                    "type": "integer",
+                    "description": "只取前 N 条"
+                  }
+                },
+                "required": [
+                  "key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index/weights": {
+      "post": {
+        "operationId": "index_weights",
+        "summary": "指数权重股（披露权重降序；weight 为小数，0.071 = 7.1%）。",
+        "description": "底层目录函数 `index.weights`。SDK 调用：`cli.index.weights(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "指数键（见 ``keys()``）"
+                  },
+                  "top_n": {
+                    "type": "integer",
+                    "description": "只取前 N 条"
+                  }
+                },
+                "required": [
+                  "key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index/valuation": {
+      "post": {
+        "operationId": "index_valuation",
+        "summary": "宽基估值时序（整体法 PE/PB 季采样点 d/pe/pb + 当前值/股息率）。",
+        "description": "底层目录函数 `index.valuation`。SDK 调用：`cli.index.valuation(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "指数键（见 ``keys()``）"
+                  },
+                  "points": {
+                    "type": "integer",
+                    "description": "季采样点数；series 可自行算分位"
+                  }
+                },
+                "required": [
+                  "key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/statements/balance": {
       "post": {
         "operationId": "statements_balance",
@@ -2169,6 +2734,282 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimates/query_forecast": {
+      "post": {
+        "operationId": "estimates_query_forecast",
+        "summary": "机构盈利预测（逐年 EPS/PE，A=实际 E=预测）。",
+        "description": "底层目录函数 `estimates.query_forecast`。SDK 调用：`cli.estimates.query_forecast(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 8"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "org_name": {
+                        "type": "string",
+                        "description": "机构名称"
+                      },
+                      "publish_date": {
+                        "type": "string",
+                        "description": "发布日期"
+                      },
+                      "eps1": {
+                        "type": "number",
+                        "description": "第一年每股收益"
+                      },
+                      "pe1": {
+                        "type": "number",
+                        "description": "第一年市盈率"
+                      },
+                      "rating": {
+                        "type": "string",
+                        "description": "评级"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimates/query_forecast_detail": {
+      "post": {
+        "operationId": "estimates_query_forecast_detail",
+        "summary": "盈利预测明细（机构/研究员/归母净利/评级）。",
+        "description": "底层目录函数 `estimates.query_forecast_detail`。SDK 调用：`cli.estimates.query_forecast_detail(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 8"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "org_name": {
+                        "type": "string",
+                        "description": "机构名称"
+                      },
+                      "publish_date": {
+                        "type": "string",
+                        "description": "发布日期"
+                      },
+                      "eps1": {
+                        "type": "number",
+                        "description": "第一年每股收益"
+                      },
+                      "pe1": {
+                        "type": "number",
+                        "description": "第一年市盈率"
+                      },
+                      "rating": {
+                        "type": "string",
+                        "description": "评级"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimates/query_rating": {
+      "post": {
+        "operationId": "estimates_query_rating",
+        "summary": "评级统计（综合评级与买卖家数按窗口）。",
+        "description": "底层目录函数 `estimates.query_rating`。SDK 调用：`cli.estimates.query_rating(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 8"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "org_name": {
+                        "type": "string",
+                        "description": "机构名称"
+                      },
+                      "publish_date": {
+                        "type": "string",
+                        "description": "发布日期"
+                      },
+                      "eps1": {
+                        "type": "number",
+                        "description": "第一年每股收益"
+                      },
+                      "pe1": {
+                        "type": "number",
+                        "description": "第一年市盈率"
+                      },
+                      "rating": {
+                        "type": "string",
+                        "description": "评级"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estimates/query_reports": {
+      "post": {
+        "operationId": "estimates_query_reports",
+        "summary": "个股研报列表（标题/机构/作者/行业/报告链接）。",
+        "description": "底层目录函数 `estimates.query_reports`。SDK 调用：`cli.estimates.query_reports(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "财务基本面"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 8"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "org_name": {
+                        "type": "string",
+                        "description": "机构名称"
+                      },
+                      "publish_date": {
+                        "type": "string",
+                        "description": "发布日期"
+                      },
+                      "eps1": {
+                        "type": "number",
+                        "description": "第一年每股收益"
+                      },
+                      "pe1": {
+                        "type": "number",
+                        "description": "第一年市盈率"
+                      },
+                      "rating": {
+                        "type": "string",
+                        "description": "评级"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3185,6 +4026,80 @@
         }
       }
     },
+    "/workout/board": {
+      "post": {
+        "operationId": "workout_board",
+        "summary": "进行中契约套利看板（{as_of, deals, quotes}）。",
+        "description": "底层目录函数 `workout.board`。SDK 调用：`cli.workout.board(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "信息披露"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workout/query": {
+      "post": {
+        "operationId": "workout_query",
+        "summary": "单票契约套利条款（规范化条款行）。",
+        "description": "底层目录函数 `workout.query`。SDK 调用：`cli.workout.query(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "信息披露"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/dividend/history": {
       "post": {
         "operationId": "dividend_history",
@@ -3712,6 +4627,1913 @@
               "application/json": {
                 "schema": {
                   "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_holder10": {
+      "post": {
+        "operationId": "equity_query_holder10",
+        "summary": "最新一期十大股东（holder_name/hold_num/hold_num_ratio）。",
+        "description": "底层目录函数 `equity.query_holder10`。SDK 调用：`cli.equity.query_holder10(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "hold_num": {
+                        "type": "number",
+                        "description": "持股数量(股)"
+                      },
+                      "hold_num_ratio": {
+                        "type": "number",
+                        "description": "持股比例(百分数)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_holdernum": {
+      "post": {
+        "operationId": "equity_query_holdernum",
+        "summary": "最新股东户数（end_date/hold_focus/avg_hold_amt 单行）。",
+        "description": "底层目录函数 `equity.query_holdernum`。SDK 调用：`cli.equity.query_holdernum(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "户数行",
+                  "type": "object",
+                  "properties": {
+                    "end_date": {
+                      "type": "string",
+                      "description": "截止日期"
+                    },
+                    "hold_focus": {
+                      "type": "number",
+                      "description": "持股集中度"
+                    },
+                    "avg_hold_amt": {
+                      "type": "number",
+                      "description": "平均持股金额"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_pledge_detail": {
+      "post": {
+        "operationId": "equity_query_pledge_detail",
+        "summary": "主要股东质押明细（质押家数/数量/比例/状态）。",
+        "description": "底层目录函数 `equity.query_pledge_detail`。SDK 调用：`cli.equity.query_pledge_detail(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "pf_org": {
+                        "type": "string",
+                        "description": "质押机构"
+                      },
+                      "pf_num": {
+                        "type": "number",
+                        "description": "质押数量(股)"
+                      },
+                      "pf_tsr": {
+                        "type": "number",
+                        "description": "质押总股本比例(百分数)"
+                      },
+                      "notice_date": {
+                        "type": "string",
+                        "description": "公告日期"
+                      },
+                      "unfreeze_state": {
+                        "type": "string",
+                        "description": "解押状态"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_pledge_summary": {
+      "post": {
+        "operationId": "equity_query_pledge_summary",
+        "summary": "公司质押比例时序（trade_date/pledge_ratio/质押股数/质押市值）。",
+        "description": "底层目录函数 `equity.query_pledge_summary`。SDK 调用：`cli.equity.query_pledge_summary(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "trade_date": {
+                        "type": "string",
+                        "description": "交易日期"
+                      },
+                      "pledge_ratio": {
+                        "type": "number",
+                        "description": "质押比例(百分数)"
+                      },
+                      "pledge_shares": {
+                        "type": "number",
+                        "description": "质押股数(股)"
+                      },
+                      "pledge_market_cap": {
+                        "type": "number",
+                        "description": "质押市值"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_pledge_market": {
+      "post": {
+        "operationId": "equity_query_pledge_market",
+        "summary": "市场整体质押（全市场两融式时序，不传标的）。",
+        "description": "底层目录函数 `equity.query_pledge_market`。SDK 调用：`cli.equity.query_pledge_market(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "trade_date": {
+                        "type": "string",
+                        "description": "交易日期"
+                      },
+                      "pledge_ratio_total": {
+                        "type": "number",
+                        "description": "A股质押总比例(百分数)"
+                      },
+                      "pledge_company_num": {
+                        "type": "integer",
+                        "description": "质押公司数"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_pledge_industry": {
+      "post": {
+        "operationId": "equity_query_pledge_industry",
+        "summary": "行业质押比例（全市场按行业，不传标的）。",
+        "description": "底层目录函数 `equity.query_pledge_industry`。SDK 调用：`cli.equity.query_pledge_industry(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "industry": {
+                        "type": "string",
+                        "description": "行业名称"
+                      },
+                      "trade_date": {
+                        "type": "string",
+                        "description": "交易日期"
+                      },
+                      "avg_pledge_ratio": {
+                        "type": "number",
+                        "description": "平均质押比例(百分数)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_pledge_org": {
+      "post": {
+        "operationId": "equity_query_pledge_org",
+        "summary": "质押机构分布（质权人类型维度，不传标的）。",
+        "description": "底层目录函数 `equity.query_pledge_org`。SDK 调用：`cli.equity.query_pledge_org(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "org_name": {
+                        "type": "string",
+                        "description": "质押机构"
+                      },
+                      "pforg_type": {
+                        "type": "string",
+                        "description": "机构类型"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_institution_detail": {
+      "post": {
+        "operationId": "equity_query_institution_detail",
+        "summary": "机构持股明细（机构 × 报告期持股数/市值/占比）。",
+        "description": "底层目录函数 `equity.query_institution_detail`。SDK 调用：`cli.equity.query_institution_detail(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "holder_name": {
+                        "type": "string",
+                        "description": "机构名称"
+                      },
+                      "report_date": {
+                        "type": "string",
+                        "description": "报告期"
+                      },
+                      "total_shares": {
+                        "type": "number",
+                        "description": "持股总数(股)"
+                      },
+                      "hold_value": {
+                        "type": "number",
+                        "description": "持股市值"
+                      },
+                      "total_shares_ratio": {
+                        "type": "number",
+                        "description": "持股比例(百分数)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_institution_summary": {
+      "post": {
+        "operationId": "equity_query_institution_summary",
+        "summary": "机构持仓占比时序（机构家数/合计占比/环比变动）。",
+        "description": "底层目录函数 `equity.query_institution_summary`。SDK 调用：`cli.equity.query_institution_summary(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "report_date": {
+                        "type": "string",
+                        "description": "报告期"
+                      },
+                      "org_num": {
+                        "type": "integer",
+                        "description": "机构总数"
+                      },
+                      "total_shares_ratio": {
+                        "type": "number",
+                        "description": "总股本比例(百分数)"
+                      },
+                      "change_ratio": {
+                        "type": "number",
+                        "description": "变化比例(百分数)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_hgt": {
+      "post": {
+        "operationId": "equity_query_hgt",
+        "summary": "沪港通持股（机构/持股数/市值/占比变动）。",
+        "description": "底层目录函数 `equity.query_hgt`。SDK 调用：`cli.equity.query_hgt(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "org_name": {
+                        "type": "string",
+                        "description": "持股机构"
+                      },
+                      "hold_shares": {
+                        "type": "number",
+                        "description": "持股数量(股)"
+                      },
+                      "hold_market_cap": {
+                        "type": "number",
+                        "description": "持股市值"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_national_team": {
+      "post": {
+        "operationId": "equity_query_national_team",
+        "summary": "国家队持股（证券主体 × 报告期持股占比）。",
+        "description": "底层目录函数 `equity.query_national_team`。SDK 调用：`cli.equity.query_national_team(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "security_code": {
+                        "type": "string",
+                        "description": "证券代码"
+                      },
+                      "report_date": {
+                        "type": "string",
+                        "description": "报告期"
+                      },
+                      "shares_ratio": {
+                        "type": "number",
+                        "description": "持股比例合计(百分数)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_release": {
+      "post": {
+        "operationId": "equity_query_release",
+        "summary": "限售解禁日程（解禁日期/数量/占比/类型）。",
+        "description": "底层目录函数 `equity.query_release`。SDK 调用：`cli.equity.query_release(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "lift_date": {
+                        "type": "string",
+                        "description": "解禁日期"
+                      },
+                      "lift_num": {
+                        "type": "number",
+                        "description": "解禁数量(股)"
+                      },
+                      "total_shares_ratio": {
+                        "type": "number",
+                        "description": "总股本比例(百分数)"
+                      },
+                      "lift_type": {
+                        "type": "string",
+                        "description": "解禁类型"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_buyback_plan": {
+      "post": {
+        "operationId": "equity_query_buyback_plan",
+        "summary": "回购方案全览（进度/价格上限/金额上限/起始日）。",
+        "description": "底层目录函数 `equity.query_buyback_plan`。SDK 调用：`cli.equity.query_buyback_plan(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "progress": {
+                        "type": "string",
+                        "description": "回购进度"
+                      },
+                      "price_cap": {
+                        "type": "number",
+                        "description": "回购价格上限"
+                      },
+                      "amount_limit": {
+                        "type": "number",
+                        "description": "回购金额上限"
+                      },
+                      "start_date": {
+                        "type": "string",
+                        "description": "开始日期"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_buyback_detail": {
+      "post": {
+        "operationId": "equity_query_buyback_detail",
+        "summary": "回购执行明细单行（已回购股数/金额/公告日）。",
+        "description": "底层目录函数 `equity.query_buyback_detail`。SDK 调用：`cli.equity.query_buyback_detail(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "回购明细",
+                  "type": "object",
+                  "properties": {
+                    "repurchase_shares": {
+                      "type": "number",
+                      "description": "回购数量"
+                    },
+                    "repurchase_amount": {
+                      "type": "number",
+                      "description": "回购金额"
+                    },
+                    "notice_date": {
+                      "type": "string",
+                      "description": "公告日期"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_reorg": {
+      "post": {
+        "operationId": "equity_query_reorg",
+        "summary": "并购重组（进度/交易金额/公告日）。",
+        "description": "底层目录函数 `equity.query_reorg`。SDK 调用：`cli.equity.query_reorg(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "progress": {
+                        "type": "string",
+                        "description": "进度"
+                      },
+                      "deal_amount": {
+                        "type": "number",
+                        "description": "交易金额"
+                      },
+                      "notice_date": {
+                        "type": "string",
+                        "description": "公告日期"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_related_trade": {
+      "post": {
+        "operationId": "equity_query_related_trade",
+        "summary": "关联交易（关联方/交易金额/公告日）。",
+        "description": "底层目录函数 `equity.query_related_trade`。SDK 调用：`cli.equity.query_related_trade(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "related_party": {
+                        "type": "string",
+                        "description": "交易方"
+                      },
+                      "trade_amt": {
+                        "type": "number",
+                        "description": "交易金额"
+                      },
+                      "notice_date": {
+                        "type": "string",
+                        "description": "公告日期"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_concert": {
+      "post": {
+        "operationId": "equity_query_concert",
+        "summary": "一致行动人（组合名称/合计持股比例）。",
+        "description": "底层目录函数 `equity.query_concert`。SDK 调用：`cli.equity.query_concert(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "holder_names": {
+                        "type": "string",
+                        "description": "股东名称(组)"
+                      },
+                      "hold_ratio": {
+                        "type": "number",
+                        "description": "持股比例(百分数)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_guarantee": {
+      "post": {
+        "operationId": "equity_query_guarantee",
+        "summary": "对外担保（担保方/金额/是否履行完毕）。",
+        "description": "底层目录函数 `equity.query_guarantee`。SDK 调用：`cli.equity.query_guarantee(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "guarantor": {
+                        "type": "string",
+                        "description": "担保方"
+                      },
+                      "guarantee_amt": {
+                        "type": "number",
+                        "description": "担保金额"
+                      },
+                      "is_performed": {
+                        "type": "string",
+                        "description": "是否履行"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_litigation": {
+      "post": {
+        "operationId": "equity_query_litigation",
+        "summary": "诉讼记录（案名/涉案金额/原告/被告）。",
+        "description": "底层目录函数 `equity.query_litigation`。SDK 调用：`cli.equity.query_litigation(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "case_name": {
+                        "type": "string",
+                        "description": "案件名称"
+                      },
+                      "case_amount": {
+                        "type": "number",
+                        "description": "案件金额"
+                      },
+                      "plaintiff": {
+                        "type": "string",
+                        "description": "原告"
+                      },
+                      "defence": {
+                        "type": "string",
+                        "description": "被告"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_violation": {
+      "post": {
+        "operationId": "equity_query_violation",
+        "summary": "违规处罚（类型/处分/罚款金额）。",
+        "description": "底层目录函数 `equity.query_violation`。SDK 调用：`cli.equity.query_violation(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "violate_type": {
+                        "type": "string",
+                        "description": "违规类型"
+                      },
+                      "punish_type": {
+                        "type": "string",
+                        "description": "处罚类型"
+                      },
+                      "punish_amt": {
+                        "type": "number",
+                        "description": "处罚金额"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_executives": {
+      "post": {
+        "operationId": "equity_query_executives",
+        "summary": "高管名册（姓名/职务/薪酬/持股）。",
+        "description": "底层目录函数 `equity.query_executives`。SDK 调用：`cli.equity.query_executives(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "person_name": {
+                        "type": "string",
+                        "description": "姓名"
+                      },
+                      "position": {
+                        "type": "string",
+                        "description": "职位"
+                      },
+                      "salary": {
+                        "type": "number",
+                        "description": "薪酬"
+                      },
+                      "hold_num": {
+                        "type": "number",
+                        "description": "持股数(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_exec_change": {
+      "post": {
+        "operationId": "equity_query_exec_change",
+        "summary": "高管增减持最新一行（日期/高管/变动股数/均价）。",
+        "description": "底层目录函数 `equity.query_exec_change`。SDK 调用：`cli.equity.query_exec_change(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "增减持行",
+                  "type": "object",
+                  "properties": {
+                    "end_date": {
+                      "type": "string",
+                      "description": "截止日期"
+                    },
+                    "holder_name": {
+                      "type": "string",
+                      "description": "持股人名称"
+                    },
+                    "change_num": {
+                      "type": "number",
+                      "description": "变动数量(股)"
+                    },
+                    "average_price": {
+                      "type": "number",
+                      "description": "交易均价(元)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_exec_change_at": {
+      "post": {
+        "operationId": "equity_query_exec_change_at",
+        "summary": "指定报告期的高管增减持单行。",
+        "description": "底层目录函数 `equity.query_exec_change_at`。SDK 调用：`cli.equity.query_exec_change_at(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "annual": {
+                    "type": "integer",
+                    "description": "年报年度（如 2024）"
+                  },
+                  "sampling": {
+                    "type": "string",
+                    "description": "报告期采样（如 \"Q4\"）"
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "annual",
+                  "sampling"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "增减持行",
+                  "type": "object",
+                  "properties": {
+                    "end_date": {
+                      "type": "string",
+                      "description": "截止日期"
+                    },
+                    "holder_name": {
+                      "type": "string",
+                      "description": "持股人名称"
+                    },
+                    "change_num": {
+                      "type": "number",
+                      "description": "变动数量(股)"
+                    },
+                    "average_price": {
+                      "type": "number",
+                      "description": "交易均价(元)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_capital_change": {
+      "post": {
+        "operationId": "equity_query_capital_change",
+        "summary": "股本结构最新一行（总股本/流通股本）。",
+        "description": "底层目录函数 `equity.query_capital_change`。SDK 调用：`cli.equity.query_capital_change(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "股本行",
+                  "type": "object",
+                  "properties": {
+                    "total_shares": {
+                      "type": "number",
+                      "description": "总股份"
+                    },
+                    "free_shares": {
+                      "type": "number",
+                      "description": "流通股份"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equity/query_capital_change_at": {
+      "post": {
+        "operationId": "equity_query_capital_change_at",
+        "summary": "指定报告期的股本结构单行。",
+        "description": "底层目录函数 `equity.query_capital_change_at`。SDK 调用：`cli.equity.query_capital_change_at(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "annual": {
+                    "type": "integer",
+                    "description": "年报年度（如 2024）"
+                  },
+                  "sampling": {
+                    "type": "string",
+                    "description": "报告期采样（如 \"Q4\"）"
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "annual",
+                  "sampling"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "股本行",
+                  "type": "object",
+                  "properties": {
+                    "total_shares": {
+                      "type": "number",
+                      "description": "总股份"
+                    },
+                    "free_shares": {
+                      "type": "number",
+                      "description": "流通股份"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intl/query_ccass": {
+      "post": {
+        "operationId": "intl_query_ccass",
+        "summary": "港股 CCASS 经纪持仓（经纪商/持股数/占发行股比）。",
+        "description": "底层目录函数 `intl.query_ccass`。SDK 调用：`cli.intl.query_ccass(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "participant_name": {
+                        "type": "string",
+                        "description": "参与者名称"
+                      },
+                      "shareholding": {
+                        "type": "number",
+                        "description": "持股数(股)"
+                      },
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "rating_name": {
+                        "type": "string",
+                        "description": "评级"
+                      },
+                      "short_selling_shares": {
+                        "type": "number",
+                        "description": "未平仓做空(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intl/query_shareholders": {
+      "post": {
+        "operationId": "intl_query_shareholders",
+        "summary": "港股主要股东/董事权益（股东/持股数/占总股比）。",
+        "description": "底层目录函数 `intl.query_shareholders`。SDK 调用：`cli.intl.query_shareholders(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "participant_name": {
+                        "type": "string",
+                        "description": "参与者名称"
+                      },
+                      "shareholding": {
+                        "type": "number",
+                        "description": "持股数(股)"
+                      },
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "rating_name": {
+                        "type": "string",
+                        "description": "评级"
+                      },
+                      "short_selling_shares": {
+                        "type": "number",
+                        "description": "未平仓做空(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intl/query_org_rating": {
+      "post": {
+        "operationId": "intl_query_org_rating",
+        "summary": "港股机构评级（机构/评级/目标价，披露币种）。",
+        "description": "底层目录函数 `intl.query_org_rating`。SDK 调用：`cli.intl.query_org_rating(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "participant_name": {
+                        "type": "string",
+                        "description": "参与者名称"
+                      },
+                      "shareholding": {
+                        "type": "number",
+                        "description": "持股数(股)"
+                      },
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "rating_name": {
+                        "type": "string",
+                        "description": "评级"
+                      },
+                      "short_selling_shares": {
+                        "type": "number",
+                        "description": "未平仓做空(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intl/query_profit_forecast": {
+      "post": {
+        "operationId": "intl_query_profit_forecast",
+        "summary": "港股盈利预测（披露原文中文键：财政年度/纯利/每股盈利等）。",
+        "description": "底层目录函数 `intl.query_profit_forecast`。SDK 调用：`cli.intl.query_profit_forecast(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "participant_name": {
+                        "type": "string",
+                        "description": "参与者名称"
+                      },
+                      "shareholding": {
+                        "type": "number",
+                        "description": "持股数(股)"
+                      },
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "rating_name": {
+                        "type": "string",
+                        "description": "评级"
+                      },
+                      "short_selling_shares": {
+                        "type": "number",
+                        "description": "未平仓做空(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intl/query_sellshort": {
+      "post": {
+        "operationId": "intl_query_sellshort",
+        "summary": "港美沽空（沽空量/占比，shares=股）。",
+        "description": "底层目录函数 `intl.query_sellshort`。SDK 调用：`cli.intl.query_sellshort(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "description": "条数，默认 20"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "participant_name": {
+                        "type": "string",
+                        "description": "参与者名称"
+                      },
+                      "shareholding": {
+                        "type": "number",
+                        "description": "持股数(股)"
+                      },
+                      "holder_name": {
+                        "type": "string",
+                        "description": "股东名称"
+                      },
+                      "rating_name": {
+                        "type": "string",
+                        "description": "评级"
+                      },
+                      "short_selling_shares": {
+                        "type": "number",
+                        "description": "未平仓做空(股)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intl/issue_info": {
+      "post": {
+        "operationId": "intl_issue_info",
+        "summary": "美股发行信息快照（发行价/数量/日期，以披露源为准）。",
+        "description": "底层目录函数 `intl.issue_info`。SDK 调用：`cli.intl.issue_info(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "参考数据"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "发行行"
                 }
               }
             }

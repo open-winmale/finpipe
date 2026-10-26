@@ -23,6 +23,7 @@ EXAMPLE_VALUES = {
     "years": "3", "scope": '"合并"', "n": "30", "limit": "10",
     "symbols": '["600519", "000001"]', "date": '"2026-06-30"',
     "min_chg": "0.10", "min_ratio": "1.5", "desc": "True",
+    "key": '"index.hs300"', "top_n": "10", "points": "8",
 }
 
 # 方法级示例值覆盖（同一参数名在不同接口语义不同，如 kind）
@@ -33,6 +34,11 @@ METHOD_EXAMPLE_VALUES = {
     ("valuation", "hist_stats"): {"metric": '"pe"', "window": '"3y"'},
     # 回撤筛选的示例取上游默认语义（近 20 日跌超 10%）
     ("screener", "screen_pullback_20d"): {"min_chg": "-0.10"},
+    # 报告期变体（annual=年报年度 / sampling=报告期采样）
+    ("equity", "query_exec_change_at"): {"annual": "2024", "sampling": '"Q4"'},
+    ("equity", "query_capital_change_at"): {"annual": "2024", "sampling": '"Q4"'},
+    # 强赎触发价（元，面值 100 口径的正股价示例）
+    ("cbond", "call_hits"): {"trig": "130.0"},
 }
 
 # 返回说明覆盖（目录 shape 过粗的动态列表返回，按上游实现补字段级说明；

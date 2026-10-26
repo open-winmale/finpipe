@@ -8,7 +8,7 @@
     ``_raw=True`` 取未规范化原始行（仅部分方法）；
   - 本层是目录合同的薄翻译：高频方法显式包装；目录内其余函数经 ``__getattr__``
     属性直达（如 ``cli.kline.screen_above_ma20``、``cli.dividend.screen_quality``），
-    目录之外的名字显式 AttributeError——164 个底层函数零遮蔽。
+    目录之外的名字显式 AttributeError——249 个底层函数零遮蔽。
   - 选股能力集中在 ``cli.screener``：单票筛选器（bool）与全市场宽度（服务端
     预计算索引直出）显式包装，kline 目录的其余筛选函数经属性直达。
 
@@ -97,8 +97,9 @@ def _to_df(result: Any) -> Any:
 
 
 # 友好命名空间 → 目录（XS）命名空间。目录真实命名空间为
-# bonus/filings/forecast/kline/moneyflow/notice/rptdom；statements/indicator/info
-# 是聚合层（indicator/info 走指标 eval，无目录函数）。
+# bonus/cbond/equity/estimates/filings/forecast/index/intl/kline/margin/
+# moneyflow/notice/rptdom/segments/workout；statements/indicator/info 是聚合层
+# （indicator/info 走指标 eval，无目录函数）。
 _FRIENDLY_NS_TO_CATALOG: dict[str, str] = {
     "kline": "kline",
     "screener": "kline",
@@ -108,6 +109,13 @@ _FRIENDLY_NS_TO_CATALOG: dict[str, str] = {
     "filings": "filings",
     "forecast": "forecast",
     "dividend": "bonus",
+    "equity": "equity",
+    "margin": "margin",
+    "estimates": "estimates",
+    "cbond": "cbond",
+    "workout": "workout",
+    "index": "index",
+    "intl": "intl",
 }
 
 
@@ -273,6 +281,125 @@ class MoneyflowApi(_Api):
     def live(self, symbol: str, _raw: bool = False) -> Any:
         """盘中资金流快照（短 TTL）；数据源暂无快照时返回 None。"""
         return self._c.call("moneyflow.query_last_live", sym=symbol, _raw=_raw)
+
+
+class MarginApi(_Api):
+    """融资融券（个股日频）。
+
+    融资买入/偿还/余额与融券卖出/偿还/余量；金额=元、量=股（与全库基础单位
+    一致）。``latest`` 为最新一日单行；仅个股口径，市场级两融汇总上游无数据集。
+    """
+
+    def query(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """个股两融历史（trade_date/fin_buy_amt/fin_repay_amt/fin_balance/…）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("margin.query", sym=symbol, limit=limit, _df=_df)
+
+    def latest(self, symbol: str) -> Any:
+        """最新一日两融单行，字段同 ``query()``。"""
+        return self._c.call("margin.latest", sym=symbol)
+
+
+class CbondApi(_Api):
+    """可转债——合约快照/条款事件/正股关联/强赎触发/独立日 K。
+
+    价格为面值 100 口径（元）；转债无除权口径，日 K 不复权。``call_hits``
+    统计正股无复权收盘 ≥ 强赎触发价的近窗交易日数，勿以单日价判定已满足；
+    ``kline_window`` 返回 store 列式窗口（open/close/high/low/volume/amount）。
+    目录内其余函数（quote_list/event_list/min1_live 等）经属性直达。
+    """
+
+    def latest_quotes(self, _df: bool = False) -> Any:
+        """全市场转债最新快照（按日更新；行字段经 fmt_quote 规范化）。"""
+        return self._c.call("cbond.latest_quotes", _df=_df)
+
+    def of_stock(self, symbol: str, _df: bool = False) -> Any:
+        """正股关联的转债快照行。
+
+        :param symbol: 正股代码（6 位裸码）
+        """
+        return self._c.call("cbond.of_stock", stk=symbol, _df=_df)
+
+    def query(self, symbol: str, _df: bool = False) -> Any:
+        """按转债标的查条款事件（下修/回售/赎回等，规范化事件行）。
+
+        :param symbol: 转债代码
+        """
+        return self._c.call("cbond.query", sym=symbol, _df=_df)
+
+    def call_hits(self, symbol: str, trig: float) -> Any:
+        """正股近窗收盘 ≥ 强赎触发价 trig 的交易日数（int）。
+
+        :param symbol: 正股代码（6 位裸码）
+        :param trig: 强赎触发价（元，面值 100 口径的正股价）
+        """
+        return self._c.call("cbond.call_hits", code=symbol, trig=trig)
+
+    def kline_window(self, symbol: str, n: int) -> Any:
+        """转债日 K 窗口（列式 MAP：open/close/high/low/volume/amount；不复权）。
+
+        :param symbol: 转债代码
+        :param n: 窗口根数
+        """
+        return self._c.call("cbond.kline_window", code=symbol, n=n)
+
+    def universe_codes(self, _df: bool = False) -> Any:
+        """转债代码全集（与快照口径一致）。"""
+        return self._c.call("cbond.universe_codes", _df=_df)
+
+
+class IndexApi(_Api):
+    """指数维度——指数键/成分股/权重股/宽基估值时序。
+
+    ``key`` 为服务端指数键（先用 ``keys()`` 列出，形如 index.hs300，勿臆造）；
+    成分行含市值与估值中枢（roe_ttm/pe_ttm 为指标层原值，SDK 不再换算）；
+    权重为披露权重（已换算小数）；估值时序为整体法 PE/PB 季采样 + 当前值/股息率。
+    指数行情（K 线/快照）走 ``cli.kline``。
+    """
+
+    def keys(self, _df: bool = False) -> Any:
+        """可用指数键列表（``members``/``weights``/``valuation`` 的 key 取值域）。"""
+        return self._c.call("index.keys", _df=_df)
+
+    def members(self, key: str, sort_by: str | None = None,
+                top_n: int | None = None, _df: bool = False) -> Any:
+        """指数成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps 排序）。
+
+        :param key: 指数键（见 ``keys()``）
+        :param sort_by: 排序字段（mv/pe/pb/roe/ps）
+        :param top_n: 只取前 N 条
+        """
+        kw: dict[str, Any] = {"key": key}
+        if sort_by is not None:
+            kw["sort_by"] = sort_by
+        if top_n is not None:
+            kw["top_n"] = top_n
+        return self._c.call("index.members", **kw, _df=_df)
+
+    def weights(self, key: str, top_n: int | None = None,
+                _df: bool = False) -> Any:
+        """指数权重股（披露权重降序；weight 为小数，0.071 = 7.1%）。
+
+        :param key: 指数键（见 ``keys()``）
+        :param top_n: 只取前 N 条
+        """
+        kw: dict[str, Any] = {"key": key}
+        if top_n is not None:
+            kw["top_n"] = top_n
+        return self._c.call("index.weights", **kw, _df=_df)
+
+    def valuation(self, key: str, points: int | None = None) -> Any:
+        """宽基估值时序（整体法 PE/PB 季采样点 d/pe/pb + 当前值/股息率）。
+
+        :param key: 指数键（见 ``keys()``）
+        :param points: 季采样点数；series 可自行算分位
+        """
+        kw: dict[str, Any] = {"key": key}
+        if points is not None:
+            kw["points"] = points
+        return self._c.call("index.valuation", **kw)
 
 
 # ---------------------------------------------------------------- 选股 market
@@ -543,6 +670,45 @@ class ValuationApi(_Api):
             f'return HIST_STATS("{window}", "{self._METRICS[metric]}")', symbol=symbol)
 
 
+class EstimatesApi(_Api):
+    """盈利预测与研报（卖方研究数据）。
+
+    机构盈利预测逐年 EPS/PE（year_mark A=实际 E=预测，YEAR1..YEAR4 为预测年份
+    序列）、预测明细（机构/研究员/归母净利/评级）、评级统计（综合评级与买卖
+    家数按窗口）、个股研报列表（标题/机构/作者/行业/链接；研报正文不在接口
+    范围）。EPS=元/股、金额=元、PE=倍。
+    """
+
+    def query_forecast(self, symbol: str, limit: int = 8, _df: bool = False) -> Any:
+        """机构盈利预测（逐年 EPS/PE，A=实际 E=预测）。
+
+        :param limit: 条数，默认 8
+        """
+        return self._c.call("estimates.query_forecast", sym=symbol, limit=limit, _df=_df)
+
+    def query_forecast_detail(self, symbol: str, limit: int = 8, _df: bool = False) -> Any:
+        """盈利预测明细（机构/研究员/归母净利/评级）。
+
+        :param limit: 条数，默认 8
+        """
+        return self._c.call("estimates.query_forecast_detail", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_rating(self, symbol: str, limit: int = 8, _df: bool = False) -> Any:
+        """评级统计（综合评级与买卖家数按窗口）。
+
+        :param limit: 条数，默认 8
+        """
+        return self._c.call("estimates.query_rating", sym=symbol, limit=limit, _df=_df)
+
+    def query_reports(self, symbol: str, limit: int = 8, _df: bool = False) -> Any:
+        """个股研报列表（标题/机构/作者/行业/报告链接）。
+
+        :param limit: 条数，默认 8
+        """
+        return self._c.call("estimates.query_reports", sym=symbol, limit=limit, _df=_df)
+
+
 class IndicatorApi(_Api):
     """平台指标（按指标代码寻址）。
 
@@ -672,6 +838,24 @@ class ForecastApi(_Api):
     def next_disclosure(self, symbol: str) -> Any:
         """下次财报预约披露。"""
         return self._c.call("forecast.disclosure_next", sym=symbol)
+
+
+class WorkoutApi(_Api):
+    """契约套利条款事件（要约收购/换股吸收合并/现金选择权等，披露原文提取）。
+
+    ``board()`` 返回 {as_of, deals, quotes} 进行中看板；``query()`` 返回单票
+    规范化条款行。价格为披露口径（公告对价/现价，元）；现价 < 公告对价的折价
+    窗口由调用方自行判定，SDK 不内置收益测算（算法放工具仓）。同业数据商暂无
+    对应接口，属平台独有面。
+    """
+
+    def board(self) -> Any:
+        """进行中契约套利看板（{as_of, deals, quotes}）。"""
+        return self._c.call("workout.board")
+
+    def query(self, symbol: str, _df: bool = False) -> Any:
+        """单票契约套利条款（规范化条款行）。"""
+        return self._c.call("workout.query", sym=symbol, _df=_df)
 
 
 class DividendApi(_Api):
@@ -810,19 +994,268 @@ class InfoApi(_Api):
         return self._c.eval_result(f"return {{{body}}}", symbol=symbol) or {}
 
 
+class EquityApi(_Api):
+    """股东治理与股本——十大股东/质押/解禁/机构/高管/回购/重组/担保/诉讼。
+
+    披露原值直采；比例字段（*_ratio/*_tsr/hold_ratio 等）由百分数口径换算为
+    **小数**（0.0522 = 5.22%，换算字段清单见目录 units 声明）；持股数=股、
+    金额=元。市场级质押三件套（pledge_market/industry/org）不传标的；
+    ``*_at`` 变体按报告期取数（annual 如 2024、sampling 如 "Q4"）。
+    目录内全部 ``equity.*`` 函数（含 fmt_* 规范化工具）经属性直达。
+    """
+
+    # ---- 股东 ----
+    def query_holder10(self, symbol: str, _df: bool = False) -> Any:
+        """最新一期十大股东（holder_name/hold_num/hold_num_ratio）。"""
+        return self._c.call("equity.query_holder10", sym=symbol, _df=_df)
+
+    def query_holdernum(self, symbol: str) -> Any:
+        """最新股东户数（end_date/hold_focus/avg_hold_amt 单行）。"""
+        return self._c.call("equity.query_holdernum", sym=symbol)
+
+    # ---- 质押 ----
+    def query_pledge_detail(self, symbol: str, limit: int = 20,
+                            _df: bool = False) -> Any:
+        """主要股东质押明细（质押家数/数量/比例/状态）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_pledge_detail", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_pledge_summary(self, symbol: str, limit: int = 20,
+                             _df: bool = False) -> Any:
+        """公司质押比例时序（trade_date/pledge_ratio/质押股数/质押市值）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_pledge_summary", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_pledge_market(self, limit: int = 20, _df: bool = False) -> Any:
+        """市场整体质押（全市场两融式时序，不传标的）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_pledge_market", limit=limit, _df=_df)
+
+    def query_pledge_industry(self, limit: int = 20, _df: bool = False) -> Any:
+        """行业质押比例（全市场按行业，不传标的）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_pledge_industry", limit=limit, _df=_df)
+
+    def query_pledge_org(self, limit: int = 20, _df: bool = False) -> Any:
+        """质押机构分布（质权人类型维度，不传标的）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_pledge_org", limit=limit, _df=_df)
+
+    # ---- 机构 ----
+    def query_institution_detail(self, symbol: str, limit: int = 20,
+                                 _df: bool = False) -> Any:
+        """机构持股明细（机构 × 报告期持股数/市值/占比）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_institution_detail", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_institution_summary(self, symbol: str, limit: int = 20,
+                                  _df: bool = False) -> Any:
+        """机构持仓占比时序（机构家数/合计占比/环比变动）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_institution_summary", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_hgt(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """沪港通持股（机构/持股数/市值/占比变动）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_hgt", sym=symbol, limit=limit, _df=_df)
+
+    def query_national_team(self, symbol: str, limit: int = 20,
+                            _df: bool = False) -> Any:
+        """国家队持股（证券主体 × 报告期持股占比）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_national_team", sym=symbol,
+                            limit=limit, _df=_df)
+
+    # ---- 治理事件 ----
+    def query_release(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """限售解禁日程（解禁日期/数量/占比/类型）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_release", sym=symbol, limit=limit, _df=_df)
+
+    def query_buyback_plan(self, symbol: str, limit: int = 20,
+                           _df: bool = False) -> Any:
+        """回购方案全览（进度/价格上限/金额上限/起始日）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_buyback_plan", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_buyback_detail(self, symbol: str) -> Any:
+        """回购执行明细单行（已回购股数/金额/公告日）。"""
+        return self._c.call("equity.query_buyback_detail", sym=symbol)
+
+    def query_reorg(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """并购重组（进度/交易金额/公告日）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_reorg", sym=symbol, limit=limit, _df=_df)
+
+    def query_related_trade(self, symbol: str, limit: int = 20,
+                            _df: bool = False) -> Any:
+        """关联交易（关联方/交易金额/公告日）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_related_trade", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_concert(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """一致行动人（组合名称/合计持股比例）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_concert", sym=symbol, limit=limit, _df=_df)
+
+    def query_guarantee(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """对外担保（担保方/金额/是否履行完毕）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_guarantee", sym=symbol, limit=limit, _df=_df)
+
+    def query_litigation(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """诉讼记录（案名/涉案金额/原告/被告）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_litigation", sym=symbol, limit=limit, _df=_df)
+
+    def query_violation(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """违规处罚（类型/处分/罚款金额）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("equity.query_violation", sym=symbol, limit=limit, _df=_df)
+
+    # ---- 高管与股本 ----
+    def query_executives(self, symbol: str, _df: bool = False) -> Any:
+        """高管名册（姓名/职务/薪酬/持股）。"""
+        return self._c.call("equity.query_executives", sym=symbol, _df=_df)
+
+    def query_exec_change(self, symbol: str) -> Any:
+        """高管增减持最新一行（日期/高管/变动股数/均价）。"""
+        return self._c.call("equity.query_exec_change", sym=symbol)
+
+    def query_exec_change_at(self, symbol: str, annual: int, sampling: str) -> Any:
+        """指定报告期的高管增减持单行。
+
+        :param annual: 年报年度（如 2024）
+        :param sampling: 报告期采样（如 "Q4"）
+        """
+        return self._c.call("equity.query_exec_change_at", sym=symbol,
+                            annual=annual, sampling=sampling)
+
+    def query_capital_change(self, symbol: str) -> Any:
+        """股本结构最新一行（总股本/流通股本）。"""
+        return self._c.call("equity.query_capital_change", sym=symbol)
+
+    def query_capital_change_at(self, symbol: str, annual: int, sampling: str) -> Any:
+        """指定报告期的股本结构单行。
+
+        :param annual: 年报年度（如 2024）
+        :param sampling: 报告期采样（如 "Q4"）
+        """
+        return self._c.call("equity.query_capital_change_at", sym=symbol,
+                            annual=annual, sampling=sampling)
+
+
+class IntlApi(_Api):
+    """港美股披露——CCASS 持仓/主要股东/机构评级/盈利预测/沽空/美股发行。
+
+    市场按标的代码自动识别（港股 5 位、美股字母码）；A 股标的调用多返回空
+    （对应数据集为港美股口径）。占比字段已由百分数换算为**小数**；价格为披露
+    币种原值（不做汇率换算）；港股盈利预测行保留披露原文中文键。
+    """
+
+    def query_ccass(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """港股 CCASS 经纪持仓（经纪商/持股数/占发行股比）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("intl.query_ccass", sym=symbol, limit=limit, _df=_df)
+
+    def query_shareholders(self, symbol: str, limit: int = 20,
+                           _df: bool = False) -> Any:
+        """港股主要股东/董事权益（股东/持股数/占总股比）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("intl.query_shareholders", sym=symbol, limit=limit, _df=_df)
+
+    def query_org_rating(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """港股机构评级（机构/评级/目标价，披露币种）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("intl.query_org_rating", sym=symbol, limit=limit, _df=_df)
+
+    def query_profit_forecast(self, symbol: str, limit: int = 20,
+                              _df: bool = False) -> Any:
+        """港股盈利预测（披露原文中文键：财政年度/纯利/每股盈利等）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("intl.query_profit_forecast", sym=symbol,
+                            limit=limit, _df=_df)
+
+    def query_sellshort(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
+        """港美沽空（沽空量/占比，shares=股）。
+
+        :param limit: 条数，默认 20
+        """
+        return self._c.call("intl.query_sellshort", sym=symbol, limit=limit, _df=_df)
+
+    def issue_info(self, symbol: str) -> Any:
+        """美股发行信息快照（发行价/数量/日期，以披露源为准）。"""
+        return self._c.call("intl.issue_info", sym=symbol)
+
+
 FRIENDLY_NAMESPACES: dict[str, type[_Api]] = {
     "kline": KlineApi,
     "screener": ScreenerApi,
     "moneyflow": MoneyflowApi,
+    "margin": MarginApi,
+    "cbond": CbondApi,
+    "index": IndexApi,
     "statements": StatementsApi,
     "segments": SegmentsApi,
     "valuation": ValuationApi,
+    "estimates": EstimatesApi,
     "indicator": IndicatorApi,
     "notice": NoticeApi,
     "filings": FilingsApi,
     "forecast": ForecastApi,
+    "workout": WorkoutApi,
     "dividend": DividendApi,
     "info": InfoApi,
+    "equity": EquityApi,
+    "intl": IntlApi,
 }
 
 # 文档索引用注册表：(category, namespace, method, cn, 底层函数)
@@ -851,6 +1284,18 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("market", "screener", "index_breadth_bin_industries", "分桶行业分布",
      "kline.index_breadth_bin_industries"),
     ("market", "screener", "index_top_movers", "涨跌榜", "kline.index_top_movers"),
+    ("market", "margin", "query", "个股融资融券历史", "margin.query"),
+    ("market", "margin", "latest", "最新两融单行", "margin.latest"),
+    ("market", "cbond", "latest_quotes", "转债最新快照", "cbond.latest_quotes"),
+    ("market", "cbond", "of_stock", "正股关联转债", "cbond.of_stock"),
+    ("market", "cbond", "query", "按标的查条款事件", "cbond.query"),
+    ("market", "cbond", "call_hits", "强赎触发计数", "cbond.call_hits"),
+    ("market", "cbond", "kline_window", "转债日K窗口", "cbond.kline_window"),
+    ("market", "cbond", "universe_codes", "转债代码全集", "cbond.universe_codes"),
+    ("market", "index", "keys", "指数键列表", "index.keys"),
+    ("market", "index", "members", "指数成分", "index.members"),
+    ("market", "index", "weights", "指数权重股", "index.weights"),
+    ("market", "index", "valuation", "指数估值时序", "index.valuation"),
     ("fundamentals", "statements", "balance", "资产负债表", "rptdom.statement"),
     ("fundamentals", "statements", "income", "利润表", "rptdom.statement"),
     ("fundamentals", "statements", "cashflow", "现金流量表", "rptdom.statement"),
@@ -868,6 +1313,11 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("fundamentals", "segments", "coverage", "分部披露覆盖度", "segments.coverage"),
     ("fundamentals", "segments", "periods", "分部可用报告期", "segments.list_sas"),
     ("fundamentals", "valuation", "hist_stats", "估值历史统计", "组合接口（宿主 HIST_STATS）"),
+    ("fundamentals", "estimates", "query_forecast", "机构盈利预测", "estimates.query_forecast"),
+    ("fundamentals", "estimates", "query_forecast_detail", "盈利预测明细",
+     "estimates.query_forecast_detail"),
+    ("fundamentals", "estimates", "query_rating", "评级统计", "estimates.query_rating"),
+    ("fundamentals", "estimates", "query_reports", "个股研报", "estimates.query_reports"),
     ("disclosure", "notice", "list", "单票公告列表", "notice.query_by_symbol"),
     ("disclosure", "notice", "recent", "全市场近期公告", "notice.query_recent"),
     ("disclosure", "notice", "by_category", "按类别查公告", "notice.query_by_category"),
@@ -883,6 +1333,8 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("disclosure", "forecast", "yjkb_latest", "最新业绩快报", "forecast.yjkb_latest"),
     ("disclosure", "forecast", "disclosure_history", "历史预约披露", "forecast.disclosure_rows"),
     ("disclosure", "forecast", "next_disclosure", "下次预约披露", "forecast.disclosure_next"),
+    ("disclosure", "workout", "board", "进行中契约套利看板", "workout.board"),
+    ("disclosure", "workout", "query", "单票契约套利条款", "workout.query"),
     ("disclosure", "dividend", "history", "分红历史", "bonus.query_list"),
     ("disclosure", "dividend", "last", "最近一次分红", "bonus.query_list"),
     ("disclosure", "dividend", "dps", "财报期每股分红", "bonus.dps_rpt"),
@@ -894,6 +1346,50 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("disclosure", "dividend", "screen_undervalued_yield", "低估+高股息筛选",
      "bonus.screen_undervalued_yield"),
     ("reference", "info", "profile", "公司档案摘要", "档案指标（$NAME 等）"),
+    # ---- equity：全部 query_*（fmt_* 规范化工具经属性直达）----
+    ("reference", "equity", "query_holder10", "最新一期十大股东", "equity.query_holder10"),
+    ("reference", "equity", "query_holdernum", "最新股东户数", "equity.query_holdernum"),
+    ("reference", "equity", "query_pledge_detail", "主要股东质押明细",
+     "equity.query_pledge_detail"),
+    ("reference", "equity", "query_pledge_summary", "公司质押比例",
+     "equity.query_pledge_summary"),
+    ("reference", "equity", "query_pledge_market", "市场整体质押",
+     "equity.query_pledge_market"),
+    ("reference", "equity", "query_pledge_industry", "行业质押比例",
+     "equity.query_pledge_industry"),
+    ("reference", "equity", "query_pledge_org", "质押机构分布", "equity.query_pledge_org"),
+    ("reference", "equity", "query_institution_detail", "机构持股明细",
+     "equity.query_institution_detail"),
+    ("reference", "equity", "query_institution_summary", "机构持仓占比",
+     "equity.query_institution_summary"),
+    ("reference", "equity", "query_hgt", "沪港通持股", "equity.query_hgt"),
+    ("reference", "equity", "query_national_team", "国家队持股", "equity.query_national_team"),
+    ("reference", "equity", "query_release", "限售解禁日程", "equity.query_release"),
+    ("reference", "equity", "query_buyback_plan", "回购方案全览", "equity.query_buyback_plan"),
+    ("reference", "equity", "query_buyback_detail", "回购执行明细",
+     "equity.query_buyback_detail"),
+    ("reference", "equity", "query_reorg", "并购重组", "equity.query_reorg"),
+    ("reference", "equity", "query_related_trade", "关联交易", "equity.query_related_trade"),
+    ("reference", "equity", "query_concert", "一致行动人", "equity.query_concert"),
+    ("reference", "equity", "query_guarantee", "对外担保", "equity.query_guarantee"),
+    ("reference", "equity", "query_litigation", "诉讼记录", "equity.query_litigation"),
+    ("reference", "equity", "query_violation", "违规处罚", "equity.query_violation"),
+    ("reference", "equity", "query_executives", "高管名册", "equity.query_executives"),
+    ("reference", "equity", "query_exec_change", "高管增减持最新", "equity.query_exec_change"),
+    ("reference", "equity", "query_exec_change_at", "指定报告期增减持",
+     "equity.query_exec_change_at"),
+    ("reference", "equity", "query_capital_change", "股本结构最新",
+     "equity.query_capital_change"),
+    ("reference", "equity", "query_capital_change_at", "指定报告期股本",
+     "equity.query_capital_change_at"),
+    # ---- intl：全部 query_* + issue_info ----
+    ("reference", "intl", "query_ccass", "港股CCASS持仓", "intl.query_ccass"),
+    ("reference", "intl", "query_shareholders", "港股主要股东", "intl.query_shareholders"),
+    ("reference", "intl", "query_org_rating", "港股机构评级", "intl.query_org_rating"),
+    ("reference", "intl", "query_profit_forecast", "港股盈利预测",
+     "intl.query_profit_forecast"),
+    ("reference", "intl", "query_sellshort", "港美沽空", "intl.query_sellshort"),
+    ("reference", "intl", "issue_info", "美股发行信息", "intl.issue_info"),
 ]
 
 # 类型化门面（生成层）：目录命名空间的完整类型签名；运行时仍走 client.call()。

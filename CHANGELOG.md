@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **数据面扩容（v1.5.0 主体）**：新增 7 个数据域——`corp.equity` 股东与股本（十大股东/
+  股东户数/股权质押五族/限售解禁/机构持股/沪港通/国家队/高管名册与增减持/股本结构/
+  回购方案与执行/并购重组/关联交易/一致行动人/对外担保/诉讼处罚）、`market.margin`
+  个股融资融券、`fund.estimates` 盈利预测与研报（机构预测/明细/评级统计/个股研报）、
+  `market.cbond` 可转债（合约快照/条款事件/正股关联/强赎计数/日K/盘中）、`disc.workout`
+  契约套利、`market.index` 指数（成分/权重/宽基估值时序）、`market.intl` 港美股披露
+  （CCASS/主要股东/机构评级/盈利预测/沽空/美股发行）。目录 **10→16 域、164→249 底层
+  函数、64→113 核心接口**；新增 7 个友好门面 `cli.equity/margin/estimates/cbond/
+  workout/index/intl`；60 个新合同级离线用例（tests/test_domains_v15.py）。
+  比例字段统一由百分数换算为小数；歧义口径字段（高管薪酬/股本结构等）保持披露原值
+  并在目录 notes 标注，待平台部署后 live 核验补齐 ranges/checks。
+  上游配套（scripts 仓 d2ecfe9b，需平台部署后 live 才通）：新增 sys/equity、sys/margin、
+  sys/estimates、sys/index、sys/intl 五域库，sys/cbond 补 13 个 xs:catalog 注解与
+  manifest，boot chain 挂载（CROSS_REPO_CHANGES #9）。
+- README「特性」按「数据要全 / 数据要准 / 特色数据」重构，能力一览表收录 7 个新门面；
+  瘦身上限 215→240 行（实际 224）；SKILL.md 计数同步。
+
 ### Changed
 
 - **公开文档补"可验证事实链"**：README 能力一览写明日 K 数据深度（个股/ETF 自上市首日

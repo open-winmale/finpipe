@@ -1,0 +1,23 @@
+id: market.index
+version: 1.0.0
+cn: 指数
+kind: computed
+category: market
+priority: P1
+description: 指数维度数据——指数键列表、成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps
+  排序）、权重股（披露权重降序）、宽基估值时序（整体法 PE/PB 季采样 + 当前值/股息率）。
+  指数行情（K 线/快照）走 cli.kline。
+data_origin: [平台数据服务]
+units:
+  money: 元（市值）
+  ratio: 小数（roe_ttm 等比率，指标层口径）
+  weight: 百分数（披露权重，已换算小数）
+requires: {path: sys/index/init.xs, preloaded: true}
+notes:
+  - '成员行 roe_ttm/pe_ttm 等为指标层原值（比率小数、倍数口径），SDK 不再换算'
+  - 'valuation.series 为季采样点（d/pe/pb），前端/调用方可自行算分位'
+functions:
+  - {name: index.keys, cn: 指数键列表, layer: L0}
+  - {name: index.members, cn: 指数成分, layer: L0}
+  - {name: index.weights, cn: 指数权重股, layer: L0, units: {weight: percent}}
+  - {name: index.valuation, cn: 指数估值时序, layer: L0}

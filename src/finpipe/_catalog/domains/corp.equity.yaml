@@ -1,21 +1,84 @@
 id: corp.equity
-version: 1.1.0
-cn: 股本与股东
+version: 2.0.0
+cn: 股东与股本
 kind: raw
 category: reference
 priority: P1
-description: 股本变动、公司档案（行业/上市日/股本/简介）与 F10 深度数据体系（十大股东/
-  一致行动人/股权质押/解禁限售/持股人数/回购/机构持仓/高管员工/盈利预测/研报/融资融券等）。
-  披露原值直采。
+description: 股东治理与股本全景——十大股东、股东户数、股权质押（明细+比例+市场/行业/
+  机构分布）、限售解禁、机构持股（明细/占比/沪港通/国家队）、高管名册与增减持、股本结构、
+  回购（方案+执行）、并购重组、关联交易、一致行动人、对外担保、诉讼处罚。披露原值直采，
+  比例字段统一换算为小数（0.0522 = 5.22%）。
 data_origin: [交易所披露, 平台数据服务]
-units:
-  shares: 股（股本序列）
-  pct: 百分数（占比列）
-requires: {path: '', preloaded: true}
 stores: [biz.equity, ref.info]
+units:
+  ratio: 小数（质押比例/持股比例/解禁占比等比例字段，已由百分数口径换算；0.0522 = 5.22%）
+  money: 元（持股市值/质押市值/回购金额等，披露源口径）
+  shares: 股（持股数/解禁数量/质押数量）
+  price: 元（交易均价/回购价）
+requires: {path: sys/equity/init.xs, preloaded: true}
 notes:
-  - 本域当前无独立 L0 函数面：公司档案经 cli.info.profile() 与 fund.indicators 的
-    profile 指标组（$NAME/$INDUSTRY_CUR/$ORG_ORGTYPE/$ORG_LISTINGDATE）获取
-  - 'F10 深度页（十大股东/质押/解禁/回购/机构持仓/高管/盈利预测等约 67 个分析页）暂未进 SDK，按需晋升'
-  - 股东户数/质押比例等派生比率为计算值，读取时以字段名 pct/_rate 区分
-functions: []
+  - '公司档案（名称/行业/上市日期/简介）经 cli.info.profile() 与 fund.indicators 的
+    profile 指标组（$NAME/$INDUSTRY_CUR/$ORG_ORGTYPE/$ORG_LISTINGDATE）获取'
+  - '比例字段（*_ratio/*_tsr/hold_ratio/pct_of_issued 等）已由百分数换算为小数，
+    换算字段清单见各函数 units 声明；其余未声明字段保持披露原值'
+  - 'pledge_market.pledge_ratio_total、holdernum 各比例、reorg.deal_amount、
+    guarantee_amt、punish_amt、executive.salary、capital_change（披露原文中文键）等
+    字段口径待 live 核验（上游样本歧义），保持披露原值不做换算'
+  - 'query_exec_change_at / query_capital_change_at 按报告期取数（annual 如 2024、
+    sampling 如 Q4）'
+functions:
+  # ---- 股东 ----
+  - {name: equity.query_holder10, cn: 最新一期十大股东, layer: L0, normalize_with: equity.fmt_holder10, units: {hold_num_ratio: percent}}
+  - {name: equity.query_holdernum, cn: 最新股东户数, layer: L0, normalize_with: equity.fmt_holdernum}
+  # ---- 质押 ----
+  - {name: equity.query_pledge_detail, cn: 主要股东质押明细, layer: L0, normalize_with: equity.fmt_pledge_detail, units: {accum_pledge_tsr: percent, pf_hold_ratio: percent, pf_tsr: percent}}
+  - {name: equity.query_pledge_summary, cn: 公司质押比例, layer: L0, normalize_with: equity.fmt_pledge_summary, units: {pledge_ratio: percent}}
+  - {name: equity.query_pledge_market, cn: 市场整体质押, layer: L0, normalize_with: equity.fmt_pledge_market}
+  - {name: equity.query_pledge_industry, cn: 行业质押比例, layer: L0, normalize_with: equity.fmt_pledge_industry, units: {avg_pledge_ratio: percent}}
+  - {name: equity.query_pledge_org, cn: 质押机构分布, layer: L0, normalize_with: equity.fmt_pledge_org}
+  # ---- 机构 ----
+  - {name: equity.query_institution_detail, cn: 机构持股明细, layer: L0, normalize_with: equity.fmt_institution_detail, units: {total_shares_ratio: percent, free_shares_ratio: percent}}
+  - {name: equity.query_institution_summary, cn: 机构持仓占比, layer: L0, normalize_with: equity.fmt_institution_summary, units: {total_shares_ratio: percent, change_ratio: percent, all_shares_ratio: percent}}
+  - {name: equity.query_hgt, cn: 沪港通持股, layer: L0, normalize_with: equity.fmt_hgt, units: {free_shares_ratio: percent, total_shares_ratio: percent, add_shares_pct: percent}}
+  - {name: equity.query_national_team, cn: 国家队持股, layer: L0, normalize_with: equity.fmt_national_team, units: {shares_ratio: percent, shares_ratio_change: percent}}
+  # ---- 治理事件 ----
+  - {name: equity.query_release, cn: 限售解禁日程, layer: L0, normalize_with: equity.fmt_release, units: {total_shares_ratio: percent, unlimited_ratio: percent}}
+  - {name: equity.query_buyback_plan, cn: 回购方案全览, layer: L0, normalize_with: equity.fmt_buyback_plan}
+  - {name: equity.query_buyback_detail, cn: 回购执行明细, layer: L0, normalize_with: equity.fmt_buyback_detail}
+  - {name: equity.query_reorg, cn: 并购重组, layer: L0, normalize_with: equity.fmt_reorg, units: {transfer_ratio: percent}}
+  - {name: equity.query_related_trade, cn: 关联交易, layer: L0, normalize_with: equity.fmt_related_trade}
+  - {name: equity.query_concert, cn: 一致行动人, layer: L0, normalize_with: equity.fmt_concert, units: {hold_ratio: percent}}
+  - {name: equity.query_guarantee, cn: 对外担保, layer: L0, normalize_with: equity.fmt_guarantee}
+  - {name: equity.query_litigation, cn: 诉讼记录, layer: L0, normalize_with: equity.fmt_litigation}
+  - {name: equity.query_violation, cn: 违规处罚, layer: L0, normalize_with: equity.fmt_violation}
+  # ---- 高管与股本 ----
+  - {name: equity.query_executives, cn: 高管名册, layer: L0, normalize_with: equity.fmt_executives}
+  - {name: equity.query_exec_change, cn: 高管增减持最新, layer: L0, normalize_with: equity.fmt_exec_change}
+  - {name: equity.query_exec_change_at, cn: 指定报告期增减持, layer: L1, normalize_with: equity.fmt_exec_change}
+  - {name: equity.query_capital_change, cn: 股本结构最新, layer: L0, normalize_with: equity.fmt_capital_change}
+  - {name: equity.query_capital_change_at, cn: 指定报告期股本, layer: L1, normalize_with: equity.fmt_capital_change}
+  # ---- L1：规范化工具 ----
+  - {name: equity.fmt_holder10, cn: 十大股东行规范化, layer: L1}
+  - {name: equity.fmt_holdernum, cn: 股东户数规范化, layer: L1}
+  - {name: equity.fmt_pledge_detail, cn: 质押明细规范化, layer: L1}
+  - {name: equity.fmt_pledge_summary, cn: 质押比例规范化, layer: L1}
+  - {name: equity.fmt_pledge_market, cn: 市场质押规范化, layer: L1}
+  - {name: equity.fmt_pledge_industry, cn: 行业质押规范化, layer: L1}
+  - {name: equity.fmt_pledge_org, cn: 质押机构分布规范化, layer: L1}
+  - {name: equity.fmt_institution_detail, cn: 机构明细规范化, layer: L1}
+  - {name: equity.fmt_institution_summary, cn: 机构占比规范化, layer: L1}
+  - {name: equity.fmt_hgt, cn: 沪港通行规范化, layer: L1}
+  - {name: equity.fmt_national_team, cn: 国家队行规范化, layer: L1}
+  - {name: equity.fmt_release, cn: 解禁行规范化, layer: L1}
+  - {name: equity.fmt_buyback_plan, cn: 回购方案行规范化, layer: L1}
+  - {name: equity.fmt_buyback_detail, cn: 回购明细规范化, layer: L1}
+  - {name: equity.fmt_reorg, cn: 重组行规范化, layer: L1}
+  - {name: equity.fmt_related_trade, cn: 关联交易行规范化, layer: L1}
+  - {name: equity.fmt_concert, cn: 一致行动人行规范化, layer: L1}
+  - {name: equity.fmt_guarantee, cn: 担保行规范化, layer: L1}
+  - {name: equity.fmt_litigation, cn: 诉讼行规范化, layer: L1}
+  - {name: equity.fmt_violation, cn: 处罚行规范化, layer: L1}
+  - {name: equity.fmt_executives, cn: 高管行规范化, layer: L1}
+  - {name: equity.fmt_exec_change, cn: 增减持行规范化, layer: L1}
+  - {name: equity.fmt_capital_change, cn: 股本行规范化, layer: L1}
+  - {name: equity.fmt_lines, cn: 规范化行转文本, layer: L1}

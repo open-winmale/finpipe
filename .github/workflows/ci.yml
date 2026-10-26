@@ -38,6 +38,6 @@ jobs:
           python -m pip wheel . --no-deps -w /tmp/finpipe-wheel
           python -m venv /tmp/finpipe-venv
           /tmp/finpipe-venv/bin/pip install /tmp/finpipe-wheel/*.whl
-          /tmp/finpipe-venv/bin/python -c "import finpipe; c=finpipe.load(); assert c.stats()['functions'] == 164"
+          /tmp/finpipe-venv/bin/python -c "import finpipe; c=finpipe.load(); assert c.stats()['functions'] == 249"
           /tmp/finpipe-venv/bin/python examples/catalog_tour.py > /tmp/catalog_tour.out
-          grep -q "数据域：10" /tmp/catalog_tour.out
+          grep -q "数据域：16" /tmp/catalog_tour.out

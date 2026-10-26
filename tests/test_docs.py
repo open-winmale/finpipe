@@ -323,8 +323,8 @@ def test_readme_example_outputs_documented():
 
 
 def test_readme_units_and_guards_documented():
-    """基础单位与数据正确性承诺必须在 README 成文（单位事故防线的一部分）。"""
-    for kw in ("数据正确性保障", "DataError", '_units="native"', "validate=False",
+    """单位与守护的最小行动块必须在 README 成文（2026-10-25 二次瘦身定版）。"""
+    for kw in ("单位与数据守护", "DataError", '_units="native"', "validate=False",
                "算好的增值数据", "专业的股息计算", "能力一览"):
         assert kw in README, f"README 缺少关键内容：{kw}"
     assert "量=手" not in README and "volume in lots" not in README, \
@@ -332,7 +332,6 @@ def test_readme_units_and_guards_documented():
     # API.md 同步：catalog 章节存在、旧口径文案绝迹
     assert "数据目录（离线）" in API_MD and "cat.search" in API_MD
     assert "差额 / 合并值 × 100" not in API_MD
-    assert "diffp ≈ 差额/合并值" in README or "diffp ≈" in README
 
 
 def test_readme_no_competitor_names():
@@ -341,9 +340,9 @@ def test_readme_no_competitor_names():
 
 
 def test_readme_is_lean():
-    """店面纪律：README 保持精炼（2026-10-24 重构后 274 行），超限先删内容再提限。"""
-    assert len(README.splitlines()) <= 280, \
-        f"README 膨胀到 {len(README.splitlines())} 行（上限 280）；长内容下沉 docs/ 或删除"
+    """店面纪律：README 保持精炼（2026-10-25 二次瘦身 206 行），超限先删内容再提限。"""
+    assert len(README.splitlines()) <= 215, \
+        f"README 膨胀到 {len(README.splitlines())} 行（上限 215）；长内容下沉 docs/ 或删除"
 
 
 def test_readme_catalog_references_valid():

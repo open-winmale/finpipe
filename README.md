@@ -23,9 +23,9 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K
 
 ## 目录
 
-[特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [我想做 X → 用哪一行](#我想做-x--用哪一行) ·
-[数据正确性保障](#数据正确性保障) · [口径速查](#口径速查) · [免费额度与凭证](#免费额度与凭证) ·
-[使用限制](#使用限制必读) · [English quick start](#english-quick-start) · [更多](#更多)
+[特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [单位与数据守护](#单位与数据守护) ·
+[我想做 X → 用哪一行](#我想做-x--用哪一行) · [免费额度与凭证](#免费额度与凭证) ·
+[使用限制](#使用限制必读) · [更多](#更多)
 
 ## 特性
 
@@ -35,7 +35,7 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K
 - **选股免计算**——`cli.screener` 单票一行布尔筛选（涨停/均线/动量/放量）+ 全市场
   涨跌全景/分桶/行业分布/涨跌榜，服务端预计算索引直出，你不拉全市场数据、不算均线。
 - **单位统一 + 数据守护**——全库基础单位（比率/涨跌幅=小数、金额=元、量=股）；
-  每次返回做量级守护与关系不变量校验，错误的量级到不了你的代码（见「数据正确性保障」）。
+  每次返回做量级守护与关系不变量校验，错误的量级到不了你的代码（见下方「单位与数据守护」）。
 - **算好的增值数据**——2,197 个指标码：TTM、3/5/10 年历史分位、192 个行业内分位、
   专业的股息计算（TTM 股息率/派息率 + 11 个质量筛选器），服务端一次取数直出。
 - **财报按最新会计准则归一**——新旧准则科目差异平台内部适配，跨年、跨公司直接比较。
@@ -55,23 +55,17 @@ pip install "wm-finpipe[dataframe]"     # 可选：pandas 支持（_df=True）
 `pip install -i https://pypi.org/simple wm-finpipe`。开发/贡献者安装见
 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-### 十行上手
+### 三行上手
 
 ```python
 import finpipe
 
-cli = finpipe.Client()                  # 零配置：内置体验 appid 自动启用
-
-cli.kline.bars("600519", n=30)                          # 日 K（不复权）
-cli.kline.bars("600519", n=30, adj="qfq")               # 前复权 / "hfq"=后复权
-cli.screener.screen_limit_up("600519")                  # 今日涨停了吗（bool）
-cli.screener.index_breadth_summary()                    # 全市场涨跌全景（服务端直出）
-cli.statements.income("600519", years=5)                # 利润表（合并口径，多期）
-cli.dividend.yield_ttm("600519")                        # TTM 股息率（小数）
-cli.indicator.get("600519", "$PE_TTM_LAST")             # 平台指标（TTM 市盈率）
-cli.notice.list("600519", window="3m")                  # 公告
-cli.info.profile("600519")                              # 公司档案
+cli = finpipe.Client()                            # 零配置：内置体验 appid 自动启用
+print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小数）
+print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服务端直出）
 ```
+
+更多调用见下方「我想做 X → 用哪一行」。
 
 ## 能力一览
 
@@ -108,7 +102,7 @@ cli.info.profile("600519")                              # 公司档案
 | 近半年有无回购/减持 | `cli.notice.has_buyback(sym, "6m")` | 拉公告列表→分类匹配→截窗 |
 | 合并与母公司差多少 | `cli.statements.compare(sym)` | 双表对齐→逐科目相除 |
 
-**示例（输出为预期量级，单位口径与全库一致）**：
+**常用示例（输出为预期量级；`cli.kline.bars` / `statements.income` 等其余接口同风格）**：
 
 ```python
 import finpipe
@@ -140,57 +134,19 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 
 以上能力全部在离线目录可查：`cat.search("分位")`、`cat.metrics_in_group("dividend")`。
 
-## 数据正确性保障
+## 单位与数据守护
 
-单位问题曾让用户把 3.96% 读成 0.04%。finpipe 用三层机制保证你拿到的数据量级正确，
-而不是靠"文档约定"：
-
-1. **脚本原值 → SDK 单点换算**——上游脚本永远输出其原生口径（如差额占比百分数、
-   A 股成交量手）；SDK 在 `call()` 里按目录声明做**唯一的**一次换算，转成基础单位
-   （比率小数、金额元、股数股）。换算规则集中在随包目录的 YAML 声明里，可审计、可追溯。
-2. **返回前校验**——换算后立即执行目录声明的量级范围守护与关系不变量（如
-   `diffp ≈ 差额/合并值`、`volume×close ≈ amount`）。违例直接抛
-   `DataError`（含字段/实际值/期望范围），**错误的量级到不了你的代码里**；
-   换算声明写错也会被数据本身自动暴露。
-3. **持续审计**——`tools/audit_units.py` 对一组覆盖不同板块/行业/规模的样本公司
-   逐家跑全部守护与跨接口一致性（如 `dividend.yield_ttm` 与 `$BONUS_RATE_TTM_LAST`
-   恒等、指标层市值与 K 线快照同量级）；CI 每个交易日夜间自动执行，口径漂移会在
-   日志中显式报告。
-
-校验默认开启。三种逃生口（有测试守护其语义）：
-
-| 参数 | 语义 |
-|---|---|
-| `_units="native"` | 保留脚本输出的原生单位（字段名仍规范化），换算与校验都跳过 |
-| `_raw=True` | 返回 store 原始行（连字段规范化也跳过） |
-| `Client(validate=False)` | 保留换算、关闭量级/不变量校验 |
-
-## 口径速查
-
-| 维度 | 取值 | 说明 |
-|---|---|---|
-| 复权 | `nr` / `qfq` / `hfq` | 指数无复权 |
-| 报表范围 | 合并 / 母公司 / 差额 | 差额与占比为派生值（占比已换算为小数） |
-| 期间 | 单期 / 多期 / TTM | TTM = 最近四个季度滚动 |
-| 数据性质 | 原始数据 / 指标 | 逐函数标注，可回溯目录 |
-| 会计准则 | 新旧准则已归一 | 平台内部适配 |
-| 价格 / 金额 / 市值 | 元 | 报表原币；指标层与报表同口径，可直接混算 |
-| 成交量 | 股 | A 股/港美/ETF 同口径（脚本手原值由 SDK 自动 ×100） |
-| 涨跌幅 / 比率 | 小数 | 0.01 = 1%；0.332 = 33.2%（ROE/毛利率/资产负债率等） |
-| 筛选阈值 | 小数 | `screen_momentum_20d(min_chg=0.10)` = 10%；宽度返回的 `*_pct`/`pct_of_total` 为百分数数值（80.3 = 80.3%） |
-| 业绩预告同比 | 小数 | 脚本原生百分数已由 SDK 自动换算（1.467 = 146.7%） |
-| 分红率 | 小数 | 0.0396 = 3.96% |
-| 数据守护 | 每次返回默认校验 | 违例抛 `DataError`；逃生口见「数据正确性保障」 |
-| 时间窗口 | `7d`…`5y` 或天数 | 分红/公告；最大 5 年，未知 token 显式报错 |
-| 日期区间 | `begin` / `end` | 含端点，最多 5 年；覆盖不足会报错 |
+全库统一基础单位：**比率 / 涨跌幅 = 小数**（0.01 = 1%，ROE 0.332 = 33.2%）、
+**金额 / 价格 / 市值 = 元**（报表原币）、**成交量 = 股**；各接口单位口径见「能力一览」表。
+返回前做量级与关系不变量校验，违例抛 `DataError`——错误的量级到不了你的代码。
+需要脚本原始口径时：`_raw=True`（store 原始行）、`_units="native"`（脚本输出单位），
+或 `Client(validate=False)` 关闭校验。
 
 ## 免费额度与凭证
 
-**个人学习、研究等非商业使用完全免费**。注册开放平台账号即可获得免费额度，个人研究足够使用；
-具体额度以开放平台为准。商业使用需另行授权（见「使用限制」）。
-
-SDK 内置体验 AppID，安装即用，但它是共享池、额度有限，仅供初次体验。正式使用建议申请
-自己的 AppID（额度更充足）：
+**个人学习、研究等非商业使用完全免费**，注册开放平台账号即得免费额度（商业使用需另行
+授权，见「使用限制」）。SDK 内置体验 AppID 安装即用，但它是共享池、额度有限，仅供初次
+体验；正式使用建议申请自己的 AppID（额度更充足）：
 
 1. 打开 [赢麻了开放平台](https://open.winmale.com)，扫码微信登录注册；
 2. 点击右上角「我的」，进入「开放平台」；
@@ -209,12 +165,10 @@ export FINPIPE_CLIENT_SECRET=...
 也可以在代码中直接传入：`finpipe.Client(client_id=..., client_secret=...)`。
 不配置时自动使用内置体验 AppID。
 
-### 遇到 401 / 403 / 429 怎么办
+### 遇到 401 / 403 / 429
 
-- **401 / 403**（`AuthError`，凭证无效或权限不足）与 **429**（`LimitError`，限流）
-  的错误消息里都附有申请自己 AppID 的步骤；
-- 体验 AppID 是共享池、限额较低（批量或连跑容易触发 429），正式使用请按上面三步
-  换成自己的 AppID 并配置 `FINPIPE_CLIENT_ID` / `FINPIPE_CLIENT_SECRET`。
+401/403（`AuthError`）与 429（`LimitError`，限流）的错误消息里都附有申请步骤；
+体验 AppID 是共享池、限额较低，批量或连跑容易触发 429——按上面三步换成自己的 AppID 即可。
 
 ## 使用限制（必读）
 
@@ -225,26 +179,6 @@ export FINPIPE_CLIENT_SECRET=...
 - 本许可属于 source-available（源码可见）而非 OSI 定义的开源许可。
 
 商业授权请联系项目维护方。数据仅供研究参考，不构成任何投资建议。
-
-## English quick start
-
-```python
-import finpipe
-
-cli = finpipe.Client()                     # zero config: built-in trial appid
-
-bars = cli.kline.bars("600519", n=30)      # daily k-line (price in CNY, volume in shares)
-yield_ttm = cli.dividend.yield_ttm("600519")   # TTM dividend yield (decimal: 0.0396 = 3.96%)
-cat = finpipe.load()
-hits = cat.search("股息")                   # offline search across 2,197 metric codes
-                                            # + 164 functions (default limit = 20)
-```
-
-For non-commercial use the SDK is free (built-in trial AppID, register for your own quota).
-Commercial use requires a license — see [License](#使用限制必读).
-Units are unified to base units: prices/money in CNY, volume in shares, ratios and price
-changes as decimals (0.332 = 33.2%); every response passes declared magnitude guards and
-relational invariants (violations raise `DataError`).
 
 ## 更多
 
@@ -268,7 +202,5 @@ relational invariants (violations raise `DataError`).
   单次拉取上限 `Client(max_limit=500)` 可调
 - 批量调用：`cli.call_batch("kline.query_bars", ["600519", "000001"])` 单次 HTTP 返回
   `{symbol: 结果}`；`on_error="skip"` 时逐标的隔离错误
-- 数据守护：单位换算、量级守护与关系不变量的声明全部在随包目录 YAML 中，
-  维护者可用 `python tools/audit_units.py` 对样本宇宙做单位口径审计（CI 夜间自动执行）
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
 - 运行测试：`pytest`（不联网）；`FINPIPE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

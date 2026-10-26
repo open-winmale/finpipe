@@ -70,8 +70,8 @@ python examples/pandas_analysis.py     # DataFrame 分析（需凭证 + pandas�
 
 ## 许可政策
 
-- 整项目采用 **PolyForm Noncommercial 1.0.0**（见 LICENSE）：贡献即同意以该许可发布。
-- 任何商业使用需项目维护方另行授权；不得引入与该许可不兼容的第三方代码。
+- 整项目采用 **MIT**（见 LICENSE）：贡献即同意以 MIT 发布。
+- 不得引入与 MIT 不兼容的第三方代码。
 
 ## 提交信息
 

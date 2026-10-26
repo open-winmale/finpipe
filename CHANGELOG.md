@@ -17,11 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PyPI 项目页描述。
 - 随包目录同步上游 rev（0343968a：rptdom 内部实现修复，合同零变化）。
 
-- **README 二次瘦身（274 → 206 行）**：整删「数据正确性保障」（事故历史/三层机制/审计流程
-  等工程内部叙事）与「口径速查」细则表；不可再省的事实浓缩为 5 行「单位与数据守护」
-  小节（基础单位 / DataError 守护 / `_raw`·`_units`·`validate=False` 逃生口）；「更多」删
-  维护者审计条目；English quick start 与中文快速上手重复，一并移除（英文读者由顶部
-  TL;DR 覆盖）。README 页面描述将随下一次 PyPI 发布更新。
+## [1.4.3] - 2026-10-26
+
+### Changed
+
+- **开源协议由 PolyForm Noncommercial 1.0.0 改为 MIT**：代码可自由使用、修改、再分发
+  （含商业用途），保留版权声明即可。LICENSE/pyproject/README/CONTRIBUTING/SKILL/
+  生成文档同步改写；云端数据服务仍需开放平台账号与配额（服务条款与代码许可相互独立）。
+- README 免费口径改写：注册开放平台账号即得免费额度（不再限定非商业用途）。
 
 ## [1.4.1] - 2026-10-24
 

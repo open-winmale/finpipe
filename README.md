@@ -3,20 +3,20 @@
 [![CI](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
-[![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/finpipe/py.typed)
 
-> **English TL;DR** — `wm-finpipe` is a source-available Python SDK for A-share market data:
+> **English TL;DR** — `wm-finpipe` is an MIT-licensed open-source Python SDK for A-share market data:
 > k-line (3 adjustment modes), intraday snapshots, money flow, the three financial statements,
 > 2,197 metric codes (TTM, historical & industry percentiles, dividend analytics), a screener
 > facade (single-stock screens & server-side market breadth), announcements and company profiles.
 > Ships a machine-readable offline catalog, unified base units with per-response data guards
 > (ratios as decimals, money in CNY, volume in shares), a typed facade, an AI-agent skill, and a
-> zero-config trial AppID. **Install**: `pip install wm-finpipe`. Free for non-commercial use.
+> zero-config trial AppID (shared pool; register for your own quota). **Install**: `pip install wm-finpipe`. MIT-licensed.
 
-> **⚠️ 许可声明（请先阅读）**：本项目采用
-> [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
-> 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
+> **许可**：本项目采用 [MIT](LICENSE) 开源许可——可自由使用、修改、再分发（含商业用途），
+> 保留版权声明即可。数据经云端 API 获取，需开放平台账号与配额；数据仅供研究参考，
+> 不构成任何投资建议。
 
 A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K 线与档案等部分接口已覆盖）。
 `pip install wm-finpipe` 后即可取数，无需任何配置（代码中 `import finpipe`）。
@@ -25,12 +25,12 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K
 
 [特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [单位与数据守护](#单位与数据守护) ·
 [我想做 X → 用哪一行](#我想做-x--用哪一行) · [免费额度与凭证](#免费额度与凭证) ·
-[使用限制](#使用限制必读) · [更多](#更多)
+[许可与数据服务](#许可与数据服务说明) · [更多](#更多)
 
 ## 特性
 
-- **免费且含实时**——个人学习、研究等非商业用途完全免费且足够使用；盘中快照、当日
-  1 分钟分时等实时数据包含在内，不单独收费。
+- **注册即用、含实时**——注册开放平台账号即得免费额度；盘中快照、当日 1 分钟分时等
+  实时数据包含在内，不单独收费。
 - **开箱即用**——SDK 内置体验 AppID，`Client()` 零配置即可取数；正式使用换成自己的 AppID。
 - **选股免计算**——`cli.screener` 单票一行布尔筛选（涨停/均线/动量/放量）+ 全市场
   涨跌全景/分桶/行业分布/涨跌榜，服务端预计算索引直出，你不拉全市场数据、不算均线。
@@ -144,9 +144,8 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 
 ## 免费额度与凭证
 
-**个人学习、研究等非商业使用完全免费**，注册开放平台账号即得免费额度（商业使用需另行
-授权，见「使用限制」）。SDK 内置体验 AppID 安装即用，但它是共享池、额度有限，仅供初次
-体验；正式使用建议申请自己的 AppID（额度更充足）：
+注册开放平台账号即得免费额度，个人研究足够使用。SDK 内置体验 AppID 安装即用，但它是
+共享池、额度有限，仅供初次体验；正式使用建议申请自己的 AppID（额度更充足）：
 
 1. 打开 [赢麻了开放平台](https://open.winmale.com)，扫码微信登录注册；
 2. 点击右上角「我的」，进入「开放平台」；
@@ -170,15 +169,12 @@ export FINPIPE_CLIENT_SECRET=...
 401/403（`AuthError`）与 429（`LimitError`，限流）的错误消息里都附有申请步骤；
 体验 AppID 是共享池、限额较低，批量或连跑容易触发 429——按上面三步换成自己的 AppID 即可。
 
-## 使用限制（必读）
+## 许可与数据服务说明
 
-本项目采用 [PolyForm Noncommercial License 1.0.0](LICENSE)：
-
-- ✅ **仅限非商业目的**：个人学习、研究、教学、学术、爱好者项目、公益组织等，完全免费；
-- ❌ **严禁商业使用**：任何商业目的的使用、再分发或服务化均需另行获得商业授权；
-- 本许可属于 source-available（源码可见）而非 OSI 定义的开源许可。
-
-商业授权请联系项目维护方。数据仅供研究参考，不构成任何投资建议。
+- 代码采用 [MIT](LICENSE) 许可：可自由使用、修改、再分发（含商业用途），保留版权声明即可。
+- 数据经云端 API 运行时获取，需开放平台账号与配额（内置体验 Key 为共享池、额度有限）；
+  数据服务受平台服务条款约束，与代码许可相互独立。
+- 数据仅供研究参考，不构成任何投资建议。
 
 ## 更多
 

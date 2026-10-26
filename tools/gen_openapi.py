@@ -151,14 +151,14 @@ def build() -> dict:
             "version": finpipe.__version__,
             "description": (
                 "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。"
-                "注册开放平台账号即得免费额度；"
+                "个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；"
                 "SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。"
                 "覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表"
                 "（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、"
                 "公告与业绩披露、资金流与指标层。"
                 f"平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，"
                 f"全量 {metric_total} 个指标代码随包内置目录分发（分组清单见 docs/API.md）。"),
-            "license": {"name": "MIT",
+            "license": {"name": "PolyForm Noncommercial 1.0.0",
                          "url": "https://github.com/open-winmale/finpipe/blob/main/LICENSE"},
         },
         "servers": [{"url": "https://api.winmale.com", "description": "生产网关"}],

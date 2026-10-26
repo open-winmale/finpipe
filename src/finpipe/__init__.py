@@ -21,7 +21,7 @@ from finpipe.errors import (
     ServerError, TransportError, UsageError,
 )
 
-__version__ = "1.4.3"
+__version__ = "1.4.4"
 
 __all__ = [
     "Catalog", "load", "Client", "BatchResult", "normalize_symbol", "__version__",

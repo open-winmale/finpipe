@@ -6,7 +6,7 @@ when_to_use: 用户需要 A 股个股或全市场数据（价格、财务、指�
 
 # finpipe：A 股个股数据 SDK
 
-wm-finpipe 是 A 股个股数据 Python SDK（**MIT 开源**，云端数据服务需账号与配额）。本 skill 教你怎么把它
+wm-finpipe 是 A 股个股数据 Python SDK（**非商业使用免费**，云端数据服务需账号与配额）。本 skill 教你怎么把它
 用对：先装好、先查目录、按单位铁律读数、按决策树选接口。
 
 **它不是**：回测框架（没有撮合/仓位管理）；数据库（数据经云端 API 运行时获取，
@@ -159,4 +159,4 @@ cp -r "$(python3 -c 'import finpipe; print(finpipe.skill_dir())')" ~/.agents/ski
 # 项目级：放进仓库的 .zcode/skills/ 或 .claude/skills/（各工具发现路径不同）
 ```
 
-许可：MIT——代码自由使用；云端数据服务需账号与配额（内置体验 Key 为共享池，额度有限）。
+许可：PolyForm Noncommercial——个人学习、研究等非商业使用免费，商业使用需另行授权。

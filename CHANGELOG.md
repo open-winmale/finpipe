@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PyPI 项目页描述。
 - 随包目录同步上游 rev（0343968a：rptdom 内部实现修复，合同零变化）。
 
+## [1.4.4] - 2026-10-26
+
+### Changed
+
+- **开源协议回退为 PolyForm Noncommercial 1.0.0**（撤销 1.4.3 的 MIT 改版，恢复限制
+  商业使用）：LICENSE/pyproject/README/CONTRIBUTING/SKILL/生成文档全部回退。
+  说明：PyPI 上已发布的 1.4.2/1.4.3 版本按其上传时的 MIT 许可提供，无法撤回；
+  自本版本起恢复非商业限定。云端数据服务仍需开放平台账号与配额。
+- README 免费口径恢复非商业限定表述。
+
 ## [1.4.3] - 2026-10-26
 
 ### Changed

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **README 二次瘦身（274 → 206 行）**：整删「数据正确性保障」（事故历史/三层机制/审计流程
+  等工程内部叙事）与「口径速查」细则表；不可再省的事实浓缩为 5 行「单位与数据守护」
+  小节（基础单位 / DataError 守护 / `_raw`·`_units`·`validate=False` 逃生口）；「更多」删
+  维护者审计条目；English quick start 与中文快速上手重复，一并移除（英文读者由顶部
+  TL;DR 覆盖）。README 页面描述将随下一次 PyPI 发布更新。
+
 ## [1.4.1] - 2026-10-24
 
 ### Changed

@@ -1,4 +1,4 @@
-"""Live 冒烟（默认跳过）：44 个核心接口全部真实调用 + 数值合理性断言。
+"""Live 冒烟（默认跳过）：FRIENDLY_INDEX 全部核心接口真实调用 + 数值合理性断言。
 
 运行：
   FINPIPE_LIVE=1 FINPIPE_BASE_URL=... FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=... \
@@ -490,6 +490,105 @@ def test_valuation_hist_stats_live(cli):
     assert r["min"] <= r["median"] <= r["max"]
     dates = [pt[0] for pt in r["series"]]
     assert dates == sorted(dates), "估值序列应按时间升序"
+
+
+
+# ------------------------------------------------- v1.5.0 七域（上游 d2ecfe9b 部署前 xfail）
+V15_PENDING_DEPLOY = "上游 v1.5.0 域库（d2ecfe9b）待平台部署"
+
+
+@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
+def test_equity_domain_smoke(cli):
+    """股东治理域：逐接口真实调用，返回容器类型冒烟。"""
+    for r in (
+        _call_or_xfail(lambda: cli.equity.query_holder10("600519")),
+        _call_or_xfail(lambda: cli.equity.query_pledge_detail("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_pledge_summary("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_pledge_market(5)),
+        _call_or_xfail(lambda: cli.equity.query_pledge_industry(5)),
+        _call_or_xfail(lambda: cli.equity.query_pledge_org(5)),
+        _call_or_xfail(lambda: cli.equity.query_release("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_institution_detail("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_institution_summary("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_hgt("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_national_team("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_buyback_plan("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_reorg("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_related_trade("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_concert("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_guarantee("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_litigation("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_violation("600519", 5)),
+        _call_or_xfail(lambda: cli.equity.query_executives("600519")),
+    ):
+        assert r is None or isinstance(r, (list, dict))
+    # 单对象接口
+    for r in (
+        _call_or_xfail(lambda: cli.equity.query_holdernum("600519")),
+        _call_or_xfail(lambda: cli.equity.query_buyback_detail("600519")),
+        _call_or_xfail(lambda: cli.equity.query_exec_change("600519")),
+        _call_or_xfail(lambda: cli.equity.query_exec_change_at("600519", 2024, "Q4")),
+        _call_or_xfail(lambda: cli.equity.query_capital_change("600519")),
+        _call_or_xfail(lambda: cli.equity.query_capital_change_at("600519", 2024, "Q4")),
+    ):
+        assert r is None or isinstance(r, dict)
+
+
+@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
+def test_margin_domain_smoke(cli):
+    rows = _call_or_xfail(lambda: cli.margin.query("600519", 5))
+    assert rows is None or isinstance(rows, list)
+    latest = _call_or_xfail(lambda: cli.margin.latest("600519"))
+    assert latest is None or isinstance(latest, dict)
+
+
+@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
+def test_estimates_domain_smoke(cli):
+    for r in (
+        _call_or_xfail(lambda: cli.estimates.query_forecast("600519", 5)),
+        _call_or_xfail(lambda: cli.estimates.query_forecast_detail("600519", 5)),
+        _call_or_xfail(lambda: cli.estimates.query_rating("600519", 5)),
+        _call_or_xfail(lambda: cli.estimates.query_reports("600519", 5)),
+    ):
+        assert r is None or isinstance(r, list)
+
+
+@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
+def test_cbond_domain_smoke(cli):
+    for r in (
+        _call_or_xfail(lambda: cli.cbond.latest_quotes()),
+        _call_or_xfail(lambda: cli.cbond.of_stock("600519")),
+        _call_or_xfail(lambda: cli.cbond.query("600519")),
+        _call_or_xfail(lambda: cli.cbond.call_hits("113050", 130)),
+        _call_or_xfail(lambda: cli.cbond.kline_window("113050", 30)),
+        _call_or_xfail(lambda: cli.cbond.universe_codes()),
+    ):
+        assert r is None or isinstance(r, (list, dict, int))
+
+
+@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
+def test_workout_index_intl_domain_smoke(cli):
+    assert isinstance(_call_or_xfail(lambda: cli.workout.board()), (dict, list))
+    r = _call_or_xfail(lambda: cli.workout.query("601059"))
+    assert r is None or isinstance(r, (list, dict))
+    assert isinstance(_call_or_xfail(lambda: cli.index.keys()), list)
+    for r in (
+        _call_or_xfail(lambda: cli.index.members("index.hs300", "mv", 5)),
+        _call_or_xfail(lambda: cli.index.weights("index.hs300", 5)),
+    ):
+        assert r is None or isinstance(r, list)
+    v = _call_or_xfail(lambda: cli.index.valuation("index.hs300", 8))
+    assert v is None or isinstance(v, dict)
+    for r in (
+        _call_or_xfail(lambda: cli.intl.query_ccass("00700", 5)),
+        _call_or_xfail(lambda: cli.intl.query_shareholders("00700", 5)),
+        _call_or_xfail(lambda: cli.intl.query_org_rating("00700", 5)),
+        _call_or_xfail(lambda: cli.intl.query_profit_forecast("00700", 5)),
+        _call_or_xfail(lambda: cli.intl.query_sellshort("BRK_B", 5)),
+    ):
+        assert r is None or isinstance(r, list)
+    info = _call_or_xfail(lambda: cli.intl.issue_info("BRK_B"))
+    assert info is None or isinstance(info, dict)
 
 
 # ---------------------------------------------------------------- 覆盖面守护

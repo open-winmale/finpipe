@@ -108,6 +108,14 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 | 筛高股息且派息可持续 | `cli.dividend.screen_quality(sym)` | 自写股息/派息率质量模型 |
 | 站上 20 日线了吗 | `cli.screener.screen_above_ma20(sym)` | 拉 K 线→算均线→比较 |
 | 全市场今天涨跌如何 | `cli.screener.index_breadth_summary()` | 全市场扫描→聚合统计 |
+| 看最新十大股东 | `cli.equity.query_holder10(sym)` | 翻定期报告→抄股东名单 |
+| 质押比例高不高 | `cli.equity.query_pledge_summary(sym)` | 翻质押公告→逐笔累加 |
+| 下半年解禁压力大吗 | `cli.equity.query_release(sym)` | 翻解禁公告→手工排期 |
+| 两融余额什么水平 | `cli.margin.query(sym)` | 翻交易所两融披露→对日期 |
+| 券商怎么看这只票 | `cli.estimates.query_forecast(sym)` | 汇总各家研报预测→自己算均值 |
+| 沪深300 都有谁 | `cli.index.members("index.hs300", "mv", 10)` | 找成分表→自己拉行情 |
+| 这票正股有哪些转债 | `cli.cbond.of_stock(sym)` | 翻转债名录→逐只对正股 |
+| 港股筹码在谁手里 | `cli.intl.query_ccass(sym)` | 上披露易→逐日查 CCASS |
 | 今日涨幅榜前十 | `cli.screener.index_top_movers(limit=10)` | 全市场扫描→排序→取头部 |
 | 近半年有无回购/减持 | `cli.notice.has_buyback(sym, "6m")` | 拉公告列表→分类匹配→截窗 |
 | 合并与母公司差多少 | `cli.statements.compare(sym)` | 双表对齐→逐科目相除 |

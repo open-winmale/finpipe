@@ -70,12 +70,12 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 ## 能力一览
 
 随包离线目录：**10 个数据域 · 164 个底层函数 · 2197 个指标代码**（11 个指标组、
-74 个精选常用指标代码，`cat.search("中文")` 可编程检索）；友好层 **64 个核心接口**，
+75 个精选常用指标代码，`cat.search("中文")` 可编程检索）；友好层 **64 个核心接口**，
 按使用视角组织为：
 
 | 门面 | 核心能力 | 单位口径 |
 |---|---|---|
-| `cli.kline` | 日 K 三种复权、最新/盘中快照、1 分钟分时、ETF/指数 | 价格=元、量=股、涨跌幅=小数 |
+| `cli.kline` | 日 K 三种复权（自上市首日起全覆盖，最早 1991 年）、最新/盘中快照、1 分钟分时、ETF/指数 | 价格=元、量=股、涨跌幅=小数 |
 | `cli.screener` | 单票筛选器（涨停/均线/动量/回撤/放量）+ 全市场涨跌全景/分桶/行业分布/涨跌榜 | 阈值=小数；宽度 `*_pct`=百分数数值 |
 | `cli.moneyflow` | 主力/超大单/大单/中单/小单净流入（日频+盘中） | 金额=元 |
 | `cli.statements` | 三大报表多期、合并 vs 母公司、目录树、审计意见 | 报表原币元 |
@@ -94,7 +94,7 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 |---|---|---|
 | 看 TTM 股息率 | `cli.dividend.yield_ttm(sym)` | 拉全部分红史→截 TTM 窗→查市值→相除 |
 | 判断估值贵不贵 | `cli.indicator.get(sym, "$PCT_PE_TTM_10Y_LAST")` | 拉十年估值史自己算百分位 |
-| 看公司在行业里的位置 | `$CUR_IND_ROE_PCT_LAST`（行业内 ROE 分位） | 拉全行业成分→逐票取 ROE→排序 |
+| 看公司在行业里的位置 | `$CUR_IND_ROE_PCT_LAST`（行业内 ROE 分位，1=行业最高） | 拉全行业成分→逐票取 ROE→排序 |
 | 筛高股息且派息可持续 | `cli.dividend.screen_quality(sym)` | 自写股息/派息率质量模型 |
 | 站上 20 日线了吗 | `cli.screener.screen_above_ma20(sym)` | 拉 K 线→算均线→比较 |
 | 全市场今天涨跌如何 | `cli.screener.index_breadth_summary()` | 全市场扫描→聚合统计 |
@@ -115,8 +115,8 @@ print(cli.dividend.yield_ttm("600519"))                      # 0.0396
 # 估值温度计：PE(TTM) 处于近 10 年 42% 分位（小数）
 print(cli.indicator.get("600519", "$PCT_PE_TTM_10Y_LAST"))   # 0.42
 
-# 行业定位：ROE 位于同行业前 8% 分位（小数，越小越靠前）
-print(cli.indicator.get("600519", "$CUR_IND_ROE_PCT_LAST"))  # 0.08
+# 行业定位：ROE 在同行业内的分位（1.0 = 行业最高；茅台 ROE 为行业之最）
+print(cli.indicator.get("600519", "$CUR_IND_ROE_PCT_LAST"))  # 1.0
 
 # 技术面一行布尔：是否站上 20 日均线
 print(cli.screener.screen_above_ma20("600519"))              # True
@@ -142,11 +142,16 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 需要脚本原始口径时：`_raw=True`（store 原始行）、`_units="native"`（脚本输出单位），
 或 `Client(validate=False)` 关闭校验。
 
+数据深度：个股/ETF 日 K 覆盖**自上市首日以来的全部交易日**（最早 1991 年）；
+单次区间上限 5 年、默认单次 500 根（`Client(max_limit=...)` 可调）。全量深回溯
+（1990 年代不复权老数据）可能触发不变量守护，需整段历史时 `validate=False` 取全。
+
 ## 免费额度与凭证
 
 **个人学习、研究等非商业使用完全免费**，注册开放平台账号即得免费额度（商业使用需另行
 授权，见「使用限制」）。SDK 内置体验 AppID 安装即用，但它是共享池、额度有限，仅供初次
-体验；正式使用建议申请自己的 AppID（额度更充足）：
+体验；正式使用请申请自己的 AppID——非商业用途下它就是正式服务，注册即得、无需付费
+（额度更充足）：
 
 1. 打开 [赢麻了开放平台](https://open.winmale.com)，扫码微信登录注册；
 2. 点击右上角「我的」，进入「开放平台」；
@@ -189,6 +194,8 @@ export FINPIPE_CLIENT_SECRET=...
   cp -r "$(python3 -c 'import finpipe; print(finpipe.skill_dir())')" ~/.agents/skills/finpipe
   # 项目级按工具放入 .zcode/skills/ 或 .claude/skills/
   ```
+  skill 源文件：[src/finpipe/skills/finpipe/SKILL.md](src/finpipe/skills/finpipe/SKILL.md)
+  （LLM 可直接读取的结构化用法）。
 
 - **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**（基于本 SDK 构建的开源工具）：
   **收息佬**——攒股收息驾驶舱（分红日历、A/H 持仓透视、派息稳定性看板）；

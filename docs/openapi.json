@@ -51,7 +51,7 @@
       "post": {
         "operationId": "kline_bars",
         "summary": "日 K 序列（date/open/high/low/close/volume/amount/percent）。",
-        "description": "底层目录函数 `kline.query_bars[_adj]`。SDK 调用：`cli.kline.bars(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "覆盖自上市首日起的全部交易日（最早 1991 年）。、底层目录函数 `kline.query_bars[_adj]`。SDK 调用：`cli.kline.bars(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],

@@ -5,7 +5,7 @@ kind: computed
 category: fundamentals
 priority: P0
 description: 平台公式计算的派生指标——数值不存在于任何披露文件中，由平台以行情/报表/股本/
-  分红等原始数据计算得出。11 个指标组精选 74 个常用指标代码按用途分组；全量 2197 个指标
+  分红等原始数据计算得出。11 个指标组精选 75 个常用指标代码按用途分组；全量 2197 个指标
   代码随包内数据目录分发（generated/metrics.json）。
 data_origin: [平台计算]
 units:
@@ -39,6 +39,7 @@ metric_groups:
       - {code: '$PR_AVG', cn: 市赚率-3年平均ROE}
       - {code: '$PCT_PE_TTM_10Y_LAST', cn: 'PE(TTM) 10年分位', range: [0, 1]}
       - {code: '$PCT_PB_TTM_10Y_LAST', cn: 'PB(TTM) 10年分位', range: [0, 1]}
+      - {code: '$CUR_IND_ROE_PCT_LAST', cn: '行业内ROE分位(1=行业最高)', range: [0, 1]}
   - id: profitability
     cn: 盈利与回报（含杜邦）
     caliber: '利润表/资产负债表派生：ROE=归母净利TTM/归母净资产；杜邦分解 ROE=rNT×rTT×rTTS（净利率×周转×权益乘数）'

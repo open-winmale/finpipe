@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **公开文档补"可验证事实链"**：README 能力一览写明日 K 数据深度（个股/ETF 自上市首日
+  起全覆盖，最早 1991 年，实测锚定：000002/000001 自 1991 年上市首日、600519 自
+  2001-08-27、601398 自 2006-10-27）；「单位与数据守护」补数据深度与超深回溯逃生口；
+  免费额度小节明确自有 AppID 在非商业用途下即为正式服务。
+- 目录精选表补收 README 头牌示例码 `$CUR_IND_ROE_PCT_LAST`（行业内 ROE 分位，
+  精选 74 → 75），并修正该示例的预期输出（0.08 → 1.0：2026-10-24 实测茅台行业
+  ROE 分位=1.0，即行业最高——原示例注释值无实测依据且"越小越靠前"的语义说明有误）。
+- 随包目录同步上游 rev（066985a8，函数/指标合同零变化）；symbols manifest hk 计数
+  对齐实际名单（2655 → 2673）。
+
 ## [1.4.2] - 2026-10-26
 
 ### Changed

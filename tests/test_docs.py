@@ -235,7 +235,7 @@ class ReadmeClient:
     与 test_units.py 的罐头数据同源（真实 probe 样本），保证注释值不腐烂。
     """
 
-    INDICATORS = {"$PCT_PE_TTM_10Y_LAST": 0.42, "$CUR_IND_ROE_PCT_LAST": 0.08,
+    INDICATORS = {"$PCT_PE_TTM_10Y_LAST": 0.42, "$CUR_IND_ROE_PCT_LAST": 1.0,
                   "$PE_TTM_LAST": 25.5}
 
     def __init__(self):
@@ -316,7 +316,7 @@ def test_readme_example_outputs_documented():
     """示例注释里的预期输出必须与罐头数据同值——注释值从此有测试守护。"""
     pairs = [("yield_ttm", "0.0396"),
              ("$PCT_PE_TTM_10Y_LAST", "0.42"),
-             ("$CUR_IND_ROE_PCT_LAST", "0.08")]
+             ("$CUR_IND_ROE_PCT_LAST", "1.0")]
     for call, value in pairs:
         line = next((ln for ln in README.splitlines() if call in ln and value in ln), None)
         assert line is not None, f"README 示例缺少 {call} 与预期输出 {value} 的对应注释"

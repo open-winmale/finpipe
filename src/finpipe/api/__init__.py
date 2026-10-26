@@ -174,6 +174,8 @@ class KlineApi(_Api):
              _raw: bool = False, _df: bool = False) -> Any:
         """日 K 序列（date/open/high/low/close/volume/amount/percent）。
 
+        覆盖自上市首日起的全部交易日（最早 1991 年）。
+
         :param n: 根数，默认 120；区间查询时默认取 max_limit（上限 10000）
         :param adj: None=不复权；"qfq"=前复权；"hfq"=后复权
         :param begin: 起始日期（含，YYYY-MM-DD），须与 end 同时提供；区间上限 5 年

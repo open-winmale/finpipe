@@ -1,6 +1,6 @@
 # 贡献指南与项目规范
 
-感谢关注 finpipe。本文件同时是**内容规范**：违反任一条会被 CI 门禁拦截。
+感谢关注 wmshare。本文件同时是**内容规范**：违反任一条会被 CI 门禁拦截。
 
 ## 提交前门禁（全部必须通过）
 
@@ -10,11 +10,11 @@ python3 tools/validate_catalog.py   # 域目录合同 + 防编造回溯
 python3 tools/gen_api_docs.py       # 重生成 docs/API.md（改了目录必须重跑）
 python3 tools/gen_typed_api.py      # 重生成类型化门面 docs 同源
 python3 tools/gen_openapi.py        # 重生成 docs/openapi.json + swagger.html
-pytest --cov=finpipe --cov-fail-under=85   # 全部测试（不联网）+ 覆盖率门禁
+pytest --cov=wmshare --cov-fail-under=85   # 全部测试（不联网）+ 覆盖率门禁
 python3 -m mypy                     # 类型检查
 ```
 
-真实取数冒烟（需要凭证）：`FINPIPE_LIVE=1 pytest tests/test_live.py`——覆盖全部 44 个
+真实取数冒烟（需要凭证）：`WMSHARE_LIVE=1 pytest tests/test_live.py`——覆盖全部 44 个
 核心接口与多个标的，做数值合理性断言（日期有序、价格为正、率类口径等）。内置体验
 AppID 是共享池，遇到 401/429 请按 README「免费额度与凭证」申请自己的 AppID。
 
@@ -35,9 +35,9 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 2. **禁止内部信息**：内网域名、基础设施路径、开发者机器路径、凭证字面量。
 3. **文档白名单**：对外文档只允许 README / LICENSE / CONTRIBUTING / docs/API.md / examples。
    方案、计划、路线图、内部流程文档一律不入库。
-4. **凭证纪律**：用户凭证只走环境变量或 `~/.finpipe/credentials.env`（gitignore 已覆盖
+4. **凭证纪律**：用户凭证只走环境变量或 `~/.wmshare/credentials.env`（gitignore 已覆盖
    `.env`），任何密钥字面量不得出现在代码、测试、文档中。唯一例外是随包内置的体验
-   appid：以混淆 blob 形式存放于 `src/finpipe/_experience.py`，其**明文**在
+   appid：以混淆 blob 形式存放于 `src/wmshare/_experience.py`，其**明文**在
    `check_leak.py` 的 `FORBIDDEN_SUBSTRINGS` 中列为禁用——任何跟踪文件出现明文即 FAIL。
 
 ## 数据域与接口规范
@@ -46,15 +46,15 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
   同步冻结（`tools/extract_from_scripts.py`，含命名空间白名单、文本净化与指标
   策展过滤）。贡献者**无需也无法**自行重建目录；新增数据域或指标请提 issue，
   由维护者评估后同步。发布的是上游指标的**策展子集**，README 与文档表述保持一致。
-- 新增/修改数据域：在 `src/finpipe/_catalog/domains/<域>.yaml` 操作，必须
+- 新增/修改数据域：在 `src/wmshare/_catalog/domains/<域>.yaml` 操作，必须
   bump 域 `version`（semver），并通过 `validate_catalog.py`（函数/指标码必须可回溯到
   `generated/` 清单，防编造）。
-- 生成物 `src/finpipe/_catalog/generated/*.json` **禁止手改**：由维护者用
+- 生成物 `src/wmshare/_catalog/generated/*.json` **禁止手改**：由维护者用
   `tools/extract_from_scripts.py` 从上游同步（含命名空间白名单与文本净化策略）。
-- 友好 API（`src/finpipe/api/` 包）改动必须同步 `FRIENDLY_INDEX` 注册表
+- 友好 API（`src/wmshare/api/` 包）改动必须同步 `FRIENDLY_INDEX` 注册表
   （`tests/test_api.py` 强制两者一致），方法首参统一 `symbol`。
 - 命名空间映射：友好层的 `statements`/`dividend` 对应目录命名空间
-  `rptdom`/`bonus`（见 `src/finpipe/api/__init__.py` 的 `_FRIENDLY_NS_TO_CATALOG`）；
+  `rptdom`/`bonus`（见 `src/wmshare/api/__init__.py` 的 `_FRIENDLY_NS_TO_CATALOG`）；
   未显式包装的目录函数经 `_Api.__getattr__` 目录感知委托直达，
   目录之外的名字必须 AttributeError（`tests/test_api.py` 强制）。
 

@@ -1,12 +1,12 @@
 ---
-name: finpipe
-description: 用 wm-finpipe Python SDK 取 A 股数据：K 线（三种复权）、盘中快照、1 分钟分时、资金流、三大报表、2197 个指标码、选股筛选与全市场涨跌全景、分红、公告、公司档案。零配置 Client() 即可取数；随包离线目录可编程查询，指标码/函数名先查目录、禁止臆造。用户要 A 股行情/财务/指标/选股/分红/公告数据时用本 skill，即使用户没点名 finpipe。
+name: wmshare
+description: 用 wmshare Python SDK 取 A 股数据：K 线（三种复权）、盘中快照、1 分钟分时、资金流、三大报表、2197 个指标码、选股筛选与全市场涨跌全景、分红、公告、公司档案。零配置 Client() 即可取数；随包离线目录可编程查询，指标码/函数名先查目录、禁止臆造。用户要 A 股行情/财务/指标/选股/分红/公告数据时用本 skill，即使用户没点名 wmshare。
 when_to_use: 用户需要 A 股个股或全市场数据（价格、财务、指标、筛选、分红、公告）来回答问题、做分析或写代码时。
 ---
 
-# finpipe：A 股个股数据 SDK
+# wmshare：A 股个股数据 SDK
 
-wm-finpipe 是 A 股个股数据 Python SDK（**非商业使用免费**，云端数据服务需账号与配额）。本 skill 教你怎么把它
+wmshare 是 A 股个股数据 Python SDK（**非商业使用免费**，云端数据服务需账号与配额）。本 skill 教你怎么把它
 用对：先装好、先查目录、按单位铁律读数、按决策树选接口。
 
 **它不是**：回测框架（没有撮合/仓位管理）；数据库（数据经云端 API 运行时获取，
@@ -16,20 +16,20 @@ wm-finpipe 是 A 股个股数据 Python SDK（**非商业使用免费**，云端
 ## 1. 环境前置
 
 ```bash
-python3 -c "import finpipe; print(finpipe.__version__)"   # 探测
+python3 -c "import wmshare; print(wmshare.__version__)"   # 探测
 # 缺失则安装（本机 pip 若走镜像可能同步滞后，加 -i 指官方源）：
-pip install wm-finpipe -i https://pypi.org/simple
+pip install wmshare -i https://pypi.org/simple
 ```
 
-凭证：`finpipe.Client()` **零配置**即可取数（内置体验 AppID，共享池、额度有限）。
+凭证：`wmshare.Client()` **零配置**即可取数（内置体验 AppID，共享池、额度有限）。
 遇到 401/429 再申请自己的 AppID（额度更充足）；403「策略拒绝」是接口权限范围、
 处理方式不同，见 §7 错误速查：
 
 1. 打开 open.winmale.com，扫码微信登录注册；
 2. 右上角「我的」→「开放平台」→ 左侧「我的应用」→「查看应用信息」，
    取 `client_id` 与 api-key（即 `client_secret`）；
-3. 配置其一：`export FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=...`，
-   或凭证文件 `~/.finpipe/credentials.env`（KEY=VALUE 每行一条）。
+3. 配置其一：`export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...`，
+   或凭证文件 `~/.wmshare/credentials.env`（KEY=VALUE 每行一条）。
 
 ## 2. 单位铁律（读数前必读）
 
@@ -56,9 +56,9 @@ pip install wm-finpipe -i https://pypi.org/simple
 目录随包分发、纯本地读文件、零网络：
 
 ```python
-import finpipe
+import wmshare
 
-cat = finpipe.load()                                    # 数据目录对象
+cat = wmshare.load()                                    # 数据目录对象
 hits = cat.search("股息")                                # 函数 + 指标码混合检索（中文口语可查）
 cat.function("bonus.snapshot_yield_ttm")["params"]       # 任意函数的参数/返回/示例合同
 cat.metric("$PE_TTM_LAST")                               # 指标条目（精选码带单位与守护声明）
@@ -98,9 +98,9 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 ## 5. 工作流示例（返回长这样，从这些字段读）
 
 ```python
-import finpipe
+import wmshare
 
-cli = finpipe.Client.from_env()
+cli = wmshare.Client.from_env()
 
 # 日 K：按日期降序；percent 为小数（0.005215 = 0.52%）、volume 为股
 bars = cli.kline.bars("600519", n=5)
@@ -148,7 +148,7 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
 - `_df=True` 转 DataFrame 需要安装 pandas（可选依赖）。
 - ETF 用 6 位码直接查（如 `510300`）；`cli.kline.is_etf(sym)` 可判断。
 
-## 7. 错误处理速查（都是 `FinPipeError` 子类）
+## 7. 错误处理速查（都是 `WmshareError` 子类）
 
 | 异常 | 含义 | 怎么做 |
 |---|---|---|
@@ -165,7 +165,7 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
 skill 随包分发，复制到 agent 的 skill 目录即可被自动发现：
 
 ```bash
-cp -r "$(python3 -c 'import finpipe; print(finpipe.skill_dir())')" ~/.agents/skills/finpipe
+cp -r "$(python3 -c 'import wmshare; print(wmshare.skill_dir())')" ~/.agents/skills/wmshare
 # 项目级：放进仓库的 .zcode/skills/ 或 .claude/skills/（各工具发现路径不同）
 ```
 

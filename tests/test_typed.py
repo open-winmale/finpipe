@@ -3,9 +3,9 @@ import inspect
 
 import pytest
 
-from finpipe.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
-from finpipe.catalog import load
-from finpipe.client import Client, FinPipeError
+from wmshare.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+from wmshare.catalog import load
+from wmshare.client import Client, WmshareError
 
 
 class FakeSession:
@@ -97,7 +97,7 @@ def test_typed_raw_passthrough(cli):
 
 
 def test_typed_max_limit_guard(cli):
-    with pytest.raises(FinPipeError, match="超过单次请求上限 500"):
+    with pytest.raises(WmshareError, match="超过单次请求上限 500"):
         cli.bonus.query_list(sym="600519", limit=9999)
 
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from finpipe import load
-from finpipe.errors import CatalogError
+from wmshare import load
+from wmshare.errors import CatalogError
 
 
 @pytest.fixture(scope="module")

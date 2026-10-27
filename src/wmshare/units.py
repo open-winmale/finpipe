@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from finpipe.errors import CatalogError, DataError
+from wmshare.errors import CatalogError, DataError
 
 # unit token → 换算因子（脚本原值 × 因子 = 基础单位值）
 CONVERSIONS: dict[str, float] = {

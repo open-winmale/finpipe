@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate domain catalog (src/finpipe/_catalog/domains/*.yaml) against schema + generated inventory.
+"""Validate domain catalog (src/wmshare/_catalog/domains/*.yaml) against schema + generated inventory.
 
 Gates:
   1. domain YAML is valid against _catalog/schema/domain.schema.json
@@ -20,7 +20,7 @@ import jsonschema
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from finpipe.catalog import catalog_dir  # noqa: E402
+from wmshare.catalog import catalog_dir  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 DOMAINS = catalog_dir() / "domains"

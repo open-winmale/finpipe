@@ -12,8 +12,8 @@ assignees: ""
 **复现代码 / Reproduction**
 
 ```python
-import finpipe
-cli = finpipe.Client()
+import wmshare
+cli = wmshare.Client()
 # 最小可复现代码 / minimal reproduction
 ```
 
@@ -21,13 +21,13 @@ cli = finpipe.Client()
 你期望发生什么？What did you expect to happen?
 
 **实际行为 / Actual behavior**
-实际发生了什么（含完整错误信息 / `FinPipeError` 的 `code` 与 `status`）？
-What actually happened (full error message, `FinPipeError.code` / `status`)?
+实际发生了什么（含完整错误信息 / `WmshareError` 的 `code` 与 `status`）？
+What actually happened (full error message, `WmshareError.code` / `status`)?
 
 **环境 / Environment**
-- SDK 版本：`python -c "import finpipe; print(finpipe.__version__)"`
+- SDK 版本：`python -c "import wmshare; print(wmshare.__version__)"`
 - Python 版本：
 - 操作系统：
 
 **其他 / Additional context**
-目录合同版本（`finpipe.Catalog` 相关输出）、相关文档段落等。
+目录合同版本（`wmshare.Catalog` 相关输出）、相关文档段落等。

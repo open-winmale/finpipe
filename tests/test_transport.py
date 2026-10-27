@@ -5,9 +5,9 @@
 import pytest
 import requests
 
-from finpipe.catalog import load
-from finpipe.client import Client, FinPipeError
-from finpipe.errors import AuthError, LimitError
+from wmshare.catalog import load
+from wmshare.client import Client, WmshareError
+from wmshare.errors import AuthError, LimitError
 
 
 class Resp:
@@ -71,7 +71,7 @@ def test_retries_429_with_backoff():
 
 def test_retries_5xx_until_exhausted():
     c, s, sleeps = make([("status", 500), ("status", 503), ("status", 502)])
-    with pytest.raises(FinPipeError, match="HTTP 502"):
+    with pytest.raises(WmshareError, match="HTTP 502"):
         c.call("kline.query_last", sym="600519")
     assert len(eval_calls(s)) == 3  # retries=2 → 共 3 次
     assert sleeps == [0.5, 1.0]
@@ -89,16 +89,16 @@ def test_network_error_retried_then_succeeds():
     assert len(eval_calls(s)) == 2
 
 
-def test_network_error_exhausted_becomes_finpipe_error():
+def test_network_error_exhausted_becomes_wmshare_error():
     c, s, sleeps = make([("exc", requests.Timeout("t")), ("exc", requests.Timeout("t")),
                          ("exc", requests.Timeout("t"))])
-    with pytest.raises(FinPipeError, match="网络请求失败（已重试 2 次）"):
+    with pytest.raises(WmshareError, match="网络请求失败（已重试 2 次）"):
         c.call("kline.query_last", sym="600519")
 
 
 def test_retries_zero_fails_fast():
     c, s, sleeps = make([("status", 500)], retries=0)
-    with pytest.raises(FinPipeError, match="HTTP 500"):
+    with pytest.raises(WmshareError, match="HTTP 500"):
         c.call("kline.query_last", sym="600519")
     assert len(eval_calls(s)) == 1 and sleeps == []
 
@@ -115,7 +115,7 @@ def test_401_refreshes_token_once_and_retries():
 
 def test_401_twice_surfaces_error():
     c, s, sleeps = make([("status", 401), ("status", 401)])
-    with pytest.raises(FinPipeError, match="HTTP 401"):
+    with pytest.raises(WmshareError, match="HTTP 401"):
         c.call("kline.query_last", sym="600519")
     assert s.token_count == 2  # 只刷新一次，不循环
 
@@ -158,7 +158,7 @@ def test_oauth_401_is_auth_error_with_appid_guidance():
         c.call("kline.query_last", sym="600519")
     assert ei.value.status == 401
     assert "open.winmale.com" in str(ei.value)
-    assert "FINPIPE_CLIENT_ID" in str(ei.value)
+    assert "WMSHARE_CLIENT_ID" in str(ei.value)
 
 
 def test_oauth_429_is_limit_error_with_appid_guidance():
@@ -207,7 +207,7 @@ def test_eval_403_policy_denied_includes_guidance():
 
 
 def test_experience_credential_failure_is_auth_error(monkeypatch):
-    import finpipe.client as client_mod
+    import wmshare.client as client_mod
 
     def boom():
         raise RuntimeError("corrupt")

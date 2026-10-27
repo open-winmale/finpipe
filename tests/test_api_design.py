@@ -3,11 +3,11 @@ from __future__ import annotations
 
 import pytest
 
-import finpipe
-from finpipe.catalog import load
-from finpipe.client import BatchResult, Client, normalize_symbol
-from finpipe.errors import (
-    ApiError, AuthError, CatalogError, FinPipeError, LimitError, TransportError,
+import wmshare
+from wmshare.catalog import load
+from wmshare.client import BatchResult, Client, normalize_symbol
+from wmshare.errors import (
+    ApiError, AuthError, CatalogError, WmshareError, LimitError, TransportError,
     UsageError,
 )
 
@@ -144,10 +144,10 @@ def test_call_batch_guards(cli):
 # ---------------------------------------------------------------- 错误体系
 def test_error_hierarchy_and_exports():
     for cls in (AuthError, UsageError, LimitError, TransportError, ApiError, CatalogError):
-        assert issubclass(cls, FinPipeError)
-        assert getattr(finpipe, cls.__name__) is cls
+        assert issubclass(cls, WmshareError)
+        assert getattr(wmshare, cls.__name__) is cls
     assert issubclass(CatalogError, KeyError)   # 兼容既有 except KeyError
-    assert issubclass(LimitError, FinPipeError)
+    assert issubclass(LimitError, WmshareError)
 
 
 def test_error_codes(cli):

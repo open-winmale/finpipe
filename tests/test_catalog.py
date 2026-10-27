@@ -1,6 +1,6 @@
 """数据目录装载/查询测试（不联网）。"""
-import finpipe
-from finpipe.catalog import load
+import wmshare
+from wmshare.catalog import load
 
 
 def test_load_and_stats():
@@ -86,12 +86,12 @@ def test_curated_metric_groups_exist():
 
 
 def test_package_version():
-    assert finpipe.__version__
+    assert wmshare.__version__
 
 
 def test_catalog_shipped_inside_package():
     """独立性合同：目录数据必须随包分发（pip 安装后离线可用，不依赖仓库/内部工程）。"""
-    import finpipe.catalog as catmod
+    import wmshare.catalog as catmod
     from pathlib import Path
     pkg_root = Path(catmod.__file__).resolve().parent
     cdir = catmod.catalog_dir()

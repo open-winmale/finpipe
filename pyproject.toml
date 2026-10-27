@@ -3,14 +3,14 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "wm-finpipe"
+name = "wmshare"
 version = "1.5.0"
 description = "A 股个股数据 Python SDK：随包内置机器可读数据目录 + 云端取数客户端（开箱即用，内置体验 appid）"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "PolyForm-Noncommercial-1.0.0"
 license-files = ["LICENSE"]
-authors = [{ name = "finpipe contributors" }]
+authors = [{ name = "wmshare contributors" }]
 keywords = [
     "A股", "stock", "finance", "financial-data", "quant",
     "dividend", "kline", "financial-statements", "screener",
@@ -45,30 +45,30 @@ dev = [
 dataframe = ["pandas>=1.5"]
 
 [project.urls]
-Homepage = "https://github.com/open-winmale/finpipe"
-Documentation = "https://github.com/open-winmale/finpipe/blob/main/docs/API.md"
-Issues = "https://github.com/open-winmale/finpipe/issues"
+Homepage = "https://github.com/open-winmale/wmshare"
+Documentation = "https://github.com/open-winmale/wmshare/blob/main/docs/API.md"
+Issues = "https://github.com/open-winmale/wmshare/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-finpipe = [
+wmshare = [
     "py.typed",
     "_catalog/schema/*.json",
     "_catalog/domains/*.yaml",
     "_catalog/generated/*.json",
     "_catalog/symbols/*.json",
-    "skills/finpipe/*.md",
+    "skills/wmshare/*.md",
 ]
 
 [tool.mypy]
-files = ["src/finpipe"]
+files = ["src/wmshare"]
 ignore_missing_imports = true
 check_untyped_defs = true
 
 [tool.coverage.run]
-source = ["finpipe"]
+source = ["wmshare"]
 # 生成层是逐函数委托 call() 的样板代码；其正确性由合同测试（签名/参数一致性）
 # 与 client.call 的测试覆盖，不重复计入行覆盖率分母。
 omit = ["*/api/_generated.py"]

@@ -7,7 +7,7 @@
 ## 能力总览
 
 - **免费额度充足**：个人学习、研究等非商业使用完全免费；注册开放平台账号即得免费额度（具体额度以开放平台为准）。
-- **开箱即用**：按 README 源码安装后 `finpipe.Client()` 无需配置即可调用核心接口（内置体验 AppID，共享池、额度有限；正式使用可换成自己的 AppID）。
+- **开箱即用**：按 README 源码安装后 `wmshare.Client()` 无需配置即可调用核心接口（内置体验 AppID，共享池、额度有限；正式使用可换成自己的 AppID）。
 - **认证与限流**：401/403 抛 `AuthError`，429 抛 `LimitError(code="rate_limited")`；错误消息会给出申请自己的 AppID 的步骤，详见 README「免费额度与凭证」。
 - **目录随包、离线可查**：全部函数与指标代码随 wheel 分发；命名空间带类型签名（`py.typed`），IDE 直接补全。
 - **单位统一 + 数据守护**：返回值统一基础单位（比率/涨跌幅=小数、金额/市值=元、A 股成交量=股）；每次返回前按目录声明做量级守护与关系不变量校验，违例抛 `DataError` 而非交给你错误量级的数据。取原始口径：`_raw=True`（store 原始行）、`_units="native"`（脚本输出单位）、`Client(validate=False)`（关校验留换算）。
@@ -47,9 +47,9 @@
 目录随包分发、纯本地读取（零网络）：
 
 ```python
-import finpipe
+import wmshare
 
-cat = finpipe.load()          # 数据目录对象（离线，不产生任何请求）
+cat = wmshare.load()          # 数据目录对象（离线，不产生任何请求）
 hits = cat.search("股息")     # 跨函数 + 指标代码混合检索（默认返回 ≤20 条）
 cat.function("bonus.snapshot_yield_ttm")["params"]   # 函数合同：参数/返回/示例
 ```

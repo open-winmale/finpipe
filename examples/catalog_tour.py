@@ -5,7 +5,7 @@
 
     python examples/catalog_tour.py
 """
-from finpipe import load
+from wmshare import load
 
 
 def main() -> None:

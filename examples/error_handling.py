@@ -1,6 +1,6 @@
 """错误处理：401/403/429 的 AppID 引导与错误分类（离线演示，不联网）。
 
-finpipe 的所有网络/认证错误都继承 FinPipeError，带 `code` 与 HTTP `status`：
+wmshare 的所有网络/认证错误都继承 WmshareError，带 `code` 与 HTTP `status`：
     AuthError      凭证无效 / 过期 / 被拒（OAuth 400/401/403 或 eval 401/403）
     LimitError     限流（429）、额度或区间超限
     UsageError     参数用法错误
@@ -15,8 +15,8 @@ finpipe 的所有网络/认证错误都继承 FinPipeError，带 `code` 与 HTTP
 """
 from __future__ import annotations
 
-from finpipe import (
-    AuthError, CatalogError, Client, FinPipeError, LimitError, UsageError, load,
+from wmshare import (
+    AuthError, CatalogError, Client, WmshareError, LimitError, UsageError, load,
 )
 
 
@@ -73,7 +73,7 @@ def safe_call(label: str, fn, *args, **kwargs):
         print(f"[usage] {label}: code={e.code} → {e}")
     except CatalogError as e:
         print(f"[catalog] {label}: code={e.code} → {e}")
-    except FinPipeError as e:
+    except WmshareError as e:
         print(f"[error] {label}: code={e.code} status={e.status} → {e}")
 
 
@@ -99,7 +99,7 @@ def main() -> None:
     print(f"\n先查目录：{[h['name'] for h in hits]}")
 
     print("\n提示：AuthError / LimitError 的真实触发需要有效/受限凭证；"
-          "\n      生产代码建议统一兜底 FinPipeError 并记录 e.code / e.status。")
+          "\n      生产代码建议统一兜底 WmshareError 并记录 e.code / e.status。")
 
 
 if __name__ == "__main__":

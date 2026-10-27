@@ -29,14 +29,14 @@ def test_error_handling_runs_offline_and_shows_appid_guidance():
     assert result.returncode == 0, result.stderr
     assert "[auth]" in result.stdout and "[limit]" in result.stdout
     assert "open.winmale.com" in result.stdout
-    assert "FINPIPE_CLIENT_ID" in result.stdout
+    assert "WMSHARE_CLIENT_ID" in result.stdout
 
 
 def test_quickstart_base_install_path(capsys):
     """quickstart 不依赖 pandas、不调用已知 403 接口，normalized 字段可直接读取。"""
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("finpipe_quickstart_example",
+    spec = importlib.util.spec_from_file_location("wmshare_quickstart_example",
                                                   EXAMPLES / "quickstart.py")
     assert spec and spec.loader
     quickstart = importlib.util.module_from_spec(spec)

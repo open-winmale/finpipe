@@ -4,7 +4,7 @@
   1. 目录合同：域注册（category/kind）与函数面完整（cn / inventory 示例 /
      参数可解析 / 规范化后 shape 扁平化）
   2. 规范化引用：normalize_with 目标函数必须存在于同命名空间目录（防悬空）
-  3. 单位契约：units percent 声明经 finpipe.units.apply_units 换算为小数
+  3. 单位契约：units percent 声明经 wmshare.units.apply_units 换算为小数
      （合成行仅验证 ×0.01 换算因子，不含任何预期业务数值）
   4. 门面委托：cli.<ns>.<method> 显式核心方法与目录动态委托（fmt_* 等）
      离线可解析并生成合法 XS 脚本（FakeSession 离线传输，零网络请求）
@@ -15,9 +15,9 @@ from typing import Any
 
 import pytest
 
-from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, _FRIENDLY_NS_TO_CATALOG
-from finpipe.catalog import load
-from finpipe.units import CONVERSIONS, apply_units
+from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, _FRIENDLY_NS_TO_CATALOG
+from wmshare.catalog import load
+from wmshare.units import CONVERSIONS, apply_units
 
 CAT = load()
 
@@ -98,7 +98,7 @@ class FakeSession:
 
 @pytest.fixture()
 def cli():
-    from finpipe.client import Client
+    from wmshare.client import Client
     return Client(base_url="https://t", client_id="i", client_secret="s",
                   catalog=CAT, session=FakeSession())
 

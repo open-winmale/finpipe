@@ -1,10 +1,10 @@
-"""高股息筛选器：finpipe 的杀手锏能力，跨自选股批量筛选。
+"""高股息筛选器：wmshare 的杀手锏能力，跨自选股批量筛选。
 
 需要凭证（内置体验 appid 也可跑）：共享池额度有限，建议用自己的 appid。
-    export FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=...
+    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/dividend_screener.py
 """
-from finpipe import Client, FinPipeError
+from wmshare import Client, WmshareError
 
 WATCHLIST = ["600519", "000858", "601088", "600900", "601318"]  # 自选股，换成你的
 
@@ -19,7 +19,7 @@ def main() -> None:
             ok = cli.dividend.screen_quality(sym, min_yield=0.02, payout_max=1.2)
             y = cli.dividend.yield_ttm(sym)
             print(f"  {sym}  TTM股息率={y if y is not None else '—':<8} 质量优={ok}")
-        except FinPipeError as e:
+        except WmshareError as e:
             print(f"  {sym}  跳过：code={e.code} {e}")
 
     # ---- 批量调用：call_batch 单次 HTTP 返回 {symbol: 结果} ----
@@ -36,7 +36,7 @@ def main() -> None:
     try:
         expr = cli.dividend.index_where_high_yield_5()  # 「连续 5 年高股息」筛选条件表达式
         print(f"  筛选表达式：{str(expr)[:80]}")
-    except FinPipeError as e:
+    except WmshareError as e:
         print(f"  跳过：code={e.code} {e}")
 
 

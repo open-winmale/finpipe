@@ -22,13 +22,13 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import finpipe  # noqa: E402
+import wmshare  # noqa: E402
 from _introspect import (  # noqa: E402
     FALLBACK_RETURNS, method_doc, method_params, return_shape_for, shape_to_schema,
     underlying_fn,
 )
-from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
-from finpipe.catalog import load  # noqa: E402
+from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
+from wmshare.catalog import load  # noqa: E402
 
 SPEC_PATH = REPO / "docs" / "openapi.json"
 HTML_PATH = REPO / "docs" / "swagger.html"
@@ -40,7 +40,7 @@ SWAGGER_HTML = """<!doctype html>
 <html lang="zh">
 <head>
   <meta charset="utf-8">
-  <title>finpipe 数据 API · Swagger</title>
+  <title>wmshare 数据 API · Swagger</title>
   <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
 </head>
 <body>
@@ -111,7 +111,7 @@ def _gateway_path() -> dict:
         "operationId": "xs_eval",
         "summary": "取数网关（SDK 实际 HTTP 入口）",
         "description": (
-            "finpipe SDK 全部取数的统一网关：携带 OAuth Bearer 令牌，提交 XS 脚本行，"
+            "wmshare SDK 全部取数的统一网关：携带 OAuth Bearer 令牌，提交 XS 脚本行，"
             "mode=call 时顶层 return 值位于 data.result。一般不直接使用，"
             "经 SDK 核心接口调用。"),
         "tags": ["网关"],
@@ -147,10 +147,10 @@ def build() -> dict:
     return {
         "openapi": "3.1.0",
         "info": {
-            "title": "finpipe 数据 API",
-            "version": finpipe.__version__,
+            "title": "wmshare 数据 API",
+            "version": wmshare.__version__,
             "description": (
-                "A 股个股数据核心接口（Python SDK，源码安装见 README；`import finpipe`）。"
+                "A 股个股数据核心接口（Python SDK，源码安装见 README；`import wmshare`）。"
                 "个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；"
                 "SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。"
                 "覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表"
@@ -159,7 +159,7 @@ def build() -> dict:
                 f"平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，"
                 f"全量 {metric_total} 个指标代码随包内置目录分发（分组清单见 docs/API.md）。"),
             "license": {"name": "PolyForm Noncommercial 1.0.0",
-                         "url": "https://github.com/open-winmale/finpipe/blob/main/LICENSE"},
+                         "url": "https://github.com/open-winmale/wmshare/blob/main/LICENSE"},
         },
         "servers": [{"url": "https://api.winmale.com", "description": "生产网关"}],
         "tags": [{"name": cn} for cn in CATEGORY_CN.values()] + [{"name": "网关"}],

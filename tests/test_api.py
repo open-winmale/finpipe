@@ -3,9 +3,9 @@ import inspect
 
 import pytest
 
-from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES
-from finpipe.catalog import load
-from finpipe.client import Client, FinPipeError
+from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES
+from wmshare.catalog import load
+from wmshare.client import Client, WmshareError
 
 
 class FakeSession:
@@ -111,7 +111,7 @@ def test_notice_and_dividend(cli):
 
 
 def test_notice_window_rejects_unknown_token(cli):
-    from finpipe import UsageError
+    from wmshare import UsageError
     with pytest.raises(UsageError, match="未知窗口"):
         cli.notice.list("600519", window="2w")
     with pytest.raises(UsageError, match="未知窗口"):
@@ -135,9 +135,9 @@ def test_dynamic_facade_accepts_positional_args(cli):
     assert last_xs(cli) == ['return kline.screen_above_ma20("600519")']
     cli.dividend.query_dps_window("600519", "3y")
     assert last_xs(cli) == ['return bonus.query_dps_window("600519", "3y")']
-    with pytest.raises(FinPipeError, match="同时以位置和关键字"):
+    with pytest.raises(WmshareError, match="同时以位置和关键字"):
         cli.kline.screen_above_ma20("600519", sym="600519")
-    with pytest.raises(FinPipeError, match="最多接受"):
+    with pytest.raises(WmshareError, match="最多接受"):
         cli.kline.screen_above_ma20("600519", "extra")
 
 
@@ -148,7 +148,7 @@ def test_notice_find_normalizes_stock_code(cli):
 
 
 def test_raw_plus_date_range_is_rejected(cli):
-    from finpipe import UsageError
+    from wmshare import UsageError
     with pytest.raises(UsageError, match="_raw=True"):
         cli.kline.bars("600519", begin="2026-01-01", end="2026-01-31", _raw=True)
     with pytest.raises(UsageError, match="_raw=True"):
@@ -192,8 +192,8 @@ def test_unknown_param_still_guards(cli):
     with pytest.raises(TypeError):
         cli.kline.bars("600519", bogus=1)
     # 通用 call() 层同守
-    from finpipe.client import FinPipeError
-    with pytest.raises(FinPipeError, match="未知参数"):
+    from wmshare.client import WmshareError
+    with pytest.raises(WmshareError, match="未知参数"):
         cli.call("kline.query_bars", sym="600519", bogus=1)
 
 
@@ -252,7 +252,7 @@ def test_screener_translation(cli):
 
 def test_screener_top_movers_limit_clamped(cli):
     """eval 拼脚本路径同样受 max_limit/10000 防脱库钳制（不发请求直接拒绝）。"""
-    from finpipe import LimitError
+    from wmshare import LimitError
     with pytest.raises(LimitError, match="超过单次上限"):
         cli.screener.index_top_movers(limit=20000)
     cli.screener.index_top_movers(limit=10)

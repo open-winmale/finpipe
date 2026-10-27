@@ -13,7 +13,7 @@
     预计算索引直出）显式包装，kline 目录的其余筛选函数经属性直达。
 
 使用：
-    cli = finpipe.Client.from_env()
+    cli = wmshare.Client.from_env()
     cli.kline.bars("600519", n=30)
     cli.statements.income("600519", years=5)
     cli.notice.list("600519", window="3m")
@@ -24,11 +24,11 @@ import json
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
-from finpipe.errors import CatalogError, LimitError, UsageError
-from finpipe.units import finish_metric
+from wmshare.errors import CatalogError, LimitError, UsageError
+from wmshare.units import finish_metric
 
 if TYPE_CHECKING:  # pragma: no cover
-    from finpipe.client import Client
+    from wmshare.client import Client
 
 # 区间/窗口上限（与上游脚本仓对齐）：
 #  - 上游 store 单次硬上限 10000 行（见 kernel vfunc_store_find.go）
@@ -92,7 +92,7 @@ def _window_days(window: str | int) -> int:
 
 
 def _to_df(result: Any) -> Any:
-    from finpipe.client import _to_dataframe
+    from wmshare.client import _to_dataframe
     return _to_dataframe(result)
 
 
@@ -1393,4 +1393,4 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
 ]
 
 # 类型化门面（生成层）：目录命名空间的完整类型签名；运行时仍走 client.call()。
-from finpipe.api._generated import NAMESPACES as GENERATED_NAMESPACES  # noqa: E402
+from wmshare.api._generated import NAMESPACES as GENERATED_NAMESPACES  # noqa: E402

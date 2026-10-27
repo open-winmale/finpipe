@@ -1,4 +1,4 @@
-"""统一异常体系：全部继承 FinPipeError，并带 code/status 便于程序化分类。
+"""统一异常体系：全部继承 WmshareError，并带 code/status 便于程序化分类。
 
 CatalogError 同时继承 KeyError，兼容既有 `except KeyError` 用法。
 """
@@ -9,13 +9,13 @@ from __future__ import annotations
 APPID_GUIDANCE = (
     "申请自己的 AppID（额度更充足）：打开 https://open.winmale.com 微信扫码登录 → "
     "右上角「我的」→「开放平台」→「我的应用」→「查看应用信息」，复制 client_id 与 api-key；"
-    "然后设置 FINPIPE_CLIENT_ID / FINPIPE_CLIENT_SECRET，"
-    "或写入 ~/.finpipe/credentials.env。"
+    "然后设置 WMSHARE_CLIENT_ID / WMSHARE_CLIENT_SECRET，"
+    "或写入 ~/.wmshare/credentials.env。"
     "内置体验 AppID 是共享池、额度有限，可能失效或被限流。"
 )
 
 
-class FinPipeError(RuntimeError):
+class WmshareError(RuntimeError):
     """带修复建议的统一错误基类。"""
 
     def __init__(self, message: str, *, code: str = "", status: int | None = None):
@@ -24,7 +24,7 @@ class FinPipeError(RuntimeError):
         self.status = status
 
 
-class AuthError(FinPipeError):
+class AuthError(WmshareError):
     """凭证缺失/无效/被拒（OAuth 400/401/403 或 eval 401/403）。
 
     内置体验 AppID 失效、被撤销或用户凭证错误都会落到这里；消息包含申请
@@ -32,11 +32,11 @@ class AuthError(FinPipeError):
     """
 
 
-class UsageError(FinPipeError):
+class UsageError(WmshareError):
     """调用方式错误：未知/缺失参数、_df 依赖缺失等。"""
 
 
-class LimitError(FinPipeError):
+class LimitError(WmshareError):
     """请求体积/窗口超限，或服务端限流（HTTP 429）。
 
     客户端 ``max_limit``/日期区间用 ``code="limit"``/``"range"``；
@@ -45,19 +45,19 @@ class LimitError(FinPipeError):
     """
 
 
-class TransportError(FinPipeError):
+class TransportError(WmshareError):
     """网络层失败（连接/超时，重试耗尽）。"""
 
 
-class ServerError(FinPipeError):
+class ServerError(WmshareError):
     """服务端 5xx。"""
 
 
-class ApiError(FinPipeError):
+class ApiError(WmshareError):
     """服务端返回业务错误（success=false 或其他 4xx）。"""
 
 
-class DataError(FinPipeError):
+class DataError(WmshareError):
     """返回数据未通过单位量级守护或关系不变量校验（code="range" / "invariant"）。
 
     换算声明与实际数据不符、上游口径变化都会在这里暴露，而不是把错误量级的
@@ -67,5 +67,5 @@ class DataError(FinPipeError):
     """
 
 
-class CatalogError(FinPipeError, KeyError):
+class CatalogError(WmshareError, KeyError):
     """目录中不存在该函数/域/指标/不兼容版本（同时兼容 KeyError 捕获）。"""

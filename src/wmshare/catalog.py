@@ -16,8 +16,8 @@ from typing import Any
 
 import yaml
 
-from finpipe.errors import CatalogError
-from finpipe.units import _metric_meta_valid, validate_meta
+from wmshare.errors import CatalogError
+from wmshare.units import _metric_meta_valid, validate_meta
 
 _PACKAGE_CATALOG = Path(__file__).resolve().parent / "_catalog"
 SUPPORTED_SCHEMA_VERSION = 2
@@ -32,22 +32,22 @@ def _check_schema(doc: dict, filename: str) -> None:
     if version != SUPPORTED_SCHEMA_VERSION:
         raise CatalogError(
             f"{filename}: schema_version={version} 与当前 SDK 支持的 "
-            f"{SUPPORTED_SCHEMA_VERSION} 不兼容；请升级 wm-finpipe 或重新安装",
+            f"{SUPPORTED_SCHEMA_VERSION} 不兼容；请升级 wmshare 或重新安装",
             code="schema")
 
 
 def catalog_dir() -> Path:
-    """定位随包分发的目录：FINPIPE_CATALOG_DIR 覆盖（开发期指向仓内），默认包内 _catalog/。"""
-    env = os.environ.get("FINPIPE_CATALOG_DIR")
+    """定位随包分发的目录：WMSHARE_CATALOG_DIR 覆盖（开发期指向仓内），默认包内 _catalog/。"""
+    env = os.environ.get("WMSHARE_CATALOG_DIR")
     if env:
         p = Path(env).expanduser().resolve()
         if (p / "domains").is_dir():
             return p
-        raise FileNotFoundError(f"FINPIPE_CATALOG_DIR={env} 下没有 domains/")
+        raise FileNotFoundError(f"WMSHARE_CATALOG_DIR={env} 下没有 domains/")
     if (_PACKAGE_CATALOG / "domains").is_dir():
         return _PACKAGE_CATALOG
     raise FileNotFoundError(
-        "包内 _catalog/ 缺失（安装损坏？）；或设置 FINPIPE_CATALOG_DIR 指向有效目录")
+        "包内 _catalog/ 缺失（安装损坏？）；或设置 WMSHARE_CATALOG_DIR 指向有效目录")
 
 
 class Catalog:

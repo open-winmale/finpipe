@@ -26,7 +26,7 @@ FORBIDDEN_SUBSTRINGS = [
     "less.server",
     "skillhub-releases",
     "winmale/.skillhub",
-    # 内置体验 appid 的明文：仅允许以混淆 blob 存在于 src/finpipe/_experience.py，
+    # 内置体验 appid 的明文：仅允许以混淆 blob 存在于 src/wmshare/_experience.py，
     # 任何跟踪文件出现明文（含 README/测试/示例）一律视为泄漏
     "wm_open_y9jvhjnm49kl3el2",
     "3e41394cda5b9bcaece12c59dcd2382b053bb6906434e60f",
@@ -61,7 +61,7 @@ THIRDPARTY_SKIP = {"tools/check_leak.py", "tools/extract_from_scripts.py",
 # 公司名录是标的数据：上市公司名本身（如港股 00700 腾讯控股）会与数据商/竞品禁词
 # 撞名——这是「标的名」不是「第三方产品引用」，整个目录豁免第三方扫描
 # （内部标识/凭证等其余扫描照常进行）。
-THIRDPARTY_SKIP_PREFIXES = ("src/finpipe/_catalog/symbols/",)
+THIRDPARTY_SKIP_PREFIXES = ("src/wmshare/_catalog/symbols/",)
 
 # 凭证赋值（带字面量）
 SECRET_RE = re.compile(

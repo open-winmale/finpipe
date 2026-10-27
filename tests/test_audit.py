@@ -6,7 +6,7 @@ import types
 
 import pytest
 
-import finpipe
+import wmshare
 from tools import audit_units
 
 
@@ -28,7 +28,7 @@ def audit_client(mv_free=None, bonus_rate=0.0396):
                 yield_ttm=lambda *a, **k: bonus_rate)
             self.indicator = types.SimpleNamespace(metrics=lambda s, codes: dict(metrics))
             self.statements = types.SimpleNamespace(compare=lambda *a, **k: [])
-            self.catalog = finpipe.load()
+            self.catalog = wmshare.load()
 
         @classmethod
         def from_env(cls, *a, **k):
@@ -41,7 +41,7 @@ def audit_client(mv_free=None, bonus_rate=0.0396):
 
 
 def test_audit_passes_on_canned_data(monkeypatch, capsys):
-    monkeypatch.setattr(audit_units.finpipe, "Client", audit_client())
+    monkeypatch.setattr(audit_units.wmshare, "Client", audit_client())
     rc = audit_units.main(["--universe", "600519,000001", "--etf", "510300",
                            "--compare-syms", "0"])
     out = capsys.readouterr().out
@@ -52,7 +52,7 @@ def test_audit_passes_on_canned_data(monkeypatch, capsys):
 
 
 def test_audit_fails_on_violation(monkeypatch, capsys):
-    monkeypatch.setattr(audit_units.finpipe, "Client", audit_client(mv_free=9.9e12))
+    monkeypatch.setattr(audit_units.wmshare, "Client", audit_client(mv_free=9.9e12))
     rc = audit_units.main(["--universe", "600519", "--etf", "", "--compare-syms", "0"])
     out = capsys.readouterr().out
     assert rc == 1
@@ -60,7 +60,7 @@ def test_audit_fails_on_violation(monkeypatch, capsys):
 
 
 def test_audit_reports_sdk_data_error(monkeypatch, capsys):
-    from finpipe import DataError
+    from wmshare import DataError
 
     class Boom(audit_client()):
         def call(self, name, **kw):
@@ -68,7 +68,7 @@ def test_audit_reports_sdk_data_error(monkeypatch, capsys):
                             "（量级守护）。如需原始口径：_raw=True 或 _units=\"native\"",
                             code="range")
 
-    monkeypatch.setattr(audit_units.finpipe, "Client", Boom)
+    monkeypatch.setattr(audit_units.wmshare, "Client", Boom)
     rc = audit_units.main(["--universe", "600519", "--etf", "", "--compare-syms", "0"])
     out = capsys.readouterr().out
     assert rc == 1
@@ -77,6 +77,6 @@ def test_audit_reports_sdk_data_error(monkeypatch, capsys):
 
 @pytest.mark.parametrize("empty", ["", " "])
 def test_audit_empty_universe_ok(monkeypatch, empty):
-    monkeypatch.setattr(audit_units.finpipe, "Client", audit_client())
+    monkeypatch.setattr(audit_units.wmshare, "Client", audit_client())
     assert audit_units.main(["--universe", empty, "--etf", "",
                              "--compare-syms", "0"]) == 0

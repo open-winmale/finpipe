@@ -7,8 +7,8 @@ import inspect
 
 import pytest
 
-from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
-from finpipe.catalog import load
+from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+from wmshare.catalog import load
 
 CAT = load()
 CORE_IDS = [f"{ns}.{m}" for _, ns, m, _, _ in FRIENDLY_INDEX]
@@ -67,7 +67,7 @@ class FakeSession:
 
 @pytest.fixture()
 def cli():
-    from finpipe.client import Client
+    from wmshare.client import Client
     return Client(base_url="https://t", client_id="i", client_secret="s",
                   catalog=CAT, session=FakeSession())
 

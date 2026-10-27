@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Generate the typed namespace facade (src/finpipe/api/_generated.py) from the catalog.
+"""Generate the typed namespace facade (src/wmshare/api/_generated.py) from the catalog.
 
 每个数据域命名空间一个类型化类：签名与 docstring 来自目录合同（domains/*.yaml +
 generated/inventory.json），运行时统一委托 client.call()。确定性输出；
 `--check` 校验磁盘文件与重新生成一致（漂移门禁，接 tests/test_drift.py）。
 
 Usage:
-  python3 tools/gen_typed_api.py          # write src/finpipe/api/_generated.py
+  python3 tools/gen_typed_api.py          # write src/wmshare/api/_generated.py
   python3 tools/gen_typed_api.py --check  # exit 1 on drift
 """
 from __future__ import annotations
@@ -18,9 +18,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from finpipe.catalog import Catalog, load  # noqa: E402
+from wmshare.catalog import Catalog, load  # noqa: E402
 
-OUT = REPO / "src" / "finpipe" / "api" / "_generated.py"
+OUT = REPO / "src" / "wmshare" / "api" / "_generated.py"
 
 TYPE_MAP = {"string": "str", "int": "int", "float": "float", "bool": "bool",
             "array": "list", "object": "dict", "any": "Any"}
@@ -34,7 +34,7 @@ HEADER = '''# -*- coding: utf-8 -*-
 
   python3 tools/gen_typed_api.py
 
-命名解析优先级：友好层（finpipe.api 手写类）> 本层 > 通用 _Namespace。
+命名解析优先级：友好层（wmshare.api 手写类）> 本层 > 通用 _Namespace。
 """
 from __future__ import annotations
 

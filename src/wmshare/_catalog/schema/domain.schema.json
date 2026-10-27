@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "finpipe domain catalog entry (catalog/domains/*.yaml)",
+  "title": "wmshare domain catalog entry (catalog/domains/*.yaml)",
   "type": "object",
   "required": ["id", "version", "cn", "kind", "category", "priority", "description"],
   "properties": {

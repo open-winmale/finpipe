@@ -94,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **README 店面化重构（495 → 274 行）**：按用户定版要求移除「与 主流数据服务 对比」整节
-  （含价格表与官方页注释）、「finpipe 的劣势」节、九个数据域详解长文、「指标体系」
+  （含价格表与官方页注释）、「wmshare 的劣势」节、九个数据域详解长文、「指标体系」
   长文与「数据范围」节——README 零竞品名、差异化卖点改自证式表述，并新增
   `test_readme_no_competitor_names`（防回潮）与 `test_readme_is_lean`（行数 ≤280，
   防再膨胀）守护；新增「目录」导航与「能力一览」一屏表（12 个门面 × 能力 × 单位口径）；
@@ -111,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   （基于本 SDK 构建）——收息佬（分红日历/持仓透视/派息稳定性）与波段（估值通道/
   推荐区间/安全边界/波段 vs 长持回放）。
 - **AI 原生 skill（随 wheel 分发）**：Agent Skills 格式的 `SKILL.md`
-  （`finpipe.skill_dir()` 定位，`skills/finpipe/*.md` 进 package-data），教 AI
+  （`wmshare.skill_dir()` 定位，`skills/wmshare/*.md` 进 package-data），教 AI
   agent 正确使用 SDK——环境前置与 AppID 申请引导、单位铁律（小数/元/股 +
   混口径标注）、目录先行防臆造指标码、意图→接口决策树、工作流与返回解读、
   坑位清单、错误处理速查。装入方式：复制到 agent 的 skill 发现目录
@@ -221,13 +221,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `indicator.get/metrics` 返回前校验。
 - README 新增「指标体系：算好的增值数据」（速查表 + 可执行示例 + 预期输出注释）与
   「数据正确性保障」章节；README 示例注释值由离线罐头测试守护，不再腐烂。
-- docs/API.md 新增「数据目录（离线）」章节（`finpipe.load()` + Catalog 方法表），
+- docs/API.md 新增「数据目录（离线）」章节（`wmshare.load()` + Catalog 方法表），
   函数附录新增「单位与守护」列，指标组表新增「量级守护」列。
 
 ### Fixed
 
-- README 的 `cat.search()` 行内引用补充 `cat = finpipe.load()` 装载步骤；
-  示例风格统一为 `finpipe.load()`。
+- README 的 `cat.search()` 行内引用补充 `cat = wmshare.load()` 装载步骤；
+  示例风格统一为 `wmshare.load()`。
 - kline 复权 `query_bars_adj` 不套 `volume_amount` 不变量（复权价与成交额不可比）。
 - `rptdom.statement_tree` 派生行口径文档化（pct 行=原生百分数、`fmt="x"` 行=倍数、
   科目行=元）；树视图适合展示核对，跨接口运算用 `compare()`。
@@ -240,8 +240,8 @@ First stable release. Install from source until the PyPI publication is enabled.
 ### Fixed
 
 - Source-install instructions are now the documented path until the PyPI
-  release; removed the not-yet-published `pip install wm-finpipe` requirement.
-- OAuth 401/403 and eval 401/403/429 now always raise `FinPipeError` subclasses
+  release; removed the not-yet-published `pip install wmshare` requirement.
+- OAuth 401/403 and eval 401/403/429 now always raise `WmshareError` subclasses
   (`AuthError` / `LimitError`) with actionable AppID registration steps, instead
   of leaking `requests.HTTPError` or misclassifying 429 as `ApiError`.
 - Notice query methods now return normalized flat rows (`date/title/url/...`)

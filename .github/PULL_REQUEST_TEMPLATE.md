@@ -14,7 +14,7 @@
 ## 自查清单 / Checklist
 
 - [ ] 测试覆盖了变更行为（`pytest`，不联网）
-- [ ] `mypy src/finpipe` 通过
+- [ ] `mypy src/wmshare` 通过
 - [ ] `python3 tools/check_leak.py` 通过（无密钥/机器路径/第三方引用/白名单外文件）
 - [ ] 有公开接口变更时：`docs/API.md` 与 OpenAPI 已同步（CI 有漂移门禁）
 - [ ] `CHANGELOG.md` 的 Unreleased 段已更新

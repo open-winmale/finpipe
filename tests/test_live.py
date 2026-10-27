@@ -1,7 +1,7 @@
 """Live 冒烟（默认跳过）：FRIENDLY_INDEX 全部核心接口真实调用 + 数值合理性断言。
 
 运行：
-  FINPIPE_LIVE=1 FINPIPE_BASE_URL=... FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=... \
+  WMSHARE_LIVE=1 WMSHARE_BASE_URL=... WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=... \
     pytest tests/test_live.py
 
 覆盖：友好层 FRIENDLY_INDEX 的每个核心接口至少一条真实调用；K 线/资金流额外做
@@ -18,11 +18,11 @@ from pathlib import Path
 
 import pytest
 
-from finpipe.api import FRIENDLY_INDEX
-from finpipe.client import Client
+from wmshare.api import FRIENDLY_INDEX
+from wmshare.client import Client
 
 pytestmark = pytest.mark.skipif(
-    os.environ.get("FINPIPE_LIVE") != "1", reason="FINPIPE_LIVE!=1")
+    os.environ.get("WMSHARE_LIVE") != "1", reason="WMSHARE_LIVE!=1")
 
 SYMBOLS = ["600519", "000001", "300750"]
 MAIN = SYMBOLS[0]
@@ -37,10 +37,10 @@ BLOCKED_REASON = ("间歇性 403 POLICY_DENIED：策略拒绝非 SDK 问题；"
 
 def _call_or_xfail(fn, *args, **kwargs):
     """已知服务端策略拒绝：命中即 xfail（非 strict，避免间歇性 403 造成假红）。"""
-    from finpipe.client import FinPipeError
+    from wmshare.client import WmshareError
     try:
         return fn(*args, **kwargs)
-    except FinPipeError as e:
+    except WmshareError as e:
         msg = str(e)
         if "403" in msg and "POLICY_DENIED" in msg:
             pytest.xfail(BLOCKED_REASON)

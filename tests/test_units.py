@@ -4,10 +4,10 @@
 """
 import pytest
 
-from finpipe.catalog import load
-from finpipe.client import Client
-from finpipe.errors import CatalogError, DataError
-from finpipe.units import apply_units, convert_field, validate_meta
+from wmshare.catalog import load
+from wmshare.client import Client
+from wmshare.errors import CatalogError, DataError
+from wmshare.units import apply_units, convert_field, validate_meta
 
 # 与 tests/test_transport.py 同款最小回放会话：eval 恒返回罐头结果。
 BAR = {"date": "2026-10-20", "open": 1321.01, "high": 1335, "low": 1316.14,

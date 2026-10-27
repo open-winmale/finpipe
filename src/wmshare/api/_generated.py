@@ -7,7 +7,7 @@
 
   python3 tools/gen_typed_api.py
 
-命名解析优先级：友好层（finpipe.api 手写类）> 本层 > 通用 _Namespace。
+命名解析优先级：友好层（wmshare.api 手写类）> 本层 > 通用 _Namespace。
 """
 from __future__ import annotations
 

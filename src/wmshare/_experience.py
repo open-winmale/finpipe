@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import base64
 
-_KEY = b"finpipe-experience"
-_CID_B64 = "EQQxHxkVC3IcQRoTGgMLA1dcDQVdFQVC"
-_SEC_B64 = "VQxaQVpJUU4BGUUHSwsGDwYGA1hcE1xJAU4BSkNdQAtVW1AHBF9XQF9EVhkATkAD"
+_KEY = b"wmshare-experience"
+_CID_B64 = "AAAsBxEXC3IcQRoTGgMLA1dcHAFADQ1A"
+_SEC_B64 = "RAhHWVJLUU4BGUUHSwsGDwYGElxBC1RLAU4BSkNdQAtVW1AHFVtKWFdGVhkATkAD"
 
 
 def _decode(blob: str) -> str:

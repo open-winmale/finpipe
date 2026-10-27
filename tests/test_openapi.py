@@ -7,8 +7,8 @@ import json
 import re
 from pathlib import Path
 
-from finpipe.api import FRIENDLY_INDEX
-from finpipe.catalog import load
+from wmshare.api import FRIENDLY_INDEX
+from wmshare.catalog import load
 
 SPEC = json.loads((Path(__file__).resolve().parents[1] / "docs" / "openapi.json")
                   .read_text(encoding="utf-8"))

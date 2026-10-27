@@ -17,8 +17,8 @@ from pathlib import Path
 
 import pytest
 
-from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
-from finpipe.catalog import load
+from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+from wmshare.catalog import load
 
 REPO = Path(__file__).resolve().parents[1]
 API_MD = (REPO / "docs" / "API.md").read_text(encoding="utf-8")
@@ -59,7 +59,7 @@ class FakeSession:
 
 @pytest.fixture(scope="module")
 def cli():
-    from finpipe.client import Client
+    from wmshare.client import Client
     return Client(base_url="https://t", client_id="i", client_secret="s",
                   catalog=CAT, session=FakeSession())
 
@@ -118,7 +118,7 @@ def test_readme_counts_match_catalog():
 
 def test_api_module_docstring_counts_match_catalog():
     """门面模块 docstring 的底层函数计数必须与目录一致（曾停留 155 而目录已 164）。"""
-    src = (REPO / "src" / "finpipe" / "api" / "__init__.py").read_text(encoding="utf-8")
+    src = (REPO / "src" / "wmshare" / "api" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r"(\d+) 个底层函数零遮蔽", src)
     assert m, "模块 docstring 缺少底层函数计数"
     assert int(m.group(1)) == CAT.stats()["functions"], \
@@ -299,17 +299,17 @@ def readme_cli():
 def test_readme_python_blocks_execute(readme_cli):
     import textwrap
 
-    import finpipe
+    import wmshare
     blocks = re.findall(r"```python\n(.*?)```", README, re.S)
     assert blocks, "README 缺少 python 示例"
-    original = finpipe.Client
-    finpipe.Client = type("PatchedClient", (ReadmeClient,), {})  # from_env/构造都不联网
+    original = wmshare.Client
+    wmshare.Client = type("PatchedClient", (ReadmeClient,), {})  # from_env/构造都不联网
     try:
         for block in blocks:
             exec(compile(textwrap.dedent(block), "README.md", "exec"),
                  {"__name__": "__readme__"})
     finally:
-        finpipe.Client = original
+        wmshare.Client = original
 
 
 def test_readme_example_outputs_documented():
@@ -347,7 +347,7 @@ def test_readme_is_lean():
 
 def test_readme_catalog_references_valid():
     """行内 `cat.xxx(...)` 引用必须是 Catalog 真实方法（防止文档凭空写方法名）。"""
-    from finpipe.catalog import Catalog
+    from wmshare.catalog import Catalog
     for meth in set(re.findall(r"cat\.(\w+)\(", README)):
         assert meth == "load" or callable(getattr(Catalog, meth, None)), \
             f"README 引用了不存在的目录方法 cat.{meth}()"

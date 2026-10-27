@@ -1,10 +1,10 @@
 """pandas 分析：`_df=True` 直接拿 DataFrame 做研究。
 
 需要凭证 + 可选依赖（在仓库根目录安装）：pip install ".[dataframe]"
-    export FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=...
+    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/pandas_analysis.py
 """
-from finpipe import Client
+from wmshare import Client
 
 
 def main() -> None:

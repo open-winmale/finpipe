@@ -17,8 +17,8 @@ from __future__ import annotations
 import argparse
 import sys
 
-import finpipe
-from finpipe import DataError
+import wmshare
+from wmshare import DataError
 
 DEFAULT_UNIVERSE = ["600519", "601318", "300750", "688981", "601857"]
 DEFAULT_ETF = "510300"
@@ -44,7 +44,7 @@ class Report:
         return all(r[0] for r in self.rows)
 
 
-def audit_symbol(rep: Report, cli: finpipe.Client, sym: str, with_fundamentals: bool = True) -> None:
+def audit_symbol(rep: Report, cli: wmshare.Client, sym: str, with_fundamentals: bool = True) -> None:
     # 1) K 线：volume(股)×close≈amount(元)——SDK 运行时已守护，这里复核并记录
     bars = cli.call("kline.query_bars", sym=sym, limit=3)
     bar = bars[-1] if bars else {}
@@ -92,22 +92,22 @@ def main(argv: list[str] | None = None) -> int:
                     help="对前 N 家跑 statement_compare（配额友好；0 关闭）")
     args = ap.parse_args(argv)
 
-    cli = finpipe.Client.from_env()
+    cli = wmshare.Client.from_env()
     rep = Report()
     print(f"# 单位口径审计 | 样本宇宙 {args.universe} | ETF {args.etf}")
-    print(f"# finpipe {finpipe.__version__} | catalog upstream_rev "
+    print(f"# wmshare {wmshare.__version__} | catalog upstream_rev "
           f"{cli.catalog.stats().get('upstream_rev')}")
 
     universe = [s.strip() for s in args.universe.split(",") if s.strip()]
     for i, sym in enumerate(universe):
         try:
             audit_symbol(rep, cli, sym)
-        except finpipe.FinPipeError as e:
+        except wmshare.WmshareError as e:
             rep.add(False, "call", f"{sym}: {type(e).__name__}: {e}")
     if args.etf:
         try:
             audit_symbol(rep, cli, args.etf, with_fundamentals=False)
-        except finpipe.FinPipeError as e:
+        except wmshare.WmshareError as e:
             rep.add(False, "call", f"ETF {args.etf}: {type(e).__name__}: {e}")
     for sym in universe[:max(0, args.compare_syms)]:
         try:

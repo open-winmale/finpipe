@@ -1,25 +1,25 @@
-# wm-finpipe
+# wmshare
 
-[![CI](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/finpipe/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/wm-finpipe)](https://pypi.org/project/wm-finpipe/)
+[![CI](https://github.com/open-winmale/wmshare/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/wmshare/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/wmshare)](https://pypi.org/project/wmshare/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
-[![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/finpipe/py.typed)
+[![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/wmshare/py.typed)
 
-> **English TL;DR** — `wm-finpipe` is a source-available (non-commercial) Python SDK for A-share market data:
+> **English TL;DR** — `wmshare` is a source-available (non-commercial) Python SDK for A-share market data:
 > k-line (3 adjustment modes), intraday snapshots, money flow, the three financial statements,
 > 2,197 metric codes (TTM, historical & industry percentiles, dividend analytics), a screener
 > facade (single-stock screens & server-side market breadth), announcements and company profiles.
 > Ships a machine-readable offline catalog, unified base units with per-response data guards
 > (ratios as decimals, money in CNY, volume in shares), a typed facade, an AI-agent skill, and a
-> zero-config trial AppID (shared pool; register for your own quota). **Install**: `pip install wm-finpipe`. Free for non-commercial use; commercial use requires a separate license.
+> zero-config trial AppID (shared pool; register for your own quota). **Install**: `pip install wmshare`. Free for non-commercial use; commercial use requires a separate license.
 
 > **⚠️ 许可声明（请先阅读）**：本项目采用
 > [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
 > 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
 
 A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K 线与档案等部分接口已覆盖）。
-`pip install wm-finpipe` 后即可取数，无需任何配置（代码中 `import finpipe`）。
+`pip install wmshare` 后即可取数，无需任何配置（代码中 `import wmshare`）。
 
 ## 目录
 
@@ -43,27 +43,27 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K
   服务端算好直出，不关心指标算法。
 - **开箱即用**——SDK 内置体验 AppID，`Client()` 零配置即可取数；正式使用换成自己的 AppID。
 - **目录随包 + AI 原生**——249 个底层函数、113 个核心接口、2,197 个指标码离线可查；
-  附 Agent Skills 格式 skill（`finpipe.skill_dir()`），复制进 AI agent 即可正确使用。
+  附 Agent Skills 格式 skill（`wmshare.skill_dir()`），复制进 AI agent 即可正确使用。
 
 ## 快速上手
 
 ### 安装
 
 ```bash
-pip install wm-finpipe                  # 基础安装
-pip install "wm-finpipe[dataframe]"     # 可选：pandas 支持（_df=True）
+pip install wmshare                  # 基础安装
+pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
 ```
 
 国内镜像源（如阿里云）同步新版本可能滞后，装不到最新版时可临时指定官方源：
-`pip install -i https://pypi.org/simple wm-finpipe`。开发/贡献者安装见
+`pip install -i https://pypi.org/simple wmshare`。开发/贡献者安装见
 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ### 三行上手
 
 ```python
-import finpipe
+import wmshare
 
-cli = finpipe.Client()                            # 零配置：内置体验 appid 自动启用
+cli = wmshare.Client()                            # 零配置：内置体验 appid 自动启用
 print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小数）
 print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服务端直出）
 ```
@@ -123,9 +123,9 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 **常用示例（输出为预期量级；`cli.kline.bars` / `statements.income` 等其余接口同风格）**：
 
 ```python
-import finpipe
+import wmshare
 
-cli = finpipe.Client.from_env()
+cli = wmshare.Client.from_env()
 
 # TTM 股息率：小数口径，0.0396 = 3.96%
 print(cli.dividend.yield_ttm("600519"))                      # 0.0396
@@ -179,13 +179,13 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 
 ```bash
 # 方式一：环境变量
-export FINPIPE_CLIENT_ID=...
-export FINPIPE_CLIENT_SECRET=...
+export WMSHARE_CLIENT_ID=...
+export WMSHARE_CLIENT_SECRET=...
 
-# 方式二：凭证文件 ~/.finpipe/credentials.env（KEY=VALUE 每行一条）
+# 方式二：凭证文件 ~/.wmshare/credentials.env（KEY=VALUE 每行一条）
 ```
 
-也可以在代码中直接传入：`finpipe.Client(client_id=..., client_secret=...)`。
+也可以在代码中直接传入：`wmshare.Client(client_id=..., client_secret=...)`。
 不配置时自动使用内置体验 AppID。
 
 ### 遇到 401 / 403 / 429
@@ -210,10 +210,10 @@ export FINPIPE_CLIENT_SECRET=...
   SDK（目录先行防臆造指标码、单位铁律、错误引导都在 skill 里）：
 
   ```bash
-  cp -r "$(python3 -c 'import finpipe; print(finpipe.skill_dir())')" ~/.agents/skills/finpipe
+  cp -r "$(python3 -c 'import wmshare; print(wmshare.skill_dir())')" ~/.agents/skills/wmshare
   # 项目级按工具放入 .zcode/skills/ 或 .claude/skills/
   ```
-  skill 源文件：[src/finpipe/skills/finpipe/SKILL.md](src/finpipe/skills/finpipe/SKILL.md)
+  skill 源文件：[src/wmshare/skills/wmshare/SKILL.md](src/wmshare/skills/wmshare/SKILL.md)
   （LLM 可直接读取的结构化用法）。
 
 - **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**（基于本 SDK 构建的开源工具）：
@@ -229,4 +229,4 @@ export FINPIPE_CLIENT_SECRET=...
 - 批量调用：`cli.call_batch("kline.query_bars", ["600519", "000001"])` 单次 HTTP 返回
   `{symbol: 结果}`；`on_error="skip"` 时逐标的隔离错误
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
-- 运行测试：`pytest`（不联网）；`FINPIPE_LIVE=1 pytest tests/test_live.py`（真实冒烟）
+- 运行测试：`pytest`（不联网）；`WMSHARE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

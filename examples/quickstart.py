@@ -1,17 +1,17 @@
-"""快速上手：5 分钟看懂 finpipe 的四类数据。
+"""快速上手：5 分钟看懂 wmshare 的四类数据。
 
 凭证是可选的：不配置时自动使用内置体验 AppID（共享池、额度有限，仅供初次体验）。
 正式使用建议配置自己的 AppID：
-    export FINPIPE_CLIENT_ID=... FINPIPE_CLIENT_SECRET=...
+    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/quickstart.py
 
 遇到 401/403/429 时，错误消息会直接给出申请 AppID 的步骤。
 """
-import finpipe
+import wmshare
 
 
 def main(cli=None) -> None:
-    cli = cli or finpipe.Client.from_env()
+    cli = cli or wmshare.Client.from_env()
     SYMBOL = "600519"
 
     # ---- 市场行情 ----
@@ -57,7 +57,7 @@ def main(cli=None) -> None:
 if __name__ == "__main__":
     try:
         main()
-    except finpipe.FinPipeError as e:
+    except wmshare.WmshareError as e:
         # 401/403/429 等会在这里直接显示 AppID 申请步骤，而不是裸 traceback。
         print(f"取数失败：{e}")
         raise SystemExit(1)

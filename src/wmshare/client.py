@@ -16,13 +16,13 @@ from typing import Any, NoReturn
 
 import requests
 
-from finpipe._experience import credentials as _experience_credentials
-from finpipe.catalog import Catalog, load
-from finpipe.errors import (
-    APPID_GUIDANCE, ApiError, AuthError, CatalogError, FinPipeError, LimitError,
+from wmshare._experience import credentials as _experience_credentials
+from wmshare.catalog import Catalog, load
+from wmshare.errors import (
+    APPID_GUIDANCE, ApiError, AuthError, CatalogError, WmshareError, LimitError,
     ServerError, TransportError, UsageError,
 )
-from finpipe.units import apply_units
+from wmshare.units import apply_units
 
 DEFAULT_BASE_URL = "https://api.winmale.com"
 
@@ -132,16 +132,16 @@ class Client:
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None, **kw: Any) -> "Client":
         e = dict(os.environ if env is None else env)
-        cred_file = Path(e.get("FINPIPE_CREDENTIALS", Path.home() / ".finpipe" / "credentials.env"))
+        cred_file = Path(e.get("WMSHARE_CREDENTIALS", Path.home() / ".wmshare" / "credentials.env"))
         if cred_file.is_file():
             for line in cred_file.read_text(encoding="utf-8").splitlines():
                 line = line.strip().removeprefix("export ").strip()
                 if "=" in line and not line.startswith("#"):
                     k, _, v = line.partition("=")
                     e.setdefault(k.strip(), v.strip().strip('"').strip("'"))
-        base = e.get("FINPIPE_BASE_URL") or e.get("OPEN_PLATFORM_BASE_URL")
-        cid = e.get("FINPIPE_CLIENT_ID") or e.get("OPEN_PLATFORM_CLIENT_ID")
-        sec = e.get("FINPIPE_CLIENT_SECRET") or e.get("OPEN_PLATFORM_CLIENT_SECRET")
+        base = e.get("WMSHARE_BASE_URL") or e.get("OPEN_PLATFORM_BASE_URL")
+        cid = e.get("WMSHARE_CLIENT_ID") or e.get("OPEN_PLATFORM_CLIENT_ID")
+        sec = e.get("WMSHARE_CLIENT_SECRET") or e.get("OPEN_PLATFORM_CLIENT_SECRET")
         # 环境变量只在显式参数缺省时注入；凭证成对性由 __init__ 校验（部分配置报错），
         # 全部缺省时 __init__ 兜底内置体验 appid
         if base:
@@ -167,7 +167,7 @@ class Client:
         return min(10.0, self.backoff * (2 ** attempt))
 
     def _request(self, url: str, **kw: Any) -> requests.Response:
-        """POST + 429/5xx 指数退避重试；网络异常同样重试并在耗尽后转 FinPipeError。"""
+        """POST + 429/5xx 指数退避重试；网络异常同样重试并在耗尽后转 WmshareError。"""
         attempts = self.retries + 1
         last: requests.Response | None = None
         for i in range(attempts):
@@ -208,7 +208,7 @@ class Client:
         return "", (resp.text or "")[:300]
 
     def _raise_http_error(self, resp: requests.Response, *, stage: str) -> NoReturn:
-        """把 OAuth/eval 的非 200 响应统一映射为 FinPipeError，并附 AppID 引导。"""
+        """把 OAuth/eval 的非 200 响应统一映射为 WmshareError，并附 AppID 引导。"""
         status = resp.status_code
         code, detail = self._error_detail(resp)
         label = f"HTTP {status}" + (f"，{code}" if code else "")
@@ -466,7 +466,7 @@ class Client:
                 try:
                     results[s] = self.call(name, _raw=_raw, _df=_df, _units=_units,
                                            **kwargs, **{sym_param: s})
-                except FinPipeError as e:
+                except WmshareError as e:
                     errors[s] = str(e)
             return BatchResult(results=results, errors=errors)
 
@@ -506,7 +506,7 @@ class Client:
         """client.bonus.query_list(...) —— 友好 API 优先，其次类型化门面，最后通用门面。"""
         if ns.startswith("_"):
             raise AttributeError(ns)
-        from finpipe.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+        from wmshare.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
         cls = FRIENDLY_NAMESPACES.get(ns)
         if cls is not None:
             return cls(self)

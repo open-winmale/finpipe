@@ -8,8 +8,8 @@ import json
 
 import pytest
 
-from finpipe.catalog import load
-from finpipe.client import Client, FinPipeError, _xs_literal
+from wmshare.catalog import load
+from wmshare.client import Client, WmshareError, _xs_literal
 
 
 class FakeSession:
@@ -110,16 +110,16 @@ def test_auto_require_for_unpreloaded_ns(client):
 
 
 def test_param_validation(client):
-    with pytest.raises(FinPipeError, match="未知参数"):
+    with pytest.raises(WmshareError, match="未知参数"):
         client.call("kline.query_bars", sym="600519", n=10)
-    with pytest.raises(FinPipeError, match="必填参数 sym"):
+    with pytest.raises(WmshareError, match="必填参数 sym"):
         client.call("moneyflow.query_bars", limit=5)
     with pytest.raises(KeyError, match="未知函数"):
         client.call("kline.no_such_fn", sym="600519")
 
 
 def test_max_limit_caps_limit_params(client):
-    with pytest.raises(FinPipeError, match="超过单次请求上限 500"):
+    with pytest.raises(WmshareError, match="超过单次请求上限 500"):
         client.call("kline.query_bars", sym="600519", limit=501)
     client.call("kline.query_bars", sym="600519", limit=500)  # 上限值本身放行
     c2 = Client(base_url="https://t", client_id="i", client_secret="s",
@@ -130,46 +130,46 @@ def test_max_limit_caps_limit_params(client):
 # ---- 凭证解析：内置体验 appid（混淆存放于 _experience.py，测试不写明文） ----
 
 def test_client_defaults_to_experience_credentials():
-    from finpipe._experience import credentials
+    from wmshare._experience import credentials
     c = Client(base_url="https://t", catalog=load(), session=FakeSession())
     assert (c.client_id, c.client_secret) == credentials()
 
 
 def test_partial_credentials_rejected():
-    with pytest.raises(FinPipeError, match="成对"):
+    with pytest.raises(WmshareError, match="成对"):
         Client(base_url="https://t", client_id="only-id",
                catalog=load(), session=FakeSession())
-    with pytest.raises(FinPipeError, match="成对"):
+    with pytest.raises(WmshareError, match="成对"):
         Client(base_url="https://t", client_secret="only-sec",
                catalog=load(), session=FakeSession())
 
 
 def test_from_env_prefers_explicit_env():
-    c = Client.from_env(env={"FINPIPE_CLIENT_ID": "id-1", "FINPIPE_CLIENT_SECRET": "sec-1"},
+    c = Client.from_env(env={"WMSHARE_CLIENT_ID": "id-1", "WMSHARE_CLIENT_SECRET": "sec-1"},
                         base_url="https://t", catalog=load(), session=FakeSession())
     assert (c.client_id, c.client_secret) == ("id-1", "sec-1")
 
 
 def test_from_env_partial_raises(tmp_path):
-    # FINPIPE_CREDENTIALS 指向不存在文件：隔离本机 ~/.finpipe/credentials.env
-    with pytest.raises(FinPipeError, match="成对"):
-        Client.from_env(env={"FINPIPE_CLIENT_ID": "id-1",
-                             "FINPIPE_CREDENTIALS": str(tmp_path / "absent.env")},
+    # WMSHARE_CREDENTIALS 指向不存在文件：隔离本机 ~/.wmshare/credentials.env
+    with pytest.raises(WmshareError, match="成对"):
+        Client.from_env(env={"WMSHARE_CLIENT_ID": "id-1",
+                             "WMSHARE_CREDENTIALS": str(tmp_path / "absent.env")},
                         base_url="https://t", catalog=load(), session=FakeSession())
 
 
 def test_from_env_open_platform_fallback(tmp_path):
     c = Client.from_env(env={"OPEN_PLATFORM_CLIENT_ID": "pid",
                              "OPEN_PLATFORM_CLIENT_SECRET": "psec",
-                             "FINPIPE_CREDENTIALS": str(tmp_path / "absent.env")},
+                             "WMSHARE_CREDENTIALS": str(tmp_path / "absent.env")},
                         base_url="https://t", catalog=load(), session=FakeSession())
     assert c.client_id == "pid"
 
 
 def test_from_env_empty_uses_experience(tmp_path):
-    # 隔离本机凭证文件（维护者/用户可能已配置 ~/.finpipe/credentials.env），
+    # 隔离本机凭证文件（维护者/用户可能已配置 ~/.wmshare/credentials.env），
     # 确保测的是「无任何配置 → 内置体验 AppID」这条路径
-    c = Client.from_env(env={"FINPIPE_CREDENTIALS": str(tmp_path / "absent.env")},
+    c = Client.from_env(env={"WMSHARE_CREDENTIALS": str(tmp_path / "absent.env")},
                         base_url="https://t", catalog=load(), session=FakeSession())
     assert c.client_id.startswith("wm_open_")
 
@@ -194,7 +194,7 @@ def test_namespace_facade(client):
     # L1 精简条目：回退 inventory 签名参数，可直接调用
     client.call("kline.fmt_snapshot_line", sym="600519")
     assert last_eval(client)["json"]["xs_lines"] == ['return kline.fmt_snapshot_line("600519")']
-    with pytest.raises(FinPipeError, match="未知参数"):
+    with pytest.raises(WmshareError, match="未知参数"):
         client.call("kline.fmt_snapshot_line", code="600519")
 
 
@@ -204,7 +204,7 @@ def test_inventory_min_args_optional(client):
     assert last_eval(client)["json"]["xs_lines"] == [
         '__r := kline.query_bars_adj("600519", 10)',
         "return kline.fmt_maps(__r)"]  # 复权序列走规范化，字段与不复权一致
-    with pytest.raises(FinPipeError, match="必填参数 limit"):
+    with pytest.raises(WmshareError, match="必填参数 limit"):
         client.call("kline.query_bars_adj", sym="600519")
 
 
@@ -235,5 +235,5 @@ def test_eval_error_surfaced(client):
             return super().post(url, **kw)
     c2 = Client(base_url="https://t", client_id="i", client_secret="s",
                 catalog=load(), session=FailSession())
-    with pytest.raises(FinPipeError, match="undefined: foo"):
+    with pytest.raises(WmshareError, match="undefined: foo"):
         c2.call("kline.query_bars", sym="600519")

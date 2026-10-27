@@ -8,9 +8,9 @@ import inspect
 import re
 from pathlib import Path
 
-from finpipe import skill_dir
-from finpipe.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
-from finpipe.catalog import Catalog, load
+from wmshare import skill_dir
+from wmshare.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+from wmshare.catalog import Catalog, load
 
 REPO = Path(__file__).resolve().parents[1]
 SKILL_DIR = skill_dir()
@@ -67,7 +67,7 @@ def test_skill_calls_are_real():
                 assert node.args and isinstance(node.args[0], ast.Constant)
                 CAT.function(node.args[0].value)   # 目录级校验（防编造）
             elif isinstance(f.value, ast.Attribute) and f.value.attr == "cli":
-                continue  # finpipe.Client() 等包级调用
+                continue  # wmshare.Client() 等包级调用
             elif f.value.id == "cli":
                 ns, method = f.value.attr, f.attr
                 cls = FRIENDLY_NAMESPACES.get(ns) or GENERATED_NAMESPACES.get(ns)
@@ -96,10 +96,10 @@ def test_skill_inline_references_are_real():
 
 def test_skill_ships_in_wheel():
     """skill 随 wheel 分发：package-data 声明 + skill_dir() 指向真实文件。"""
-    assert '"skills/finpipe/*.md"' in PYPROJECT, "pyproject 未声明 skills 数据"
+    assert '"skills/wmshare/*.md"' in PYPROJECT, "pyproject 未声明 skills 数据"
     assert (SKILL_DIR / "SKILL.md").is_file()
-    import finpipe
-    assert "skill_dir" in finpipe.__all__
+    import wmshare
+    assert "skill_dir" in wmshare.__all__
 
 
 def test_skill_wording_guards():

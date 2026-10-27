@@ -24,8 +24,8 @@ from _introspect import (  # noqa: E402
     FALLBACK_RETURNS, RETURNS_OVERRIDES, method_example, method_params,
     return_shape_for, underlying_fn,
 )
-from finpipe.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
-from finpipe.catalog import catalog_dir, load  # noqa: E402
+from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES  # noqa: E402
+from wmshare.catalog import catalog_dir, load  # noqa: E402
 
 DOMAINS = catalog_dir() / "domains"
 INVENTORY = json.loads((catalog_dir() / "generated" / "inventory.json").read_text(encoding="utf-8"))
@@ -331,7 +331,7 @@ def build() -> str:
         "",
         "- **免费额度充足**：个人学习、研究等非商业使用完全免费；注册开放平台账号即得免费额度"
         "（具体额度以开放平台为准）。",
-        "- **开箱即用**：按 README 源码安装后 `finpipe.Client()` 无需配置即可调用核心接口"
+        "- **开箱即用**：按 README 源码安装后 `wmshare.Client()` 无需配置即可调用核心接口"
         "（内置体验 AppID，共享池、额度有限；正式使用可换成自己的 AppID）。",
         "- **认证与限流**：401/403 抛 `AuthError`，429 抛 `LimitError(code=\"rate_limited\")`；"
         "错误消息会给出申请自己的 AppID 的步骤，详见 README「免费额度与凭证」。",
@@ -363,9 +363,9 @@ def build() -> str:
         "目录随包分发、纯本地读取（零网络）：",
         "",
         "```python",
-        "import finpipe",
+        "import wmshare",
         "",
-        "cat = finpipe.load()          # 数据目录对象（离线，不产生任何请求）",
+        "cat = wmshare.load()          # 数据目录对象（离线，不产生任何请求）",
         "hits = cat.search(\"股息\")     # 跨函数 + 指标代码混合检索（默认返回 ≤20 条）",
         "cat.function(\"bonus.snapshot_yield_ttm\")[\"params\"]   # 函数合同：参数/返回/示例",
         "```",

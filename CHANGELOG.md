@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-27
+
+### Added
+
+- **公告变更订阅轮询器 `NoticePoller`（`cli.notice_poller(...)`）**：消息队列消费组
+  语义——事件流、消费进度与 ack 全在服务端（与取数同一 base_url、同一 OAuth
+  Bearer），SDK 侧本地 daemon 定时线程轮询轻量探针（poll，O(1)），有新公告才逐市场
+  read 分批拉平、回调 `on_events`、ack 确认；无新事件时零 read。消费进度按
+  `(group, consumer)` 标识存服务端，ack 前崩溃自动重投（at-least-once）；回调抛异常
+  不杀线程、该批不 ack 下轮重投。服务端事件保留 7 天，进度落后超期时 read 抛新增的
+  `StreamResetError`，用 `seek_oldest(market)` 重置游标到保留期内最早可用 seq。
+  支持 `cn`/`hk` 双市场、limit 客户端先行钳制（≤200）、指数退避 + 抖动、`status()`
+  快照（polls/reads/交付数/积压/最近错误，可接心跳监控）、上下文管理器与完全自驱
+  （`poll_now()` / `read(market)` + `ack(...)`）。新增 15 个合同级离线用例
+  （FakeStreamServer 假会话，不联网、不真实等待）。
+- Client 内部提取 `_post_authed`（Bearer POST + 401 清令牌重试一次），eval 与公告
+  订阅共用；行为无变化。
+
 ## [1.5.0] - 2026-10-27
 
 ### Added

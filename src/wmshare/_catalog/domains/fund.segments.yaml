@@ -1,5 +1,5 @@
 id: fund.segments
-version: 1.0.0
+version: 1.0.1
 cn: 经营分部
 kind: raw
 category: fundamentals
@@ -66,19 +66,6 @@ functions:
             - {name: margin, type: float64, cn: 毛利率（小数）, optional: true}
             - {name: ratio, type: float64, cn: 占比（小数，income 维填充）, optional: true}
 
-
-        kind: array
-        items:
-          kind: object
-          cn: 分部行
-          fields:
-            - {name: name, type: string, cn: 分部名称}
-            - {name: tr, type: float64, cn: 收入（元）, optional: true}
-            - {name: tr_text, type: string, cn: 收入展示串, optional: true}
-            - {name: cost, type: float64, cn: 成本（元）, optional: true}
-            - {name: margin, type: float64, cn: 毛利率（小数）, optional: true}
-            - {name: ratio, type: float64, cn: 占比（小数，income 维填充）, optional: true}
-
     example: 'segments.query_business("600519", {})'
     ranges: {tr: [-1.0e+13, 1.0e+13], cost: [0, 1.0e+13], margin: [-5, 1], ratio: [0, 1]}
   - name: segments.query_income
@@ -91,19 +78,6 @@ functions:
     returns:
       desc: ARR · 分部行（name + ratio 占比，小数；tr/cost 恒 0，margin 为 nil）
       shape:
-        kind: array
-        items:
-          kind: object
-          cn: 分部行
-          fields:
-            - {name: name, type: string, cn: 分部名称}
-            - {name: tr, type: float64, cn: 收入（元）, optional: true}
-            - {name: tr_text, type: string, cn: 收入展示串, optional: true}
-            - {name: cost, type: float64, cn: 成本（元）, optional: true}
-            - {name: margin, type: float64, cn: 毛利率（小数）, optional: true}
-            - {name: ratio, type: float64, cn: 占比（小数，income 维填充）, optional: true}
-
-
         kind: array
         items:
           kind: object
@@ -174,19 +148,6 @@ functions:
     returns:
       desc: ARR · 规范化分部行
       shape:
-        kind: array
-        items:
-          kind: object
-          cn: 分部行
-          fields:
-            - {name: name, type: string, cn: 分部名称}
-            - {name: tr, type: float64, cn: 收入（元）, optional: true}
-            - {name: tr_text, type: string, cn: 收入展示串, optional: true}
-            - {name: cost, type: float64, cn: 成本（元）, optional: true}
-            - {name: margin, type: float64, cn: 毛利率（小数）, optional: true}
-            - {name: ratio, type: float64, cn: 占比（小数，income 维填充）, optional: true}
-
-
         kind: array
         items:
           kind: object

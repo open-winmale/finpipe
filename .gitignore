@@ -13,3 +13,4 @@ dist/
 .coverage
 htmlcov/
 .mypy_cache/
+.internal/audit-cache/

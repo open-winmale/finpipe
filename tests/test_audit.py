@@ -80,3 +80,66 @@ def test_audit_empty_universe_ok(monkeypatch, empty):
     monkeypatch.setattr(audit_units.wmshare, "Client", audit_client())
     assert audit_units.main(["--universe", empty, "--etf", "",
                              "--compare-syms", "0"]) == 0
+
+
+# ---- matrix：全量逐字段审计（离线罐头） ----
+
+def matrix_client(monorow: dict | None = None):
+    """罐头客户端：call() 恒返单行数组（数值取自真实 probe 量级）。"""
+    row = monorow if monorow is not None else {
+        "hold_num_ratio": 52.2,        # 百分数原值（若声明 percent → DECLARED-OK）
+        "holder_name": "中国贵州茅台酒厂集团",
+        "hold_num": 1.7e8,
+    }
+    real = wmshare.load()
+
+    class Client(audit_client()):
+        def __init__(self):
+            super().__init__()
+            self._real_catalog = real
+
+        def call(self, name, **kw):
+            return [dict(row)]
+
+    return Client
+
+
+def test_matrix_classifies_declared_percent(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(audit_units.wmshare, "Client", matrix_client())
+    monkeypatch.setattr(audit_units, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(audit_units, "REPORT_PATH", tmp_path / "UNIT_AUDIT.md")
+    rc = audit_units.main(["matrix", "--only", "query_holder10"])
+    report = (tmp_path / "UNIT_AUDIT.md").read_text(encoding="utf-8")
+    assert "DECLARED-OK" in report          # hold_num_ratio=52.2 原值百分数，声明正确
+    assert "RAW-NOTED" in report            # hold_num 金额/股数语义未声明 → 人工判定项
+    assert rc == 0
+
+
+def test_matrix_flags_wrong_declaration(monkeypatch, capsys, tmp_path):
+    # 原值已是小数（0.522）却声明 percent → WRONG-DECL，退出码 1
+    monkeypatch.setattr(audit_units.wmshare, "Client", matrix_client(
+        {"hold_num_ratio": 0.522, "hold_num": 1.7e8}))
+    monkeypatch.setattr(audit_units, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(audit_units, "REPORT_PATH", tmp_path / "UNIT_AUDIT.md")
+    rc = audit_units.main(["matrix", "--only", "query_holder10"])
+    report = (tmp_path / "UNIT_AUDIT.md").read_text(encoding="utf-8")
+    assert "WRONG-DECL" in report and "percent 换算会再除 100" in report
+    assert rc == 1
+
+
+def test_matrix_caches_and_skips_refetch(monkeypatch, capsys, tmp_path):
+    calls = {"n": 0}
+    base = matrix_client()
+
+    class Counting(base):
+        def call(self, name, **kw):
+            calls["n"] += 1
+            return super().call(name, **kw)
+
+    monkeypatch.setattr(audit_units.wmshare, "Client", Counting)
+    monkeypatch.setattr(audit_units, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(audit_units, "REPORT_PATH", tmp_path / "UNIT_AUDIT.md")
+    audit_units.main(["matrix", "--only", "query_holder10"])
+    first = calls["n"]
+    audit_units.main(["matrix", "--only", "query_holder10"])
+    assert calls["n"] == first              # 第二次全部命中缓存，不再取数

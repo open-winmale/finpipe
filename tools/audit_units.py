@@ -1,21 +1,31 @@
-"""单位口径审计：对样本宇宙逐公司跑目录声明的量级守护与关系不变量 + 跨接口一致性。
+"""单位口径审计：跨接口一致性核验（cross）+ 全量接口逐字段单位矩阵（matrix）。
 
 维护者命令（联网）：
-    python tools/audit_units.py                       # 默认样本宇宙
-    python tools/audit_units.py --etf 510300          # 自选 ETF 验证成交量口径
+    python tools/audit_units.py                       # cross：样本宇宙 + 跨接口一致性（默认）
+    python tools/audit_units.py matrix                # matrix：113 核心接口逐字段单位审计
+    python tools/audit_units.py matrix --only equity  # 只跑某域
+    python tools/audit_units.py matrix --refresh      # 忽略缓存重取
 
-SDK 默认调用路径（call() / indicator.get）已内置换算 + 量级守护 + 行内不变量，
-本工具在其之上补**跨接口**一致性核验（数据是否对所有公司同口径，而非单一样本）：
-  - $AMOUNT_LAST（指标层）与 kline bars amount 同量级（同为元，容时间戳差异）
-  - dividend.yield_ttm == $BONUS_RATE_TTM_LAST（跨接口恒等，分红公司）
-  - $MV_FREE_LAST <= $MV_LAST
-样本宇宙覆盖不同板块/行业/规模（大市值消费/金融/创业板制造/科创板/高杠杆周期），
-任何一家违例即 FAIL；报告逐项输出，存在 FAIL 时退出码 1（供 CI 夜间审计）。
+SDK 默认调用路径（call() / indicator.get）已内置换算 + 量级守护 + 行内不变量。
+cross 在其之上补**跨接口**一致性核验（数据是否对所有公司同口径，而非单一样本）。
+matrix 以 `_units="native"` 逐接口取脚本原值，对每个数值字段给出判定：
+  DECLARED-OK   已声明换算且原值口径与声明一致（native ≈ 基础单位 × 因子）
+  WRONG-DECL    已声明但原值已是基础单位（换算会把值弄错）→ 修声明
+  FIX-PERCENT   未声明但证据指向百分数 → 补 units: percent
+  DECIMAL-RAW   未声明、实测已是小数/元等基础单位 → 建议补 ranges 固化
+  RAW-NOTED     披露原文口径存疑（万/元两说等）→ 保持原值 + notes 说明
+  NO-DATA       样本标的下无数据（不代表能力缺失）
+报告写 .internal/UNIT_AUDIT.md；原始响应缓存 .internal/audit-cache/（断点续跑省额度）。
+存在 WRONG-DECL 时退出码 1；FIX-PERCENT/RAW-NOTED 属发现项，不影响退出码。
 """
 from __future__ import annotations
 
 import argparse
+import json
+import statistics
 import sys
+import time
+from pathlib import Path
 
 import wmshare
 from wmshare import DataError
@@ -31,6 +41,49 @@ METRIC_CODES = [
 # AMOUNT_LAST（live 截面）与 EOD bars amount 的时间戳不同，只校验同量级（同为中心元）
 AMOUNT_SCALE_RATIO = (0.02, 50.0)
 
+REPO = Path(__file__).resolve().parents[1]
+CACHE_DIR = REPO / ".internal" / "audit-cache"
+REPORT_PATH = REPO / ".internal" / "UNIT_AUDIT.md"
+THROTTLE_SEC = 0.4
+
+# ---- matrix：live 合法样例参数（对齐 tests/test_contract.py SAMPLES，但值必须真实可取） ----
+SAMPLE_PARAMS: dict[str, object] = {
+    "sym": "600519",
+    "syms": ["600519"],
+    "stock_code": "600519",
+    "category": "回购",
+    "date": "2026-06-30",
+    "domain": "fin.income_statement",
+    "type_key": "annual",
+    "type_regex": "年报",
+    "window": "3y",
+    "from_date": "2026-01-01",
+    "to_date": "2026-03-31",
+    "limit": 5,
+    "market": "cn",
+    "min_chg": 0.01,
+    "idx": None,
+    "key": "index.hs300",
+    "kind": "annual",
+}
+# 域级客户端与标的覆盖（intl 按市场路由；indices 用 cn 客户端 + 指数键）
+MATRIX_OVERRIDES: dict[str, dict] = {
+    # catalog_name 前缀 → {"market": ..., "sym": ...}
+    "intl.query_ccass": {"market": "hk", "sym": "00700"},
+    "intl.query_shareholders": {"market": "hk", "sym": "00700"},
+    "intl.query_org_rating": {"market": "hk", "sym": "00700"},
+    "intl.query_profit_forecast": {"market": "hk", "sym": "00700"},
+    "intl.query_sellshort": {"market": "hk", "sym": "00700"},
+    "intl.issue_info": {"market": "us", "sym": "BRK_B"},
+}
+SPECIAL_PROBES = ("指标代码直查", "指标代码批量直查", "组合接口（宿主 HIST_STATS）",
+                  "bonus.query_*_window", "kline.query_bars[_adj]")
+
+# 字段名 → 比例语义提示（判定用；大小写不敏感子串）
+RATIO_NAME_HINTS = ("ratio", "pct", "tsr", "percent", "rate", "ratio_")
+MONEY_NAME_HINTS = ("amt", "amount", "balance", "total", "salary", "deal", "profit",
+                    "revenue", "cost", "tr", "buy", "sell", "net", "mv", "cap")
+
 
 class Report:
     def __init__(self) -> None:
@@ -42,6 +95,10 @@ class Report:
 
     def ok(self) -> bool:
         return all(r[0] for r in self.rows)
+
+
+def _is_num(v: object) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool)
 
 
 def audit_symbol(rep: Report, cli: wmshare.Client, sym: str, with_fundamentals: bool = True) -> None:
@@ -83,17 +140,232 @@ def audit_symbol(rep: Report, cli: wmshare.Client, sym: str, with_fundamentals: 
                 f"{sym}: yield_ttm={y} vs $BONUS_RATE_TTM_LAST={rate}")
 
 
+# ---------------------------------------------------------------------------
+# matrix：全量接口逐字段单位审计
+# ---------------------------------------------------------------------------
+
+def _flatten_rows(result: object) -> tuple[str, list[dict]]:
+    """把接口返回规整成 (形态, 行列表)，覆盖 行数组/单行 MAP/容器 MAP。"""
+    if isinstance(result, list):
+        return "array", [r for r in result if isinstance(r, dict)]
+    if isinstance(result, dict):
+        if not result:
+            return "empty", []
+        dict_vals = [v for v in result.values() if isinstance(v, list)
+                     and v and all(isinstance(x, dict) for x in v)]
+        if dict_vals:  # 容器 MAP（如 forecast.snapshot / workout.board.deals）
+            rows: list[dict] = []
+            for v in dict_vals:
+                rows.extend(v)
+            return "container", rows
+        return "object", [result]
+    return "empty", []
+
+
+def _field_cn_hints(fn: dict) -> dict[str, str]:
+    """从 returns_shape 抽 字段→中文描述（inventory cn 常带“百分数/万/亿”线索）。"""
+    hints: dict[str, str] = {}
+    shape = (fn.get("returns_shape") or {})
+    items = shape.get("items") if isinstance(shape, dict) else None
+    fields = (items or {}).get("fields") if isinstance(items, dict) else None
+    for f in fields or []:
+        if isinstance(f, dict) and f.get("name"):
+            hints[str(f["name"])] = str(f.get("cn") or "")
+    return hints
+
+
+def _stats(nums: list[float]) -> str:
+    if not nums:
+        return "n=0"
+    if len(nums) == 1:
+        return f"n=1 v={nums[0]:.6g}"
+    return (f"n={len(nums)} min={min(nums):.4g} med={statistics.median(nums):.4g} "
+            f"max={max(nums):.4g}")
+
+
+def _classify_field(field: str, nums: list[float], token: str | None,
+                    cn_hint: str) -> tuple[str, str]:
+    """返回 (verdict, 说明)。nums 为 native 口径实测值。"""
+    med = statistics.median(nums) if nums else 0.0
+    hint = cn_hint.lower()
+    name_l = field.lower()
+    ratio_named = any(h in name_l for h in RATIO_NAME_HINTS)
+
+    if token == "percent":
+        # 原值应为百分数：典型 >1.5；若中位数 ≤1.5 且 max≤2 说明已是小数 → 声明错
+        if med <= 1.5 and max(nums) <= 2.0:
+            return "WRONG-DECL", f"原值已是小数（{_stats(nums)}），percent 换算会再除 100"
+        return "DECLARED-OK", f"原值百分数口径（{_stats(nums)}）→ 换算后小数"
+    if token == "lot":
+        return "DECLARED-OK", "lot 换算由 volume_amount 不变量另行守护（cross 模式）"
+
+    # 未声明字段
+    if "百分数" in cn_hint or "%" in cn_hint:
+        if med <= 1.5 and max(nums) <= 2.0:
+            return "CONFLICT", f"inventory cn 称百分数但实测小数（{_stats(nums)}）"
+        return "FIX-PERCENT", f"inventory cn 称百分数且实测百分数（{_stats(nums)}）→ 补 units: percent"
+    if ratio_named or "占比" in cn_hint or "比例" in cn_hint:
+        if 0 < med <= 1.5 and max(nums) <= 2.0:
+            return "DECIMAL-RAW", f"比例语义、实测小数（{_stats(nums)}）→ 建议补 range 固化"
+        if med > 1.5:
+            return "FIX-PERCENT", f"比例语义、实测百分数形态（{_stats(nums)}）→ 补 units: percent"
+    if any(h in name_l for h in MONEY_NAME_HINTS) or "元" in cn_hint:
+        if abs(med) >= 1e6:
+            return "DECIMAL-RAW", f"金额量级 ≈ 元（{_stats(nums)}）"
+        if 1e2 <= abs(med) < 1e6:
+            return "RAW-NOTED", f"金额量级可疑（{_stats(nums)}）——万/元两说，需人工判定"
+    return "RAW-NOTED", f"未声明（{_stats(nums)}）"
+
+
+def _ratio_sum_anchor(rows: list[dict]) -> list[str]:
+    """行内比例求和锚：同名字段跨行求和 ≈1 → 小数，≈100 → 百分数。"""
+    out: list[str] = []
+    ratio_fields: set[str] = set()
+    for r in rows[:50]:
+        for k, v in r.items():
+            if _is_num(v) and any(h in k.lower() for h in RATIO_NAME_HINTS):
+                ratio_fields.add(k)
+    for k in sorted(ratio_fields):
+        s = sum(v for r in rows[:50] if _is_num(r.get(k)) for v in [r[k]])
+        if 0.95 <= s <= 1.05:
+            out.append(f"{k}: 列和≈1 → 小数")
+        elif 95 <= s <= 105:
+            out.append(f"{k}: 列和≈100 → 百分数")
+    return out
+
+
+def run_matrix(cli: wmshare.Client, rep: Report, only: str | None, refresh: bool,
+               limit_domains: int = 0) -> int:
+    from wmshare.api import FRIENDLY_INDEX
+
+    # 合并目录视图不含 params（合同在 inventory.json，与 tests/test_contract.py 同源）
+    inv_raw = json.loads((Path(wmshare.__file__).parent / "_catalog" / "generated"
+                          / "inventory.json").read_text(encoding="utf-8"))
+    inv = {f["name"]: f for f in inv_raw["functions"]}
+
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cat = cli.catalog
+    clients: dict[str, wmshare.Client] = {"cn": cli}
+
+    def client_for(market: str) -> wmshare.Client:
+        if market not in clients:
+            clients[market] = wmshare.Client.from_env(market=market)
+        return clients[market]
+
+    lines: list[str] = ["# 单位口径审计矩阵（native 实测）", "",
+                        f"- wmshare {wmshare.__version__} | upstream_rev "
+                        f"{cat.stats().get('upstream_rev')}", ""]
+    verdict_count: dict[str, int] = {}
+    wrong = 0
+
+    for entry in FRIENDLY_INDEX:
+        category, ns, method, cn_title, cat_name = entry
+        if only and only not in ns and only not in cat_name:
+            continue
+        if cat_name in SPECIAL_PROBES or "." not in cat_name:
+            lines += [f"## {ns}.{method}（{cn_title}）", "",
+                      f"- 特殊接口（{cat_name}）：单位由指标精选 range/既有 cross 恒等式守护，矩阵略。", ""]
+            continue
+        try:
+            fn = cat.function(cat_name)
+        except Exception as e:
+            rep.add(False, "matrix.catalog", f"{cat_name}: {e}")
+            continue
+
+        ov = next((v for pre, v in MATRIX_OVERRIDES.items() if cat_name.startswith(pre)), None)
+        market = (ov or {}).get("market", "cn")
+        # inventory 合同：前 min_args 个位置参数必填（xs:catalog 语义，无 required 键）
+        inv_fn = inv.get(cat_name, {})
+        required_n = int(inv_fn.get("min_args") or 0)
+        kwargs: dict[str, object] = {}
+        for i, p in enumerate(inv_fn.get("params") or []):
+            name = p["name"]
+            if i < required_n or name == "limit":
+                kwargs[name] = (ov or {}).get(name, SAMPLE_PARAMS.get(name, "x"))
+        if ov and "sym" in ov:
+            kwargs["sym"] = ov["sym"]
+
+        cache_key = cat_name.replace("/", "_")
+        cache_file = CACHE_DIR / f"{cache_key}.json"
+        status, rows, err = "OK", [], ""
+        if cache_file.exists() and not refresh:
+            blob = json.loads(cache_file.read_text(encoding="utf-8"))
+            status, rows, err = blob["status"], blob["rows"], blob.get("err", "")
+        else:
+            try:
+                res = client_for(market).call(cat_name, **dict(kwargs), _units="native")
+                time.sleep(THROTTLE_SEC)
+                _, rows = _flatten_rows(res)
+            except wmshare.WmshareError as e:
+                err = f"{type(e).__name__}: {str(e)[:160]}"
+                status = "ERR"
+            if status == "OK":  # 失败结果不落缓存，下次自动重试
+                cache_file.write_text(json.dumps({"args": kwargs, "status": status,
+                                                  "rows": rows, "err": err},
+                                                 ensure_ascii=False), encoding="utf-8")
+
+        lines += [f"## {ns}.{method}（{cn_title} · `{cat_name}`）", "",
+                  f"- market={market} args={json.dumps(kwargs, ensure_ascii=False)} → {status}"
+                  + (f"（{err}）" if err else ""), ""]
+        if status != "OK":
+            rep.add(False, f"matrix.{cat_name}", f"{market} 取数失败：{err}")
+            continue
+        if not rows:
+            lines += ["- NO-DATA（样本标的下无数据）", ""]
+            verdict_count["NO-DATA"] = verdict_count.get("NO-DATA", 0) + 1
+            continue
+
+        units_decl = fn.get("units") or {}
+        hints = _field_cn_hints(fn)
+        cols = sorted({k for r in rows[:50] for k in r})
+        anchors = _ratio_sum_anchor(rows)
+        lines += ["| 字段 | 声明 | native 实测 | inventory cn | 判定 |", "|---|---|---|---|---|"]
+        for col in cols:
+            nums = [v for r in rows[:50] if _is_num(v := r.get(col))]
+            cn_hint = hints.get(col, "")
+            if not nums:
+                sample = next((r.get(col) for r in rows if r.get(col) is not None), None)
+                lines.append(f"| {col} | {units_decl.get(col, '—')} | 非数值 {type(sample).__name__} "
+                             f"| {cn_hint} | SKIP |")
+                continue
+            verdict, why = _classify_field(col, nums, units_decl.get(col), cn_hint)
+            verdict_count[verdict] = verdict_count.get(verdict, 0) + 1
+            if verdict == "WRONG-DECL":
+                wrong += 1
+                rep.add(False, f"matrix.{cat_name}.{col}", why)
+            lines.append(f"| {col} | {units_decl.get(col, '—')} | {_stats(nums)} | {cn_hint} "
+                         f"| {verdict}：{why} |")
+        if anchors:
+            lines += ["", "求和锚：" + "；".join(anchors)]
+        lines.append("")
+
+    lines += ["## 汇总", ""] + [f"- {k}: {v}" for k, v in sorted(verdict_count.items())]
+    REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    rep.add(True, "matrix.report", f"{REPORT_PATH}（WRONG-DECL={wrong}）")
+    print(f"\n# 矩阵报告 → {REPORT_PATH}")
+    print("# 判定汇总:", json.dumps(verdict_count, ensure_ascii=False))
+    return 1 if wrong else 0
+
+
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="单位口径审计（样本宇宙 + 跨接口一致性）")
+    ap = argparse.ArgumentParser(description="单位口径审计（cross 跨接口一致性 / matrix 全量逐字段）")
     ap.add_argument("--universe", default=",".join(DEFAULT_UNIVERSE),
-                    help="逗号分隔的样本宇宙（默认覆盖不同板块/行业/规模）")
-    ap.add_argument("--etf", default=DEFAULT_ETF, help="ETF 代码（验证成交量口径跨品种一致）")
+                    help="cross：逗号分隔的样本宇宙")
+    ap.add_argument("--etf", default=DEFAULT_ETF, help="cross：ETF 代码")
     ap.add_argument("--compare-syms", default=2, type=int,
-                    help="对前 N 家跑 statement_compare（配额友好；0 关闭）")
+                    help="cross：对前 N 家跑 statement_compare（配额友好；0 关闭）")
+    ap.add_argument("matrix", nargs="?", help="matrix：全量接口逐字段单位审计")
+    ap.add_argument("--only", default=None, help="matrix：只跑名字含该子串的接口")
+    ap.add_argument("--refresh", action="store_true", help="matrix：忽略缓存重取")
     args = ap.parse_args(argv)
 
     cli = wmshare.Client.from_env()
     rep = Report()
+
+    if args.matrix == "matrix":
+        rc = run_matrix(cli, rep, args.only, args.refresh)
+        return rc if rep.ok() else 1
+
     print(f"# 单位口径审计 | 样本宇宙 {args.universe} | ETF {args.etf}")
     print(f"# wmshare {wmshare.__version__} | catalog upstream_rev "
           f"{cli.catalog.stats().get('upstream_rev')}")

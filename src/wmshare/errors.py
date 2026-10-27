@@ -67,5 +67,13 @@ class DataError(WmshareError):
     """
 
 
+class StreamResetError(WmshareError):
+    """公告订阅流的消费进度已超出保留期（服务端事件已过 TTL）。
+
+    用 ``seek_oldest(market)`` 重置进度，之后只能读回保留期内剩余数据；
+    保持进度不落后通常意味着缩短轮询间隔或提高消费吞吐。
+    """
+
+
 class CatalogError(WmshareError, KeyError):
     """目录中不存在该函数/域/指标/不兼容版本（同时兼容 KeyError 捕获）。"""

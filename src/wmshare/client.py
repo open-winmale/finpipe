@@ -12,9 +12,12 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import TYPE_CHECKING, Any, NoReturn
 
 import requests
+
+if TYPE_CHECKING:  # 前向引用：运行时惰性导入，避免潜在环
+    from wmshare.notice_stream import NoticePoller
 
 from wmshare._experience import credentials as _experience_credentials
 from wmshare.catalog import Catalog, load
@@ -280,6 +283,22 @@ class Client:
         self._token_exp = time.time() + float(data.get("expires_in", 3600))
         return token
 
+    def _post_authed(self, path: str, body: dict[str, Any]) -> requests.Response:
+        """带 OAuth Bearer 的 POST；401 清令牌刷新后重试一次（仅一次，避免环路）。"""
+        url = f"{self.base_url}{path}"
+
+        def call_once() -> requests.Response:
+            return self._request(url, json=body, timeout=self.timeout,
+                                 headers={"Authorization": f"Bearer {self._get_token()}"})
+
+        resp = call_once()
+        if resp.status_code == 401:
+            # 令牌可能已失效：清缓存强制刷新后重试一次（仅一次，避免环路）
+            self._token = ""
+            self._token_exp = 0.0
+            resp = call_once()
+        return resp
+
     # ---- eval ----
     def eval(self, xs: str | list[str], *, symbol: str = "600519",
              args: dict | None = None, market: str | None = None,
@@ -295,18 +314,7 @@ class Client:
         }
         if market := (market or self.market):
             body["market"] = market
-        url = f"{self.base_url}/v1/analysis/xs/eval"
-
-        def call_once() -> requests.Response:
-            return self._request(url, json=body, timeout=self.timeout,
-                                 headers={"Authorization": f"Bearer {self._get_token()}"})
-
-        resp = call_once()
-        if resp.status_code == 401:
-            # 令牌可能已失效：清缓存强制刷新后重试一次（仅一次，避免环路）
-            self._token = ""
-            self._token_exp = 0.0
-            resp = call_once()
+        resp = self._post_authed("/v1/analysis/xs/eval", body)
         if resp.status_code != 200:
             self._raise_http_error(resp, stage="eval")
         try:
@@ -486,6 +494,17 @@ class Client:
         if _df:
             result = {k: _to_dataframe(v) for k, v in result.items()}
         return BatchResult(results=result)
+
+    def notice_poller(self, *, group: str, consumer: str, on_events: Any = None,
+                      **kw: Any) -> "NoticePoller":
+        """公告变更订阅轮询器：本地定时器轮询探针，有新公告才拉取、回调、确认。
+
+        消费进度按 (group, consumer) 标识存在服务端，ack 前崩溃会重投
+        （at-least-once）。详见 ``wmshare.notice_stream.NoticePoller``。
+        """
+        from wmshare.notice_stream import NoticePoller
+        return NoticePoller(self, group=group, consumer=consumer,
+                            on_events=on_events, **kw)
 
     # ---- 生命周期 ----
     def close(self) -> None:

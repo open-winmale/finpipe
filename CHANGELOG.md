@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-27
+
 ### Added
 
 - **数据面扩容（v1.5.0 主体）**：新增 7 个数据域——`corp.equity` 股东与股本（十大股东/

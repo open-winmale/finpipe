@@ -433,7 +433,8 @@ class Client:
                 break
         result = self.eval_result(xs, symbol=symbol)
         if not _raw and _units == "base":
-            result = apply_units(result, fn, fname=name, validate=self._validate)
+            result = apply_units(result, fn, fname=name, validate=self._validate,
+                                 market=self.market)
         return _to_dataframe(result) if _df else result
 
     def call_batch(self, name: str, symbols: list[str], /, on_error: str = "raise",
@@ -490,7 +491,8 @@ class Client:
             raise ApiError(f"{name}: 批量返回不是 MAP（{type(result).__name__}）", code="batch")
         if not _raw and _units == "base":
             for s, v in result.items():
-                result[s] = apply_units(v, fn, fname=name, validate=self._validate)
+                result[s] = apply_units(v, fn, fname=name, validate=self._validate,
+                                        market=self.market)
         if _df:
             result = {k: _to_dataframe(v) for k, v in result.items()}
         return BatchResult(results=result)

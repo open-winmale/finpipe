@@ -493,11 +493,9 @@ def test_valuation_hist_stats_live(cli):
 
 
 
-# ------------------------------------------------- v1.5.0 七域（上游 d2ecfe9b 部署前 xfail）
-V15_PENDING_DEPLOY = "上游 v1.5.0 域库（d2ecfe9b）待平台部署"
+# ------------------------------------------------- v1.5.0 七域冒烟（2026-10-27 起上游已部署，转真）
 
 
-@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
 def test_equity_domain_smoke(cli):
     """股东治理域：逐接口真实调用，返回容器类型冒烟。"""
     for r in (
@@ -534,7 +532,6 @@ def test_equity_domain_smoke(cli):
         assert r is None or isinstance(r, dict)
 
 
-@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
 def test_margin_domain_smoke(cli):
     rows = _call_or_xfail(lambda: cli.margin.query("600519", 5))
     assert rows is None or isinstance(rows, list)
@@ -542,7 +539,6 @@ def test_margin_domain_smoke(cli):
     assert latest is None or isinstance(latest, dict)
 
 
-@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
 def test_estimates_domain_smoke(cli):
     for r in (
         _call_or_xfail(lambda: cli.estimates.query_forecast("600519", 5)),
@@ -553,7 +549,6 @@ def test_estimates_domain_smoke(cli):
         assert r is None or isinstance(r, list)
 
 
-@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
 def test_cbond_domain_smoke(cli):
     for r in (
         _call_or_xfail(lambda: cli.cbond.latest_quotes()),
@@ -566,7 +561,6 @@ def test_cbond_domain_smoke(cli):
         assert r is None or isinstance(r, (list, dict, int))
 
 
-@pytest.mark.xfail(reason=V15_PENDING_DEPLOY, strict=False)
 def test_workout_index_intl_domain_smoke(cli):
     assert isinstance(_call_or_xfail(lambda: cli.workout.board()), (dict, list))
     r = _call_or_xfail(lambda: cli.workout.query("601059"))
@@ -579,15 +573,18 @@ def test_workout_index_intl_domain_smoke(cli):
         assert r is None or isinstance(r, list)
     v = _call_or_xfail(lambda: cli.index.valuation("index.hs300", 8))
     assert v is None or isinstance(v, dict)
+    # intl 按市场路由：网关校验标的注册市场，须用对应市场客户端
+    hk = Client.from_env(market="hk")
+    us = Client.from_env(market="us")
     for r in (
-        _call_or_xfail(lambda: cli.intl.query_ccass("00700", 5)),
-        _call_or_xfail(lambda: cli.intl.query_shareholders("00700", 5)),
-        _call_or_xfail(lambda: cli.intl.query_org_rating("00700", 5)),
-        _call_or_xfail(lambda: cli.intl.query_profit_forecast("00700", 5)),
-        _call_or_xfail(lambda: cli.intl.query_sellshort("BRK_B", 5)),
+        _call_or_xfail(lambda: hk.intl.query_ccass("00700", 5)),
+        _call_or_xfail(lambda: hk.intl.query_shareholders("00700", 5)),
+        _call_or_xfail(lambda: hk.intl.query_org_rating("00700", 5)),
+        _call_or_xfail(lambda: hk.intl.query_profit_forecast("00700", 5)),
+        _call_or_xfail(lambda: hk.intl.query_sellshort("00700", 5)),
     ):
         assert r is None or isinstance(r, list)
-    info = _call_or_xfail(lambda: cli.intl.issue_info("BRK_B"))
+    info = _call_or_xfail(lambda: us.intl.issue_info("BRK_B"))
     assert info is None or isinstance(info, dict)
 
 

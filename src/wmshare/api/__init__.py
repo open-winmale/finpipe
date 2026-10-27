@@ -114,7 +114,7 @@ _FRIENDLY_NS_TO_CATALOG: dict[str, str] = {
     "estimates": "estimates",
     "cbond": "cbond",
     "workout": "workout",
-    "index": "index",
+    "index": "indices",
     "intl": "intl",
 }
 
@@ -361,7 +361,7 @@ class IndexApi(_Api):
 
     def keys(self, _df: bool = False) -> Any:
         """可用指数键列表（``members``/``weights``/``valuation`` 的 key 取值域）。"""
-        return self._c.call("index.keys", _df=_df)
+        return self._c.call("indices.keys", _df=_df)
 
     def members(self, key: str, sort_by: str | None = None,
                 top_n: int | None = None, _df: bool = False) -> Any:
@@ -376,7 +376,7 @@ class IndexApi(_Api):
             kw["sort_by"] = sort_by
         if top_n is not None:
             kw["top_n"] = top_n
-        return self._c.call("index.members", **kw, _df=_df)
+        return self._c.call("indices.members", **kw, _df=_df)
 
     def weights(self, key: str, top_n: int | None = None,
                 _df: bool = False) -> Any:
@@ -388,7 +388,7 @@ class IndexApi(_Api):
         kw: dict[str, Any] = {"key": key}
         if top_n is not None:
             kw["top_n"] = top_n
-        return self._c.call("index.weights", **kw, _df=_df)
+        return self._c.call("indices.weights", **kw, _df=_df)
 
     def valuation(self, key: str, points: int | None = None) -> Any:
         """宽基估值时序（整体法 PE/PB 季采样点 d/pe/pb + 当前值/股息率）。
@@ -399,7 +399,7 @@ class IndexApi(_Api):
         kw: dict[str, Any] = {"key": key}
         if points is not None:
             kw["points"] = points
-        return self._c.call("index.valuation", **kw)
+        return self._c.call("indices.valuation", **kw)
 
 
 # ---------------------------------------------------------------- 选股 market
@@ -1188,9 +1188,11 @@ class EquityApi(_Api):
 class IntlApi(_Api):
     """港美股披露——CCASS 持仓/主要股东/机构评级/盈利预测/沽空/美股发行。
 
-    市场按标的代码自动识别（港股 5 位、美股字母码）；A 股标的调用多返回空
-    （对应数据集为港美股口径）。占比字段已由百分数换算为**小数**；价格为披露
-    币种原值（不做汇率换算）；港股盈利预测行保留披露原文中文键。
+    需用对应市场的客户端调用（``Client(market="hk")`` / ``Client(market="us")``）：
+    网关按标的注册市场校验，cn 客户端调港美股代码会被拒（400 market mismatch）。
+    函数内部再按标的代码路由到港美数据族；A 股标的调用多返回空。占比字段已由
+    百分数换算为**小数**；价格为披露币种原值（不做汇率换算）；港股盈利预测行
+    保留披露原文中文键。
     """
 
     def query_ccass(self, symbol: str, limit: int = 20, _df: bool = False) -> Any:
@@ -1292,10 +1294,10 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("market", "cbond", "call_hits", "强赎触发计数", "cbond.call_hits"),
     ("market", "cbond", "kline_window", "转债日K窗口", "cbond.kline_window"),
     ("market", "cbond", "universe_codes", "转债代码全集", "cbond.universe_codes"),
-    ("market", "index", "keys", "指数键列表", "index.keys"),
-    ("market", "index", "members", "指数成分", "index.members"),
-    ("market", "index", "weights", "指数权重股", "index.weights"),
-    ("market", "index", "valuation", "指数估值时序", "index.valuation"),
+    ("market", "index", "keys", "指数键列表", "indices.keys"),
+    ("market", "index", "members", "指数成分", "indices.members"),
+    ("market", "index", "weights", "指数权重股", "indices.weights"),
+    ("market", "index", "valuation", "指数估值时序", "indices.valuation"),
     ("fundamentals", "statements", "balance", "资产负债表", "rptdom.statement"),
     ("fundamentals", "statements", "income", "利润表", "rptdom.statement"),
     ("fundamentals", "statements", "cashflow", "现金流量表", "rptdom.statement"),

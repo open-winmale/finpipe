@@ -57,7 +57,7 @@ def test_namespaces_and_metrics():
     cat = load()
     assert {"kline", "moneyflow", "notice", "filings", "forecast",
             "bonus", "rptdom", "segments", "equity", "margin", "estimates",
-            "cbond", "workout", "index", "intl"} == cat.namespaces()
+            "cbond", "workout", "indices", "intl"} == cat.namespaces()
     m = cat.metric("$PE_TTM_LAST")
     assert m and m["cn"]
     assert cat.metric("$NOT_EXIST") is None

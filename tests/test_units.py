@@ -66,6 +66,21 @@ def test_kline_volume_lot_converted_to_shares():
     assert out[0]["close"] == BAR["close"]  # 基础单位字段不动
 
 
+def test_kline_volume_lot_kept_for_non_cn_markets():
+    # 港美上游即披露股：market != cn 不做手×100，原值直出且不变量守恒
+    c, _ = make([dict(BAR, volume=3413500)], market="hk")
+    out = c.call("kline.query_bars", sym="00700", limit=1)
+    assert out[0]["volume"] == 3413500  # 原样，未 ×100
+
+
+def test_kline_non_cn_with_lot_shaped_volume_trips_guard():
+    # 港美行若给的是手形量值（×close/amount≈0.01），守护拦下——
+    # 正是 2026-10-27 修复前港美被错误 ×100 的形态
+    c, _ = make([dict(BAR)], market="hk")
+    with pytest.raises(DataError, match="volume_amount"):
+        c.call("kline.query_bars", sym="00700", limit=1)
+
+
 def test_volume_amount_invariant_passes_and_violates():
     c, _ = make([dict(BAR)])
     c.call("kline.query_bars", sym="600519", limit=1)  # 不抛 = 不变量通过

@@ -1,11 +1,12 @@
 id: market.intl
-version: 1.0.0
+version: 1.1.0
 cn: 港美股披露
 kind: raw
 category: reference
 priority: P2
 description: 港美股公司披露维度——港股 CCASS 经纪持仓、主要股东/董事权益、机构评级、
-  盈利预测（中文键披露原文），港美沽空 interest，美股发行信息。市场按标的代码自动识别。
+  盈利预测（中文键披露原文），港美沽空 interest，美股发行信息。客户端须用对应市场
+  （函数内部按标的代码路由到港美数据族）。
 data_origin: [交易所披露, 平台数据服务]
 units:
   shares: 股（持股数/沽空量）
@@ -13,6 +14,7 @@ units:
   price: 披露币种（目标价/发行价随市场币种，不做汇率换算）
 requires: {path: sys/intl/init.xs, preloaded: true}
 notes:
+  - '客户端 market 参数须与标的注册市场一致：cn 客户端调港美股代码会 400 market mismatch（v1.1.0 起如实标注）'
   - 'A股标的调用多返回空（对应数据集为港美股口径）'
   - '港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）'
   - 'issue_info 为美股发行快照（发行价/数量/日期），字段以披露源为准'

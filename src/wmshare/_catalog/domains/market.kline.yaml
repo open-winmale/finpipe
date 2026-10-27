@@ -1,5 +1,5 @@
 id: market.kline
-version: 1.3.1
+version: 1.4.0
 cn: 行情K线
 kind: raw
 category: market
@@ -9,7 +9,7 @@ description: 个股日 K（不复权 / 前复权 / 后复权）、最新一根�
 data_origin: [交易所行情, 外部行情源(盘中/live)]
 units:
   price: 元
-  volume: 股（SDK 自动由脚本的手 ×100 换算，A 股/港美/ETF 同口径）
+  volume: 股（cn 由脚本的手 ×100 换算；港美上游即披露股，不再换算）
   amount: 元（本币）
   percent: 小数（0.01 = 1%）
 requires: {path: sys/kline/init.xs, preloaded: true}
@@ -21,8 +21,9 @@ notes:
     query_min1_live=当日 1 分钟分时（有损合成采样，非逐笔 Level2）
   - ETF（沪 51/52/56/58、深 159，共 1600+ 只）日线有数据；分时/live 查询无分钟源会被拦截
   - 返回根数：财报季 query_bars 不因披露进度截断；日频回测口径仍按已披露数据截断
-  - 脚本原生 volume 为手；SDK 换算为股并守护 volume×close≈amount 不变量
-    （query_bars_adj 为复权价，不套该不变量）；_units="native"/_raw=True 可取手原值
+  - 脚本原生 volume 为手（仅 cn/ETF）；港美上游即股——SDK 的手×100 换算只在
+    market="cn" 生效，港美原值直出；换算后守护 volume×close≈amount 不变量
+    （query_bars_adj 为复权价，不套该不变量）；_units="native"/_raw=True 可取原值
 functions:
   # ---- L0：查询 ----
   - name: kline.query_bars

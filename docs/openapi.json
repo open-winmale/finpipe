@@ -1648,7 +1648,7 @@
       "post": {
         "operationId": "index_keys",
         "summary": "可用指数键列表（``members``/``weights``/``valuation`` 的 key 取值域）。",
-        "description": "底层目录函数 `index.keys`。SDK 调用：`cli.index.keys(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "底层目录函数 `indices.keys`。SDK 调用：`cli.index.keys(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -1682,7 +1682,7 @@
       "post": {
         "operationId": "index_members",
         "summary": "指数成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps 排序）。",
-        "description": "底层目录函数 `index.members`。SDK 调用：`cli.index.members(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "底层目录函数 `indices.members`。SDK 调用：`cli.index.members(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -1731,7 +1731,7 @@
       "post": {
         "operationId": "index_weights",
         "summary": "指数权重股（披露权重降序；weight 为小数，0.071 = 7.1%）。",
-        "description": "底层目录函数 `index.weights`。SDK 调用：`cli.index.weights(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "底层目录函数 `indices.weights`。SDK 调用：`cli.index.weights(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -1776,7 +1776,7 @@
       "post": {
         "operationId": "index_valuation",
         "summary": "宽基估值时序（整体法 PE/PB 季采样点 d/pe/pb + 当前值/股息率）。",
-        "description": "底层目录函数 `index.valuation`。SDK 调用：`cli.index.valuation(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "底层目录函数 `indices.valuation`。SDK 调用：`cli.index.valuation(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],

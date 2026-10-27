@@ -28,7 +28,7 @@ NEW_DOMAINS: dict[str, dict[str, str]] = {
     "market.cbond": {"ns": "cbond", "category": "market", "kind": "raw"},
     "disc.workout": {"ns": "workout", "category": "disclosure", "kind": "raw"},
     "fund.estimates": {"ns": "estimates", "category": "fundamentals", "kind": "raw"},
-    "market.index": {"ns": "index", "category": "market", "kind": "computed"},
+    "market.index": {"ns": "indices", "dir": "index", "category": "market", "kind": "computed"},
     "market.intl": {"ns": "intl", "category": "reference", "kind": "raw"},
 }
 DOMAIN_IDS = sorted(NEW_DOMAINS)
@@ -52,10 +52,13 @@ PCT_CONVERSION_CASES: list[tuple[str, dict[str, float]]] = [
     ("equity.query_release", {"total_shares_ratio": 10.0, "unlimited_ratio": 55.0}),
     ("equity.query_reorg", {"transfer_ratio": 21.0}),
     ("equity.query_concert", {"hold_ratio": 33.3}),
-    ("index.weights", {"weight": 7.1}),
+    ("indices.weights", {"weight": 7.1}),
     ("intl.query_ccass", {"pct_of_issued": 5.01}),
     ("intl.query_shareholders", {"total_shares_ratio": 9.87}),
 ]
+
+# 库名 → 门面属性名（indices 库的门面仍叫 cli.index，内建 index 常量占名历史见 market.index.yaml notes）
+FRIENDLY_OF = {"indices": "index"}
 
 # 显式核心方法的离线调用用例（每域一条；只断言脚本形态，不断言返回值）
 EXPLICIT_CALL_CASES: dict[str, tuple[str, dict[str, Any]]] = {
@@ -191,10 +194,12 @@ def test_units_percent_converted_to_decimal(name, row):
 def test_facade_registered_and_delegates(cli, domain):
     """cli.<ns> 门面已注册；核心方法可解析；目录内其余函数经 __getattr__ 动态委托。"""
     ns = NEW_DOMAINS[domain]["ns"]
-    assert FRIENDLY_NAMESPACES[ns].__name__ and _FRIENDLY_NS_TO_CATALOG[ns] == ns
-    facade = getattr(cli, ns)
-    assert isinstance(facade, FRIENDLY_NAMESPACES[ns])
-    core = {m for _, n, m, _, _ in FRIENDLY_INDEX if n == ns}
+    friendly = FRIENDLY_OF.get(ns, ns)
+    assert FRIENDLY_NAMESPACES[friendly].__name__
+    assert _FRIENDLY_NS_TO_CATALOG[friendly] == ns
+    facade = getattr(cli, friendly)
+    assert isinstance(facade, FRIENDLY_NAMESPACES[friendly])
+    core = {m for _, n, m, _, _ in FRIENDLY_INDEX if n == friendly}
     assert core, f"{ns}: FRIENDLY_INDEX 应登记核心接口"
     for method in core:
         assert callable(getattr(type(facade), method, None)), f"{ns}.{method} 应为显式方法"
@@ -212,14 +217,15 @@ def test_explicit_method_generates_script(cli, domain):
     """显式核心方法离线调用：生成合法 XS（preloaded 域免 require，规范化域走 fmt）。"""
     ns = NEW_DOMAINS[domain]["ns"]
     method, kwargs = EXPLICIT_CALL_CASES[domain]
-    getattr(getattr(cli, ns), method)(**kwargs)
+    getattr(getattr(cli, FRIENDLY_OF.get(ns, ns)), method)(**kwargs)
     xs = last_xs(cli)
     assert xs and xs[-1].startswith("return"), xs
     assert f"{ns}." in xs[-1], xs
     if ns in PRELOADED_NS:
         assert not any("xs.require" in ln for ln in xs), xs
     else:
-        assert any(f'xs.require("sys/{ns}/init.xs")' in ln for ln in xs), xs
+        require_dir = NEW_DOMAINS[domain].get("dir", ns)
+        assert any(f'xs.require("sys/{require_dir}/init.xs")' in ln for ln in xs), xs
 
 
 @pytest.mark.parametrize("domain", sorted(NORMALIZE_DOMAINS))

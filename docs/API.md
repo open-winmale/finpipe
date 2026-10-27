@@ -8,7 +8,7 @@
 
 - **免费额度充足**：个人学习、研究等非商业使用完全免费；注册开放平台账号即得免费额度（具体额度以开放平台为准）。
 - **开箱即用**：按 README 源码安装后 `wmshare.Client()` 无需配置即可调用核心接口（内置体验 AppID，共享池、额度有限；正式使用可换成自己的 AppID）。
-- **认证与限流**：401/403 抛 `AuthError`，429 抛 `LimitError(code="rate_limited")`；错误消息会给出申请自己的 AppID 的步骤，详见 README「免费额度与凭证」。
+- **认证与限流**：401/403 抛 `AuthError`，429 抛 `LimitError(code="rate_limited")`；错误消息即完整指引——附有申请自己的 AppID（免费）的步骤与配置方法。
 - **目录随包、离线可查**：全部函数与指标代码随 wheel 分发；命名空间带类型签名（`py.typed`），IDE 直接补全。
 - **单位统一 + 数据守护**：返回值统一基础单位（比率/涨跌幅=小数、金额/市值=元、A 股成交量=股）；每次返回前按目录声明做量级守护与关系不变量校验，违例抛 `DataError` 而非交给你错误量级的数据。取原始口径：`_raw=True`（store 原始行）、`_units="native"`（脚本输出单位）、`Client(validate=False)`（关校验留换算）。
 
@@ -16,7 +16,7 @@
 |---|---|---|
 | `market.cbond`（可转债） | 转债合约快照全表、转债最新快照、正股关联转债、转债条款事件列表、单标的条款事件… | price=元（转债价/转股价/目标价，面值 100 口径）；ratio=小数（转股比例等比率字段） |
 | `market.index`（指数） | 指数键列表、指数成分、指数权重股、指数估值时序 | money=元（市值）；ratio=小数（roe_ttm 等比率，指标层口径）；weight=百分数（披露权重，已换算小数） |
-| `market.kline`（行情K线） | 历史 K 线、最新一根 K 线、是否场内 ETF、盘中日K快照、盘中日K批量快照… | price=元；volume=股（SDK 自动由脚本的手 ×100 换算，A 股/港美/ETF 同口径）；amount=元（本币）；percent=小数（0.01 = 1%） |
+| `market.kline`（行情K线） | 历史 K 线、最新一根 K 线、是否场内 ETF、盘中日K快照、盘中日K批量快照… | price=元；volume=股（cn 由脚本的手 ×100 换算；港美上游即披露股，不再换算）；amount=元（本币）；percent=小数（0.01 = 1%） |
 | `market.margin`（融资融券） | 个股融资融券、最新两融 | money=元（融资买入额/偿还额/余额）；shares=股（融券卖出量/偿还量/余量） |
 | `market.moneyflow`（资金流向） | 资金流向历史、最新资金流向、有效资金流向（过滤空行）、盘中资金流快照、资金流向快照… | net=元（净流入金额）；date=YYYY-MM-DD |
 | `fund.estimates`（盈利预测与研报） | 机构盈利预测、盈利预测明细、评级统计、个股研报 | eps=元/股；money=元（归母净利润）；pe=倍（预测市盈率） |
@@ -464,32 +464,33 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 指数（`market.index`）
 
-**性质**：指标 · **版本**：1.0.0  
+**性质**：指标 · **版本**：1.1.0  
 指数维度数据——指数键列表、成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps 排序）、权重股（披露权重降序）、宽基估值时序（整体法 PE/PB 季采样 + 当前值/股息率）。 指数行情（K 线/快照）走 cli.kline。
 数据来源：平台数据服务。
 单位口径：money=元（市值）；ratio=小数（roe_ttm 等比率，指标层口径）；weight=百分数（披露权重，已换算小数）。
+- v1.1.0 函数前缀 index.* → indices.*：上游内建 index 常量 MAP 占名（selector policy violation），cli.index 门面不变
 - 成员行 roe_ttm/pe_ttm 等为指标层原值（比率小数、倍数口径），SDK 不再换算
 - valuation.series 为季采样点（d/pe/pb），前端/调用方可自行算分位
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |
 |---|---|---|---|---|---|---|
-| `index.keys` | 指数键列表 | 指标 | L0 | — | ARR · 指数键 | — | 例：`cli.call("index.keys")`
-| `index.members` | 指数成分 | 指标 | L0 | `key:string` · `sort_by:string` · `top_n:int`（签名） | ARR · 成分行 | — | 例：`cli.call("index.members", key='index.hs300', sort_by='mv', top_n=10)`
-| `index.weights` | 指数权重股 | 指标 | L0 | `key:string` · `top_n:int`（签名） | ARR · 权重行 | `weight`:百分数→小数 | 例：`cli.call("index.weights", key='index.hs300', top_n=10)`
-| `index.valuation` | 指数估值时序 | 指标 | L0 | `key:string` · `points:int`（签名） | MAP · 估值时序 | — | 例：`cli.call("index.valuation", key='index.hs300', points=12)`
+| `indices.keys` | 指数键列表 | 指标 | L0 | — | ARR · 指数键 | — | 例：`cli.call("indices.keys")`
+| `indices.members` | 指数成分 | 指标 | L0 | `key:string` · `sort_by:string` · `top_n:int`（签名） | ARR · 成分行 | — | 例：`cli.call("indices.members", key='index.hs300', sort_by='mv', top_n=10)`
+| `indices.weights` | 指数权重股 | 指标 | L0 | `key:string` · `top_n:int`（签名） | ARR · 权重行 | `weight`:百分数→小数 | 例：`cli.call("indices.weights", key='index.hs300', top_n=10)`
+| `indices.valuation` | 指数估值时序 | 指标 | L0 | `key:string` · `points:int`（签名） | MAP · 估值时序 | — | 例：`cli.call("indices.valuation", key='index.hs300', points=12)`
 
 #### 行情K线（`market.kline`）
 
-**性质**：原始数据 · **版本**：1.3.1  
+**性质**：原始数据 · **版本**：1.4.0  
 个股日 K（不复权 / 前复权 / 后复权）、最新一根、盘中最新快照、分钟分时、 单股快照与均线类筛选、全市场涨跌宽度。ETF 日线已入库；指数键自动桥接指数点位。
 数据来源：交易所行情、外部行情源(盘中/live)。
-单位口径：price=元；volume=股（SDK 自动由脚本的手 ×100 换算，A 股/港美/ETF 同口径）；amount=元（本币）；percent=小数（0.01 = 1%）。
+单位口径：price=元；volume=股（cn 由脚本的手 ×100 换算；港美上游即披露股，不再换算）；amount=元（本币）；percent=小数（0.01 = 1%）。
 - 复权 adj 取值 nr(不复权,默认)/qfq(前复权)/hfq(后复权)
 - 指数键（index.hs300 / 399xxx 等）自动分流指数点位；指数无复权，*_adj 忽略 adj
 - 盘中三分工：query_last_live=最新一根快照；query_bars_live=最近 n 根日 K（外部行情源）； query_min1_live=当日 1 分钟分时（有损合成采样，非逐笔 Level2）
 - ETF（沪 51/52/56/58、深 159，共 1600+ 只）日线有数据；分时/live 查询无分钟源会被拦截
 - 返回根数：财报季 query_bars 不因披露进度截断；日频回测口径仍按已披露数据截断
-- 脚本原生 volume 为手；SDK 换算为股并守护 volume×close≈amount 不变量 （query_bars_adj 为复权价，不套该不变量）；_units="native"/_raw=True 可取手原值
+- 脚本原生 volume 为手（仅 cn/ETF）；港美上游即股——SDK 的手×100 换算只在 market="cn" 生效，港美原值直出；换算后守护 volume×close≈amount 不变量 （query_bars_adj 为复权价，不套该不变量）；_units="native"/_raw=True 可取原值
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |
 |---|---|---|---|---|---|---|
@@ -556,7 +557,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 |---|---|---|---|---|---|---|
 | `margin.query` | 个股融资融券 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 两融行；字段 trade_date:string（交易日期） / fin_buy_amt:float?（融资买入额(元)） / fin_repay_amt:float?（融资偿还额(元)） / fin_balance:float?（融资余额(元)） / loan_sell_vol:float?（融券卖出量(股)） / loan_repay_vol:float?（融券偿还量(股)） / loan_balance:float?（融券余量(股)） | — | 例：`cli.call("margin.query", sym='000568', limit=20)`
 | `margin.latest` | 最新两融 | 原始数据 | L0 | `sym:string`（签名） | MAP · 两融行；字段 trade_date:string（交易日期） / fin_buy_amt:float?（融资买入额(元)） / fin_repay_amt:float?（融资偿还额(元)） / fin_balance:float?（融资余额(元)） / loan_sell_vol:float?（融券卖出量(股)） / loan_repay_vol:float?（融券偿还量(股)） / loan_balance:float?（融券余量(股)） | — | 例：`cli.call("margin.latest", sym='000568')`
-| `margin.fmt_maps` | 两融行规范化 | 原始数据 | L1 | `rows:array`（签名） | ARR · 规范化行 | — |
+| `margin.fmt_maps` | 两融行规范化 | 原始数据 | L1 | `rows:any`（签名） | ARR · 规范化行（MAP 输入返回单行 MAP） | — |
 | `margin.fmt_line` | 两融单行文本 | 原始数据 | L1 | `row:any`（签名） | string | — |
 
 #### 资金流向（`market.moneyflow`）
@@ -850,10 +851,11 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 港美股披露（`market.intl`）
 
-**性质**：原始数据 · **版本**：1.0.0  
-港美股公司披露维度——港股 CCASS 经纪持仓、主要股东/董事权益、机构评级、 盈利预测（中文键披露原文），港美沽空 interest，美股发行信息。市场按标的代码自动识别。
+**性质**：原始数据 · **版本**：1.1.0  
+港美股公司披露维度——港股 CCASS 经纪持仓、主要股东/董事权益、机构评级、 盈利预测（中文键披露原文），港美沽空 interest，美股发行信息。客户端须用对应市场 （函数内部按标的代码路由到港美数据族）。
 数据来源：交易所披露、平台数据服务。
 单位口径：shares=股（持股数/沽空量）；ratio=小数（占比字段已由百分数换算）；price=披露币种（目标价/发行价随市场币种，不做汇率换算）。
+- 客户端 market 参数须与标的注册市场一致：cn 客户端调港美股代码会 400 market mismatch（v1.1.0 起如实标注）
 - A股标的调用多返回空（对应数据集为港美股口径）
 - 港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）
 - issue_info 为美股发行快照（发行价/数量/日期），字段以披露源为准

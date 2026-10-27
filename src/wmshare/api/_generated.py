@@ -733,12 +733,12 @@ class ForecastNS(_Ns):
         """预告文本行列表"""
         return self._client.call("forecast.fmt_lines", rows=rows, _raw=_raw, _df=_df)
 
-class IndexNS(_Ns):
+class IndicesNS(_Ns):
     """指数（market.index）"""
 
     def keys(self, _raw: bool = False, _df: bool = False) -> Any:
         """指数键列表"""
-        return self._client.call("index.keys", _raw=_raw, _df=_df)
+        return self._client.call("indices.keys", _raw=_raw, _df=_df)
 
     def members(self, key: str, sort_by: str | None = None, top_n: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
         """指数成分"""
@@ -747,21 +747,21 @@ class IndexNS(_Ns):
             kw["sort_by"] = sort_by
         if top_n is not None:
             kw["top_n"] = top_n
-        return self._client.call("index.members", **kw, _raw=_raw, _df=_df)
+        return self._client.call("indices.members", **kw, _raw=_raw, _df=_df)
 
     def weights(self, key: str, top_n: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
         """指数权重股"""
         kw: dict[str, Any] = {"key": key}
         if top_n is not None:
             kw["top_n"] = top_n
-        return self._client.call("index.weights", **kw, _raw=_raw, _df=_df)
+        return self._client.call("indices.weights", **kw, _raw=_raw, _df=_df)
 
     def valuation(self, key: str, points: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
         """指数估值时序"""
         kw: dict[str, Any] = {"key": key}
         if points is not None:
             kw["points"] = points
-        return self._client.call("index.valuation", **kw, _raw=_raw, _df=_df)
+        return self._client.call("indices.valuation", **kw, _raw=_raw, _df=_df)
 
 class IntlNS(_Ns):
     """港美股披露（market.intl）"""
@@ -1152,7 +1152,7 @@ class MarginNS(_Ns):
         """最新两融"""
         return self._client.call("margin.latest", sym=sym, _raw=_raw, _df=_df)
 
-    def fmt_maps(self, rows: list, _raw: bool = False, _df: bool = False) -> Any:
+    def fmt_maps(self, rows: Any, _raw: bool = False, _df: bool = False) -> Any:
         """两融行规范化"""
         return self._client.call("margin.fmt_maps", rows=rows, _raw=_raw, _df=_df)
 
@@ -1636,7 +1636,7 @@ NAMESPACES: dict[str, type[_Ns]] = {
     "estimates": EstimatesNS,
     "filings": FilingsNS,
     "forecast": ForecastNS,
-    "index": IndexNS,
+    "indices": IndicesNS,
     "intl": IntlNS,
     "kline": KlineNS,
     "margin": MarginNS,

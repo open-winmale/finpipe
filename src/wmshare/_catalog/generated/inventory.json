@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "upstream_rev": "0646e63f",
+ "upstream_rev": "4d9b5ab2",
  "domains": {
   "bonus": {
    "entry": "sys/bonus/init.xs",
@@ -26,7 +26,7 @@
    "entry": "sys/forecast/init.xs",
    "exports": []
   },
-  "index": {
+  "indices": {
    "entry": "sys/index/init.xs",
    "exports": []
   },
@@ -85,7 +85,7 @@
   "equity",
   "estimates",
   "filings",
-  "index",
+  "indices",
   "intl",
   "kline",
   "margin",
@@ -3270,18 +3270,18 @@
    ]
   },
   {
-   "name": "index.keys",
+   "name": "indices.keys",
    "cn": "指数键列表",
-   "example": "index.keys()",
+   "example": "indices.keys()",
    "returns": "ARR · 指数键",
    "returns_shape": null,
    "min_args": 0,
    "params": []
   },
   {
-   "name": "index.members",
+   "name": "indices.members",
    "cn": "指数成分",
-   "example": "index.members(\"index.hs300\", \"mv\", 10)",
+   "example": "indices.members(\"index.hs300\", \"mv\", 10)",
    "returns": "ARR · 成分行",
    "returns_shape": null,
    "min_args": 1,
@@ -3301,9 +3301,9 @@
    ]
   },
   {
-   "name": "index.valuation",
+   "name": "indices.valuation",
    "cn": "指数估值时序",
-   "example": "index.valuation(\"index.hs300\", 12)",
+   "example": "indices.valuation(\"index.hs300\", 12)",
    "returns": "MAP · 估值时序",
    "returns_shape": null,
    "min_args": 1,
@@ -3319,9 +3319,9 @@
    ]
   },
   {
-   "name": "index.weights",
+   "name": "indices.weights",
    "cn": "指数权重股",
-   "example": "index.weights(\"index.hs300\", 10)",
+   "example": "indices.weights(\"index.hs300\", 10)",
    "returns": "ARR · 权重行",
    "returns_shape": null,
    "min_args": 1,
@@ -5304,7 +5304,7 @@
    "name": "margin.fmt_maps",
    "cn": "两融行规范化",
    "example": "margin.fmt_maps(margin.query(\"000568\", 5))",
-   "returns": "ARR · 规范化行",
+   "returns": "ARR · 规范化行（MAP 输入返回单行 MAP）",
    "returns_shape": {
     "kind": "array",
     "items": {
@@ -5360,7 +5360,7 @@
    "params": [
     {
      "name": "rows",
-     "type": "array"
+     "type": "any"
     }
    ]
   },

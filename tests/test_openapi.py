@@ -58,7 +58,7 @@ def test_request_schemas_self_consistent():
     """每个请求体是 object；required 字段必须都在 properties 中。
 
     例外以目录合同为准：底层目录函数零参数的核心接口（如 cbond.latest_quotes /
-    workout.board / index.keys）请求体允许空 properties；有参接口不得为空。
+    workout.board / indices.keys）请求体允许空 properties；有参接口不得为空。
     """
     underlying_by_op = {f"{ns}_{m}": u for _, ns, m, _, u in FRIENDLY_INDEX}
     for path, _, op in _operations():

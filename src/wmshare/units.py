@@ -1,8 +1,9 @@
 """单位契约层：目录声明（units/ranges/checks）→ 全库单点换算 + 返回前校验。
 
-上游脚本永远输出其原有单位（如 statement_compare.diffp 百分数、kline.volume 手），
-本模块是唯一的换算点：call() 取回脚本原值后，按域目录的声明把非基础单位换成
-基础单位，并对声明过 range 的字段做量级守护、对 checks 里的关系不变量做精确校验。
+上游脚本永远输出其原有单位（如 statement_compare.diffp 百分数、kline.volume 手——
+仅 cn/ETF，港美上游即股），本模块是唯一的换算点：call() 取回脚本原值后，按域目录的
+声明把非基础单位换成基础单位，并对声明过 range 的字段做量级守护、对 checks 里的
+关系不变量做精确校验。
 
 基础单位约定（全库一致）：
   比率/涨跌幅/占比 = 小数（0.332 = 33.2%）
@@ -158,11 +159,16 @@ def finish_metric(value: Any, meta: dict | None, *, code: str,
     return value
 
 
-def apply_units(result: Any, meta: dict, *, fname: str, validate: bool = True) -> Any:
+def apply_units(result: Any, meta: dict, *, fname: str, validate: bool = True,
+                market: str = "cn") -> Any:
     """对一次目录调用的结果做单位换算（就地修改并返回）+ 量级/不变量校验。
 
     结果形态支持：行数组、单行 MAP、以及一层容器 MAP（如 forecast.snapshot 的
     yjkb/yjyg 子行）；未声明字段的嵌套结构继续下探，声明过的字段按数据处理。
+
+    ``lot``（手→股）是 cn 专属换算：上游仅 A 股/ETF 以手披露成交量，港股/美股
+    上游即股，再乘 100 会膨胀两个数量级（volume_amount 不变量会拦下）。因此
+    market != "cn" 时跳过 lot 换算、其余声明（percent/yi_yuan）照常生效。
     """
     validate_meta(meta, fname)
     units = meta.get("units") or {}
@@ -174,8 +180,11 @@ def apply_units(result: Any, meta: dict, *, fname: str, validate: bool = True) -
 
     def apply_fields(row: dict, path: str) -> None:
         for f, tok in units.items():
-            if f in row:
-                row[f] = convert_field(tok, row[f])
+            if f not in row:
+                continue
+            if tok == "lot" and market != "cn":
+                continue
+            row[f] = convert_field(tok, row[f])
         if validate:
             where = f"{path}." if path else ""
             for f, bounds in ranges.items():

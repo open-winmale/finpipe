@@ -42,7 +42,10 @@ TYPE_MAP = {
 # v1.5.0 扩容：股东治理/两融/盈利预测/可转债/套利/指数/港美股（.internal/ROADMAP-1.5.md）
 INCLUDED_NS = frozenset({
     "kline", "moneyflow", "notice", "filings", "forecast", "bonus", "rptdom", "segments",
-    "equity", "margin", "estimates", "cbond", "workout", "index", "intl",
+    "equity", "margin", "estimates", "cbond", "workout", "indices", "intl",
+    # 指数库目录名仍是 sys/index，但库全局名是 indices——内建 index 常量 MAP 占名，
+    # 域库曾因此被沙箱拒绑（selector policy violation）且 CI 构建全挂
+
 })
 # rptdom 只保留三表透视族（年报 PDF 提取类 rows/notes/note_index 不发布）
 RPTDOM_KEEP = frozenset({"statement", "statement_years", "statement_compare", "statement_tree", "statement_audit"})
@@ -197,6 +200,15 @@ def extract_preloaded(sr: Path) -> list[str]:
             continue
         stem = parts[-1].rsplit(".", 1)[0]
         ns = parts[-2] if stem == "init" and len(parts) >= 2 else stem
+        # 库名以 manifest 为准（目录 sys/index 的库全局名是 indices）
+        mf = sr / "sys" / ns / "manifest.json"
+        if mf.is_file():
+            try:
+                name = json.loads(mf.read_text(encoding="utf-8")).get("name")
+            except json.JSONDecodeError:
+                name = None
+            if name:
+                ns = name
         if ns in INCLUDED_NS:
             out.add(ns)
     return sorted(out)

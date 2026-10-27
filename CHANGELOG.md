@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **v1.5.0 五新域上线（上游 two commits 部署 pipeline-5206/5208）+ SDK 配套**：此前
+  equity/margin/estimates/index/intl 在生产全部不可用——上游 `sys/index` 库全局名
+  `index` 与 XS 内建常量 MAP（`index.hs300` 等指数键）撞名，域库绑定被沙箱按策略
+  拒绝（selector policy violation），build-init-baseline 编 init 链先炸 → CI 流水线
+  连续两次 9 秒失败、从未部署；`cli.index` 更是静默返回 None。修复：上游库全局名
+  改 `indices`（目录与指数键字面量不动），SDK 合同函数前缀同步 `index.*` →
+  `indices.*`（`market.index` 1.1.0；**`cli.index` 门面不变**，仅 `call("index.*")`
+  底层名变更）。
+- **港美 K 线量额守护误拦**：`lot`（手→股 ×100）是 cn 专属换算（港美上游即披露股），
+  此前对港美也 ×100 致 `volume_amount` 不变量必炸、用户被迫 `validate=False`。
+  `apply_units` 增加 `market` 上下文，`lot` 仅在 `market="cn"` 生效（`market.kline`
+  1.4.0，实测 00700/AAPL 默认校验直出）。
+- **`margin.latest` 500**（上游 3e83de31→4d9b5ab2 部署）：单行 MAP 直传
+  `fmt_maps(rows ARR)` 报 "rows expects arr"——上游规范化器放宽 any、MAP 输入按
+  单行返回。
+- **intl 市场语义如实标注**（`market.intl` 1.1.0）：网关按标的注册市场校验，
+  `cli.intl` 须用对应市场客户端（cn 客户端调港美股代码 400 market mismatch），
+  此前"自动识别、不受 market 参数影响"的表述与部署现实不符；门面 docstring、
+  域合同、README 同步纠正。`test_live` 五新域冒烟去掉部署前 xfail 转真，intl 用例
+  改用对应市场客户端。
+
+### Changed
+
+- **README 去授权化 + 新增「市场覆盖」矩阵**：删除「免费额度与凭证」章节（申请步骤与
+  配置方法本就内置于 401/403/429 错误消息与 AI skill，README 不再重复；快速上手仅留
+  一行指针）；腾出的篇幅换成 cn/hk/us 市场覆盖矩阵——逐能力标注三市场支持度，并如实
+  注记实测边界（美股日 K 停更于 2026-03-13：上游美股价量为 live-only 策略，最新价量走
+  `cli.kline.live / snapshot`；港美股三大报表合同已预留、数据未上线）。联动：
+  `gen_api_docs.py` 能力总览措辞改为"错误消息即完整指引"并重生成 `docs/API.md`；
+  `CONTRIBUTING.md` 同步去 README 章节引用。
+
 ## [1.6.0] - 2026-10-27
 
 ### Added

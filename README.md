@@ -6,7 +6,8 @@
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
 [![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/wmshare/py.typed)
 
-> **English TL;DR** — `wmshare` is a source-available (non-commercial) Python SDK for A-share market data:
+> **English TL;DR** — `wmshare` is a source-available (non-commercial) Python SDK for China A-share
+> market data (partial HK/US coverage — see "市场覆盖" for the per-market matrix):
 > k-line (3 adjustment modes), intraday snapshots, money flow, the three financial statements,
 > 2,197 metric codes (TTM, historical & industry percentiles, dividend analytics), a screener
 > facade (single-stock screens & server-side market breadth), announcements and company profiles.
@@ -18,13 +19,14 @@
 > [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
 > 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
 
-A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——K 线与档案等部分接口已覆盖）。
+A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——各市场覆盖明细见下方
+[「市场覆盖」](#市场覆盖)）。
 `pip install wmshare` 后即可取数，无需任何配置（代码中 `import wmshare`）。
 
 ## 目录
 
-[特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [单位与数据守护](#单位与数据守护) ·
-[我想做 X → 用哪一行](#我想做-x--用哪一行) · [免费额度与凭证](#免费额度与凭证) ·
+[特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [市场覆盖](#市场覆盖) ·
+[单位与数据守护](#单位与数据守护) · [我想做 X → 用哪一行](#我想做-x--用哪一行) ·
 [使用限制](#使用限制必读) · [更多](#更多)
 
 ## 特性
@@ -68,7 +70,8 @@ print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小
 print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服务端直出）
 ```
 
-更多调用见下方「我想做 X → 用哪一行」。
+更多调用见下方「我想做 X → 用哪一行」。`Client()` 零配置即用（内置体验额度）；
+遇到 401/403/429 时按错误消息操作即可——消息里附有申请自己 AppID（免费）的完整步骤。
 
 ## 能力一览
 
@@ -97,6 +100,28 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 | `cli.index` | 指数键列表、成分股（市值/估值中枢）、权重股、宽基估值时序 | 市值=元、比率=小数、权重=小数 |
 | `cli.intl` | 港股 CCASS/主要股东/机构评级/盈利预测，港美沽空，美股发行信息 | 量=股、占比=小数、价格=披露币种 |
 | `cli.info` | 公司档案（名称/行业/组织类型/上市日期） | — |
+
+## 市场覆盖
+
+| 数据能力 | A股 cn | 港股 hk | 美股 us |
+|---|---|---|---|
+| 日 K 三种复权 / 1 分钟分时 / 盘中快照 | ✅ 全量 | ✅ | 历史（日 K 停更）/ 快照新鲜，见注记 |
+| 三大报表 | ✅ | 未上线 | 未上线 |
+| 公告检索 + 变更订阅（`NoticePoller`） | ✅ | ✅ | — |
+| CCASS / 主要股东 / 机构评级 / 盈利预测（`cli.intl`） | — | ✅ | — |
+| 沽空（`cli.intl.query_sellshort`） | — | ✅ | ✅ |
+| 发行信息（`cli.intl.issue_info`） | — | — | ✅ |
+| 离线代码表 + 检索（`cat.symbols_search`） | ✅ | ✅ | ✅ |
+| 其余 15 个数据域：全景筛选/选股、资金流、两融、可转债、分红、业绩预告、股东治理、指数、契约套利、2197 指标库… | ✅ | — | — |
+
+市场切换：`Client(market="cn" / "hk" / "us")`，缺省 cn；代码与市场不匹配会被服务端直接拒绝
+（如 cn 市场查 `00700` 报 market mismatch）。`cli.intl` 的港美股披露同样要用对应市场的
+客户端调用（函数内部再按标的代码路由到港美数据族）。
+
+如实注记（2026-10-27 实测）：美股日 K 为历史快照、停更于 2026-03-13（上游对美股价量走
+live-only 策略），美股最新价量用 `cli.kline.live / snapshot`（实测当日新鲜）；港美 K 线
+量额单位已随 1.x 修复（cn 手×100 仅在 cn 生效，港美上游即股直出）；港美股三大报表的
+合同已预留原币口径（港币/美元），数据尚未上线。
 
 ## 我想做 X → 用哪一行
 
@@ -163,36 +188,6 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 数据深度：个股/ETF 日 K 覆盖**自上市首日以来的全部交易日**（最早 1991 年）；
 单次区间上限 5 年、默认单次 500 根（`Client(max_limit=...)` 可调）。全量深回溯
 （1990 年代不复权老数据）可能触发不变量守护，需整段历史时 `validate=False` 取全。
-
-## 免费额度与凭证
-
-**个人学习、研究等非商业使用完全免费**，注册开放平台账号即得免费额度（商业使用需另行
-授权，见「使用限制」）。SDK 内置体验 AppID 安装即用，但它是共享池、额度有限，仅供初次
-体验；正式使用请申请自己的 AppID——非商业用途下它就是正式服务，注册即得、无需付费
-（额度更充足）：
-
-1. 打开 [赢麻了开放平台](https://open.winmale.com)，扫码微信登录注册；
-2. 点击右上角「我的」，进入「开放平台」；
-3. 左侧导航「我的应用」→「查看应用信息」，即可查看 `client_id` 与 api-key（即 `client_secret`）。
-
-拿到自己的 AppID 后任选一种配置方式：
-
-```bash
-# 方式一：环境变量
-export WMSHARE_CLIENT_ID=...
-export WMSHARE_CLIENT_SECRET=...
-
-# 方式二：凭证文件 ~/.wmshare/credentials.env（KEY=VALUE 每行一条）
-```
-
-也可以在代码中直接传入：`wmshare.Client(client_id=..., client_secret=...)`。
-不配置时自动使用内置体验 AppID。
-
-### 遇到 401 / 403 / 429
-
-401/403（`AuthError`）与 429（`LimitError`，限流）的错误消息里都附有申请步骤；
-体验 AppID 是共享池、限额较低，批量或连跑容易触发 429——按上面三步换成自己的 AppID 即可。
-403「策略拒绝」（POLICY_DENIED）则是 AppID 接口权限范围、与额度无关，按错误消息指引处理。
 
 ## 使用限制（必读）
 

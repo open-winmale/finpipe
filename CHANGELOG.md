@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.3] - 2026-10-28
+
+### Changed
+
+- **README 店面对齐主流形态（授权信息收进正典位置）**：删除顶部 5 枚 shields.io 徽章
+  （国内镜像站加载失败成破图外链）与「⚠️ 许可声明」前置块；英文 TL;DR 去掉重复的
+  授权尾句。授权只在两处：LICENSE 文件（GitHub/Gitee License tab 显示全文）与文末
+  「使用限制（必读）」节；正文开头留一行指针。纯文档发布，随包代码与 1.7.2 一致。
+- 随包目录同步上游 rev（f095ac92：上游估值行业名归一调整，SDK 合同零变化）。
+
+
 ## [1.7.2] - 2026-10-28
 
 ### Added

@@ -1,11 +1,5 @@
 # wmshare
 
-[![CI](https://github.com/open-winmale/wmshare/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/wmshare/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/wmshare)](https://pypi.org/project/wmshare/)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](pyproject.toml)
-[![License: PolyForm Noncommercial](https://img.shields.io/badge/License-PolyForm_NC_1.0-blue)](./LICENSE)
-[![Types: py.typed](https://img.shields.io/badge/Types-py.typed-blue)](src/wmshare/py.typed)
-
 > **English TL;DR** — `wmshare` is a source-available (non-commercial) Python SDK for China A-share
 > market data (partial HK/US coverage — see "市场覆盖" for the per-market matrix):
 > k-line (3 adjustment modes), intraday snapshots, money flow, the three financial statements,
@@ -14,15 +8,12 @@
 > Ships a machine-readable offline catalog, unified base units with per-response data guards
 > (ratios as decimals, money in CNY, volume in shares), a typed facade, and an AI-agent skill.
 > **Credentials required** (free registration at open.winmale.com; error messages guide you
-> through setup). **Install**: `pip install wmshare`. Free for non-commercial use; commercial use requires a separate license.
-
-> **⚠️ 许可声明（请先阅读）**：本项目采用
-> [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
-> 不是 OSI 定义的开源软件**。个人学习、研究等非商业使用完全免费；商业使用需另行授权。
+> through setup). **Install**: `pip install wmshare`.
 
 A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——各市场覆盖明细见下方
 [「市场覆盖」](#市场覆盖)）。
 注册开放平台领取凭证（非商业免费、注册即得）后即可取数，见下方「配置凭证」。
+许可与使用限制见文末[「使用限制（必读）」](#使用限制必读)与 [LICENSE](LICENSE)。
 
 ## 目录
 

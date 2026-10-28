@@ -1,5 +1,5 @@
 id: corp.equity
-version: 2.0.0
+version: 2.1.0
 cn: 股东与股本
 kind: raw
 category: reference
@@ -11,7 +11,8 @@ description: 股东治理与股本全景——十大股东、股东户数、股�
 data_origin: [交易所披露, 平台数据服务]
 stores: [biz.equity, ref.info]
 units:
-  ratio: 小数（质押比例/持股比例/解禁占比等比例字段，已由百分数口径换算；0.0522 = 5.22%）
+  ratio: 小数（比例字段以各函数 units 声明为准：上游 fmt 部分接口已预换算小数、
+    部分仍为百分数——2026-10-28 全量审计逐函数核验，勿按字段名臆断）
   money: 元（持股市值/质押市值/回购金额等，披露源口径）
   shares: 股（持股数/解禁数量/质押数量）
   price: 元（交易均价/回购价）
@@ -19,43 +20,45 @@ requires: {path: sys/equity/init.xs, preloaded: true}
 notes:
   - '公司档案（名称/行业/上市日期/简介）经 cli.info.profile() 与 fund.indicators 的
     profile 指标组（$NAME/$INDUSTRY_CUR/$ORG_ORGTYPE/$ORG_LISTINGDATE）获取'
-  - '比例字段（*_ratio/*_tsr/hold_ratio/pct_of_issued 等）已由百分数换算为小数，
-    换算字段清单见各函数 units 声明；其余未声明字段保持披露原值'
-  - 'pledge_market.pledge_ratio_total、holdernum 各比例、reorg.deal_amount、
-    guarantee_amt、punish_amt、executive.salary、capital_change（披露原文中文键）等
-    字段口径待 live 核验（上游样本歧义），保持披露原值不做换算'
+  - '比例字段换算以各函数 units 声明为准（同接口内可能混排：institution_summary 的
+    all_shares_ratio 为百分数、total_shares_ratio 已是小数）；ranges 为 2026-10-28
+    live 审计实测界；其余未声明字段保持披露原值'
+  - '2026-10-28 审计已核验为元/股/小数并补 ranges：reorg.deal_amount（元）、
+    violation.punish_amt（元）、executives.salary（元/年）、capital_change.total_shares
+    （股）、holdernum 比例族（小数）、pledge_market.pledge_ratio_total（小数，
+    上游 inventory cn「百分数」为遗留标注）；guarantee_amt、exec_change 族仍待样本'
   - 'query_exec_change_at / query_capital_change_at 按报告期取数（annual 如 2024、
     sampling 如 Q4）'
 functions:
   # ---- 股东 ----
-  - {name: equity.query_holder10, cn: 最新一期十大股东, layer: L0, normalize_with: equity.fmt_holder10, units: {hold_num_ratio: percent}}
-  - {name: equity.query_holdernum, cn: 最新股东户数, layer: L0, normalize_with: equity.fmt_holdernum}
+  - {name: equity.query_holder10, cn: 最新一期十大股东, layer: L0, normalize_with: equity.fmt_holder10, ranges: {hold_num_ratio: [0, 1]}}
+  - {name: equity.query_holdernum, cn: 最新股东户数, layer: L0, normalize_with: equity.fmt_holdernum, ranges: {hold_ratio_total: [0, 1], freehold_ratio_total: [0, 1], total_num_ratio: [0, 1], avg_freeshares_ratio: [-1, 1], avg_hold_amt: [0, 1.0e+09], avg_free_shares: [0, 1.0e+10]}}
   # ---- 质押 ----
-  - {name: equity.query_pledge_detail, cn: 主要股东质押明细, layer: L0, normalize_with: equity.fmt_pledge_detail, units: {accum_pledge_tsr: percent, pf_hold_ratio: percent, pf_tsr: percent}}
-  - {name: equity.query_pledge_summary, cn: 公司质押比例, layer: L0, normalize_with: equity.fmt_pledge_summary, units: {pledge_ratio: percent}}
-  - {name: equity.query_pledge_market, cn: 市场整体质押, layer: L0, normalize_with: equity.fmt_pledge_market}
-  - {name: equity.query_pledge_industry, cn: 行业质押比例, layer: L0, normalize_with: equity.fmt_pledge_industry, units: {avg_pledge_ratio: percent}}
+  - {name: equity.query_pledge_detail, cn: 主要股东质押明细, layer: L0, normalize_with: equity.fmt_pledge_detail, units: {accum_pledge_tsr: percent, pf_hold_ratio: percent, pf_tsr: percent}, ranges: {accum_pledge_tsr: [0, 1], pf_hold_ratio: [0, 1], pf_tsr: [0, 1]}}
+  - {name: equity.query_pledge_summary, cn: 公司质押比例, layer: L0, normalize_with: equity.fmt_pledge_summary, ranges: {pledge_ratio: [0, 1]}}
+  - {name: equity.query_pledge_market, cn: 市场整体质押, layer: L0, normalize_with: equity.fmt_pledge_market, ranges: {pledge_ratio_total: [0, 1], csi300_chg: [-1, 1], pledge_market_value: [0, 1.0e+14], total_pledged_shares: [0, 1.0e+13]}}
+  - {name: equity.query_pledge_industry, cn: 行业质押比例, layer: L0, normalize_with: equity.fmt_pledge_industry, ranges: {avg_pledge_ratio: [0, 1]}}
   - {name: equity.query_pledge_org, cn: 质押机构分布, layer: L0, normalize_with: equity.fmt_pledge_org}
   # ---- 机构 ----
-  - {name: equity.query_institution_detail, cn: 机构持股明细, layer: L0, normalize_with: equity.fmt_institution_detail, units: {total_shares_ratio: percent, free_shares_ratio: percent}}
-  - {name: equity.query_institution_summary, cn: 机构持仓占比, layer: L0, normalize_with: equity.fmt_institution_summary, units: {total_shares_ratio: percent, change_ratio: percent, all_shares_ratio: percent}}
-  - {name: equity.query_hgt, cn: 沪港通持股, layer: L0, normalize_with: equity.fmt_hgt, units: {free_shares_ratio: percent, total_shares_ratio: percent, add_shares_pct: percent}}
-  - {name: equity.query_national_team, cn: 国家队持股, layer: L0, normalize_with: equity.fmt_national_team, units: {shares_ratio: percent, shares_ratio_change: percent}}
+  - {name: equity.query_institution_detail, cn: 机构持股明细, layer: L0, normalize_with: equity.fmt_institution_detail, units: {total_shares_ratio: percent, free_shares_ratio: percent}, ranges: {total_shares_ratio: [0, 1], free_shares_ratio: [0, 1]}}
+  - {name: equity.query_institution_summary, cn: 机构持仓占比, layer: L0, normalize_with: equity.fmt_institution_summary, units: {all_shares_ratio: percent}, ranges: {all_shares_ratio: [0, 1], total_shares_ratio: [0, 1], change_ratio: [-1, 1]}}
+  - {name: equity.query_hgt, cn: 沪港通持股, layer: L0, normalize_with: equity.fmt_hgt, units: {add_shares_pct: percent}, ranges: {add_shares_pct: [0, 1], free_shares_ratio: [0, 1], total_shares_ratio: [0, 1]}}
+  - {name: equity.query_national_team, cn: 国家队持股, layer: L0, normalize_with: equity.fmt_national_team, units: {shares_ratio: percent, shares_ratio_change: percent}, ranges: {shares_ratio: [0, 1], shares_ratio_change: [-1, 1]}}
   # ---- 治理事件 ----
-  - {name: equity.query_release, cn: 限售解禁日程, layer: L0, normalize_with: equity.fmt_release, units: {total_shares_ratio: percent, unlimited_ratio: percent}}
+  - {name: equity.query_release, cn: 限售解禁日程, layer: L0, normalize_with: equity.fmt_release, units: {total_shares_ratio: percent, unlimited_ratio: percent}, ranges: {total_shares_ratio: [0, 1], unlimited_ratio: [0, 1]}}
   - {name: equity.query_buyback_plan, cn: 回购方案全览, layer: L0, normalize_with: equity.fmt_buyback_plan}
   - {name: equity.query_buyback_detail, cn: 回购执行明细, layer: L0, normalize_with: equity.fmt_buyback_detail}
-  - {name: equity.query_reorg, cn: 并购重组, layer: L0, normalize_with: equity.fmt_reorg, units: {transfer_ratio: percent}}
+  - {name: equity.query_reorg, cn: 并购重组, layer: L0, normalize_with: equity.fmt_reorg, units: {transfer_ratio: percent}, ranges: {transfer_ratio: [0, 1]}}
   - {name: equity.query_related_trade, cn: 关联交易, layer: L0, normalize_with: equity.fmt_related_trade}
-  - {name: equity.query_concert, cn: 一致行动人, layer: L0, normalize_with: equity.fmt_concert, units: {hold_ratio: percent}}
+  - {name: equity.query_concert, cn: 一致行动人, layer: L0, normalize_with: equity.fmt_concert, units: {hold_ratio: percent}, ranges: {hold_ratio: [0, 1]}}
   - {name: equity.query_guarantee, cn: 对外担保, layer: L0, normalize_with: equity.fmt_guarantee}
   - {name: equity.query_litigation, cn: 诉讼记录, layer: L0, normalize_with: equity.fmt_litigation}
-  - {name: equity.query_violation, cn: 违规处罚, layer: L0, normalize_with: equity.fmt_violation}
+  - {name: equity.query_violation, cn: 违规处罚, layer: L0, normalize_with: equity.fmt_violation, ranges: {punish_amt: [0, 1.0e+11]}}
   # ---- 高管与股本 ----
-  - {name: equity.query_executives, cn: 高管名册, layer: L0, normalize_with: equity.fmt_executives}
+  - {name: equity.query_executives, cn: 高管名册, layer: L0, normalize_with: equity.fmt_executives, ranges: {salary: [0, 1.0e+8], hold_num: [0, 1.0e+10]}}
   - {name: equity.query_exec_change, cn: 高管增减持最新, layer: L0, normalize_with: equity.fmt_exec_change}
   - {name: equity.query_exec_change_at, cn: 指定报告期增减持, layer: L1, normalize_with: equity.fmt_exec_change}
-  - {name: equity.query_capital_change, cn: 股本结构最新, layer: L0, normalize_with: equity.fmt_capital_change}
+  - {name: equity.query_capital_change, cn: 股本结构最新, layer: L0, normalize_with: equity.fmt_capital_change, ranges: {total_shares: [0, 1.0e+13], free_shares: [0, 1.0e+13]}}
   - {name: equity.query_capital_change_at, cn: 指定报告期股本, layer: L1, normalize_with: equity.fmt_capital_change}
   # ---- L1：规范化工具 ----
   - {name: equity.fmt_holder10, cn: 十大股东行规范化, layer: L1}

@@ -1,5 +1,5 @@
 id: fund.estimates
-version: 1.0.0
+version: 1.1.0
 cn: 盈利预测与研报
 kind: raw
 category: fundamentals
@@ -17,8 +17,8 @@ notes:
   - 'year_mark A=实际值 E=预测值；YEAR1..YEAR4 为预测年份序列'
   - '研报行含标题/机构/作者/行业/报告链接；研报正文不在接口范围'
 functions:
-  - {name: estimates.query_forecast, cn: 机构盈利预测, layer: L0, normalize_with: estimates.fmt_maps}
-  - {name: estimates.query_forecast_detail, cn: 盈利预测明细, layer: L0, normalize_with: estimates.fmt_maps}
+  - {name: estimates.query_forecast, cn: 机构盈利预测, layer: L0, normalize_with: estimates.fmt_maps, ranges: {eps1: [0, 1.0e+4], eps2: [0, 1.0e+4], eps3: [0, 1.0e+4], eps4: [0, 1.0e+4], pe1: [0, 1.0e+4], pe2: [0, 1.0e+4], pe3: [0, 1.0e+4], pe4: [0, 1.0e+4]}}
+  - {name: estimates.query_forecast_detail, cn: 盈利预测明细, layer: L0, normalize_with: estimates.fmt_maps, ranges: {eps1: [0, 1.0e+4], eps2: [0, 1.0e+4], eps3: [0, 1.0e+4], eps4: [0, 1.0e+4], pe1: [0, 1.0e+4], pe2: [0, 1.0e+4], pe3: [0, 1.0e+4], pe4: [0, 1.0e+4]}}
   - {name: estimates.query_rating, cn: 评级统计, layer: L0, normalize_with: estimates.fmt_maps}
   - {name: estimates.query_reports, cn: 个股研报, layer: L0, normalize_with: estimates.fmt_maps}
   - {name: estimates.fmt_maps, cn: 预测行规范化, layer: L1}

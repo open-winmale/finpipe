@@ -1,5 +1,5 @@
 id: market.index
-version: 1.1.0
+version: 1.2.0
 cn: 指数
 kind: computed
 category: market
@@ -11,7 +11,7 @@ data_origin: [平台数据服务]
 units:
   money: 元（市值）
   ratio: 小数（roe_ttm 等比率，指标层口径）
-  weight: 百分数（披露权重，已换算小数）
+  weight: 小数（披露权重，上游 fmt 已换算，SDK 不再处理）
 requires: {path: sys/index/init.xs, preloaded: true}
 notes:
   - 'v1.1.0 函数前缀 index.* → indices.*：上游内建 index 常量 MAP 占名（selector policy violation），cli.index 门面不变'
@@ -20,5 +20,5 @@ notes:
 functions:
   - {name: indices.keys, cn: 指数键列表, layer: L0}
   - {name: indices.members, cn: 指数成分, layer: L0}
-  - {name: indices.weights, cn: 指数权重股, layer: L0, units: {weight: percent}}
+  - {name: indices.weights, cn: 指数权重股, layer: L0, ranges: {weight: [0, 1]}}
   - {name: indices.valuation, cn: 指数估值时序, layer: L0}

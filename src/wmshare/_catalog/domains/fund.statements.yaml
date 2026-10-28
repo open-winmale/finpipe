@@ -52,8 +52,8 @@ functions:
     checks: [diffp_ratio]
     notes: ['差额占比 diffp = 差额 / 合并值，SDK 已由脚本百分数换算为小数（0.078 = 7.8%）；
       母公司未披露的科目差额为空；_units="native"/_raw=True 取脚本原值（百分数）。
-      守护用精确不变量 diffp_ratio（diffp≈diff/合并值）而非量级范围：合并值≈0 的科目
-      diffp 会合法地极大，范围界必然误报']
+      守护用精确不变量 diffp_ratio（diffp≈diff/合并值）而非量级范围（量级豁免）：
+      合并值≈0 的科目 diffp 会合法地极大，范围界必然误报']
   - name: rptdom.statement_tree
     cn: 三表目录树视图（树序 + 比率/占比行）
     kind: raw

@@ -29,6 +29,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   此前"自动识别、不受 market 参数影响"的表述与部署现实不符；门面 docstring、
   域合同、README 同步纠正。`test_live` 五新域冒烟去掉部署前 xfail 转真，intl 用例
   改用对应市场客户端。
+- **全量单位审计：8 个字段的 percent 换算声明实锤错误并移除（行为变更：值恢复真实
+  量级，变大 100 倍）**。`tools/audit_units.py matrix` 以 `_units="native"` 逐接口实测
+  发现：corp.equity 的 hold_num_ratio/pledge_ratio/avg_pledge_ratio/institution_summary
+  total_shares_ratio/change_ratio/hgt free_shares_ratio/total_shares_ratio、indices.weights
+  weight、intl.query_shareholders total_shares_ratio 上游 fmt 早已预换算为小数，
+  SDK 的 percent 声明把值再除 100（如茅台第一大股东持股比例 0.545 曾输出 0.00545）。
+  v1.5.0 域库彼时从未成功部署，声明未经真实数据检验。同接口内混排口径逐字段标注
+  （institution_summary 仅 all_shares_ratio、hgt 仅 add_shares_pct 仍为百分数）。
+- **cbond.latest_quotes 新增 premiumRatio/couponIr 百分数换算（行为变更：值变为小数，
+  缩小 100 倍）**：转股溢价率实测 2-238（百分数数值）、票面利率 0.1-0.2，此前未声明。
+- **v1.5.0 挂账的歧义字段全部核验结案**：executives.salary=元/年（实测 2e5-1.1e6）、
+  reorg.deal_amount=元、violation.punish_amt=元、capital_change.total_shares=股、
+  holdernum 比例族=小数、pledge_market.pledge_ratio_total=小数（上游 inventory cn
+  「百分数」为遗留标注）——全部补 ranges 量级守护；guarantee_amt、exec_change 族
+  待样本（茅台无质押/担保/增减持数据），保持披露原值并在 notes 列明。
+- **声明元规则生效**（tests/test_unit_meta.py）：units 字段必须存在于 returns_shape；
+  percent 声明必须配 ranges 或 notes 标注「量级豁免」（diffp 先例）。审计矩阵
+  （.internal/UNIT_AUDIT.md）落地后规则 2 自动启用，现全部声明合规。
+- intl 港股盈利预测披露原文口径注记：纯利=百万（港元）、每股盈利/每股股息=仙
+  （cents），不做换算。
+
+### Added
+
+- **单位审计器 `tools/audit_units.py matrix`**：113 核心接口逐字段单位矩阵（native
+  实测 × 声明因子 × inventory cn 线索 × 求和锚判定），缓存断点续跑、报告写
+  `.internal/UNIT_AUDIT.md`；原 cross 跨接口一致性模式保留为默认。
+- fund.segments 1.0.1：returns_shape 三处重复 `kind: array` 块去重（YAML 静默取后者
+  的目录卫生缺陷）。
 
 ### Changed
 

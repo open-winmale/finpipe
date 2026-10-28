@@ -184,14 +184,22 @@ def _stats(nums: list[float]) -> str:
 
 
 def _classify_field(field: str, nums: list[float], token: str | None,
-                    cn_hint: str) -> tuple[str, str]:
+                    cn_hint: str, range_hi: float | None = None) -> tuple[str, str]:
     """返回 (verdict, 说明)。nums 为 native 口径实测值。"""
     med = statistics.median(nums) if nums else 0.0
     hint = cn_hint.lower()
     name_l = field.lower()
     ratio_named = any(h in name_l for h in RATIO_NAME_HINTS)
 
+    if max(nums) == 0 and min(nums) == 0:
+        return "SAMPLE-NULL", "样本全 0（缺数占位），无法判定口径——换 symbol 复核"
+
     if token == "percent":
+        # 声明过 range 的小口径字段（票面利率 0.2% 等）以因子一致性为准：
+        # native×0.01 落在声明 range 内即自洽（纯量级启发式对 <1.5% 的利率会误判）
+        if range_hi is not None and max(nums) * 0.01 <= range_hi:
+            return "DECLARED-OK", (f"换算后落在声明 range（≤{range_hi:g}），小口径字段自洽"
+                                   f"（{_stats(nums)}）")
         # 原值应为百分数：典型 >1.5；若中位数 ≤1.5 且 max≤2 说明已是小数 → 声明错
         if med <= 1.5 and max(nums) <= 2.0:
             return "WRONG-DECL", f"原值已是小数（{_stats(nums)}），percent 换算会再除 100"
@@ -274,16 +282,20 @@ def run_matrix(cli: wmshare.Client, rep: Report, only: str | None, refresh: bool
 
         ov = next((v for pre, v in MATRIX_OVERRIDES.items() if cat_name.startswith(pre)), None)
         market = (ov or {}).get("market", "cn")
-        # inventory 合同：前 min_args 个位置参数必填（xs:catalog 语义，无 required 键）
+        # 填参规则：名字在 SAMPLE_PARAMS 里的标量参数一律填（idx=None → 服务端
+        # LatestIndexKey 解析；limit 压到 5 省额度），再加 min_args 覆盖的必填项兜底；
+        # MATRIX_OVERRIDES 的 sym/syms/stock_code 覆盖一切默认
         inv_fn = inv.get(cat_name, {})
         required_n = int(inv_fn.get("min_args") or 0)
         kwargs: dict[str, object] = {}
         for i, p in enumerate(inv_fn.get("params") or []):
             name = p["name"]
-            if i < required_n or name == "limit":
-                kwargs[name] = (ov or {}).get(name, SAMPLE_PARAMS.get(name, "x"))
-        if ov and "sym" in ov:
-            kwargs["sym"] = ov["sym"]
+            if name in ("sym", "syms", "stock_code") and ov and name in ov:
+                kwargs[name] = ov[name]
+            elif name in SAMPLE_PARAMS:
+                kwargs[name] = SAMPLE_PARAMS[name]
+            elif i < required_n:
+                kwargs[name] = "x"
 
         cache_key = cat_name.replace("/", "_")
         cache_file = CACHE_DIR / f"{cache_key}.json"
@@ -328,7 +340,9 @@ def run_matrix(cli: wmshare.Client, rep: Report, only: str | None, refresh: bool
                 lines.append(f"| {col} | {units_decl.get(col, '—')} | 非数值 {type(sample).__name__} "
                              f"| {cn_hint} | SKIP |")
                 continue
-            verdict, why = _classify_field(col, nums, units_decl.get(col), cn_hint)
+            rng = (fn.get("ranges") or {}).get(col)
+            range_hi = float(rng[1]) if isinstance(rng, list) and len(rng) == 2 else None
+            verdict, why = _classify_field(col, nums, units_decl.get(col), cn_hint, range_hi)
             verdict_count[verdict] = verdict_count.get(verdict, 0) + 1
             if verdict == "WRONG-DECL":
                 wrong += 1

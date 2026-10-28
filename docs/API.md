@@ -15,7 +15,7 @@
 | 数据域 | 核心能力 | 单位口径 |
 |---|---|---|
 | `market.cbond`（可转债） | 转债合约快照全表、转债最新快照、正股关联转债、转债条款事件列表、单标的条款事件… | price=元（转债价/转股价/目标价，面值 100 口径）；ratio=小数（转股比例等比率字段） |
-| `market.index`（指数） | 指数键列表、指数成分、指数权重股、指数估值时序 | money=元（市值）；ratio=小数（roe_ttm 等比率，指标层口径）；weight=百分数（披露权重，已换算小数） |
+| `market.index`（指数） | 指数键列表、指数成分、指数权重股、指数估值时序 | money=元（市值）；ratio=小数（roe_ttm 等比率，指标层口径）；weight=小数（披露权重，上游 fmt 已换算，SDK 不再处理） |
 | `market.kline`（行情K线） | 历史 K 线、最新一根 K 线、是否场内 ETF、盘中日K快照、盘中日K批量快照… | price=元；volume=股（cn 由脚本的手 ×100 换算；港美上游即披露股，不再换算）；amount=元（本币）；percent=小数（0.01 = 1%） |
 | `market.margin`（融资融券） | 个股融资融券、最新两融 | money=元（融资买入额/偿还额/余额）；shares=股（融券卖出量/偿还量/余量） |
 | `market.moneyflow`（资金流向） | 资金流向历史、最新资金流向、有效资金流向（过滤空行）、盘中资金流快照、资金流向快照… | net=元（净流入金额）；date=YYYY-MM-DD |
@@ -28,7 +28,7 @@
 | `disc.filings`（定期报告清单） | 定期报告列表、最新一条定期报告 | date=YYYY-MM-DD |
 | `disc.notice`（公告） | 单票公告列表、近期公告（全市场）、按类别查公告、指定日期公告、按日期区间查公告… | window=枚举 "7d"\|"1m"\|"3m"\|"6m"\|"1y"\|"3y"\|"5y" 或天数整数；date=YYYY-MM-DD |
 | `disc.workout`（契约套利） | 进行中契约套利看板、单票契约套利条款 | price=元（公告对价/现价） |
-| `corp.equity`（股东与股本） | 最新一期十大股东、最新股东户数、主要股东质押明细、公司质押比例、市场整体质押… | ratio=小数（质押比例/持股比例/解禁占比等比例字段，已由百分数口径换算；0.0522 = 5.22%）；money=元（持股市值/质押市值/回购金额等，披露源口径）；shares=股（持股数/解禁数量/质押数量）；price=元（交易均价/回购价） |
+| `corp.equity`（股东与股本） | 最新一期十大股东、最新股东户数、主要股东质押明细、公司质押比例、市场整体质押… | ratio=小数（比例字段以各函数 units 声明为准：上游 fmt 部分接口已预换算小数、 部分仍为百分数——2026-10-28 全量审计逐函数核验，勿按字段名臆断）；money=元（持股市值/质押市值/回购金额等，披露源口径）；shares=股（持股数/解禁数量/质押数量）；price=元（交易均价/回购价） |
 | `market.intl`（港美股披露） | 港股CCASS持仓、港股主要股东、港股机构评级、港股盈利预测、港美沽空… | shares=股（持股数/沽空量）；ratio=小数（占比字段已由百分数换算）；price=披露币种（目标价/发行价随市场币种，不做汇率换算） |
 
 性质标注：**原始数据** = 披露/直采数据（含外部源算好的）；**指标** = 平台公式计算的派生指标。
@@ -438,7 +438,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 可转债（`market.cbond`）
 
-**性质**：原始数据 · **版本**：1.0.0  
+**性质**：原始数据 · **版本**：1.1.0  
 可转债合约快照、条款事件（下修/回售/赎回等）、正股关联、强赎触发计数、 独立日 K 与盘中 1 分钟。日 K 无复权（转债无除权口径）。
 数据来源：发行条款披露、平台数据服务。
 单位口径：price=元（转债价/转股价/目标价，面值 100 口径）；ratio=小数（转股比例等比率字段）。
@@ -449,7 +449,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |
 |---|---|---|---|---|---|---|
 | `cbond.quote_list` | 转债合约快照全表 | 原始数据 | L0 | — | ARR · 合约快照行 | — | 例：`cli.call("cbond.quote_list")`
-| `cbond.latest_quotes` | 转债最新快照 | 原始数据 | L0 | — | ARR · 规范化快照行 | — | 例：`cli.call("cbond.latest_quotes")`
+| `cbond.latest_quotes` | 转债最新快照 | 原始数据 | L0 | — | ARR · 规范化快照行 | `premiumRatio`:百分数→小数；`couponIr`:百分数→小数；量级界 `premiumRatio`、`couponIr` | 例：`cli.call("cbond.latest_quotes")`
 | `cbond.of_stock` | 正股关联转债 | 原始数据 | L0 | `stk:any`（签名） | ARR · 规范化快照行 | — | 例：`cli.call("cbond.of_stock", stk='600519')`
 | `cbond.event_list` | 转债条款事件列表 | 原始数据 | L0 | — | ARR · 条款事件行 | — | 例：`cli.call("cbond.event_list")`
 | `cbond.event_rows_of` | 单标的条款事件 | 原始数据 | L0 | `sym:any`（签名） | ARR · 条款事件行 | — | 例：`cli.call("cbond.event_rows_of", sym='600519')`
@@ -464,10 +464,10 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 指数（`market.index`）
 
-**性质**：指标 · **版本**：1.1.0  
+**性质**：指标 · **版本**：1.2.0  
 指数维度数据——指数键列表、成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps 排序）、权重股（披露权重降序）、宽基估值时序（整体法 PE/PB 季采样 + 当前值/股息率）。 指数行情（K 线/快照）走 cli.kline。
 数据来源：平台数据服务。
-单位口径：money=元（市值）；ratio=小数（roe_ttm 等比率，指标层口径）；weight=百分数（披露权重，已换算小数）。
+单位口径：money=元（市值）；ratio=小数（roe_ttm 等比率，指标层口径）；weight=小数（披露权重，上游 fmt 已换算，SDK 不再处理）。
 - v1.1.0 函数前缀 index.* → indices.*：上游内建 index 常量 MAP 占名（selector policy violation），cli.index 门面不变
 - 成员行 roe_ttm/pe_ttm 等为指标层原值（比率小数、倍数口径），SDK 不再换算
 - valuation.series 为季采样点（d/pe/pb），前端/调用方可自行算分位
@@ -476,7 +476,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 |---|---|---|---|---|---|---|
 | `indices.keys` | 指数键列表 | 指标 | L0 | — | ARR · 指数键 | — | 例：`cli.call("indices.keys")`
 | `indices.members` | 指数成分 | 指标 | L0 | `key:string` · `sort_by:string` · `top_n:int`（签名） | ARR · 成分行 | — | 例：`cli.call("indices.members", key='index.hs300', sort_by='mv', top_n=10)`
-| `indices.weights` | 指数权重股 | 指标 | L0 | `key:string` · `top_n:int`（签名） | ARR · 权重行 | `weight`:百分数→小数 | 例：`cli.call("indices.weights", key='index.hs300', top_n=10)`
+| `indices.weights` | 指数权重股 | 指标 | L0 | `key:string` · `top_n:int`（签名） | ARR · 权重行 | 量级界 `weight` | 例：`cli.call("indices.weights", key='index.hs300', top_n=10)`
 | `indices.valuation` | 指数估值时序 | 指标 | L0 | `key:string` · `points:int`（签名） | MAP · 估值时序 | — | 例：`cli.call("indices.valuation", key='index.hs300', points=12)`
 
 #### 行情K线（`market.kline`）
@@ -586,7 +586,7 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 盈利预测与研报（`fund.estimates`）
 
-**性质**：原始数据 · **版本**：1.0.0  
+**性质**：原始数据 · **版本**：1.1.0  
 卖方研究数据——机构盈利预测（逐年 EPS/PE，A=实际 E=预测）、预测明细 （机构/研究员/归母净利/评级）、评级统计（综合评级与买卖家数按窗口）、个股研报列表。 金额=元、EPS=元/股、PE=倍。
 数据来源：券商研究披露、平台数据服务。
 单位口径：eps=元/股；money=元（归母净利润）；pe=倍（预测市盈率）。
@@ -595,8 +595,8 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |
 |---|---|---|---|---|---|---|
-| `estimates.query_forecast` | 机构盈利预测 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 预测行；字段 org_name:string?（机构名称） / publish_date:string?（发布日期） / eps1:float?（第一年每股收益） / pe1:float?（第一年市盈率） / rating:string?（评级） | — | 例：`cli.call("estimates.query_forecast", sym='600900', limit=20)`
-| `estimates.query_forecast_detail` | 盈利预测明细 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 明细行；字段 org_name:string?（机构名称） / publish_date:string?（发布日期） / eps1:float?（第一年每股收益） / pe1:float?（第一年市盈率） / rating:string?（评级） | — | 例：`cli.call("estimates.query_forecast_detail", sym='600900', limit=20)`
+| `estimates.query_forecast` | 机构盈利预测 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 预测行；字段 org_name:string?（机构名称） / publish_date:string?（发布日期） / eps1:float?（第一年每股收益） / pe1:float?（第一年市盈率） / rating:string?（评级） | 量级界 `eps1`、`eps2`、`eps3`、`eps4`、`pe1`、`pe2`、`pe3`、`pe4` | 例：`cli.call("estimates.query_forecast", sym='600900', limit=20)`
+| `estimates.query_forecast_detail` | 盈利预测明细 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 明细行；字段 org_name:string?（机构名称） / publish_date:string?（发布日期） / eps1:float?（第一年每股收益） / pe1:float?（第一年市盈率） / rating:string?（评级） | 量级界 `eps1`、`eps2`、`eps3`、`eps4`、`pe1`、`pe2`、`pe3`、`pe4` | 例：`cli.call("estimates.query_forecast_detail", sym='600900', limit=20)`
 | `estimates.query_rating` | 评级统计 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 评级行；字段 org_name:string?（机构名称） / publish_date:string?（发布日期） / eps1:float?（第一年每股收益） / pe1:float?（第一年市盈率） / rating:string?（评级） | — | 例：`cli.call("estimates.query_rating", sym='600660', limit=20)`
 | `estimates.query_reports` | 个股研报 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 研报行；字段 org_name:string?（机构名称） / publish_date:string?（发布日期） / eps1:float?（第一年每股收益） / pe1:float?（第一年市盈率） / rating:string?（评级） | — | 例：`cli.call("estimates.query_reports", sym='000001', limit=20)`
 | `estimates.fmt_maps` | 预测行规范化 | 原始数据 | L1 | `rows:array`（签名） | ARR · 规范化行 | — |
@@ -788,41 +788,41 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 股东与股本（`corp.equity`）
 
-**性质**：原始数据 · **版本**：2.0.0  
+**性质**：原始数据 · **版本**：2.1.0  
 股东治理与股本全景——十大股东、股东户数、股权质押（明细+比例+市场/行业/ 机构分布）、限售解禁、机构持股（明细/占比/沪港通/国家队）、高管名册与增减持、股本结构、 回购（方案+执行）、并购重组、关联交易、一致行动人、对外担保、诉讼处罚。披露原值直采， 比例字段统一换算为小数（0.0522 = 5.22%）。
 数据来源：交易所披露、平台数据服务。
-单位口径：ratio=小数（质押比例/持股比例/解禁占比等比例字段，已由百分数口径换算；0.0522 = 5.22%）；money=元（持股市值/质押市值/回购金额等，披露源口径）；shares=股（持股数/解禁数量/质押数量）；price=元（交易均价/回购价）。
+单位口径：ratio=小数（比例字段以各函数 units 声明为准：上游 fmt 部分接口已预换算小数、 部分仍为百分数——2026-10-28 全量审计逐函数核验，勿按字段名臆断）；money=元（持股市值/质押市值/回购金额等，披露源口径）；shares=股（持股数/解禁数量/质押数量）；price=元（交易均价/回购价）。
 - 公司档案（名称/行业/上市日期/简介）经 cli.info.profile() 与 fund.indicators 的 profile 指标组（$NAME/$INDUSTRY_CUR/$ORG_ORGTYPE/$ORG_LISTINGDATE）获取
-- 比例字段（*_ratio/*_tsr/hold_ratio/pct_of_issued 等）已由百分数换算为小数， 换算字段清单见各函数 units 声明；其余未声明字段保持披露原值
-- pledge_market.pledge_ratio_total、holdernum 各比例、reorg.deal_amount、 guarantee_amt、punish_amt、executive.salary、capital_change（披露原文中文键）等 字段口径待 live 核验（上游样本歧义），保持披露原值不做换算
+- 比例字段换算以各函数 units 声明为准（同接口内可能混排：institution_summary 的 all_shares_ratio 为百分数、total_shares_ratio 已是小数）；ranges 为 2026-10-28 live 审计实测界；其余未声明字段保持披露原值
+- 2026-10-28 审计已核验为元/股/小数并补 ranges：reorg.deal_amount（元）、 violation.punish_amt（元）、executives.salary（元/年）、capital_change.total_shares （股）、holdernum 比例族（小数）、pledge_market.pledge_ratio_total（小数， 上游 inventory cn「百分数」为遗留标注）；guarantee_amt、exec_change 族仍待样本
 - query_exec_change_at / query_capital_change_at 按报告期取数（annual 如 2024、 sampling 如 Q4）
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |
 |---|---|---|---|---|---|---|
-| `equity.query_holder10` | 最新一期十大股东 | 原始数据 | L0 | `sym:string`（签名） | ARR · 股东行；字段 holder_name:string（股东名称） / hold_num:float?（持股数量(股)） / hold_num_ratio:float?（持股比例(百分数)） | `hold_num_ratio`:百分数→小数 | 例：`cli.call("equity.query_holder10", sym='600519')`
-| `equity.query_holdernum` | 最新股东户数 | 原始数据 | L0 | `sym:string`（签名） | MAP · 户数行；字段 end_date:string?（截止日期） / hold_focus:float?（持股集中度） / avg_hold_amt:float?（平均持股金额） | — | 例：`cli.call("equity.query_holdernum", sym='600519')`
-| `equity.query_pledge_detail` | 主要股东质押明细 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 质押明细行；字段 holder_name:string（股东名称） / pf_org:string?（质押机构） / pf_num:float?（质押数量(股)） / pf_tsr:float?（质押总股本比例(百分数)） / notice_date:string?（公告日期） / unfreeze_state:string?（解押状态） | `accum_pledge_tsr`:百分数→小数；`pf_hold_ratio`:百分数→小数；`pf_tsr`:百分数→小数 | 例：`cli.call("equity.query_pledge_detail", sym='002424', limit=40)`
-| `equity.query_pledge_summary` | 公司质押比例 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 质押比例行；字段 trade_date:string（交易日期） / pledge_ratio:float（质押比例(百分数)） / pledge_shares:float?（质押股数(股)） / pledge_market_cap:float?（质押市值） | `pledge_ratio`:百分数→小数 | 例：`cli.call("equity.query_pledge_summary", sym='600196', limit=40)`
-| `equity.query_pledge_market` | 市场整体质押 | 原始数据 | L0 | `limit:int`（签名） | ARR · 市场质押行；字段 trade_date:string（交易日期） / pledge_ratio_total:float?（A股质押总比例(百分数)） / pledge_company_num:int?（质押公司数） | — | 例：`cli.call("equity.query_pledge_market", limit=10)`
-| `equity.query_pledge_industry` | 行业质押比例 | 原始数据 | L0 | `limit:int`（签名） | ARR · 行业质押行；字段 industry:string（行业名称） / trade_date:string（交易日期） / avg_pledge_ratio:float?（平均质押比例(百分数)） | `avg_pledge_ratio`:百分数→小数 | 例：`cli.call("equity.query_pledge_industry", limit=20)`
+| `equity.query_holder10` | 最新一期十大股东 | 原始数据 | L0 | `sym:string`（签名） | ARR · 股东行；字段 holder_name:string（股东名称） / hold_num:float?（持股数量(股)） / hold_num_ratio:float?（持股比例(百分数)） | 量级界 `hold_num_ratio` | 例：`cli.call("equity.query_holder10", sym='600519')`
+| `equity.query_holdernum` | 最新股东户数 | 原始数据 | L0 | `sym:string`（签名） | MAP · 户数行；字段 end_date:string?（截止日期） / hold_focus:float?（持股集中度） / avg_hold_amt:float?（平均持股金额） | 量级界 `hold_ratio_total`、`freehold_ratio_total`、`total_num_ratio`、`avg_freeshares_ratio`、`avg_hold_amt`、`avg_free_shares` | 例：`cli.call("equity.query_holdernum", sym='600519')`
+| `equity.query_pledge_detail` | 主要股东质押明细 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 质押明细行；字段 holder_name:string（股东名称） / pf_org:string?（质押机构） / pf_num:float?（质押数量(股)） / pf_tsr:float?（质押总股本比例(百分数)） / notice_date:string?（公告日期） / unfreeze_state:string?（解押状态） | `accum_pledge_tsr`:百分数→小数；`pf_hold_ratio`:百分数→小数；`pf_tsr`:百分数→小数；量级界 `accum_pledge_tsr`、`pf_hold_ratio`、`pf_tsr` | 例：`cli.call("equity.query_pledge_detail", sym='002424', limit=40)`
+| `equity.query_pledge_summary` | 公司质押比例 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 质押比例行；字段 trade_date:string（交易日期） / pledge_ratio:float（质押比例(百分数)） / pledge_shares:float?（质押股数(股)） / pledge_market_cap:float?（质押市值） | 量级界 `pledge_ratio` | 例：`cli.call("equity.query_pledge_summary", sym='600196', limit=40)`
+| `equity.query_pledge_market` | 市场整体质押 | 原始数据 | L0 | `limit:int`（签名） | ARR · 市场质押行；字段 trade_date:string（交易日期） / pledge_ratio_total:float?（A股质押总比例(百分数)） / pledge_company_num:int?（质押公司数） | 量级界 `pledge_ratio_total`、`csi300_chg`、`pledge_market_value`、`total_pledged_shares` | 例：`cli.call("equity.query_pledge_market", limit=10)`
+| `equity.query_pledge_industry` | 行业质押比例 | 原始数据 | L0 | `limit:int`（签名） | ARR · 行业质押行；字段 industry:string（行业名称） / trade_date:string（交易日期） / avg_pledge_ratio:float?（平均质押比例(百分数)） | 量级界 `avg_pledge_ratio` | 例：`cli.call("equity.query_pledge_industry", limit=20)`
 | `equity.query_pledge_org` | 质押机构分布 | 原始数据 | L0 | `limit:int`（签名） | ARR · 机构分布行；字段 org_name:string（质押机构） / pforg_type:string?（机构类型） | — | 例：`cli.call("equity.query_pledge_org", limit=20)`
-| `equity.query_institution_detail` | 机构持股明细 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 机构明细行；字段 holder_name:string（机构名称） / report_date:string?（报告期） / total_shares:float?（持股总数(股)） / hold_value:float?（持股市值） / total_shares_ratio:float?（持股比例(百分数)） | `total_shares_ratio`:百分数→小数；`free_shares_ratio`:百分数→小数 | 例：`cli.call("equity.query_institution_detail", sym='600900', limit=40)`
-| `equity.query_institution_summary` | 机构持仓占比 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 机构占比行；字段 report_date:string（报告期） / org_num:int?（机构总数） / total_shares_ratio:float?（总股本比例(百分数)） / change_ratio:float?（变化比例(百分数)） | `total_shares_ratio`:百分数→小数；`change_ratio`:百分数→小数；`all_shares_ratio`:百分数→小数 | 例：`cli.call("equity.query_institution_summary", sym='600900', limit=40)`
-| `equity.query_hgt` | 沪港通持股 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 沪港通行；字段 org_name:string（持股机构） / hold_shares:float?（持股数量(股)） / hold_market_cap:float?（持股市值） | `free_shares_ratio`:百分数→小数；`total_shares_ratio`:百分数→小数；`add_shares_pct`:百分数→小数 | 例：`cli.call("equity.query_hgt", sym='600900', limit=40)`
-| `equity.query_national_team` | 国家队持股 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 国家队行；字段 security_code:string（证券代码） / report_date:string?（报告期） / shares_ratio:float?（持股比例合计(百分数)） | `shares_ratio`:百分数→小数；`shares_ratio_change`:百分数→小数 | 例：`cli.call("equity.query_national_team", sym='000088', limit=40)`
-| `equity.query_release` | 限售解禁日程 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 解禁行；字段 lift_date:string（解禁日期） / lift_num:float（解禁数量(股)） / total_shares_ratio:float?（总股本比例(百分数)） / lift_type:string?（解禁类型） | `total_shares_ratio`:百分数→小数；`unlimited_ratio`:百分数→小数 | 例：`cli.call("equity.query_release", sym='600900', limit=40)`
+| `equity.query_institution_detail` | 机构持股明细 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 机构明细行；字段 holder_name:string（机构名称） / report_date:string?（报告期） / total_shares:float?（持股总数(股)） / hold_value:float?（持股市值） / total_shares_ratio:float?（持股比例(百分数)） | `total_shares_ratio`:百分数→小数；`free_shares_ratio`:百分数→小数；量级界 `total_shares_ratio`、`free_shares_ratio` | 例：`cli.call("equity.query_institution_detail", sym='600900', limit=40)`
+| `equity.query_institution_summary` | 机构持仓占比 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 机构占比行；字段 report_date:string（报告期） / org_num:int?（机构总数） / total_shares_ratio:float?（总股本比例(百分数)） / change_ratio:float?（变化比例(百分数)） | `all_shares_ratio`:百分数→小数；量级界 `all_shares_ratio`、`total_shares_ratio`、`change_ratio` | 例：`cli.call("equity.query_institution_summary", sym='600900', limit=40)`
+| `equity.query_hgt` | 沪港通持股 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 沪港通行；字段 org_name:string（持股机构） / hold_shares:float?（持股数量(股)） / hold_market_cap:float?（持股市值） | `add_shares_pct`:百分数→小数；量级界 `add_shares_pct`、`free_shares_ratio`、`total_shares_ratio` | 例：`cli.call("equity.query_hgt", sym='600900', limit=40)`
+| `equity.query_national_team` | 国家队持股 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 国家队行；字段 security_code:string（证券代码） / report_date:string?（报告期） / shares_ratio:float?（持股比例合计(百分数)） | `shares_ratio`:百分数→小数；`shares_ratio_change`:百分数→小数；量级界 `shares_ratio`、`shares_ratio_change` | 例：`cli.call("equity.query_national_team", sym='000088', limit=40)`
+| `equity.query_release` | 限售解禁日程 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 解禁行；字段 lift_date:string（解禁日期） / lift_num:float（解禁数量(股)） / total_shares_ratio:float?（总股本比例(百分数)） / lift_type:string?（解禁类型） | `total_shares_ratio`:百分数→小数；`unlimited_ratio`:百分数→小数；量级界 `total_shares_ratio`、`unlimited_ratio` | 例：`cli.call("equity.query_release", sym='600900', limit=40)`
 | `equity.query_buyback_plan` | 回购方案全览 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 回购方案行；字段 progress:string?（回购进度） / price_cap:float?（回购价格上限） / amount_limit:float?（回购金额上限） / start_date:string?（开始日期） | — | 例：`cli.call("equity.query_buyback_plan", sym='688496', limit=40)`
 | `equity.query_buyback_detail` | 回购执行明细 | 原始数据 | L0 | `sym:string`（签名） | MAP · 回购明细；字段 repurchase_shares:float?（回购数量） / repurchase_amount:float?（回购金额） / notice_date:string?（公告日期） | — | 例：`cli.call("equity.query_buyback_detail", sym='300347')`
-| `equity.query_reorg` | 并购重组 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 重组行；字段 progress:string?（进度） / deal_amount:float?（交易金额） / notice_date:string?（公告日期） | `transfer_ratio`:百分数→小数 | 例：`cli.call("equity.query_reorg", sym='603363', limit=40)`
+| `equity.query_reorg` | 并购重组 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 重组行；字段 progress:string?（进度） / deal_amount:float?（交易金额） / notice_date:string?（公告日期） | `transfer_ratio`:百分数→小数；量级界 `transfer_ratio` | 例：`cli.call("equity.query_reorg", sym='603363', limit=40)`
 | `equity.query_related_trade` | 关联交易 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 关联交易行；字段 related_party:string（交易方） / trade_amt:float?（交易金额） / notice_date:string?（公告日期） | — | 例：`cli.call("equity.query_related_trade", sym='600900', limit=40)`
-| `equity.query_concert` | 一致行动人 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 一致行动人行；字段 holder_names:string（股东名称(组)） / hold_ratio:float?（持股比例(百分数)） | `hold_ratio`:百分数→小数 | 例：`cli.call("equity.query_concert", sym='688211', limit=40)`
+| `equity.query_concert` | 一致行动人 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 一致行动人行；字段 holder_names:string（股东名称(组)） / hold_ratio:float?（持股比例(百分数)） | `hold_ratio`:百分数→小数；量级界 `hold_ratio` | 例：`cli.call("equity.query_concert", sym='688211', limit=40)`
 | `equity.query_guarantee` | 对外担保 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 担保行；字段 guarantor:string?（担保方） / guarantee_amt:float?（担保金额） / is_performed:string?（是否履行） | — | 例：`cli.call("equity.query_guarantee", sym='600900', limit=40)`
 | `equity.query_litigation` | 诉讼记录 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 诉讼行；字段 case_name:string?（案件名称） / case_amount:float?（案件金额） / plaintiff:string?（原告） / defence:string?（被告） | — | 例：`cli.call("equity.query_litigation", sym='600900', limit=40)`
-| `equity.query_violation` | 违规处罚 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 处罚行；字段 violate_type:string?（违规类型） / punish_type:string?（处罚类型） / punish_amt:float?（处罚金额） | — | 例：`cli.call("equity.query_violation", sym='600900', limit=40)`
-| `equity.query_executives` | 高管名册 | 原始数据 | L0 | `sym:string`（签名） | ARR · 高管行；字段 person_name:string（姓名） / position:string?（职位） / salary:float?（薪酬） / hold_num:float?（持股数(股)） | — | 例：`cli.call("equity.query_executives", sym='600519')`
+| `equity.query_violation` | 违规处罚 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 处罚行；字段 violate_type:string?（违规类型） / punish_type:string?（处罚类型） / punish_amt:float?（处罚金额） | 量级界 `punish_amt` | 例：`cli.call("equity.query_violation", sym='600900', limit=40)`
+| `equity.query_executives` | 高管名册 | 原始数据 | L0 | `sym:string`（签名） | ARR · 高管行；字段 person_name:string（姓名） / position:string?（职位） / salary:float?（薪酬） / hold_num:float?（持股数(股)） | 量级界 `salary`、`hold_num` | 例：`cli.call("equity.query_executives", sym='600519')`
 | `equity.query_exec_change` | 高管增减持最新 | 原始数据 | L0 | `sym:string`（签名） | MAP · 增减持行；字段 end_date:string?（截止日期） / holder_name:string?（持股人名称） / change_num:float?（变动数量(股)） / average_price:float?（交易均价(元)） | — | 例：`cli.call("equity.query_exec_change", sym='600519')`
 | `equity.query_exec_change_at` | 指定报告期增减持 | 原始数据 | L1 | `sym:string` · `annual:int` · `sampling:string`（签名） | MAP · 增减持行；字段 end_date:string?（截止日期） / holder_name:string?（持股人名称） / change_num:float?（变动数量(股)） / average_price:float?（交易均价(元)） | — | 例：`cli.call("equity.query_exec_change_at", sym='600519', annual=2024, sampling='Q4')`
-| `equity.query_capital_change` | 股本结构最新 | 原始数据 | L0 | `sym:string`（签名） | MAP · 股本行；字段 total_shares:float?（总股份） / free_shares:float?（流通股份） | — | 例：`cli.call("equity.query_capital_change", sym='600519')`
+| `equity.query_capital_change` | 股本结构最新 | 原始数据 | L0 | `sym:string`（签名） | MAP · 股本行；字段 total_shares:float?（总股份） / free_shares:float?（流通股份） | 量级界 `total_shares`、`free_shares` | 例：`cli.call("equity.query_capital_change", sym='600519')`
 | `equity.query_capital_change_at` | 指定报告期股本 | 原始数据 | L1 | `sym:string` · `annual:int` · `sampling:string`（签名） | MAP · 股本行；字段 total_shares:float?（总股份） / free_shares:float?（流通股份） | — | 例：`cli.call("equity.query_capital_change_at", sym='600519', annual=2024, sampling='Q4')`
 | `equity.fmt_holder10` | 十大股东行规范化 | 原始数据 | L1 | `rows:array`（签名） | ARR · 规范化行 | — |
 | `equity.fmt_holdernum` | 股东户数规范化 | 原始数据 | L1 | `props:any`（签名） | MAP · 户数行 | — |
@@ -851,19 +851,19 @@ TTM 聚合（最近四个季度滚动求和）与单期披露值（单位 元（
 
 #### 港美股披露（`market.intl`）
 
-**性质**：原始数据 · **版本**：1.1.0  
+**性质**：原始数据 · **版本**：1.2.0  
 港美股公司披露维度——港股 CCASS 经纪持仓、主要股东/董事权益、机构评级、 盈利预测（中文键披露原文），港美沽空 interest，美股发行信息。客户端须用对应市场 （函数内部按标的代码路由到港美数据族）。
 数据来源：交易所披露、平台数据服务。
 单位口径：shares=股（持股数/沽空量）；ratio=小数（占比字段已由百分数换算）；price=披露币种（目标价/发行价随市场币种，不做汇率换算）。
 - 客户端 market 参数须与标的注册市场一致：cn 客户端调港美股代码会 400 market mismatch（v1.1.0 起如实标注）
 - A股标的调用多返回空（对应数据集为港美股口径）
-- 港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）
+- 港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）；数值为披露原文口径 不做换算：纯利=百万（港元）、每股盈利/每股股息=仙（cents，如 eps 2550 = 25.50 港元）、 fiscal_year=年份（2026-10-28 港股龙头样本实测）
 - issue_info 为美股发行快照（发行价/数量/日期），字段以披露源为准
 
 | 函数 | 中文 | 性质 | 层 | 参数 | 返回 | 单位与守护 |
 |---|---|---|---|---|---|---|
-| `intl.query_ccass` | 港股CCASS持仓 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · CCASS行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | `pct_of_issued`:百分数→小数 | 例：`cli.call("intl.query_ccass", sym='00700', limit=20)`
-| `intl.query_shareholders` | 港股主要股东 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 股东行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | `total_shares_ratio`:百分数→小数 | 例：`cli.call("intl.query_shareholders", sym='00700', limit=20)`
+| `intl.query_ccass` | 港股CCASS持仓 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · CCASS行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | `pct_of_issued`:百分数→小数；量级界 `pct_of_issued` | 例：`cli.call("intl.query_ccass", sym='00700', limit=20)`
+| `intl.query_shareholders` | 港股主要股东 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 股东行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | 量级界 `total_shares_ratio` | 例：`cli.call("intl.query_shareholders", sym='00700', limit=20)`
 | `intl.query_org_rating` | 港股机构评级 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 评级行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | — | 例：`cli.call("intl.query_org_rating", sym='00700', limit=20)`
 | `intl.query_profit_forecast` | 港股盈利预测 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 预测行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | — | 例：`cli.call("intl.query_profit_forecast", sym='00700', limit=20)`
 | `intl.query_sellshort` | 港美沽空 | 原始数据 | L0 | `sym:string` · `limit:int`（签名） | ARR · 沽空行；字段 participant_name:string?（参与者名称） / shareholding:float?（持股数(股)） / holder_name:string?（股东名称） / rating_name:string?（评级） / short_selling_shares:float?（未平仓做空(股)） | — | 例：`cli.call("intl.query_sellshort", sym='BRK_B', limit=10)`

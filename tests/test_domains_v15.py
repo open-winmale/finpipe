@@ -32,29 +32,40 @@ NEW_DOMAINS: dict[str, dict[str, str]] = {
     "market.intl": {"ns": "intl", "category": "reference", "kind": "raw"},
 }
 DOMAIN_IDS = sorted(NEW_DOMAINS)
-# 单位契约：这四个域的数据已是基础单位，函数级不应声明换算
-NO_UNITS_DOMAINS = {"market.margin", "market.cbond", "fund.estimates", "disc.workout"}
+# 单位契约：这些域的数据已是基础单位，函数级不应声明换算
+# （cbond 1.1.0 起有审计核验的 percent 声明：premiumRatio/couponIr）
+NO_UNITS_DOMAINS = {"market.margin", "fund.estimates", "disc.workout"}
+# 仅 ranges 守护（换算声明经审计移除）
+RANGES_ONLY_DOMAINS = {"market.index"}
 # 规范化行域（normalize_with→fmt_*）：其余三域（cbond/workout/index）无规范化行
 NORMALIZE_DOMAINS = {"corp.equity", "market.margin", "fund.estimates", "market.intl"}
 
-# percent 字段换算用例（合成行：只验证 percent→小数的 ×0.01 因子，非业务数值）
+# percent 字段换算用例（合成行：只验证 percent→小数的 ×0.01 因子，非业务数值）。
+# 口径以 2026-10-28 全量单位审计为准（.internal/UNIT_AUDIT.md）：上游 fmt 部分接口
+# 已预换算小数——同接口内混排（如 institution_summary 只有 all_shares_ratio 仍百分数）。
 PCT_CONVERSION_CASES: list[tuple[str, dict[str, float]]] = [
-    ("equity.query_holder10", {"hold_num_ratio": 52.2}),
-    ("equity.query_pledge_summary", {"pledge_ratio": 5.22}),
     ("equity.query_pledge_detail", {"accum_pledge_tsr": 30.0, "pf_hold_ratio": 12.34}),
-    ("equity.query_pledge_industry", {"avg_pledge_ratio": 15.5}),
     ("equity.query_institution_detail", {"total_shares_ratio": 4.4, "free_shares_ratio": 8.8}),
-    ("equity.query_institution_summary",
-     {"total_shares_ratio": 45.6, "change_ratio": -1.1, "all_shares_ratio": 46.0}),
-    ("equity.query_hgt",
-     {"free_shares_ratio": 3.2, "total_shares_ratio": 2.8, "add_shares_pct": 0.5}),
+    ("equity.query_institution_summary", {"all_shares_ratio": 46.0}),
+    ("equity.query_hgt", {"add_shares_pct": 0.5}),
     ("equity.query_national_team", {"shares_ratio": 1.2, "shares_ratio_change": 0.1}),
     ("equity.query_release", {"total_shares_ratio": 10.0, "unlimited_ratio": 55.0}),
     ("equity.query_reorg", {"transfer_ratio": 21.0}),
     ("equity.query_concert", {"hold_ratio": 33.3}),
-    ("indices.weights", {"weight": 7.1}),
     ("intl.query_ccass", {"pct_of_issued": 5.01}),
-    ("intl.query_shareholders", {"total_shares_ratio": 9.87}),
+]
+
+# 审计实锤「原生已是小数」的字段：不得声明 percent（声明会再除 100，曾在 v1.5.0
+# 全量错标）——断言未声明且取数直出不换算。
+NO_CONVERSION_CASES: list[tuple[str, dict[str, float]]] = [
+    ("equity.query_holder10", {"hold_num_ratio": 0.545}),
+    ("equity.query_pledge_summary", {"pledge_ratio": 0.0006}),
+    ("equity.query_pledge_industry", {"avg_pledge_ratio": 0.1744}),
+    ("equity.query_institution_summary",
+     {"total_shares_ratio": 0.7422, "change_ratio": -0.01535}),
+    ("equity.query_hgt", {"free_shares_ratio": 3.2e-05, "total_shares_ratio": 3.2e-05}),
+    ("indices.weights", {"weight": 0.02127}),
+    ("intl.query_shareholders", {"total_shares_ratio": 1e-05}),
 ]
 
 # 库名 → 门面属性名（indices 库的门面仍叫 cli.index，内建 index 常量占名历史见 market.index.yaml notes）
@@ -171,6 +182,10 @@ def test_units_contract(domain):
                 for n in domain_fns(domain) if CAT.function(n).get("units")}
     if domain in NO_UNITS_DOMAINS:
         assert not declared, f"{domain}: 数据已为基础单位，不应声明换算 {sorted(declared)}"
+    elif domain in RANGES_ONLY_DOMAINS:
+        # index.weights 1.2.0：审计实锤权重原生已小数，percent 声明移除、改 ranges 守护
+        assert not declared, f"{domain}: 审计后不应再有 units 声明 {sorted(declared)}"
+        assert CAT.function("indices.weights").get("ranges"), "indices.weights 应有 ranges"
     else:
         assert declared, f"{domain}: 期望至少一处 units 声明"
         for name, units in declared.items():
@@ -187,6 +202,18 @@ def test_units_percent_converted_to_decimal(name, row):
         assert field in fn["units"], f"{name}: {field} 未声明 percent"
         assert out[0][field] == pytest.approx(raw * CONVERSIONS["percent"]), \
             f"{name}.{field}: percent 应换算为小数（×0.01）"
+
+
+@pytest.mark.parametrize("name,row", NO_CONVERSION_CASES)
+def test_units_audit_decimal_fields_pass_through(name, row):
+    """审计实锤为小数的字段必须未声明 percent 且取数直出（防 ×100 错标回潮）。"""
+    fn = CAT.function(name)
+    units = fn.get("units") or {}
+    out = apply_units([dict(row)], fn, fname=name)
+    for field, raw in row.items():
+        assert field not in units, \
+            f"{name}.{field}: 审计实测原生已小数，不得声明 percent（会再除 100）"
+        assert out[0][field] == raw, f"{name}.{field}: 未声明字段应原值直出"
 
 
 # ---------------------------------------------------------------- 4. 门面委托

@@ -1,5 +1,5 @@
 id: market.intl
-version: 1.1.0
+version: 1.2.0
 cn: 港美股披露
 kind: raw
 category: reference
@@ -16,11 +16,13 @@ requires: {path: sys/intl/init.xs, preloaded: true}
 notes:
   - '客户端 market 参数须与标的注册市场一致：cn 客户端调港美股代码会 400 market mismatch（v1.1.0 起如实标注）'
   - 'A股标的调用多返回空（对应数据集为港美股口径）'
-  - '港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）'
+  - '港股盈利预测行保留披露原文中文键（财政年度/纯利/每股盈利等）；数值为披露原文口径
+    不做换算：纯利=百万（港元）、每股盈利/每股股息=仙（cents，如 eps 2550 = 25.50 港元）、
+    fiscal_year=年份（2026-10-28 港股龙头样本实测）'
   - 'issue_info 为美股发行快照（发行价/数量/日期），字段以披露源为准'
 functions:
-  - {name: intl.query_ccass, cn: 港股CCASS持仓, layer: L0, normalize_with: intl.fmt_maps, units: {pct_of_issued: percent}}
-  - {name: intl.query_shareholders, cn: 港股主要股东, layer: L0, normalize_with: intl.fmt_maps, units: {total_shares_ratio: percent}}
+  - {name: intl.query_ccass, cn: 港股CCASS持仓, layer: L0, normalize_with: intl.fmt_maps, units: {pct_of_issued: percent}, ranges: {pct_of_issued: [0, 1]}}
+  - {name: intl.query_shareholders, cn: 港股主要股东, layer: L0, normalize_with: intl.fmt_maps, ranges: {total_shares_ratio: [0, 1]}}
   - {name: intl.query_org_rating, cn: 港股机构评级, layer: L0, normalize_with: intl.fmt_maps}
   - {name: intl.query_profit_forecast, cn: 港股盈利预测, layer: L0, normalize_with: intl.fmt_maps}
   - {name: intl.query_sellshort, cn: 港美沽空, layer: L0, normalize_with: intl.fmt_maps}

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-27
+
 ### Removed
 
 - **下线内置体验 AppID（行为变更）**：`wmshare.Client()` 不再零配置——缺凭证在构造期

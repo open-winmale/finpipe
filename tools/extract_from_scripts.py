@@ -50,17 +50,18 @@ INCLUDED_NS = frozenset({
 # rptdom 只保留三表透视族（年报 PDF 提取类 rows/notes/note_index 不发布）
 RPTDOM_KEEP = frozenset({"statement", "statement_years", "statement_compare", "statement_tree", "statement_audit"})
 
-# 第三方数据商/竞品名 → 中性词（生成文本全字段适用；新增条目须同步 tools/check_leak.py）
-SANITIZE_TEXT = {
-    "数据源": "数据源",
-    "数据商混源": "多源混合",
-    "标准目录结构": "标准目录结构",
-    "披露平台": "披露原文",
-    "quote_source|quote_source|quote_source_rt|quote_source_quote|quote_source_kline|quote_source_ulist": "来源标识枚举",
-}
+# 第三方数据商/竞品名 → 中性词的净化映射：词表本身即第三方痕迹，不入库，
+# 存放在 .internal/extract_sanitize.json（本地存在时启用；CI 无上游树本就跳过本工具）
+import json as _json
 
-# metrics 过滤：第三方策略对照批次不发布（其余批次为平台自产指标，仅不发布 source 溯源路径）
-METRIC_SOURCE_EXCLUDE = ("xs/vendor_strategy/",)
+_internal_map = Path(__file__).resolve().parents[1] / ".internal" / "extract_sanitize.json"
+if _internal_map.is_file():
+    _map = _json.loads(_internal_map.read_text(encoding="utf-8"))
+    SANITIZE_TEXT: dict[str, str] = _map.get("sanitize_text", {})
+    METRIC_SOURCE_EXCLUDE: tuple[str, ...] = tuple(_map.get("metric_source_exclude", ()))
+else:
+    SANITIZE_TEXT = {}
+    METRIC_SOURCE_EXCLUDE = ()
 
 
 def sanitize(text: str) -> str:

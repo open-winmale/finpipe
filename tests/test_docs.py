@@ -335,8 +335,18 @@ def test_readme_units_and_guards_documented():
 
 
 def test_readme_no_competitor_names():
-    """README 零竞品名（2026-10-24 用户定版）：差异化卖点一律自证式表述，防回潮。"""
-    assert "数据服务" not in README.lower(), "README 不得出现竞品名（对比历史留在 CHANGELOG）"
+    """README 零竞品名（2026-10-24 用户定版）：差异化卖点一律自证式表述，防回潮。
+
+    禁词表唯一来源是 tools/check_leak.py 的混淆词表——测试不二次入库字面量。
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "check_leak_gate", REPO / "tools" / "check_leak.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert not mod.thirdparty_pattern().search(README), \
+        "README 不得出现竞品名（对比历史留在 CHANGELOG）"
 
 
 def test_readme_is_lean():

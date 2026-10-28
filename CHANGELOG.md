@@ -267,7 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **README 店面化重构（495 → 274 行）**：按用户定版要求移除「与 主流数据服务 对比」整节
+- **README 店面化重构（495 → 274 行）**：按用户定版要求移除「与主流数据服务对比」整节
   （含价格表与官方页注释）、「wmshare 的劣势」节、九个数据域详解长文、「指标体系」
   长文与「数据范围」节——README 零竞品名、差异化卖点改自证式表述，并新增
   `test_readme_no_competitor_names`（防回潮）与 `test_readme_is_lean`（行数 ≤280，
@@ -326,12 +326,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs
 
-- README「与 主流数据服务 对比」章节：优势与劣势两面陈述（免费额度/单位口径/数据守护/
+- README「与主流数据服务对比」章节：优势与劣势两面陈述（免费额度/单位口径/数据守护/
   衍生指标 vs 覆盖面/数据积累/生态/商用许可）。第三方名门禁为此开唯一例外：
-  仅 README 允许点名 数据服务（`check_leak.py` 的 `THIRDPARTY_ALLOWED_BY_FILE`），
+  仅 README 允许点名竞品（check_leak.py 的文件级例外，1.8.1 起取消），
   其余第三方名在全部文件仍然禁止；对比章节由测试守护必须保持两面陈述。
   「衍生计算」行升级为 `cli.screener` 选股门面口径；实时行情行明确免费提供
-  盘中快照与当日 1 分钟分时（主流数据服务 实时分钟为 1000 元/月的独立权限）。
+  盘中快照与当日 1 分钟分时（主流数据服务的实时分钟为 1000 元/月的独立权限）。
 
 ## [1.3.1] - 2026-10-24
 

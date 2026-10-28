@@ -32,21 +32,28 @@ FORBIDDEN_SUBSTRINGS = [
     "3e41394cda5b9bcaece12c59dcd2382b053bb6906434e60f",
 ]
 
-# 第三方产品/数据商引用：项目规范禁止出现（含竞品对标与数据来源点名）
-THIRDPARTY_RE = re.compile(
-    r"数据服务|开源数据库|quote_source|数据源|数据源|quote_source|数据服务商|quote_source|数据商|数据服务商|vendor_events|"
-    r"披露平台|社区|社区|行情软件|问财|vendor_source|行情软件|行情软件|行情软件|海外数据商|数据商|"
-    r"提取工具|报表工具|开源数据库|量化平台|量化平台|量化平台|量化平台|量化平台",
-    re.IGNORECASE,
-)
+# 第三方产品/数据商引用：项目规范禁止出现（含竞品对标与数据来源点名）。
+# 词表本身也是第三方内容——明文入库即成痕迹，故以 XOR+base64 混淆 blob 存放
+# （同 _experience.py 先例；历史上该表曾明文入库，1.8.1 起混淆化）。
+_WORDS_BLOB = "Li8pMjsoP1AtOz4zLi9QvNbMv8bqv9/OUDsxKTI7KD9QODs1KS41OTFQPzspLjc1ND8jUL7ixrLu+FC8zOq87/BQKTM0O1Cy3+Sy9PVQLj80OT80LlCy28C84MpQvcrcvMfVvuHbUDYzIjM0PSg/NFC/7fK85/RQs8HwvcrZUCIvPyszL1C/ytay0Ouz++BQs830su74UDMtPzQ5OzNQa2owKzE7ULPawLLk5L7l+1AuPiJQBjgtMzQ+BjhQvuLdv+TNUDg2NTU3OD8oPVA8MzR3PyIuKDs5LlAoKi4uOzhQvNTCs93LULLbwL/051AwNTM0Ky87NC5QvevpvffKUCgzOT8rLzs0LlAuKQU5NT4/UD83BSk/OTM+"
+_WORDS_KEY = 0x5A
 
-# 经维护者批准的例外：README「与 主流数据服务 对比」章节允许点名 数据服务；CHANGELOG 记录、
-# CONTRIBUTING 规范说明与守护测试同属这一决定的一部分。仅此一名、仅此四文件；
-# 其余第三方名在全部文件仍然禁止。
-THIRDPARTY_ALLOWED_BY_FILE = {
-    rel: re.compile(r"数据服务", re.IGNORECASE)
-    for rel in ("README.md", "CHANGELOG.md", "CONTRIBUTING.md", "tests/test_docs.py")
-}
+
+def thirdparty_words() -> list[str]:
+    """解码第三方禁词表（含词边界型正则片段，如 \\bwind\\b）。"""
+    import base64
+
+    raw = bytes(b ^ _WORDS_KEY for b in base64.b64decode(_WORDS_BLOB))
+    return [w for w in raw.decode("utf-8").splitlines() if w]
+
+
+def thirdparty_pattern() -> re.Pattern:
+    """编译第三方禁词正则；守护测试（test_docs）复用同一来源，避免字面量二次入库。"""
+    parts = [w if w.startswith("\\b") else re.escape(w) for w in thirdparty_words()]
+    return re.compile("|".join(parts), re.IGNORECASE)
+
+
+THIRDPARTY_RE = thirdparty_pattern()
 
 # 开发者机器路径
 FORBIDDEN_PATTERNS = [
@@ -54,9 +61,8 @@ FORBIDDEN_PATTERNS = [
     re.compile(r"/home/[A-Za-z0-9_]+/winmale"),
 ]
 
-# 携带第三方禁用词表本身的维护工具（策略定义文件），豁免第三方扫描；其余扫描照常
-THIRDPARTY_SKIP = {"tools/check_leak.py", "tools/extract_from_scripts.py",
-                   "tests/test_symbols.py"}
+# 标的名 fixture（腾讯控股等）所在测试文件豁免第三方扫描；其余扫描照常
+THIRDPARTY_SKIP = {"tests/test_symbols.py"}
 
 # 公司名录是标的数据：上市公司名本身（如港股 00700 腾讯控股）会与数据商/竞品禁词
 # 撞名——这是「标的名」不是「第三方产品引用」，整个目录豁免第三方扫描
@@ -136,13 +142,11 @@ def scan() -> list[str]:
             m = pat.search(text)
             if m:
                 findings.append(f"{rel}: 含机器路径 {m.group(0)!r}")
-        allowed = THIRDPARTY_ALLOWED_BY_FILE.get(rel)
         if not (rel in THIRDPARTY_SKIP
                 or rel.startswith(THIRDPARTY_SKIP_PREFIXES)):
-            for m in THIRDPARTY_RE.finditer(text):
-                if not (allowed and allowed.fullmatch(m.group(0))):
-                    findings.append(f"{rel}: 含第三方引用 {m.group(0)!r}（项目规范禁止）")
-                    break
+            if THIRDPARTY_RE.search(text):
+                findings.append(f"{rel}: 含第三方引用（项目规范禁止）")
+
         m = SECRET_RE.search(text)
         if m:
             findings.append(f"{rel}: 疑似凭证字面量 {m.group(0)[:40]!r}")

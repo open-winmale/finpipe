@@ -1,7 +1,7 @@
 # wmshare
 
-> **English TL;DR** — `wmshare` is a source-available (non-commercial) Python SDK for China A-share
-> market data (partial HK/US coverage — see "市场覆盖" for the per-market matrix):
+> **English TL;DR** — `wmshare` is a BSD-3-Clause open-source Python SDK covering China A-share,
+> Hong Kong and US markets (per-capability matrix in「市场覆盖」):
 > k-line (3 adjustment modes), intraday snapshots, money flow, the three financial statements,
 > 2,197 metric codes (TTM, historical & industry percentiles, dividend analytics), a screener
 > facade (single-stock screens & server-side market breadth), announcements and company profiles.
@@ -10,16 +10,16 @@
 > **Credentials required** (free registration at open.winmale.com; error messages guide you
 > through setup). **Install**: `pip install wmshare`.
 
-A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——各市场覆盖明细见下方
-[「市场覆盖」](#市场覆盖)）。
-注册开放平台领取凭证（非商业免费、注册即得）后即可取数，见下方「配置凭证」。
-许可与使用限制见文末[「使用限制（必读）」](#使用限制必读)与 [LICENSE](LICENSE)。
+覆盖 **A股、港股、美股** 的 Python 财经数据 SDK——各市场逐能力明细见下方
+[「市场覆盖」](#市场覆盖)矩阵。
+注册开放平台领取凭证（免费、注册即得）后即可取数，见下方「配置凭证」。
+许可与数据服务说明见文末[「许可与数据服务」](#许可与数据服务)与 [LICENSE](LICENSE)。
 
 ## 目录
 
 [特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [市场覆盖](#市场覆盖) ·
 [单位与数据守护](#单位与数据守护) · [我想做 X → 用哪一行](#我想做-x--用哪一行) ·
-[使用限制](#使用限制必读) · [更多](#更多)
+[许可与数据服务](#许可与数据服务) · [更多](#更多)
 
 ## 特性
 
@@ -30,7 +30,7 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——�
 - **数据要准**——财报按最新会计准则归一，跨年跨公司直接比较；全库基础单位
   （比率/涨跌幅=小数、金额=元、量=股）；每次返回做量级守护与关系不变量校验，
   错误的量级到不了你的代码（见下方「单位与数据守护」）。
-- **特色数据**——非商业免费且含实时（盘中快照、当日 1 分钟分时不另收费）；
+- **特色数据**——免费且含实时（盘中快照、当日 1 分钟分时不另收费）；
   `cli.screener` 涨停/均线筛选一行直出，全市场涨跌全景/分桶/行业分布/涨跌榜走
   服务端预计算索引，毫秒级响应，你不拉全市场数据、不算均线；2,197 个指标码
   （TTM、3/5/10 年历史分位、192 个行业内分位、TTM 股息率/派息率 + 11 个质量筛选器）
@@ -60,7 +60,7 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare   # 清华源
 
 ### 配置凭证
 
-注册 [赢麻了开放平台](https://open.winmale.com)（微信扫码，非商业免费、注册即得），
+注册 [赢麻了开放平台](https://open.winmale.com)（微信扫码，免费、注册即得），
 在「我的 → 开放平台 → 我的应用」查看 `client_id` 与 api-key，然后任选其一：
 
 ```bash
@@ -117,22 +117,30 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 
 | 数据能力 | A股 cn | 港股 hk | 美股 us |
 |---|---|---|---|
-| 日 K 三种复权 / 1 分钟分时 / 盘中快照 | ✅ 全量 | ✅ | 历史（日 K 停更）/ 快照新鲜，见注记 |
-| 三大报表 | ✅ | 未上线 | 未上线 |
-| CCASS / 主要股东 / 机构评级 / 盈利预测（`cli.intl`） | — | ✅ | — |
-| 沽空（`cli.intl.query_sellshort`） | — | ✅ | ✅ |
-| 发行信息（`cli.intl.issue_info`） | — | — | ✅ |
+| 日 K 三种复权 / 1 分钟分时 / 盘中快照 | ✅ 全量 | ✅ | 快照/盘中新鲜；历史日 K 停更（见注记） |
+| 指标库（2,197 码：估值/盈利/成长/分红/分位） | ✅ | ✅ | ✅ |
+| 分红：历史、TTM 股息率/派息率、质量筛选 | ✅ | ✅ | ✅（窗口口径固定） |
+| 公告与披露信号 | ✅ | ✅ | — |
+| 财报清单与最新披露 | ✅ | ✅ | — |
+| 股东治理：高管名册 / 高管增减持 / 股本变更 | ✅ | ✅ | ✅（仅股本变更） |
+| 股东治理：十大股东 / 质押 / 解禁 / 机构持仓 / 重组 / 担保 / 诉讼 / 股东户数 | ✅ | — | — |
+| 全市场选股：单票筛选器 / 涨跌全景 / 高息池 | ✅ | 部分（单票筛选可用；高息池索引暂缺） | — |
+| 港美专项：CCASS / 主要股东 / 机构评级 / 盈利预测（`cli.intl`） | — | ✅ | — |
+| 港美专项：沽空（`cli.intl.query_sellshort`） | — | ✅ | ✅ |
+| 港美专项：发行信息（`cli.intl.issue_info`） | — | — | ✅ |
+| 资金流 / 两融 / 可转债 / 业绩预告 / 盈利预测研报 / 经营分部 / 契约套利 | ✅ | — | — |
 | 离线代码表 + 检索（`cat.symbols_search`） | ✅ | ✅ | ✅ |
-| 其余 15 个数据域：全景筛选/选股、资金流、两融、可转债、分红、业绩预告、股东治理、指数、契约套利、2197 指标库… | ✅ | — | — |
 
 市场切换：`Client(market="cn" / "hk" / "us")`，缺省 cn；代码与市场不匹配会被服务端直接拒绝
 （如 cn 市场查 `00700` 报 market mismatch）。`cli.intl` 的港美股披露同样要用对应市场的
 客户端调用（函数内部再按标的代码路由到港美数据族）。
 
-如实注记（2026-10-27 实测）：美股日 K 为历史快照、停更于 2026-03-13（上游对美股价量走
-live-only 策略），美股最新价量用 `cli.kline.live / snapshot`（实测当日新鲜）；港美 K 线
-量额单位已随 1.x 修复（cn 手×100 仅在 cn 生效，港美上游即股直出）；港美股三大报表的
-合同已预留原币口径（港币/美元），数据尚未上线。
+如实注记（2026-10-28 实测）：港/美列的 ✅ 均经 live 探针逐族验证；美股日 K 为历史快照、
+停更于 2026-03-13（上游对美股价量走 live-only 策略），美股最新价量用
+`cli.kline.live / snapshot`（实测当日新鲜）；港美 K 线量额单位已随 1.x 修复（cn 手×100
+仅在 cn 生效，港美上游即股直出）；三大报表的**深研宽表**（多期透视/合并对比/树视图）
+暂仅 cn，港美报表科目级数据经指标码可查；hk 十大流通股东与回购上游已有数据管线、
+SDK 接口待路由（见 ROADMAP）。
 
 ## 我想做 X → 用哪一行
 
@@ -200,15 +208,12 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 单次区间上限 5 年、默认单次 500 根（`Client(max_limit=...)` 可调）。全量深回溯
 （1990 年代不复权老数据）可能触发不变量守护，需整段历史时 `validate=False` 取全。
 
-## 使用限制（必读）
+## 许可与数据服务
 
-本项目采用 [PolyForm Noncommercial License 1.0.0](LICENSE)：
-
-- ✅ **仅限非商业目的**：个人学习、研究、教学、学术、爱好者项目、公益组织等，完全免费；
-- ❌ **严禁商业使用**：任何商业目的的使用、再分发或服务化均需另行获得商业授权；
-- 本许可属于 source-available（源码可见）而非 OSI 定义的开源许可。
-
-商业授权请联系项目维护方。数据仅供研究参考，不构成任何投资建议。
+- 代码采用 [BSD-3-Clause](LICENSE)：可自由使用、修改、再分发（**含商业用途**），保留版权声明即可。
+- 云端数据服务需 [开放平台](https://open.winmale.com) 账号与额度，免费额度注册即得；
+  服务条款以开放平台为准。
+- 数据仅供研究参考，不构成任何投资建议。
 
 ## 更多
 

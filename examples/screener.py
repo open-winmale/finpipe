@@ -1,6 +1,6 @@
 """选股与全景：cli.screener 单票筛选器 + 全市场涨跌宽度（服务端索引直出）。
 
-需要凭证：注册开放平台获取（非商业免费、注册即得），见错误消息指引。
+需要凭证：注册开放平台获取（免费、注册即得），见错误消息指引。
     export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/screener.py
 """

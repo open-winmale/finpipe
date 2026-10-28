@@ -116,5 +116,5 @@ def test_skill_ships_in_wheel():
 def test_skill_wording_guards():
     """关键纪律必须在文：单位铁律、目录先行、错误引导、许可证边界。"""
     for kw in ("小数", "cat.search", "禁止编造", "open.winmale.com", "DataError",
-               "非商业", "0.0396 = 3.96%"):
+               "BSD-3-Clause", "0.0396 = 3.96%"):
         assert kw in SKILL, f"SKILL.md 缺少关键内容：{kw}"

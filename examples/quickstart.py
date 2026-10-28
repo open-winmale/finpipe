@@ -1,6 +1,6 @@
 """快速上手：5 分钟看懂 wmshare 的四类数据。
 
-凭证必填：注册开放平台获取 client_id/api-key（非商业免费、注册即得）：
+凭证必填：注册开放平台获取 client_id/api-key（免费、注册即得）：
     export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/quickstart.py
 

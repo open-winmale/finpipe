@@ -10,6 +10,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-10-28
+
+### Changed
+
+- **开源协议改为 BSD-3-Clause**（对齐主流数据接口库形态）：代码可自由使用、修改、
+  再分发（含商业用途），保留版权声明即可。历史脉络：1.4.2/1.4.3 曾为 MIT，1.4.4 起为
+  PolyForm Noncommercial；本次放开代码许可后，云端数据服务的账号/额度约束收口到
+  开放平台服务条款（取数仍需凭证，免费额度注册即得）。README「使用限制（必读）」节
+  改写为「许可与数据服务」；SKILL/错误指引/OpenAPI/示例/CONTRIBUTING 同步去「非商业」
+  限定。GitHub License tab 由此正确识别 BSD 3-Clause。
+- **README 定位改覆盖式**：「A股为主」→「覆盖 A 股、港股、美股」；市场覆盖矩阵按
+  live 探针逐族实测重写（探针脚本 `.internal/probe_hk_us.py` 可复跑）。
+
+### Fixed
+
+- **市场覆盖矩阵纠错**（此前 hk/us 标注与真实数据面不符，三层证据：airflow 摄取清单、
+  上游域库、生产工具实证 + 本次逐族探针）：指标库 hk/us 全量可用（hk 969 码 / us 898 码）；
+  分红 hk/us ✅；公告 hk ✅；财报清单 hk ✅；股东治理拆行——高管名册/高管增减持/
+  股本变更 hk ✅（us 仅股本变更 ✅），十大股东/质押/解禁/机构持仓等确为 cn-only；
+  全市场选股 hk 标注「部分」（单票筛选可用，高息池索引暂缺）。
+
+### Added
+
+- ROADMAP 记录 HK 接口缺口：equity 十大流通股东/回购上游已有 hk 数据管线
+  （hk.freeholder / hk.gphghgmx），store 硬编码 cn 前缀待上游路由化，SDK 侧零改动即可点亮。
+
 ## [1.7.3] - 2026-10-28
 
 ### Changed

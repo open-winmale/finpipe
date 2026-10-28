@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **下线内置体验 AppID（行为变更）**：`wmshare.Client()` 不再零配置——缺凭证在构造期
+  抛 `AuthError(code="config")` 并附申请指引；随包混淆 blob（`_experience.py`）删除。
+  凭证三选一：构造参数 / `WMSHARE_CLIENT_ID`+`WMSHARE_CLIENT_SECRET` 环境变量 /
+  `~/.wmshare/credentials.env`（非商业免费、注册即得）。README/SKILL/API.md/CONTRIBUTING/
+  examples 同步改为「配置凭证」前置；服务端体验应用同步停用（已装旧包的内置凭证将
+  401，错误消息即指引）。
+
 ### Fixed
 
 - **v1.5.0 五新域上线（上游 two commits 部署 pipeline-5206/5208）+ SDK 配套**：此前

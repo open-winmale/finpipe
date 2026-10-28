@@ -1,6 +1,6 @@
 """高股息筛选器：wmshare 的杀手锏能力，跨自选股批量筛选。
 
-需要凭证（内置体验 appid 也可跑）：共享池额度有限，建议用自己的 appid。
+需要凭证：注册开放平台获取（非商业免费、注册即得），见错误消息指引。
     export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/dividend_screener.py
 """

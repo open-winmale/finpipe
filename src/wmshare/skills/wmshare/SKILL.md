@@ -1,6 +1,6 @@
 ---
 name: wmshare
-description: 用 wmshare Python SDK 取 A 股数据：K 线（三种复权）、盘中快照、1 分钟分时、资金流、三大报表、2197 个指标码、选股筛选与全市场涨跌全景、分红、公告、公司档案。零配置 Client() 即可取数；随包离线目录可编程查询，指标码/函数名先查目录、禁止臆造。用户要 A 股行情/财务/指标/选股/分红/公告数据时用本 skill，即使用户没点名 wmshare。
+description: 用 wmshare Python SDK 取 A 股数据：K 线（三种复权）、盘中快照、1 分钟分时、资金流、三大报表、2197 个指标码、选股筛选与全市场涨跌全景、分红、公告、公司档案。配置开放平台凭证后即可取数；随包离线目录可编程查询，指标码/函数名先查目录、禁止臆造。用户要 A 股行情/财务/指标/选股/分红/公告数据时用本 skill，即使用户没点名 wmshare。
 when_to_use: 用户需要 A 股个股或全市场数据（价格、财务、指标、筛选、分红、公告）来回答问题、做分析或写代码时。
 ---
 
@@ -21,9 +21,10 @@ python3 -c "import wmshare; print(wmshare.__version__)"   # 探测
 pip install wmshare -i https://pypi.org/simple
 ```
 
-凭证：`wmshare.Client()` **零配置**即可取数（内置体验 AppID，共享池、额度有限）。
-遇到 401/429 再申请自己的 AppID（额度更充足）；403「策略拒绝」是接口权限范围、
-处理方式不同，见 §7 错误速查：
+凭证必填（SDK 不再内置体验 AppID）：注册开放平台获取 client_id/api-key，
+配置其一（构造参数 / WMSHARE_CLIENT_ID+WMSHARE_CLIENT_SECRET 环境变量 /
+~/.wmshare/credentials.env 凭证文件）即可取数：
+
 
 1. 打开 open.winmale.com，扫码微信登录注册；
 2. 右上角「我的」→「开放平台」→ 左侧「我的应用」→「查看应用信息」，
@@ -154,7 +155,7 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
 |---|---|---|
 | `AuthError`（401/OAuth） | 凭证无效或过期 | 按第 1 节申请自己的 AppID 并配置环境变量 |
 | `AuthError`（403 策略拒绝） | AppID 无此接口权限范围 | 与额度无关，勿重试：按错误消息到 open.winmale.com 开放平台查应用权限，或改用无此限制的接口 |
-| `LimitError` | 429 限流 / 超上限 | 体验 AppID 共享池限额：稍等重试或换自己的 AppID；区间类缩小 begin/end |
+| `LimitError` | 429 限流 / 超上限 | 稍等重试；批量/连跑可申请自己的 AppID 提额；区间类缩小 begin/end |
 | `UsageError` | 参数不合法 | 按消息修正；参数合同查 `cat.function(name)["params"]` |
 | `DataError` | 单位/守护校验违例 | 数据在报警：换指标或核实口径，勿静默吞掉 |
 | `CatalogError` | 目录查无此函数/指标 | `cat.search(...)` 找正确名字，禁止臆造 |

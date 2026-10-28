@@ -1,7 +1,6 @@
 """快速上手：5 分钟看懂 wmshare 的四类数据。
 
-凭证是可选的：不配置时自动使用内置体验 AppID（共享池、额度有限，仅供初次体验）。
-正式使用建议配置自己的 AppID：
+凭证必填：注册开放平台获取 client_id/api-key（非商业免费、注册即得）：
     export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/quickstart.py
 

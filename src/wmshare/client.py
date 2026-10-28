@@ -19,7 +19,6 @@ import requests
 if TYPE_CHECKING:  # 前向引用：运行时惰性导入，避免潜在环
     from wmshare.notice_stream import NoticePoller
 
-from wmshare._experience import credentials as _experience_credentials
 from wmshare.catalog import Catalog, load
 from wmshare.errors import (
     APPID_GUIDANCE, ApiError, AuthError, CatalogError, WmshareError, LimitError,
@@ -107,17 +106,14 @@ class Client:
         self.client_secret = client_secret or ""
         if bool(self.client_id) != bool(self.client_secret):
             raise AuthError(
-                "client_id 与 client_secret 需成对提供；两者都不传则使用内置体验 AppID"
-                f"（额度有限）。{APPID_GUIDANCE}", code="config")
+                "client_id 与 client_secret 需成对提供。"
+                f"不配置则无法取数——{APPID_GUIDANCE}", code="config")
         if not self.client_id:
-            try:
-                cid, sec = _experience_credentials()
-            except Exception as e:
-                raise AuthError(
-                    f"内置体验 AppID 不可用（包可能损坏或被篡改）：{e}。{APPID_GUIDANCE}",
-                    code="experience") from e
-            self.client_id = cid
-            self.client_secret = sec
+            raise AuthError(
+                "缺少凭证：SDK 不再内置体验 AppID，请先配置自己的开放平台凭证"
+                "（构造参数 / WMSHARE_* 环境变量 / ~/.wmshare/credentials.env 任一）。\n"
+                f"{APPID_GUIDANCE}",
+                code="config")
         self.market = market
         self.catalog = catalog or load()
         self._owns_session = session is None
@@ -146,7 +142,7 @@ class Client:
         cid = e.get("WMSHARE_CLIENT_ID") or e.get("OPEN_PLATFORM_CLIENT_ID")
         sec = e.get("WMSHARE_CLIENT_SECRET") or e.get("OPEN_PLATFORM_CLIENT_SECRET")
         # 环境变量只在显式参数缺省时注入；凭证成对性由 __init__ 校验（部分配置报错），
-        # 全部缺省时 __init__ 兜底内置体验 appid
+        # 全部缺省时 __init__ 报错并给出申请指引（SDK 不再内置体验 AppID）
         if base:
             kw.setdefault("base_url", base)
         if cid:
@@ -226,7 +222,7 @@ class Client:
         if stage == "oauth" and status in (400, 401, 403):
             raise AuthError(
                 f"OAuth 认证失败（{label}）{suffix}。"
-                f"当前 client_id/client_secret 无效，或内置体验 AppID 已失效。"
+                f"当前 client_id/client_secret 无效。"
                 f"{APPID_GUIDANCE}",
                 code=code or "oauth_denied", status=status)
         if status in (401, 403):
@@ -239,7 +235,7 @@ class Client:
                     code=code or "policy_denied", status=status)
             raise AuthError(
                 f"认证或权限被拒绝（{label}）{suffix}。"
-                f"请检查凭证；若使用内置体验 AppID，请申请自己的 AppID。"
+                f"请检查凭证配置；如未申请，按上方指引注册开放平台领取。"
                 f"{APPID_GUIDANCE}",
                 code=code or "denied", status=status)
         if status >= 500:
@@ -333,7 +329,7 @@ class Client:
             if "RATE" in code.upper() or "QUOTA" in code.upper():
                 raise LimitError(
                     f"eval 失败：{code} {message}。"
-                    f"内置体验 AppID 是共享池、额度有限，请稍后重试或申请自己的 AppID。"
+                    f"请稍后重试，或申请自己的 AppID 提升额度。"
                     f"{APPID_GUIDANCE}", code=code, status=resp.status_code)
             raise ApiError(f"eval 失败: {code} {message}", code=code,
                            status=resp.status_code)

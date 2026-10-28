@@ -206,16 +206,10 @@ def test_eval_403_policy_denied_includes_guidance():
     assert "open.winmale.com" in str(ei.value)
 
 
-def test_experience_credential_failure_is_auth_error(monkeypatch):
-    import wmshare.client as client_mod
-
-    def boom():
-        raise RuntimeError("corrupt")
-
-    monkeypatch.setattr(client_mod, "_experience_credentials", boom)
+def test_missing_credentials_is_auth_error_with_guidance():
     with pytest.raises(AuthError) as ei:
         Client(catalog=load(), session=SeqSession([]))
-    assert ei.value.code == "experience"
+    assert ei.value.code == "config"
     assert "open.winmale.com" in str(ei.value)
 
 

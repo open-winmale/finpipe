@@ -127,12 +127,13 @@ def test_max_limit_caps_limit_params(client):
     c2.call("kline.query_bars", sym="600519", limit=5000)  # None 关闭上限
 
 
-# ---- 凭证解析：内置体验 appid（混淆存放于 _experience.py，测试不写明文） ----
+# ---- 凭证解析：SDK 不再内置体验 AppID，缺凭证必须在构造期报错并给指引 ----
 
-def test_client_defaults_to_experience_credentials():
-    from wmshare._experience import credentials
-    c = Client(base_url="https://t", catalog=load(), session=FakeSession())
-    assert (c.client_id, c.client_secret) == credentials()
+def test_client_without_credentials_rejected():
+    with pytest.raises(WmshareError, match="缺少凭证") as ei:
+        Client(base_url="https://t", catalog=load(), session=FakeSession())
+    assert ei.value.code == "config"
+    assert "open.winmale.com" in str(ei.value)
 
 
 def test_partial_credentials_rejected():
@@ -166,12 +167,12 @@ def test_from_env_open_platform_fallback(tmp_path):
     assert c.client_id == "pid"
 
 
-def test_from_env_empty_uses_experience(tmp_path):
+def test_from_env_empty_raises_with_guidance(tmp_path):
     # 隔离本机凭证文件（维护者/用户可能已配置 ~/.wmshare/credentials.env），
-    # 确保测的是「无任何配置 → 内置体验 AppID」这条路径
-    c = Client.from_env(env={"WMSHARE_CREDENTIALS": str(tmp_path / "absent.env")},
+    # 确保测的是「无任何配置 → 构造期报错并附申请指引」这条路径
+    with pytest.raises(WmshareError, match="缺少凭证"):
+        Client.from_env(env={"WMSHARE_CREDENTIALS": str(tmp_path / "absent.env")},
                         base_url="https://t", catalog=load(), session=FakeSession())
-    assert c.client_id.startswith("wm_open_")
 
 
 def test_object_param_serialized(client):

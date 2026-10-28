@@ -21,7 +21,7 @@
 
 A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——各市场覆盖明细见下方
 [「市场覆盖」](#市场覆盖)）。
-`pip install wmshare` 后即可取数，无需任何配置（代码中 `import wmshare`）。
+注册开放平台领取凭证（非商业免费、注册即得）后即可取数，见下方「配置凭证」。
 
 ## 目录
 
@@ -43,7 +43,8 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——�
   服务端预计算索引，毫秒级响应，你不拉全市场数据、不算均线；2,197 个指标码
   （TTM、3/5/10 年历史分位、192 个行业内分位、TTM 股息率/派息率 + 11 个质量筛选器）
   服务端算好直出，不关心指标算法。
-- **开箱即用**——SDK 内置体验 AppID，`Client()` 零配置即可取数；正式使用换成自己的 AppID。
+- **凭证即用**——注册开放平台免费领取 client_id/api-key（注册即得），环境变量、
+  凭证文件、构造参数任选其一配置；遇到 401/403/429 错误消息即完整指引。
 - **目录随包 + AI 原生**——249 个底层函数、113 个核心接口、2,197 个指标码离线可查；
   附 Agent Skills 格式 skill（`wmshare.skill_dir()`），复制进 AI agent 即可正确使用。
 
@@ -60,18 +61,28 @@ pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
 `pip install -i https://pypi.org/simple wmshare`。开发/贡献者安装见
 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+### 配置凭证
+
+注册 [赢麻了开放平台](https://open.winmale.com)（微信扫码，非商业免费、注册即得），
+在「我的 → 开放平台 → 我的应用」查看 `client_id` 与 api-key，然后任选其一：
+
+```bash
+export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...  # 方式一：环境变量
+# 方式二：写入 ~/.wmshare/credentials.env（KEY=VALUE 每行一条）
+```
+
 ### 三行上手
 
 ```python
 import wmshare
 
-cli = wmshare.Client()                            # 零配置：内置体验 appid 自动启用
+cli = wmshare.Client.from_env()                   # 读上面配置的凭证
 print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小数）
 print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服务端直出）
 ```
 
-更多调用见下方「我想做 X → 用哪一行」。`Client()` 零配置即用（内置体验额度）；
-遇到 401/403/429 时按错误消息操作即可——消息里附有申请自己 AppID（免费）的完整步骤。
+更多调用见下方「我想做 X → 用哪一行」。遇到 401/403/429：错误消息里附有申请与配置
+凭证的完整步骤。
 
 ## 能力一览
 

@@ -7,11 +7,10 @@ from __future__ import annotations
 # 401/403/429 的统一引导文案：错误消息里直接给出可执行的申请步骤，
 # 避免用户只看到原始 HTTP 状态而不知道下一步做什么。
 APPID_GUIDANCE = (
-    "申请自己的 AppID（额度更充足）：打开 https://open.winmale.com 微信扫码登录 → "
+    "申请自己的 AppID（非商业使用免费、注册即得）：打开 https://open.winmale.com 微信扫码登录 → "
     "右上角「我的」→「开放平台」→「我的应用」→「查看应用信息」，复制 client_id 与 api-key；"
     "然后设置 WMSHARE_CLIENT_ID / WMSHARE_CLIENT_SECRET，"
     "或写入 ~/.wmshare/credentials.env。"
-    "内置体验 AppID 是共享池、额度有限，可能失效或被限流。"
 )
 
 
@@ -27,8 +26,8 @@ class WmshareError(RuntimeError):
 class AuthError(WmshareError):
     """凭证缺失/无效/被拒（OAuth 400/401/403 或 eval 401/403）。
 
-    内置体验 AppID 失效、被撤销或用户凭证错误都会落到这里；消息包含申请
-    自己的 AppID 的步骤，程序可用 ``code`` / ``status`` 分类。
+    凭证缺失、无效、被撤销都会落到这里；消息包含申请与配置自己
+    AppID 的步骤，程序可用 ``code`` / ``status`` 分类。
     """
 
 

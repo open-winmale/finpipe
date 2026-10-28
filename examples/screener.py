@@ -1,6 +1,6 @@
 """选股与全景：cli.screener 单票筛选器 + 全市场涨跌宽度（服务端索引直出）。
 
-需要凭证（内置体验 appid 也可跑）：共享池额度有限，建议用自己的 appid。
+需要凭证：注册开放平台获取（非商业免费、注册即得），见错误消息指引。
     export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
     python examples/screener.py
 """

@@ -9,7 +9,7 @@
     cat = wmshare.load()                             # 数据目录（域/函数/参数/返回 schema）
     fn = cat.function("kline.query_bars")
 
-    cli = wmshare.Client.from_env()                  # 不配置凭证则自动使用内置体验 appid
+    cli = wmshare.Client.from_env()                  # 读 WMSHARE_CLIENT_ID/SECRET（或凭证文件）
     bars = cli.call("kline.query_bars", sym="600519", limit=30)
     # _units="native" 保留脚本输出单位；_raw=True 返回 store 原始行；
     # Client(validate=False) 关闭校验（换算仍执行）

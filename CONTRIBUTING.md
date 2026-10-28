@@ -15,8 +15,8 @@ python3 -m mypy                     # 类型检查
 ```
 
 真实取数冒烟（需要凭证）：`WMSHARE_LIVE=1 pytest tests/test_live.py`——覆盖全部 44 个
-核心接口与多个标的，做数值合理性断言（日期有序、价格为正、率类口径等）。内置体验
-AppID 是共享池，遇到 401/429 按错误消息里的步骤申请自己的 AppID 即可。
+核心接口与多个标的，做数值合理性断言（日期有序、价格为正、率类口径等）。
+需要已配置的凭证（WMSHARE_* 环境变量或 ~/.wmshare/credentials.env）。
 
 文档一致性由 `tests/test_docs.py` 强制：API.md 的参数/示例/指标组/附录与目录逐项比对，
 README 代码块真实执行，README 引用的指标代码与接口必须存在，docstring 单位口径必须与
@@ -36,8 +36,7 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 3. **文档白名单**：对外文档只允许 README / LICENSE / CONTRIBUTING / docs/API.md / examples。
    方案、计划、路线图、内部流程文档一律不入库。
 4. **凭证纪律**：用户凭证只走环境变量或 `~/.wmshare/credentials.env`（gitignore 已覆盖
-   `.env`），任何密钥字面量不得出现在代码、测试、文档中。唯一例外是随包内置的体验
-   appid：以混淆 blob 形式存放于 `src/wmshare/_experience.py`，其**明文**在
+   `.env`），任何密钥字面量不得出现在代码、测试、文档中。
    `check_leak.py` 的 `FORBIDDEN_SUBSTRINGS` 中列为禁用——任何跟踪文件出现明文即 FAIL。
 
 ## 数据域与接口规范
@@ -62,7 +61,7 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 
 ```bash
 pip install -e ".[dev,dataframe]"
-python examples/quickstart.py          # 需要凭证（或用内置体验 appid）
+python examples/quickstart.py          # 需要已配置的凭证
 python examples/catalog_tour.py        # 离线可跑：无需凭证、不联网
 python examples/error_handling.py      # 离线：错误分类体系演示
 python examples/dividend_screener.py   # 高股息筛选（需凭证）

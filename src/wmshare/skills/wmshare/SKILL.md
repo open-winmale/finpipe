@@ -17,8 +17,8 @@ wmshare 是 A 股个股数据 Python SDK（**非商业使用免费**，云端数
 
 ```bash
 python3 -c "import wmshare; print(wmshare.__version__)"   # 探测
-# 缺失则安装（本机 pip 若走镜像可能同步滞后，加 -i 指官方源）：
-pip install wmshare -i https://pypi.org/simple
+# 缺失则安装（国内推荐清华等主流镜像，随 PyPI 自动同步；镜像滞后时指官方源）：
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare
 ```
 
 凭证必填（SDK 不再内置体验 AppID）：注册开放平台获取 client_id/api-key，

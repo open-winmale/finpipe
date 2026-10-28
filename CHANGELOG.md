@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-10-28
+
+### Added
+
+- **国内镜像安装指引**：README/SKILL 安装节补国内镜像用法——清华等主流镜像源随 PyPI 自动同步
+  （1.7.1 已实测清华源可装），阿里云偶有滞后；镜像装不到最新版时回官方源。
+  纯文档发布，随包代码与 1.7.1 一致，发布目的是刷新 PyPI 项目页。
+- 随包目录同步上游 rev（b9b1291e：上游公告窗口/港股公告提醒调整，SDK 合同零变化）。
+
+
 ## [1.7.1] - 2026-10-28
 
 ### Fixed

@@ -59,9 +59,13 @@ pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
 python3 -c "import wmshare; print(wmshare.__version__)"   # 验证安装
 ```
 
-国内镜像源（如阿里云）同步新版本可能滞后，装不到最新版时可临时指定官方源：
-`pip install -i https://pypi.org/simple wmshare`。开发/贡献者安装见
-[CONTRIBUTING.md](CONTRIBUTING.md)。
+国内直连 pypi.org 不稳时用国内镜像（清华等镜像源随 PyPI 自动同步，通常当天可得，阿里云偶有滞后）：
+
+```bash
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare   # 清华源
+```
+
+镜像装不到最新版时回官方源 `pip install -i https://pypi.org/simple wmshare`；开发/贡献者安装见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ### 配置凭证
 

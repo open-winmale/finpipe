@@ -1,7 +1,8 @@
 name: unit-audit
 
 # 单位口径持续审计：夜间对样本宇宙跑量级守护 + 关系不变量 + 跨接口一致性。
-# 使用包内内置体验 AppID（共享池、额度有限），非阻塞：违例在日志中显式报告，
+# 1.7.0 起凭证必填：凭证来自仓库 Secrets（WMSHARE_CLIENT_ID / WMSHARE_CLIENT_SECRET）；
+# 未配置时显式跳过并在日志说明（不再假成功）。非阻塞：违例在日志中显式报告，
 # 不挡 main；连续 FAIL 说明上游口径漂移或目录声明过期，需人工核查。
 on:
   schedule:
@@ -18,6 +19,22 @@ jobs:
           python-version: "3.11"
       - name: Install
         run: pip install .
+      - name: Check credentials
+        id: creds
+        env:
+          HAS_CID: ${{ secrets.WMSHARE_CLIENT_ID != '' }}
+          HAS_SEC: ${{ secrets.WMSHARE_CLIENT_SECRET != '' }}
+        run: |
+          if [ "$HAS_CID" = "true" ] && [ "$HAS_SEC" = "true" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::未配置 WMSHARE_CLIENT_ID/WMSHARE_CLIENT_SECRET 仓库 Secrets，夜间单位审计跳过（Settings → Secrets and variables → Actions 配置后自动恢复）"
+          fi
       - name: Unit audit (sample universe + cross-interface invariants)
+        if: steps.creds.outputs.available == 'true'
         continue-on-error: true
+        env:
+          WMSHARE_CLIENT_ID: ${{ secrets.WMSHARE_CLIENT_ID }}
+          WMSHARE_CLIENT_SECRET: ${{ secrets.WMSHARE_CLIENT_SECRET }}
         run: python tools/audit_units.py

@@ -5,7 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> 兼容政策：2.0 前 minor 版本可能携带行为变更，均在对应版本段以「行为变更」标注；
+> 升级前请扫一眼 Removed / Changed 段。
+
 ## [Unreleased]
+
+## [1.7.1] - 2026-10-28
+
+### Fixed
+
+- **店面与文档对齐 1.7.0 行为**：pyproject 描述、README 英文 TL;DR、OpenAPI/Swagger
+  intro 仍写「开箱即用，内置体验 AppID」（1.7.0 已下线），全部改为「凭证必填、注册即得、
+  错误消息即指引」口径；LICENSE 清除 `<<beginOptional>>` 模板占位符与 81 行起的整段
+  重复正文。
+- **SKILL.md 撤下过期拦截断言**：`kline.live`/`min1` 自 1.5.0 根因修复并部署，意图决策树
+  不再提示「被服务端策略拦截」；凭证文件说明补 KEY 名示例。
+- docs/API.md 补两条已知边界（域 notes 数据驱动）：fund.statements 港美三大报表合同已
+  预留、数据未上线（调用返回空）；bonus.query_count_window 上游 count 聚合缺陷恒 0
+  （SDK window_stats 已绕开，直调该函数得 0）。
+
+### Added
+
+- **更名迁移指引**（补记：PyPI 发行名/导入名自 1.6.0 起由 wm-finpipe/finpipe 更名为
+  **wmshare**）：旧配置 `FINPIPE_*` 环境变量与 `~/.finpipe/credentials.env` 不再被读取，
+  缺凭证报错时检测到旧配置残留会附迁移提示。
+- README 动线补全：配置凭证节补凭证文件 KEY 名与构造参数两种示例、安装节补验证命令、
+  「更多」补 examples/ 入口。
+- `Client.__dir__`：`dir(cli)` 可见全部友好门面与底层命名空间（IDE 补全可达）。
+- `catalog.load()` 同路径进程内单例缓存（重复 `Client()` 不再重复解析目录）。
+- 公告订阅端点 404 时给「未开放，请勿反复重试」专门提示；5xx 与网络失败错误消息补
+  自救动作；`SECURITY.md` supported versions 更新至 1.7.x；bug 报告模板对齐凭证必填
+  前提；test_docs 新增「体验 AppID/零配置」禁语门禁防回潮。
+
+### Changed
+
+- README 市场覆盖矩阵撤下「公告变更订阅」行：网关未对外开放前不作对外承诺（代码保留，
+  开放后回归）。
+- README 精炼上限 240 → 250 行：新增内容均为上手动线必需（凭证两种示例、验证命令、
+  examples 入口）。
 
 ## [1.7.0] - 2026-10-27
 
@@ -160,6 +197,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PyPI 项目页描述。
 - 随包目录同步上游 rev（0343968a：rptdom 内部实现修复，合同零变化）。
 
+## [1.4.3] - 2026-10-26
+
+### Changed
+
+- **开源协议由 PolyForm Noncommercial 1.0.0 改为 MIT**：代码可自由使用、修改、再分发
+  （含商业用途），保留版权声明即可。LICENSE/pyproject/README/CONTRIBUTING/SKILL/
+  生成文档同步改写；云端数据服务仍需开放平台账号与配额（服务条款与代码许可相互独立）。
+- README 免费口径改写：注册开放平台账号即得免费额度（不再限定非商业用途）。
+
 ## [1.4.4] - 2026-10-26
 
 ### Changed
@@ -169,15 +215,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   说明：PyPI 上已发布的 1.4.2/1.4.3 版本按其上传时的 MIT 许可提供，无法撤回；
   自本版本起恢复非商业限定。云端数据服务仍需开放平台账号与配额。
 - README 免费口径恢复非商业限定表述。
-
-## [1.4.3] - 2026-10-26
-
-### Changed
-
-- **开源协议由 PolyForm Noncommercial 1.0.0 改为 MIT**：代码可自由使用、修改、再分发
-  （含商业用途），保留版权声明即可。LICENSE/pyproject/README/CONTRIBUTING/SKILL/
-  生成文档同步改写；云端数据服务仍需开放平台账号与配额（服务条款与代码许可相互独立）。
-- README 免费口径改写：注册开放平台账号即得免费额度（不再限定非商业用途）。
 
 ## [1.4.1] - 2026-10-24
 

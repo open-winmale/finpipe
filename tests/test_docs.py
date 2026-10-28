@@ -340,9 +340,37 @@ def test_readme_no_competitor_names():
 
 
 def test_readme_is_lean():
-    """店面纪律：README 保持精炼（2026-10-25 二次瘦身 206 行），超限先删内容再提限。"""
-    assert len(README.splitlines()) <= 240, \
-        f"README 膨胀到 {len(README.splitlines())} 行（上限 240）；长内容下沉 docs/ 或删除"
+    """店面纪律：README 保持精炼（2026-10-25 二次瘦身 206 行），超限先删内容再提限。
+
+    2026-10-28 提至 250：新增均为上手动线必需（凭证两种配置示例、安装验证命令、
+    examples 入口），已按「先删后提限」压缩过一轮。
+    """
+    assert len(README.splitlines()) <= 250, \
+        f"README 膨胀到 {len(README.splitlines())} 行（上限 250）；长内容下沉 docs/ 或删除"
+
+
+def test_readme_no_stale_trial_promises():
+    """1.7.0 起凭证必填（内置体验 AppID 已下线）：公开店面不得残留旧承诺，防回潮。
+
+    起 因：1.7.0 发布时 pyproject 描述 / README 英文 TL;DR / OpenAPI intro 三处仍写
+    「开箱即用，内置体验 appid」，用户照店面走第一步就撞缺凭证报错。
+    豁免：行内含「不再内置」「已下线」（描述删除本身合法，如 CHANGELOG/SKILL）。
+    """
+    banned = ("开箱即用", "共享池", "zero-config", "内置体验 appid")
+    exempt = ("不再内置", "已下线")
+    targets: list[tuple[str, str]] = [
+        ("README.md", README),
+        ("docs/API.md", API_MD),
+        ("docs/openapi.json",
+         (REPO / "docs" / "openapi.json").read_text(encoding="utf-8")),
+    ]
+    for ex in sorted((REPO / "examples").glob("*.py")):
+        targets.append((f"examples/{ex.name}", ex.read_text(encoding="utf-8")))
+    for name, text in targets:
+        for i, line in enumerate(text.splitlines(), 1):
+            low = line.lower()
+            if any(b in low for b in banned) and not any(e in line for e in exempt):
+                raise AssertionError(f"{name}:{i} 残留过期承诺（1.7.0 已凭证必填）：{line.strip()}")
 
 
 def test_readme_catalog_references_valid():

@@ -52,6 +52,17 @@ def test_frontmatter_valid():
     assert SKILL.count("\n") < 500, "SKILL.md 应保持 <500 行（渐进披露：细节路由到目录）"
 
 
+def test_skill_no_stale_trial_promises():
+    """1.7.0 起凭证必填：SKILL.md 不得残留「开箱即用/共享池」类旧承诺（行内含
+    「不再内置/已下线」豁免——描述删除本身合法）。"""
+    banned = ("开箱即用", "共享池", "zero-config", "内置体验 appid")
+    exempt = ("不再内置", "已下线")
+    for i, line in enumerate(SKILL.splitlines(), 1):
+        low = line.lower()
+        if any(b in low for b in banned) and not any(e in line for e in exempt):
+            raise AssertionError(f"SKILL.md:{i} 残留过期承诺：{line.strip()}")
+
+
 def test_skill_calls_are_real():
     """防臆造（关键守护）：文中每个 cli.* / cat.* 调用都必须真实存在且可绑定。"""
     blocks = re.findall(r"```python\n(.*?)```", SKILL, re.S)

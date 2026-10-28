@@ -13,9 +13,12 @@ assignees: ""
 
 ```python
 import wmshare
-cli = wmshare.Client()
+cli = wmshare.Client.from_env()   # 需已配置凭证（WMSHARE_* 环境变量或 ~/.wmshare/credentials.env）
 # 最小可复现代码 / minimal reproduction
 ```
+
+> 1.7.0 起 SDK 不再内置体验 AppID：构造 `Client()` 缺凭证会直接抛 `AuthError(code="config")`，
+> 这不是 bug。凭证问题请先按错误消息里的指引配置。
 
 **期望行为 / Expected behavior**
 你期望发生什么？What did you expect to happen?

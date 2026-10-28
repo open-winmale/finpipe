@@ -86,6 +86,19 @@ def _to_dataframe(result: Any) -> Any:
     raise UsageError(f"结果类型 {type(result).__name__} 无法转 DataFrame", code="dataframe")
 
 
+def _legacy_finpipe_hints() -> str:
+    """检测旧版 finpipe 的配置残留（本项目更名前的 env 前缀与凭证路径）。
+
+    只用于在缺凭证报错时指路迁移，不读取、不映射旧配置（更名即全面切新名）。
+    """
+    found = [k for k in ("FINPIPE_CLIENT_ID", "FINPIPE_CLIENT_SECRET")
+             if os.environ.get(k)]
+    legacy_file = Path.home() / ".finpipe" / "credentials.env"
+    if legacy_file.is_file():
+        found.append(str(legacy_file))
+    return "、".join(found)
+
+
 class Client:
     def __init__(
         self,
@@ -109,10 +122,14 @@ class Client:
                 "client_id 与 client_secret 需成对提供。"
                 f"不配置则无法取数——{APPID_GUIDANCE}", code="config")
         if not self.client_id:
+            legacy = _legacy_finpipe_hints()
             raise AuthError(
                 "缺少凭证：SDK 不再内置体验 AppID，请先配置自己的开放平台凭证"
-                "（构造参数 / WMSHARE_* 环境变量 / ~/.wmshare/credentials.env 任一）。\n"
-                f"{APPID_GUIDANCE}",
+                "（构造参数 / WMSHARE_* 环境变量 / ~/.wmshare/credentials.env 任一）。"
+                + (f"\n检测到旧版 finpipe 配置（{legacy}）：本项目已更名 wmshare，"
+                   "凭证配置同步改为 WMSHARE_* 环境变量 / ~/.wmshare/credentials.env，"
+                   "旧配置不再被读取，请迁移。\n" if legacy else "\n")
+                + f"{APPID_GUIDANCE}",
                 code="config")
         self.market = market
         self.catalog = catalog or load()
@@ -175,7 +192,9 @@ class Client:
             except requests.RequestException as e:
                 if i == attempts - 1:
                     raise TransportError(
-                        f"网络请求失败（已重试 {self.retries} 次）：{e}", code="network") from e
+                        f"网络请求失败（已重试 {self.retries} 次）：{e}。"
+                        "请检查网络连接与代理设置（国内直连不稳定时可配置 HTTPS_PROXY）。",
+                        code="network") from e
                 self._sleep(self._delay(i, None))
                 continue
             last = resp
@@ -239,8 +258,10 @@ class Client:
                 f"{APPID_GUIDANCE}",
                 code=code or "denied", status=status)
         if status >= 500:
-            raise ServerError(f"HTTP {status}{suffix}", code=code or "server",
-                              status=status)
+            raise ServerError(
+                f"服务端错误（HTTP {status}）{suffix}。已自动重试仍失败，请稍后重试；"
+                "若持续出现请携带时间与请求名到项目 issues 反馈。",
+                code=code or "server", status=status)
         raise ApiError(f"HTTP {status}{suffix}", code=code or "http", status=status)
 
     def _get_token(self) -> str:
@@ -518,6 +539,12 @@ class Client:
 
     def __exit__(self, *exc: Any) -> None:
         self.close()
+
+    def __dir__(self) -> list[str]:
+        """IDE 补全/交互式探索可见全部命名空间：友好门面 + 类型化门面 + 底层目录。"""
+        from wmshare.api import FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+        return sorted({*super().__dir__(), *FRIENDLY_NAMESPACES,
+                       *GENERATED_NAMESPACES, *self.catalog.namespaces()})
 
     def __getattr__(self, ns: str) -> Any:
         """client.bonus.query_list(...) —— 友好 API 优先，其次类型化门面，最后通用门面。"""

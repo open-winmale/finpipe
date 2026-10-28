@@ -241,6 +241,14 @@ def test_http_error_mapping():
         p3.poll_now()
 
 
+def test_endpoint_404_guidance():
+    """网关未开放（404）：给「未开放，请勿反复重试」专门提示，而非裸 HTTP 404。"""
+    p, _ = make(failures=[404])
+    with pytest.raises(ApiError, match="未开放") as ei:
+        p.poll_now()
+    assert ei.value.code == "endpoint_unavailable"
+
+
 # ---- 业务错误 success=false ----
 def test_business_error_envelope():
     server = FakeStreamServer()

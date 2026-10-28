@@ -1,5 +1,5 @@
 id: fund.statements
-version: 1.2.0
+version: 1.3.0
 cn: 财务报表
 kind: raw
 category: fundamentals
@@ -18,6 +18,8 @@ notes:
   - domain 取值 fin.balance_sheet / fin.income_statement / fin.cashflow_statement
   - opts.scope = 合并(默认) | 母公司；opts.n 期数（默认 5，年报降序）；opts.years 年份数组（如 [2024,2023]）
   - 新旧会计准则口径适配在平台内部层完成，本域输出已归一
+  - '可用性：三大报表当前仅 A 股（cn）上线；HK/US 合同已预留原币口径（港币/美元），
+    数据尚未上线，对港美标的调用返回空'
 functions:
   - name: rptdom.statement
     cn: 三报表科目×期次透视

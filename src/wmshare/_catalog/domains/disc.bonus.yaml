@@ -1,5 +1,5 @@
 id: disc.bonus
-version: 1.3.0
+version: 1.3.1
 cn: 分红
 kind: raw
 category: disclosure
@@ -17,6 +17,9 @@ notes:
   - '已知问题：最新年度/中期分红记录的 net_profit/payout_ratio 列可能回填滞后（暂为 0），
     仅影响 history 明细展示；筛选/快照走 TTM 派息指标（$BONUS_TTM_RATE_LAST）不受影响。
     screen_quality 默认「精品」窗口=股息率>3% 且派息率 30%–70%，出界判 False 属设计'
+  - '已知问题：直调 bonus.query_count_window 恒返回 0（上游 count 聚合存在缺陷）；
+    需要窗口计数用 dividend.window_stats / dividend.history 自行统计（SDK 已按除权日
+    自行计数绕开该缺陷）'
 functions:
   - name: bonus.query_list
     cn: 分红历史明细

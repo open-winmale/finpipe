@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---------|-----------|
-| 0.1.x   | ✅        |
+| 1.7.x   | ✅        |
+| < 1.7   | ❌（1.7.0 起凭证必填，旧版不再接收安全修复） |
 
 ## Reporting a vulnerability
 

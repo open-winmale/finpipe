@@ -65,6 +65,7 @@ python examples/quickstart.py          # 需要已配置的凭证
 python examples/catalog_tour.py        # 离线可跑：无需凭证、不联网
 python examples/error_handling.py      # 离线：错误分类体系演示
 python examples/dividend_screener.py   # 高股息筛选（需凭证）
+python examples/screener.py             # 单票筛选器演示（需凭证）
 python examples/pandas_analysis.py     # DataFrame 分析（需凭证 + pandas）
 ```
 

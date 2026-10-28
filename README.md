@@ -12,8 +12,9 @@
 > 2,197 metric codes (TTM, historical & industry percentiles, dividend analytics), a screener
 > facade (single-stock screens & server-side market breadth), announcements and company profiles.
 > Ships a machine-readable offline catalog, unified base units with per-response data guards
-> (ratios as decimals, money in CNY, volume in shares), a typed facade, an AI-agent skill, and a
-> zero-config trial AppID (shared pool; register for your own quota). **Install**: `pip install wmshare`. Free for non-commercial use; commercial use requires a separate license.
+> (ratios as decimals, money in CNY, volume in shares), a typed facade, and an AI-agent skill.
+> **Credentials required** (free registration at open.winmale.com; error messages guide you
+> through setup). **Install**: `pip install wmshare`. Free for non-commercial use; commercial use requires a separate license.
 
 > **⚠️ 许可声明（请先阅读）**：本项目采用
 > [PolyForm Noncommercial 1.0.0](LICENSE) 许可，**属于 source-available（源码可见），
@@ -55,6 +56,7 @@ A 股个股数据 Python SDK（**A股为主，港股/美股部分支持**——�
 ```bash
 pip install wmshare                  # 基础安装
 pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
+python3 -c "import wmshare; print(wmshare.__version__)"   # 验证安装
 ```
 
 国内镜像源（如阿里云）同步新版本可能滞后，装不到最新版时可临时指定官方源：
@@ -68,7 +70,11 @@ pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
 
 ```bash
 export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...  # 方式一：环境变量
-# 方式二：写入 ~/.wmshare/credentials.env（KEY=VALUE 每行一条）
+# 方式二：写入 ~/.wmshare/credentials.env（KEY=VALUE 每行一条）：
+#   WMSHARE_CLIENT_ID=你的client_id
+#   WMSHARE_CLIENT_SECRET=你的api-key
+# 方式三：构造参数直接传：
+#   cli = wmshare.Client(client_id="...", client_secret="...")
 ```
 
 ### 三行上手
@@ -118,7 +124,6 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 |---|---|---|---|
 | 日 K 三种复权 / 1 分钟分时 / 盘中快照 | ✅ 全量 | ✅ | 历史（日 K 停更）/ 快照新鲜，见注记 |
 | 三大报表 | ✅ | 未上线 | 未上线 |
-| 公告检索 + 变更订阅（`NoticePoller`） | ✅ | ✅ | — |
 | CCASS / 主要股东 / 机构评级 / 盈利预测（`cli.intl`） | — | ✅ | — |
 | 沽空（`cli.intl.query_sellshort`） | — | ✅ | ✅ |
 | 发行信息（`cli.intl.issue_info`） | — | — | ✅ |
@@ -234,5 +239,8 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
   单次拉取上限 `Client(max_limit=500)` 可调
 - 批量调用：`cli.call_batch("kline.query_bars", ["600519", "000001"])` 单次 HTTP 返回
   `{symbol: 结果}`；`on_error="skip"` 时逐标的隔离错误
+- [示例脚本 examples/](examples/)：quickstart（三行上手）、catalog_tour（离线目录漫游，
+  免凭证）、error_handling（离线错误分类）、dividend_screener、screener、pandas_analysis
+  （各示例前提见文件 docstring）
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
 - 运行测试：`pytest`（不联网）；`WMSHARE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

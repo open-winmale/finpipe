@@ -136,6 +136,30 @@ def test_client_without_credentials_rejected():
     assert "open.winmale.com" in str(ei.value)
 
 
+def test_missing_credentials_mention_legacy_finpipe(monkeypatch, tmp_path):
+    """更名迁移指引：检测到旧 finpipe 配置残留时，缺凭证报错附迁移提示（只指路不映射）。"""
+    monkeypatch.setenv("FINPIPE_CLIENT_ID", "old-id")
+    monkeypatch.delenv("FINPIPE_CLIENT_SECRET", raising=False)
+    with pytest.raises(WmshareError, match="缺少凭证") as ei:
+        Client(base_url="https://t", catalog=load(), session=FakeSession())
+    assert "FINPIPE_CLIENT_ID" in str(ei.value) and "迁移" in str(ei.value)
+
+    monkeypatch.delenv("FINPIPE_CLIENT_ID", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))      # 无 ~/.finpipe/ 残留
+    with pytest.raises(WmshareError, match="缺少凭证") as ei2:
+        Client(base_url="https://t", catalog=load(), session=FakeSession())
+    assert "迁移" not in str(ei2.value)
+
+
+def test_dir_exposes_all_namespaces():
+    """dir(cli) 必须可见友好门面与底层目录命名空间（IDE 补全可达）。"""
+    cli = Client(base_url="https://t", client_id="cid", client_secret="sec",
+                 catalog=load(), session=FakeSession())
+    names = set(dir(cli))
+    assert {"dividend", "kline", "screener", "call", "call_batch"} <= names
+    assert {"bonus", "rptdom"} <= names            # 底层目录命名空间
+
+
 def test_partial_credentials_rejected():
     with pytest.raises(WmshareError, match="成对"):
         Client(base_url="https://t", client_id="only-id",

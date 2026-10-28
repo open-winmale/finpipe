@@ -30,7 +30,7 @@ pip install wmshare -i https://pypi.org/simple
 2. 右上角「我的」→「开放平台」→ 左侧「我的应用」→「查看应用信息」，
    取 `client_id` 与 api-key（即 `client_secret`）；
 3. 配置其一：`export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...`，
-   或凭证文件 `~/.wmshare/credentials.env`（KEY=VALUE 每行一条）。
+   或凭证文件 `~/.wmshare/credentials.env`（内容两行：`WMSHARE_CLIENT_ID=你的client_id` 与 `WMSHARE_CLIENT_SECRET=你的api-key`）。
 
 ## 2. 单位铁律（读数前必读）
 
@@ -75,8 +75,8 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 |---|---|
 | 某股最近 N 根日 K | `cli.kline.bars("600519", n=30)`（`adj="qfq"/"hfq"` 复权） |
 | 某股日期区间 K 线 | `cli.kline.bars("600519", begin="2026-01-01", end="2026-06-30")` |
-| 最新价 / 盘中快照 | `cli.kline.last("600519")`；盘中实时用 `cli.kline.snapshot("600519")` 或 `cli.kline.batch_live(["600519"])`（单票 `live` 被服务端策略拦截，见 §7） |
-| 当日 1 分钟分时 | `cli.kline.min1("600519")`（当前被服务端策略拦截，见 §7） |
+| 最新价 / 盘中快照 | `cli.kline.last("600519")`；盘中实时用 `cli.kline.snapshot("600519")` 或 `cli.kline.batch_live(["600519"])` 或 `cli.kline.live("600519")` |
+| 当日 1 分钟分时 | `cli.kline.min1("600519")` |
 | 今日涨停了吗 / 全市场涨停梯队 | `cli.screener.screen_limit_up("600519")` |
 | 全市场今天涨跌如何 | `cli.screener.index_breadth_summary()` |
 | 涨幅榜 / 跌幅榜 | `cli.screener.index_top_movers(limit=20)`（`desc=False` 跌幅） |

@@ -345,11 +345,23 @@ class Catalog:
         return [item for _, item in scored[:limit]]
 
 
+_loaded_cache: dict[str, Catalog] = {}
+
+
 def load(path: str | os.PathLike | None = None) -> Catalog:
-    """装载目录。默认自动定位；可传 catalog 目录或仓根。"""
+    """装载目录。默认自动定位；可传 catalog 目录或仓根。
+
+    同一路径进程内缓存单例（目录随包只读，重复解析 1MB JSON/YAML 纯浪费）；
+    需要独立实例时直接构造 `Catalog(dir)`。
+    """
     p = Path(path).expanduser().resolve() if path else catalog_dir()
     if (p / "domains").is_dir():
-        return Catalog(p)
-    if (p / "catalog" / "domains").is_dir():
-        return Catalog(p / "catalog")
-    raise FileNotFoundError(f"{p} 下未找到 domains/")
+        target = p
+    elif (p / "catalog" / "domains").is_dir():
+        target = p / "catalog"
+    else:
+        raise FileNotFoundError(f"{p} 下未找到 domains/")
+    cat = _loaded_cache.get(str(target))
+    if cat is None:
+        cat = _loaded_cache[str(target)] = Catalog(target)
+    return cat

@@ -148,6 +148,12 @@ class NoticePoller:
     # ---- 服务端三调用 ----
     def _post(self, op: str, body: dict[str, Any]) -> dict[str, Any]:
         resp = self._client._post_authed(f"/v1/notice-stream/{op}", body)
+        if resp.status_code == 404:
+            raise ApiError(
+                f"公告订阅端点未开放（HTTP 404）：/v1/notice-stream/{op} 在当前网关不存在，"
+                "该能力尚未对外开放，请勿反复重试；可关注版本公告或到 open.winmale.com "
+                "确认平台的开通状态。",
+                code="endpoint_unavailable", status=404)
         if resp.status_code != 200:
             self._client._raise_http_error(resp, stage="notice_stream")
         try:

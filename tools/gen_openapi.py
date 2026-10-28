@@ -150,9 +150,10 @@ def build() -> dict:
             "title": "wmshare 数据 API",
             "version": wmshare.__version__,
             "description": (
-                "A 股个股数据核心接口（Python SDK，源码安装见 README；`import wmshare`）。"
-                "个人学习、研究等非商业使用完全免费，注册开放平台账号即得免费额度；"
-                "SDK 内置体验 AppID，开箱即用（正式使用可申请自己的 AppID，额度更充足）。"
+                "A 股个股数据核心接口（Python SDK，`pip install wmshare`；`import wmshare`）。"
+                "个人学习、研究等非商业使用完全免费，凭证必填：注册开放平台账号"
+                "（open.winmale.com）即领取 client_id/api-key；"
+                "遇到 401/403/429 错误消息即完整的申请与配置指引。"
                 "覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表"
                 "（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、"
                 "公告与业绩披露、资金流与指标层。"

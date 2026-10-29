@@ -28,7 +28,7 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare
 
 1. 打开 open.winmale.com，扫码微信登录注册；
 2. 右上角「我的」→「开放平台」→ 左侧「我的应用」→「查看应用信息」，
-   取 `client_id` 与 api-key（即 `client_secret`）；
+   **两个值都要复制**（缺一不可）：AppId（Client ID）与 API Key（Client Secret）；
 3. 配置其一：`export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...`，
    或凭证文件 `~/.wmshare/credentials.env`（内容两行：`WMSHARE_CLIENT_ID=你的client_id` 与 `WMSHARE_CLIENT_SECRET=你的api-key`）。
 

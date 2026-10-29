@@ -61,15 +61,14 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare   # 清华源
 ### 配置凭证
 
 注册 [赢麻了开放平台](https://open.winmale.com)（微信扫码，免费、注册即得），
-在「我的 → 开放平台 → 我的应用」查看 `client_id` 与 api-key，然后任选其一：
+在「我的 → 开放平台 → 我的应用」页**复制两个值**（缺一不可）：`AppId（Client ID）`
+与 `API Key（Client Secret）`。配置方式任选其一：
 
 ```bash
-export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...  # 方式一：环境变量
-# 方式二：写入 ~/.wmshare/credentials.env（KEY=VALUE 每行一条）：
-#   WMSHARE_CLIENT_ID=你的client_id
-#   WMSHARE_CLIENT_SECRET=你的api-key
-# 方式三：构造参数直接传：
-#   cli = wmshare.Client(client_id="...", client_secret="...")
+# 方式一：环境变量（<AppId>/<API Key>=页面上复制的两个值）
+export WMSHARE_CLIENT_ID=<AppId> WMSHARE_CLIENT_SECRET=<API Key>
+# 方式二：~/.wmshare/credentials.env（KEY=VALUE 每行一条）
+# 方式三：构造参数 cli = wmshare.Client(client_id="...", client_secret="...")
 ```
 
 ### 三行上手

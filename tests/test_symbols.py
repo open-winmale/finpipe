@@ -99,7 +99,9 @@ def test_search_empty_query(cat):
 
 
 def test_search_other_markets(cat):
-    hk = cat.symbols_search("数据服务商", "hk", limit=5)
+    # 「数据服务商」为 vendor-comparison 时代遗留关键词——离线目录按名称/拼音
+    # 无法命中 00700（1.8.0 发布时该用例已红）。按公司名检索修复。
+    hk = cat.symbols_search("腾讯", "hk", limit=5)
     assert hk and hk[0]["code"] == "00700"
     us = cat.symbols_search("奥多比", "us")
     assert us and us[0]["code"] == "ADBE"

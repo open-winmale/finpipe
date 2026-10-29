@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-10-28
+
+### Fixed
+
+- 凭证文案消歧：开放平台「两个值都要复制（缺一不可）」——AppId（Client ID）与
+  API Key（Client Secret），「任选其一」仅修饰配置方式；README/SKILL/401 错误消息
+  三处同步（README 改用页面真实标签，env 示例 `<AppId>`/`<API Key>` 占位映射）。
+- tests/test_symbols 修复陈旧关键词：hk 检索用例改按公司名检索（命中 00700），
+  原关键词为 vendor-comparison 时代遗留、离线目录无法命中（1.8.0 起红）。
+- 目录同步上游 rev（8c83cf49 → 56547eeb，合同零变化）。
+
 ## [1.8.0] - 2026-10-28
 
 ### Changed

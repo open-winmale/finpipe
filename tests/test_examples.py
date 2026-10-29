@@ -21,7 +21,7 @@ def _run_example(name: str) -> subprocess.CompletedProcess:
 def test_catalog_tour_runs_offline():
     result = _run_example("catalog_tour.py")
     assert result.returncode == 0, result.stderr
-    assert "数据域：16" in result.stdout
+    assert "数据域：17" in result.stdout
 
 
 def test_error_handling_runs_offline_and_shows_appid_guidance():

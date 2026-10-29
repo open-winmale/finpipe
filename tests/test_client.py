@@ -262,3 +262,91 @@ def test_eval_error_surfaced(client):
                 catalog=load(), session=FailSession())
     with pytest.raises(WmshareError, match="undefined: foo"):
         c2.call("kline.query_bars", sym="600519")
+
+
+# ---- v1.9.0 批量与 stocks -----------------------------------------------
+
+def test_batch_live_caps_symbols(client):
+    from wmshare.errors import LimitError
+    client.max_limit = 500
+    with pytest.raises(LimitError, match="超过上限 500"):
+        client.kline.batch_live([f"{600000 + i:06d}" for i in range(501)])
+    client.session.eval_result = {}
+    client.kline.batch_live(["600000", "000001"])
+    assert last_eval(client)["json"]["xs_lines"][-1].startswith(
+        "return kline.query_last_live_many")
+
+
+def test_call_routes_list_symbol_to_batch(client):
+    client.session.eval_result = {"600519": [{"close": 1.0}], "000001": [{"close": 2.0}]}
+    out = client.kline.last(["600519", "000001"])
+    line = last_eval(client)["json"]["xs_lines"][-1]
+    assert line.startswith(
+        'return {"600519": kline.fmt_maps(kline.query_bars("600519", 1))')
+    assert out.results == {"600519": {"close": 1.0}, "000001": {"close": 2.0}}
+    assert out.errors == {}
+
+
+def test_call_list_over_limit_raises(client):
+    from wmshare.errors import LimitError
+    client.max_limit = 500
+    with pytest.raises(LimitError):
+        client.kline.last([f"{600000 + i:06d}" for i in range(501)])
+
+
+def test_batch_result_to_df_long_table(client):
+    pd = pytest.importorskip("pandas")
+    client.session.eval_result = {
+        "600519": {"close": 10.5, "percent": 0.01},
+        "000001": {"close": 9.9, "percent": -0.01},
+    }
+    out = client.call_batch("kline.snapshot", ["600519", "000001"])
+    df = out.to_df()
+    assert isinstance(df, pd.DataFrame)
+    assert list(df["symbol"]) == ["600519", "000001"]
+    assert {"symbol", "close", "percent"} <= set(df.columns)
+
+
+def test_eval_default_anchor_follows_market():
+    s = FakeSession()
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=s, market="hk")
+    c.eval_result("return 1")
+    assert last_eval(c)["json"]["symbol"] == "00700"
+    s2 = FakeSession()
+    c2 = Client(base_url="https://t", client_id="i", client_secret="s",
+                catalog=load(), session=s2, market="us")
+    c2.eval_result("return 1")
+    assert last_eval(c2)["json"]["symbol"] == "AAPL"
+
+
+def test_stocks_list_routes_with_require(client):
+    client.session.eval_result = [{"symbol": "600519", "name": "贵州茅台"}]
+    rows = client.stocks.list()
+    assert rows and rows[0]["symbol"] == "600519"
+    lines = last_eval(client)["json"]["xs_lines"]
+    assert any("stocks.query_list()" in ln for ln in lines)
+    assert any('xs.require("sys/stocks/init.xs")' in ln for ln in lines)
+
+
+def test_stocks_industry_members_and_fuzzy(client):
+    client.session.eval_result = [{"symbol": "600519", "name": "贵州茅台"}]
+    rows = client.stocks.industry_members("S48", top_n=1)
+    assert rows == [{"symbol": "600519", "name": "贵州茅台"}]
+    assert last_eval(client)["json"]["xs_lines"][-1] == \
+        'return stocks.industry_members("S48")'
+
+
+def test_stocks_industry_fuzzy_candidates(client):
+    # 中文名解析走目录模糊匹配：唯一命中直用；多候选/未命中报错列候选
+    client.session.eval_result = [
+        {"symbol": "S48", "name": "银行", "level": 1},
+        {"symbol": "S4801", "name": "银行二级", "level": 2},
+    ]
+    with pytest.raises(Exception, match="命中 2 个行业"):
+        client.stocks._resolve_industry("银行")
+    client.session.eval_result = [{"symbol": "S48", "name": "银行", "level": 1}]
+    assert client.stocks._resolve_industry("银行") == "industry.S48"
+    client.session.eval_result = []
+    with pytest.raises(Exception, match="未找到行业"):
+        client.stocks._resolve_industry("不存在的行业")

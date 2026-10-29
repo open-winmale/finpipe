@@ -8,7 +8,7 @@
     ``_raw=True`` 取未规范化原始行（仅部分方法）；
   - 本层是目录合同的薄翻译：高频方法显式包装；目录内其余函数经 ``__getattr__``
     属性直达（如 ``cli.kline.screen_above_ma20``、``cli.dividend.screen_quality``），
-    目录之外的名字显式 AttributeError——249 个底层函数零遮蔽。
+    目录之外的名字显式 AttributeError——252 个底层函数零遮蔽。
   - 选股能力集中在 ``cli.screener``：单票筛选器（bool）与全市场宽度（服务端
     预计算索引直出）显式包装，kline 目录的其余筛选函数经属性直达。
 
@@ -24,7 +24,7 @@ import json
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
-from wmshare.errors import CatalogError, LimitError, UsageError
+from wmshare.errors import CatalogError, LimitError, UsageError, WmshareError
 from wmshare.units import finish_metric
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -96,6 +96,32 @@ def _to_df(result: Any) -> Any:
     return _to_dataframe(result)
 
 
+def _per_symbol(v: Any, fn: Any) -> Any:
+    """批量结果逐标的映射 fn（errors 原样透传）；普通结果直接 fn(v)。
+
+    供「传列表即批量」路径上需要后处理的显式包装方法复用（kline.last 等）。
+    """
+    from wmshare.client import BatchResult
+
+    if isinstance(v, BatchResult):
+        out = BatchResult(errors=v.errors)
+        out.results = {s: fn(x) for s, x in v.results.items()}
+        return out
+    return fn(v)
+
+
+def _finish_df(out: Any, df_flag: bool) -> Any:
+    """_df 收口：批量结果逐标的转 DataFrame（与 call_batch(_df=True) 同语义）。"""
+    if not df_flag:
+        return out
+    from wmshare.client import BatchResult
+
+    if isinstance(out, BatchResult):
+        out.results = {s: _to_df(x) for s, x in out.results.items()}
+        return out
+    return _to_df(out)
+
+
 # 友好命名空间 → 目录（XS）命名空间。目录真实命名空间为
 # bonus/cbond/equity/estimates/filings/forecast/index/intl/kline/margin/
 # moneyflow/notice/rptdom/segments/workout；statements/indicator/info 是聚合层
@@ -115,6 +141,7 @@ _FRIENDLY_NS_TO_CATALOG: dict[str, str] = {
     "cbond": "cbond",
     "workout": "workout",
     "index": "indices",
+    "stocks": "stocks",
     "intl": "intl",
 }
 
@@ -201,8 +228,8 @@ class KlineApi(_Api):
             if adj is not None:
                 kwargs["adj"] = adj
             rows = self._c.call(fn, **kwargs)
-            out = _filter_by_date(rows, begin, end, "date", limit)
-            return _to_df(out) if _df else out
+            out = _per_symbol(rows, lambda r: _filter_by_date(r, begin, end, "date", limit))
+            return _finish_df(out, _df)
         limit = 120 if n is None else n
         if adj is None:
             return self._c.call("kline.query_bars", sym=symbol, limit=limit,
@@ -217,7 +244,7 @@ class KlineApi(_Api):
         返回 store 原始行（字段名不同，含 CreatedAt/sampling 等）。
         """
         rows = self._c.call("kline.query_bars", sym=symbol, limit=1, _raw=_raw)
-        return rows[0] if rows else None
+        return _per_symbol(rows, lambda r: r[0] if r else None)
 
     def live(self, symbol: str, _raw: bool = False) -> Any:
         """盘中最新快照（盘中 tip；休市返回最近收盘快照）。"""
@@ -226,8 +253,13 @@ class KlineApi(_Api):
     def batch_live(self, symbols: list[str], _raw: bool = False) -> dict:
         """多标的盘中快照（单次请求，返回 {symbol: bar}）。
 
-        :param symbols: 标的列表（自动去重与归一）
+        :param symbols: 标的列表（自动去重与归一），单次上限同 ``Client(max_limit=...)``
         """
+        if self._c.max_limit is not None and len(symbols) > self._c.max_limit:
+            raise LimitError(
+                f"kline.batch_live: 批量标的数 {len(symbols)} 超过上限 {self._c.max_limit}"
+                "（请分批，如 symbols[i:i+500]；可在 Client(max_limit=...) 调整）",
+                code="limit")
         return self._c.call("kline.query_last_live_many", syms=symbols, _raw=_raw)
 
     def min1(self, symbol: str) -> Any:
@@ -263,8 +295,8 @@ class MoneyflowApi(_Api):
                                  code="range")
             limit = min(int(n) if n is not None else (self._c.max_limit or 10000), 10000)
             rows = self._c.call("moneyflow.query_bars", sym=symbol, limit=limit, _raw=_raw)
-            out = _filter_by_date(rows, begin, end, "date", limit)
-            return _to_df(out) if _df else out
+            out = _per_symbol(rows, lambda r: _filter_by_date(r, begin, end, "date", limit))
+            return _finish_df(out, _df)
         limit = 20 if n is None else n
         return self._c.call("moneyflow.query_bars", sym=symbol, limit=limit,
                             _raw=_raw, _df=_df)
@@ -276,7 +308,7 @@ class MoneyflowApi(_Api):
         原始行（净流入嵌在 props 下）。
         """
         rows = self._c.call("moneyflow.query_bars", sym=symbol, limit=1, _raw=_raw)
-        return rows[0] if rows else None
+        return _per_symbol(rows, lambda r: r[0] if r else None)
 
     def live(self, symbol: str, _raw: bool = False) -> Any:
         """盘中资金流快照（短 TTL）；数据源暂无快照时返回 None。"""
@@ -400,6 +432,70 @@ class IndexApi(_Api):
         if points is not None:
             kw["points"] = points
         return self._c.call("indices.valuation", **kw)
+
+
+# ---------------------------------------------------------------- 证券基础 market
+class StocksApi(_Api):
+    """全市场证券列表与行业映射（代码池 / 行业成分；stocks 目录域）。
+
+    证券行字段：symbol/name/exchange/industry(三级行业键)/industry_name/is_st/listed。
+    美股：列表与个股行业码可用；行业目录树上游未灌数，``industries()`` 恒空。
+    """
+
+    def list(self, _df: bool = False) -> Any:
+        """全市场证券列表（当前市场；A≈5.7k / 港≈2.8k / 美≈5.6k 行，排序不保证）。
+
+        全表单次返回，无分页；随上游每日刷新（美股 universe 为手动刷新，有滞后）。
+        """
+        return self._c.call("stocks.query_list", _df=_df)
+
+    def industries(self, level: int | None = None, _df: bool = False) -> Any:
+        """行业目录（standard: sw2021 申万 | hsi 恒生）。
+
+        :param level: None=全部层级；1..3=指定级
+        行字段：symbol/name/level/parent/standard。
+        """
+        kw: dict[str, Any] = {}
+        if level is not None:
+            kw["level"] = int(level)
+        return self._c.call("stocks.industry_list", _df=_df, **kw)
+
+    def industry_members(self, industry: str, top_n: int | None = None,
+                         _df: bool = False) -> Any:
+        """行业成分股（任意层级节点；行字段同 ``list()``）。
+
+        :param industry: 行业键 "industry.S48"、行业代码 "S48"、或中文名（如 "银行"；
+            中文名未命中/多候选时报错并列出候选）
+        :param top_n: 只取前 N 条（客户端截断；None=全量，单行业最大几百行）
+        """
+        ind = str(industry)
+        try:
+            rows = self._c.call("stocks.industry_members", ind=ind)
+        except WmshareError:
+            rows = self._c.call("stocks.industry_members",
+                                ind=self._resolve_industry(ind))
+        rows = rows if isinstance(rows, list) else []
+        if top_n is not None:
+            rows = rows[: max(int(top_n), 0)]
+        if _df:
+            from wmshare.client import _to_dataframe
+            return _to_dataframe(rows)
+        return rows
+
+    def _resolve_industry(self, name: str) -> str:
+        """中文名 → 行业键：唯一包含匹配直用；多候选/未命中报错列候选。"""
+        catalog = self._c.call("stocks.industry_list") or []
+        hits = [r for r in catalog if name in str(r.get("name") or "")]
+        if len(hits) == 1:
+            return "industry." + str(hits[0]["symbol"])
+        if len(hits) > 1:
+            sample = "、".join(f"{r.get('symbol')} {r.get('name')}" for r in hits[:8])
+            raise UsageError(
+                f"行业名 {name!r} 命中 {len(hits)} 个行业：{sample}；"
+                "请改用行业代码（industries() 的 symbol 列）", code="params")
+        raise UsageError(
+            f"未找到行业 {name!r}；先调 industries() 查目录，或改用行业代码（如 S48）",
+            code="params")
 
 
 # ---------------------------------------------------------------- 选股 market
@@ -923,8 +1019,8 @@ class DividendApi(_Api):
             fetch = min(int(limit) if limit is not None else (self._c.max_limit or 10000),
                         10000)
             rows = self._c.call("bonus.query_list", sym=symbol, limit=fetch)
-            out = _filter_by_date(rows, begin, end, "ex_div", fetch)
-            return _to_df(out) if _df else out
+            out = _per_symbol(rows, lambda r: _filter_by_date(r, begin, end, "ex_div", fetch))
+            return _finish_df(out, _df)
         limit = 20 if limit is None else limit
         return self._c.call("bonus.query_list", sym=symbol, limit=limit,
                             _raw=_raw, _df=_df)
@@ -936,7 +1032,7 @@ class DividendApi(_Api):
         ``_raw=True`` 时返回 store 原始行。
         """
         rows = self._c.call("bonus.query_list", sym=symbol, limit=1, _raw=_raw)
-        return rows[0] if rows else None
+        return _per_symbol(rows, lambda r: r[0] if r else None)
 
     def dps(self, symbol: str) -> Any:
         """财报期每股分红（元/股）。"""
@@ -1245,6 +1341,7 @@ FRIENDLY_NAMESPACES: dict[str, type[_Api]] = {
     "margin": MarginApi,
     "cbond": CbondApi,
     "index": IndexApi,
+    "stocks": StocksApi,
     "statements": StatementsApi,
     "segments": SegmentsApi,
     "valuation": ValuationApi,
@@ -1298,6 +1395,9 @@ FRIENDLY_INDEX: list[tuple[str, str, str, str, str]] = [
     ("market", "index", "members", "指数成分", "indices.members"),
     ("market", "index", "weights", "指数权重股", "indices.weights"),
     ("market", "index", "valuation", "指数估值时序", "indices.valuation"),
+    ("market", "stocks", "list", "全市场证券列表", "stocks.query_list"),
+    ("market", "stocks", "industries", "行业目录", "stocks.industry_list"),
+    ("market", "stocks", "industry_members", "行业成分股", "stocks.industry_members"),
     ("fundamentals", "statements", "balance", "资产负债表", "rptdom.statement"),
     ("fundamentals", "statements", "income", "利润表", "rptdom.statement"),
     ("fundamentals", "statements", "cashflow", "现金流量表", "rptdom.statement"),

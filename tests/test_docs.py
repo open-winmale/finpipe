@@ -282,6 +282,21 @@ class ReadmeClient:
             income=lambda *a, **k: [], compare=lambda *a, **k: [],
         )
         self.info = types.SimpleNamespace(profile=lambda *a, **k: {})
+        self.stocks = types.SimpleNamespace(
+            list=lambda *a, **k: [{"symbol": "600519", "name": "贵州茅台",
+                                   "exchange": "sh", "industry": "industry.S480301",
+                                   "industry_name": "股份制银行", "is_st": False,
+                                   "listed": "2001-08-27"}],
+            industries=lambda *a, **k: [{"symbol": "S48", "name": "银行",
+                                         "level": 1, "standard": "sw2021"}],
+            industry_members=lambda *a, **k: [
+                {"symbol": "600519", "name": "贵州茅台", "listed": "2001-08-27"}],
+        )
+
+    def call_batch(self, name, symbols, **kw):
+        from wmshare.client import BatchResult
+        return BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
+                                    for s in symbols})
 
     @classmethod
     def from_env(cls, *a, **k):

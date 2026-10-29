@@ -91,9 +91,11 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 | 公告 / 有无回购 | `cli.notice.list(sym, window="3m")` / `cli.notice.has_buyback(sym, "6m")` |
 | 业绩预告 | `cli.forecast.yjyg_latest(sym)` |
 | 公司档案 | `cli.info.profile(sym)` |
-| 批量（单次 HTTP） | `cli.call_batch("bonus.snapshot_yield_ttm", syms, on_error="skip")` |
+| 全市场代码池（A/港/美全表） | `cli.stocks.list()`（行含 symbol/name/exchange/industry/listed；港/美换 `Client(market=...)`） |
+| 行业目录 / 行业成分 | `cli.stocks.industries(1)`（申万/恒生；美股目录树暂缺）/ `cli.stocks.industry_members("银行")`（中文名或代码 S48） |
+| 批量取数（单次 ≤500） | 任意单标的接口传 list 即批量：`cli.kline.last(["600519", "000001"])`；显式入口 `cli.call_batch("kline.snapshot", codes, on_error="skip")`，`to_df()` 出带 symbol 列长表 |
 
-完整 113 个核心接口与全部底层函数：仓库用户看 docs/API.md；pip 用户用
+完整 116 个核心接口与全部底层函数：仓库用户看 docs/API.md；pip 用户用
 `cat.search(...)` / `cat.function(...)` 查（同一份合同）。
 
 ## 5. 工作流示例（返回长这样，从这些字段读）
@@ -133,7 +135,11 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
   显式报错（不会静默按 30 天处理）。
 - **日期区间上限 5 年**（`begin/end` 含端点）；数据覆盖不足抛 `LimitError`，
   不会静默截断。
-- **单次拉取上限**：`Client(max_limit=500)` 可调；超限显式报错。
+- **单次拉取上限**：`Client(max_limit=500)` 可调；超限显式报错（批量标的数同限，
+  报错附分批写法 `codes[i:i+500]`）。
+- **stocks 域新鲜度**：cn/hk 全市场列表随上游每日刷；us universe 为手动刷新
+  （新上市/退市有滞后），且美股行业目录树暂缺（`industries()` 恒空、
+  `industry_members()` 不可用；列表行的 industry 字段仍有值）。
 - **盘中语义**：休市时 `live`/`min1` 返回最近收盘快照 / 上一交易日；事件筛选
   （涨停等）以「当日有成交」为前置，停牌恒 `False`。
 - **403「策略拒绝」（POLICY_DENIED）≠ 额度不足**：是 AppID 的接口权限范围限制

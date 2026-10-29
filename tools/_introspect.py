@@ -39,6 +39,8 @@ METHOD_EXAMPLE_VALUES = {
     ("equity", "query_capital_change_at"): {"annual": "2024", "sampling": '"Q4"'},
     # 强赎触发价（元，面值 100 口径的正股价示例）
     ("cbond", "call_hits"): {"trig": "130.0"},
+    # 行业成分：中文名示例（引擎原生解析；SDK 侧另有模糊匹配兜底）
+    ("stocks", "industry_members"): {"industry": '"银行"'},
 }
 
 # 返回说明覆盖（目录 shape 过粗的动态列表返回，按上游实现补字段级说明；

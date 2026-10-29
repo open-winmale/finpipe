@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "upstream_rev": "56547eeb",
+ "upstream_rev": "587aa6a2",
  "domains": {
   "bonus": {
    "entry": "sys/bonus/init.xs",
@@ -75,6 +75,10 @@
    "entry": "sys/segments/init.xs",
    "exports": []
   },
+  "stocks": {
+   "entry": "sys/stocks/init.xs",
+   "exports": []
+  },
   "workout": {
    "entry": "sys/workout/init.xs",
    "exports": []
@@ -93,7 +97,7 @@
   "notice",
   "segments"
  ],
- "function_count": 255,
+ "function_count": 258,
  "functions": [
   {
    "name": "bonus.dps_rpt",
@@ -7271,6 +7275,43 @@
      "type": "string"
     }
    ]
+  },
+  {
+   "name": "stocks.industry_list",
+   "cn": "行业目录",
+   "example": "stocks.industry_list(1)",
+   "returns": "ARR · 行业行(symbol/name/level/parent/standard)",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": [
+    {
+     "name": "level",
+     "type": "int"
+    }
+   ]
+  },
+  {
+   "name": "stocks.industry_members",
+   "cn": "行业成分股",
+   "example": "stocks.industry_members(\"银行\")",
+   "returns": "ARR · 证券行(同 query_list)",
+   "returns_shape": null,
+   "min_args": 1,
+   "params": [
+    {
+     "name": "ind",
+     "type": "string"
+    }
+   ]
+  },
+  {
+   "name": "stocks.query_list",
+   "cn": "全市场证券列表",
+   "example": "stocks.query_list()",
+   "returns": "ARR · 证券行(symbol/name/exchange/industry/industry_name/is_st/listed)",
+   "returns_shape": null,
+   "min_args": 0,
+   "params": []
   },
   {
    "name": "workout.board",

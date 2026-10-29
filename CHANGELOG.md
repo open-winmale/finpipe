@@ -10,6 +10,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-10-29
+
+### Added
+
+- **证券基础库 `cli.stocks`**（新数据域 market.stocks，底层 sys/stocks，17 域/252 函数）：
+  `list()` 全市场证券列表一次出全表（symbol/name/exchange/三级行业/is_st/上市日期；
+  A≈5.7k / 港≈2.8k / 美≈5.6k 行，cn/hk 上游每日刷新）、`industries(level)` 行业目录
+  （申万 sw2021 三级 31 个一级 / 恒生 hsi）、`industry_members(industry)` 行业成分股
+  （支持行业键 `industry.S48`、代码 `S48`、**中文名**（含模糊匹配，多候选报错列候选））。
+  美股：列表与个股行业码可用；行业目录树上游未灌数（如实注记于 README 矩阵与 docstring）。
+- **批量取数通用升级（单次 ≤500）**：任意单标的接口**传 list 即批量**（`Client.call`
+  检测标的参数为 list/tuple 自动转 `call_batch`，如 `cli.kline.last(["600519", "000001"])`，
+  返回 `BatchResult`；`kline.bars/moneyflow.last/dividend.last` 等后处理方法逐标的映射）；
+  `BatchResult.to_df()` 出带 symbol 列的长表；`kline.batch_live` 补上限校验（此前缺口）。
+  超限 `LimitError` 文案附分批写法引导。
+- 新示例 `examples/stocks_industry_batch.py`（代码池→行业过滤→批量→DataFrame 端到端）。
+
+### Fixed
+
+- **按市场默认求值锚点**：无标的参数的函数（如目录类）此前固定 A 股锚点 `600519`，
+  hk/us 客户端必报 `MARKET_MISMATCH`；现按市场取 `600519/00700/AAPL`。
+- README/SKILL/API.md/openapi 同步 17 域、252 函数、116 核心接口计数；目录同步上游
+  （新增 stocks 域，`tools/extract_from_scripts.py` 白名单扩容）。
+
 ## [1.8.1] - 2026-10-28
 
 ### Fixed

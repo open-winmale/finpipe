@@ -1,19 +1,18 @@
 # wmshare
 
 > **English TL;DR** — `wmshare` is a BSD-3-Clause open-source Python SDK covering China A-share,
-> Hong Kong and US markets (per-capability matrix in「市场覆盖」):
-> k-line (3 adjustment modes), intraday snapshots, money flow, the three financial statements,
-> 2,197 metric codes (TTM, historical & industry percentiles, dividend analytics), a screener
-> facade (single-stock screens & server-side market breadth), announcements and company profiles.
-> Ships a machine-readable offline catalog, unified base units with per-response data guards
-> (ratios as decimals, money in CNY, volume in shares), a typed facade, and an AI-agent skill.
+> Hong Kong and US markets (per-capability matrix in「市场覆盖」): k-line (3 adjustment modes),
+> intraday snapshots, money flow, the three financial statements, 2,197 metric codes (TTM,
+> historical & industry percentiles, dividend analytics), a screener facade (single-stock
+> screens & server-side market breadth), whole-market symbol lists & industry members,
+> announcements and company profiles. Ships a machine-readable offline catalog, unified base
+> units with per-response data guards, a typed facade, and an AI-agent skill.
 > **Credentials required** (free registration at open.winmale.com; error messages guide you
 > through setup). **Install**: `pip install wmshare`.
 
 覆盖 **A股、港股、美股** 的 Python 财经数据 SDK——各市场逐能力明细见下方
-[「市场覆盖」](#市场覆盖)矩阵。
-注册开放平台领取凭证（免费、注册即得）后即可取数，见下方「配置凭证」。
-许可与数据服务说明见文末[「许可与数据服务」](#许可与数据服务)与 [LICENSE](LICENSE)。
+[「市场覆盖」](#市场覆盖)矩阵。注册开放平台领取凭证（免费、注册即得）后即可取数，
+见下方「配置凭证」。许可与数据服务说明见文末[「许可与数据服务」](#许可与数据服务)与 [LICENSE](LICENSE)。
 
 ## 目录
 
@@ -23,21 +22,19 @@
 
 ## 特性
 
-- **数据要全**——16 个数据域、113 个核心接口一站取全：K 线（三种复权、1 分钟分时、
+- **数据要全**——17 个数据域、116 个核心接口一站取全：K 线（三种复权、1 分钟分时、
   盘中快照、ETF/指数）、分红、三大报表、资金流、公告、业绩预告、股东治理（十大股东/
-  质押五族/限售解禁/机构持仓/沪港通/国家队/高管增减持/股本结构）、回购（方案+执行）、
-  并购重组、担保与诉讼、融资融券、可转债、盈利预测与研报、指数成分与估值、港美股披露。
+  质押五族/限售解禁/机构持仓/沪港通/国家队/高管增减持/股本结构）、回购、并购重组、
+  融资融券、可转债、盈利预测、指数成分与估值、全市场列表、港美股披露。
 - **数据要准**——财报按最新会计准则归一，跨年跨公司直接比较；全库基础单位
-  （比率/涨跌幅=小数、金额=元、量=股）；每次返回做量级守护与关系不变量校验，
-  错误的量级到不了你的代码（见下方「单位与数据守护」）。
+  （比率/涨跌幅=小数、金额=元、量=股）；每次返回做量级守护与不变量校验，
+  错误的量级到不了你的代码（见「单位与数据守护」）。
 - **特色数据**——免费且含实时（盘中快照、当日 1 分钟分时不另收费）；
   `cli.screener` 涨停/均线筛选一行直出，全市场涨跌全景/分桶/行业分布/涨跌榜走
-  服务端预计算索引，毫秒级响应，你不拉全市场数据、不算均线；2,197 个指标码
-  （TTM、3/5/10 年历史分位、192 个行业内分位、TTM 股息率/派息率 + 11 个质量筛选器）
-  服务端算好直出，不关心指标算法。
-- **凭证即用**——注册开放平台免费领取 client_id/api-key（注册即得），环境变量、
-  凭证文件、构造参数任选其一配置；遇到 401/403/429 错误消息即完整指引。
-- **目录随包 + AI 原生**——249 个底层函数、113 个核心接口、2,197 个指标码离线可查；
+  服务端预计算索引，毫秒级响应；2,197 个指标码（TTM、3/5/10 年历史分位、
+  192 个行业内分位、TTM 股息率/派息率 + 11 个质量筛选器）服务端算好直出。
+- **凭证即用**——注册开放平台免费领取 client_id/api-key，环境变量、凭证文件、构造参数任选其一配置；遇到 401/403/429 错误消息即完整指引。
+- **目录随包 + AI 原生**——252 个底层函数、116 个核心接口、2,197 个指标码离线可查；
   附 Agent Skills 格式 skill（`wmshare.skill_dir()`），复制进 AI agent 即可正确使用。
 
 ## 快速上手
@@ -61,8 +58,8 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare   # 清华源
 ### 配置凭证
 
 注册 [赢麻了开放平台](https://open.winmale.com)（微信扫码，免费、注册即得），
-在「我的 → 开放平台 → 我的应用」页**复制两个值**（缺一不可）：`AppId（Client ID）`
-与 `API Key（Client Secret）`。配置方式任选其一：
+在「我的 → 开放平台 → 我的应用」页**复制两个值**（缺一不可）：`AppId（Client ID）` 与
+`API Key（Client Secret）`。配置方式任选其一：
 
 ```bash
 # 方式一：环境变量（<AppId>/<API Key>=页面上复制的两个值）
@@ -81,14 +78,12 @@ print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小
 print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服务端直出）
 ```
 
-更多调用见下方「我想做 X → 用哪一行」。遇到 401/403/429：错误消息里附有申请与配置
-凭证的完整步骤。
+更多调用见下方「我想做 X → 用哪一行」。遇到 401/403/429：错误消息里附有申请与配置凭证的完整步骤。
 
 ## 能力一览
 
-随包离线目录：**16 个数据域 · 249 个底层函数 · 2197 个指标代码**（11 个指标组、
-75 个精选常用指标代码，`cat.search("中文")` 可编程检索）；友好层 **113 个核心接口**，
-按使用视角组织为：
+随包离线目录：**17 个数据域 · 252 个底层函数 · 2197 个指标代码**；友好层 **116 个核心接口**，
+按使用视角组织为（11 个指标组、75 个精选常用指标代码，`cat.search("中文")` 可编程检索）：
 
 | 门面 | 核心能力 | 单位口径 |
 |---|---|---|
@@ -109,6 +104,7 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 | `cli.cbond` | 可转债合约快照、条款事件、正股关联、强赎计数、日 K 与盘中 1 分钟 | 价格=元（面值 100） |
 | `cli.workout` | 契约套利条款（要约收购/换股/现金选择权）看板与单票查询 | 价格=元 |
 | `cli.index` | 指数键列表、成分股（市值/估值中枢）、权重股、宽基估值时序 | 市值=元、比率=小数、权重=小数 |
+| `cli.stocks` | 全市场证券列表（代码/名称/交易所/三级行业/上市日/ST）、行业目录（申万/恒生）、行业成分股（中文名直达） | listed=YYYY-MM-DD、is_st=布尔 |
 | `cli.intl` | 港股 CCASS/主要股东/机构评级/盈利预测，港美沽空，美股发行信息 | 量=股、占比=小数、价格=披露币种 |
 | `cli.info` | 公司档案（名称/行业/组织类型/上市日期） | — |
 
@@ -128,6 +124,7 @@ print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服�
 | 港美专项：沽空（`cli.intl.query_sellshort`） | — | ✅ | ✅ |
 | 港美专项：发行信息（`cli.intl.issue_info`） | — | — | ✅ |
 | 资金流 / 两融 / 可转债 / 业绩预告 / 盈利预测研报 / 经营分部 / 契约套利 | ✅ | — | — |
+| 全市场列表 / 行业目录 / 行业成分（`cli.stocks`） | ✅ | ✅ | 列表 ✅（universe 手动刷新有滞后）；行业目录树暂缺 |
 | 离线代码表 + 检索（`cat.symbols_search`） | ✅ | ✅ | ✅ |
 
 市场切换：`Client(market="cn" / "hk" / "us")`，缺省 cn；代码与市场不匹配会被服务端直接拒绝
@@ -162,6 +159,8 @@ SDK 接口待路由（见 ROADMAP）。
 | 今日涨幅榜前十 | `cli.screener.index_top_movers(limit=10)` | 全市场扫描→排序→取头部 |
 | 近半年有无回购/减持 | `cli.notice.has_buyback(sym, "6m")` | 拉公告列表→分类匹配→截窗 |
 | 合并与母公司差多少 | `cli.statements.compare(sym)` | 双表对齐→逐科目相除 |
+| 拿全市场代码池 | `cli.stocks.list()` | 逐页拼列表→核对代码格式 |
+| 银行股都有谁 | `cli.stocks.industry_members("银行")` | 查行业分类→逐票打标签 |
 
 **常用示例（输出为预期量级；`cli.kline.bars` / `statements.income` 等其余接口同风格）**：
 
@@ -191,6 +190,14 @@ print(cli.dividend.screen_quality("600519", min_yield=0.02, payout_max=1.5))  # 
 
 # 公告信号：近 6 个月是否有回购公告
 print(cli.notice.has_buyback("600519", "6m"))                # True
+
+# 全市场证券列表：代码/名称/交易所/行业/上市日一次拿全（A 股 ≈5.7k 行；港/美换 market）
+rows = cli.stocks.list()
+# 行业成分：中文名直达（也可传行业代码 "S48"），字段同上
+banks = cli.stocks.industry_members("银行")
+# 批量：任意单标的接口传 list 即批量（单次 ≤500）；to_df 出带 symbol 列的长表
+df = cli.call_batch("kline.snapshot", ["600519", "000001"]).to_df()
+print(df)                                # symbol/close/percent/...
 ```
 
 以上能力全部在离线目录可查：`cat.search("分位")`、`cat.metrics_in_group("dividend")`。
@@ -200,12 +207,11 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 全库统一基础单位：**比率 / 涨跌幅 = 小数**（0.01 = 1%，ROE 0.332 = 33.2%）、
 **金额 / 价格 / 市值 = 元**（报表原币）、**成交量 = 股**；各接口单位口径见「能力一览」表。
 返回前做量级与关系不变量校验，违例抛 `DataError`——错误的量级到不了你的代码。
-需要脚本原始口径时：`_raw=True`（store 原始行）、`_units="native"`（脚本输出单位），
-或 `Client(validate=False)` 关闭校验。
+需要脚本原始口径时：`_raw=True`、`_units="native"`、`Client(validate=False)` 关闭校验。
 
 数据深度：个股/ETF 日 K 覆盖**自上市首日以来的全部交易日**（最早 1991 年）；
 单次区间上限 5 年、默认单次 500 根（`Client(max_limit=...)` 可调）。全量深回溯
-（1990 年代不复权老数据）可能触发不变量守护，需整段历史时 `validate=False` 取全。
+（1990 年代不复权老数据）可能触发守护，需整段历史时 `validate=False`。
 
 ## 许可与数据服务
 
@@ -216,8 +222,7 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
 
 ## 更多
 
-- **AI agent skill（随包分发）**：把 skill 装进 agent 的发现目录，AI 即可正确使用
-  SDK（目录先行防臆造指标码、单位铁律、错误引导都在 skill 里）：
+- **AI agent skill（随包分发）**：把 skill 装进 agent 的发现目录，AI 即可正确使用 SDK（目录先行防臆造指标码、单位铁律、错误引导都在 skill 里）：
 
   ```bash
   cp -r "$(python3 -c 'import wmshare; print(wmshare.skill_dir())')" ~/.agents/skills/wmshare
@@ -230,16 +235,16 @@ print(cli.notice.has_buyback("600519", "6m"))                # True
   **收息佬**——攒股收息驾驶舱（分红日历、A/H 持仓透视、派息稳定性看板）；
   **波段**——估值买卖点参考：区间设置支持**推荐区间**（四条约束自动搜点，含成交次数）
   与**自定义区间**两种来源，附安全边界（高位介入回撤统计）与「波段 vs 长持」历史回放。
-- [API 参考](docs/API.md)：四大类 113 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
+- [API 参考](docs/API.md)：四大类 116 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
-  Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；
-  Swagger UI 资源来自 CDN，若浏览器限制 `file://` 可在 docs 目录起 `python -m http.server`）
-- 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；
-  单次拉取上限 `Client(max_limit=500)` 可调
-- 批量调用：`cli.call_batch("kline.query_bars", ["600519", "000001"])` 单次 HTTP 返回
-  `{symbol: 结果}`；`on_error="skip"` 时逐标的隔离错误
+  Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接
+  打开；Swagger UI 资源来自 CDN，若浏览器限制 `file://` 可在 docs 目录起 `python -m http.server`）
+- 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；单次拉取上限 `Client(max_limit=500)` 可调
+- 批量取数：任意单标的接口**传 list 即批量**（如 `cli.kline.last(["600519", "000001"])`，
+  单次 ≤500 超限显式报错）；显式入口 `cli.call_batch(函数, codes, on_error=...)` 单次 HTTP
+  返回 `{symbol: 结果}`、`to_df()` 出长表，`on_error="skip"` 逐标的隔离错误
 - [示例脚本 examples/](examples/)：quickstart（三行上手）、catalog_tour（离线目录漫游，
-  免凭证）、error_handling（离线错误分类）、dividend_screener、screener、pandas_analysis
+  免凭证）、error_handling（离线错误分类）、dividend_screener、screener、pandas_analysis、stocks_industry_batch
   （各示例前提见文件 docstring）
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
 - 运行测试：`pytest`（不联网）；`WMSHARE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

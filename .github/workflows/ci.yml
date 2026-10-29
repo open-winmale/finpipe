@@ -38,6 +38,6 @@ jobs:
           python -m pip wheel . --no-deps -w /tmp/wmshare-wheel
           python -m venv /tmp/wmshare-venv
           /tmp/wmshare-venv/bin/pip install /tmp/wmshare-wheel/*.whl
-          /tmp/wmshare-venv/bin/python -c "import wmshare; c=wmshare.load(); assert c.stats()['functions'] == 249"
+          /tmp/wmshare-venv/bin/python -c "import wmshare; c=wmshare.load(); assert c.stats()['functions'] == 252"
           /tmp/wmshare-venv/bin/python examples/catalog_tour.py > /tmp/catalog_tour.out
-          grep -q "数据域：16" /tmp/catalog_tour.out
+          grep -q "数据域：17" /tmp/catalog_tour.out

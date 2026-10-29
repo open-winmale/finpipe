@@ -588,6 +588,34 @@ def test_workout_index_intl_domain_smoke(cli):
     assert info is None or isinstance(info, dict)
 
 
+def test_stocks_universe_industry_batch(cli):
+    """v1.9.0 证券基础库：全市场列表 / 行业目录 / 行业成分 / 批量 500 长表。"""
+    rows = _call_or_xfail(lambda: cli.stocks.list())
+    assert isinstance(rows, list) and len(rows) > 5000
+    assert {"symbol", "name", "industry", "industry_name", "listed"} <= set(rows[0].keys())
+    l1 = _call_or_xfail(lambda: cli.stocks.industries(1))
+    assert isinstance(l1, list) and len(l1) >= 20  # 申万一级 31 个
+    banks = _call_or_xfail(lambda: cli.stocks.industry_members("银行"))
+    assert isinstance(banks, list) and 30 <= len(banks) <= 60
+    assert all(str(r.get("industry", "")).startswith("industry.S48") for r in banks)
+    codes = [r["symbol"] for r in rows[:500]]
+    res = _call_or_xfail(lambda: cli.call_batch("kline.snapshot", codes))
+    assert not res.errors and len(res.results) == 500
+    df = res.to_df()
+    assert len(df) == 500 and "symbol" in df.columns
+
+
+def test_stocks_universe_hk_us_markets():
+    hk = Client.from_env(market="hk")
+    us = Client.from_env(market="us")
+    hk_rows = _call_or_xfail(lambda: hk.stocks.list())
+    us_rows = _call_or_xfail(lambda: us.stocks.list())
+    assert len(hk_rows) > 2000 and len(us_rows) > 5000
+    assert {"symbol", "name", "listed"} <= set(hk_rows[0].keys())
+    l1 = _call_or_xfail(lambda: hk.stocks.industries(1))
+    assert isinstance(l1, list)  # hsi 一级 12 个；美股目录树暂缺不在此断言
+
+
 # ---------------------------------------------------------------- 覆盖面守护
 def test_all_core_interfaces_are_exercised_here():
     """本文件必须覆盖 FRIENDLY_INDEX 的每个核心接口（防冒烟面回退）。"""
@@ -598,7 +626,8 @@ def test_all_core_interfaces_are_exercised_here():
             if '["balance", "income", "cashflow"]' not in src:
                 missing.append(f"{ns}.{method}")
             continue
-        # 直接调用 cli.ns.method(...) 或以可调用对象传入（_call_or_xfail(cli.ns.method, ...)）
-        if f"cli.{ns}.{method}(" not in src and f"cli.{ns}.{method}," not in src:
+        # 直接调用 <客户端>.ns.method(...) 或以可调用对象传入；客户端变量名可多样
+        # （cli / hk / us——港美股披露须用对应市场客户端，见 test_workout_index_intl_domain_smoke）
+        if f".{ns}.{method}(" not in src and f".{ns}.{method}," not in src:
             missing.append(f"{ns}.{method}")
     assert not missing, f"live 冒烟未覆盖：{missing}（共 {CORE_COUNT} 个核心接口）"

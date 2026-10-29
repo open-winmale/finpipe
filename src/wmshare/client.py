@@ -28,6 +28,10 @@ from wmshare.units import apply_units
 
 DEFAULT_BASE_URL = "https://api.winmale.com"
 
+# 无标的参数函数的求值锚点：网关按注册表校验 symbol 与 market 匹配，
+# 固定 A 股锚点在 hk/us 客户端会 MARKET_MISMATCH（400）。
+DEFAULT_SYMBOLS = {"cn": "600519", "hk": "00700", "us": "AAPL"}
+
 
 _SYM_PREFIX = re.compile(r"^(?:cn|sh|sz|bj)\.", re.IGNORECASE)
 _SYM_SUFFIX = re.compile(r"\.(?:SH|SZ|BJ)$", re.IGNORECASE)
@@ -50,6 +54,17 @@ class BatchResult:
 
     results: dict[str, Any] = field(default_factory=dict)
     errors: dict[str, str] = field(default_factory=dict)
+
+    def to_df(self) -> Any:
+        """转长表 DataFrame：每标的一行（值为 MAP 时字段展平，symbol 列在最前）。
+
+        errors 中的失败标的不进表；results 为空时返回空表。
+        """
+        rows = []
+        for sym, v in self.results.items():
+            rows.append({"symbol": sym, **v} if isinstance(v, dict)
+                        else {"symbol": sym, "value": v})
+        return _to_dataframe(rows)
 
 
 def _xs_literal(v: Any) -> str:
@@ -317,13 +332,20 @@ class Client:
         return resp
 
     # ---- eval ----
-    def eval(self, xs: str | list[str], *, symbol: str = "600519",
+    def eval(self, xs: str | list[str], *, symbol: str | None = None,
              args: dict | None = None, market: str | None = None,
              mode: str = "call") -> dict:
-        """执行 XS，返回完整响应 doc（成功时 data.result 为顶层 return 值）。"""
+        """执行 XS，返回完整响应 doc（成功时 data.result 为顶层 return 值）。
+
+        symbol 为求值锚点代码；None 时按客户端市场取默认锚点
+        （cn=600519 / hk=00700 / us=AAPL，防 MARKET_MISMATCH）。
+        """
         lines = xs if isinstance(xs, list) else [ln for ln in xs.splitlines() if ln.strip()]
+        mk = str(market or self.market or "cn").lower()
+        anchor = normalize_symbol(symbol) if symbol is not None \
+            else DEFAULT_SYMBOLS.get(mk, "600519")
         body: dict[str, Any] = {
-            "symbol": normalize_symbol(symbol),
+            "symbol": anchor,
             "xs_lines": lines,
             "args": {"print.plain": True, **(args or {})},
             "script_files": {},
@@ -436,6 +458,15 @@ class Client:
                              code="units")
         fn = self.catalog.function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
+        # 传列表即批量：标的参数收到 list/tuple 自动转 call_batch
+        # （≤500，超限 LimitError；语义与显式 call_batch 一致）。
+        for p in params:
+            v = kwargs.get(p["name"])
+            if (p.get("type") == "string" and p["name"] in self.BATCH_SYMBOL_PARAMS
+                    and isinstance(v, (list, tuple))):
+                rest = {k: w for k, w in kwargs.items() if k != p["name"]}
+                return self.call_batch(name, list(v), _raw=_raw, _df=_df,
+                                       _units=_units, **rest)
         call_line = self._build_call_line(name, params, kwargs)
         normalizer = fn.get("normalize_with")
         if normalizer and not _raw:
@@ -443,7 +474,7 @@ class Client:
         else:
             lines = [f"return {call_line}"]
         xs = self._require_lines(name) + lines
-        symbol = "600519"
+        symbol = DEFAULT_SYMBOLS.get(str(self.market or "cn").lower(), "600519")
         for p in params:
             if p["name"] in kwargs and p["type"] == "string" and p["name"] in self.SYMBOL_PARAMS:
                 symbol = normalize_symbol(str(kwargs[p["name"]]))

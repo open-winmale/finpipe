@@ -45,7 +45,8 @@ INCLUDED_NS = frozenset({
     "equity", "margin", "estimates", "cbond", "workout", "indices", "intl",
     # 指数库目录名仍是 sys/index，但库全局名是 indices——内建 index 常量 MAP 占名，
     # 域库曾因此被沙箱拒绑（selector policy violation）且 CI 构建全挂
-
+    # v1.9.0：证券基础库（全市场列表 / 行业目录 / 行业成分）
+    "stocks",
 })
 # rptdom 只保留三表透视族（年报 PDF 提取类 rows/notes/note_index 不发布）
 RPTDOM_KEEP = frozenset({"statement", "statement_years", "statement_compare", "statement_tree", "statement_audit"})

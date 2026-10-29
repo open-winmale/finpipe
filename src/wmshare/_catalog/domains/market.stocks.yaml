@@ -1,0 +1,24 @@
+id: market.stocks
+version: 1.0.0
+cn: 证券与行业基础
+kind: computed
+category: market
+priority: P1
+description: 证券基础库——全市场证券列表（代码/名称/交易所/三级行业/上市日期/ST）、
+  行业目录（申万 sw2021、恒生 hsi）、行业成分股（支持行业键/代码/中文名）。
+  代码池与行业过滤的取数底座；行情/指标等按 symbol 走各自域。
+data_origin: [平台数据服务]
+units:
+  flag: 布尔（is_st）
+  date: YYYY-MM-DD（listed，档案缺失为空串）
+requires: {path: sys/stocks/init.xs, preloaded: false}
+notes:
+  - '全表单次返回（cn≈5.7k / hk≈2.8k / us≈5.6k 行），排序不保证；SDK 侧可自行排序过滤'
+  - 'cn/hk universe 随上游每日刷新；us universe 为手动 DAG 刷新，新上市/退市有滞后'
+  - '美股：列表与个股行业码可用；行业目录树上游未灌数（手动灰度），industry_list 恒空、
+    industry_members 不可用'
+  - 'exchange 为小写交易所简称（sz/sh/bj/hk…），部分档案缺失为空串'
+functions:
+  - {name: stocks.query_list, cn: 全市场证券列表, layer: L0}
+  - {name: stocks.industry_list, cn: 行业目录, layer: L0}
+  - {name: stocks.industry_members, cn: 行业成分股, layer: L0}

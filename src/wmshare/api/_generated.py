@@ -1618,6 +1618,24 @@ class SegmentsNS(_Ns):
         """
         return self._client.call("segments.fmt_item", row=row, _raw=_raw, _df=_df)
 
+class StocksNS(_Ns):
+    """证券与行业基础（market.stocks）"""
+
+    def query_list(self, _raw: bool = False, _df: bool = False) -> Any:
+        """全市场证券列表"""
+        return self._client.call("stocks.query_list", _raw=_raw, _df=_df)
+
+    def industry_list(self, level: int | None = None, _raw: bool = False, _df: bool = False) -> Any:
+        """行业目录"""
+        kw: dict[str, Any] = {}
+        if level is not None:
+            kw["level"] = level
+        return self._client.call("stocks.industry_list", **kw, _raw=_raw, _df=_df)
+
+    def industry_members(self, ind: str, _raw: bool = False, _df: bool = False) -> Any:
+        """行业成分股"""
+        return self._client.call("stocks.industry_members", ind=ind, _raw=_raw, _df=_df)
+
 class WorkoutNS(_Ns):
     """契约套利（disc.workout）"""
 
@@ -1644,5 +1662,6 @@ NAMESPACES: dict[str, type[_Ns]] = {
     "notice": NoticeNS,
     "rptdom": RptdomNS,
     "segments": SegmentsNS,
+    "stocks": StocksNS,
     "workout": WorkoutNS,
 }

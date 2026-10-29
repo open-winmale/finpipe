@@ -324,7 +324,7 @@
                 "properties": {
                   "symbols": {
                     "type": "array",
-                    "description": "标的列表（自动去重与归一）"
+                    "description": "标的列表（自动去重与归一），单次上限同 ``Client(max_limit=...)``"
                   }
                 },
                 "required": [
@@ -1798,6 +1798,124 @@
                 },
                 "required": [
                   "key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks/list": {
+      "post": {
+        "operationId": "stocks_list",
+        "summary": "全市场证券列表（当前市场；A≈5.7k / 港≈2.8k / 美≈5.6k 行，排序不保证）。",
+        "description": "全表单次返回，无分页；随上游每日刷新（美股 universe 为手动刷新，有滞后）。、底层目录函数 `stocks.query_list`。SDK 调用：`cli.stocks.list(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks/industries": {
+      "post": {
+        "operationId": "stocks_industries",
+        "summary": "行业目录（standard: sw2021 申万 | hsi 恒生）。",
+        "description": "行字段：symbol/name/level/parent/standard。、底层目录函数 `stocks.industry_list`。SDK 调用：`cli.stocks.industries(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "description": "None=全部层级；1..3=指定级"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "调用成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stocks/industry_members": {
+      "post": {
+        "operationId": "stocks_industry_members",
+        "summary": "行业成分股（任意层级节点；行字段同 ``list()``）。",
+        "description": "中文名未命中/多候选时报错并列出候选）、底层目录函数 `stocks.industry_members`。SDK 调用：`cli.stocks.industry_members(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "tags": [
+          "市场行情"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "industry": {
+                    "type": "string",
+                    "description": "行业键 \"industry.S48\"、行业代码 \"S48\"、或中文名（如 \"银行\"；"
+                  },
+                  "top_n": {
+                    "type": "integer",
+                    "description": "只取前 N 条（客户端截断；None=全量，单行业最大几百行）"
+                  }
+                },
+                "required": [
+                  "industry"
                 ]
               }
             }

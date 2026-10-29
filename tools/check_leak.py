@@ -19,6 +19,20 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
+# 内置体验 appid 的针值：明文入库即成痕迹（同下方第三方禁词表先例），
+# 故以 XOR+base64 混淆 blob 存放。任何跟踪文件出现明文（含 README/测试/示例）一律视为泄漏
+_EXPERIENCE_BLOB = "LTcFNSo/NAUjYzAsMjA0N25jMTZpPzZoUGk/bmtpY245PjtvOGM4OTs/OT9raDlvYz45PmhpYmg4am9pODhsY2psbmluP2xqPA=="
+_EXPERIENCE_KEY = 0x5A
+
+
+def _experience_needles() -> list[str]:
+    """解码内置体验 appid/secret 针值（两行）。"""
+    import base64
+
+    raw = bytes(b ^ _EXPERIENCE_KEY for b in base64.b64decode(_EXPERIENCE_BLOB))
+    return [w for w in raw.decode("utf-8").splitlines() if w]
+
+
 # 内部域名 / 基础设施路径（对外不可见的信息）
 FORBIDDEN_SUBSTRINGS = [
     "code.yepless.cn",
@@ -26,11 +40,7 @@ FORBIDDEN_SUBSTRINGS = [
     "less.server",
     "skillhub-releases",
     "winmale/.skillhub",
-    # 内置体验 appid 的明文：仅允许以混淆 blob 存在于 src/wmshare/_experience.py，
-    # 任何跟踪文件出现明文（含 README/测试/示例）一律视为泄漏
-    "wm_open_y9jvhjnm49kl3el2",
-    "3e41394cda5b9bcaece12c59dcd2382b053bb6906434e60f",
-]
+] + _experience_needles()
 
 # 第三方产品/数据商引用：项目规范禁止出现（含竞品对标与数据来源点名）。
 # 词表本身也是第三方内容——明文入库即成痕迹，故以 XOR+base64 混淆 blob 存放

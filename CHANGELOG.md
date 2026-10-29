@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `batch_iter` 改为「外壳 + 内部生成器」：**参数校验在调用时立即抛出**，
     不再延迟到首次迭代（生成器惰性校验会让错误配置静默通过）；
   - README 补三接口参数对照表（用途/请求数/关键参数与默认值），行数上限 275→287。
+- **批量进入新手必经动线**（此前接口与专章都在，但「三行上手」与 SKILL 决策树前几条
+  全是单票示例，用户学完首页就会写 `for code in codes: ...` 逐票取数、正好撞 429）：
+  README 三行上手改批量示例（上限 287→289）、SKILL 决策树把「全市场/上百只取数」
+  提到第 3 条并明写反例、`examples/quickstart.py` 末尾加全市场批量段。
 
 ### Fixed
 

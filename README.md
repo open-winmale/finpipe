@@ -70,7 +70,8 @@ import wmshare
 
 cli = wmshare.Client.from_env()                   # 读上面配置的凭证
 print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小数）
-print(cli.screener.index_breadth_summary())       # 全市场涨跌全景（服务端直出）
+codes = [r["symbol"] for r in cli.stocks.list()]      # 全市场代码池（A 股 5,691 家）
+df = cli.batch_all("kline.snapshot", codes).to_df()   # 12 次请求，不是 5,691 次
 ```
 
 更多调用见下方「我想做 X → 用哪一行」。遇到 401/403/429：错误消息里附有申请与配置凭证的完整步骤。

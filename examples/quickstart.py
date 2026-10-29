@@ -5,6 +5,7 @@
     python examples/quickstart.py
 
 遇到 401/403/429 时，错误消息会直接给出申请 AppID 的步骤。
+批量取数（全市场/上百只）务必走 batch_all / batch_iter，不要写逐票循环——见文件末尾。
 """
 import wmshare
 
@@ -48,6 +49,13 @@ def main(cli=None) -> None:
     # ---- 参考数据 ----
     profile = cli.info.profile(SYMBOL)
     print(f"{profile.get('name')} · {profile.get('industry')} · 上市 {profile.get('listing_date')}")
+
+    # ---- 批量取数：全市场只用 12 次请求（逐票要 5,691 次，必撞 429 限流） ----
+    codes = [r["symbol"] for r in cli.stocks.list()]
+    res = cli.batch_all("kline.snapshot", codes)
+    print(f"全市场 {len(res.results)} 家：{res.requests} 次请求"
+          f"（逐票需 {len(codes)} 次；免费档限额 500 次/小时）")
+    # 逐批处理（长任务边取边落盘）：for part in cli.batch_iter("kline.snapshot", codes): ...
 
     # 进阶：DataFrame 见 examples/pandas_analysis.py；底层函数通用入口：
     cli.call("kline.query_bars", sym=SYMBOL, limit=5)

@@ -75,6 +75,7 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 |---|---|
 | 某股最近 N 根日 K | `cli.kline.bars("600519", n=30)`（`adj="qfq"/"hfq"` 复权） |
 | 某股日期区间 K 线 | `cli.kline.bars("600519", begin="2026-01-01", end="2026-06-30")` |
+| **全市场 / 上百只取数（避免 429）** | `cli.batch_all("kline.snapshot", [r["symbol"] for r in cli.stocks.list()])`——自动分批，A 股 5,691 家只发 **12 次请求**；**绝不要写 `for code in codes: cli.kline.bars(code)`（5,691 次请求必撞限流）** |
 | 最新价 / 盘中快照 | `cli.kline.last("600519")`；盘中实时用 `cli.kline.snapshot("600519")` 或 `cli.kline.batch_live(["600519"])` 或 `cli.kline.live("600519")` |
 | 当日 1 分钟分时 | `cli.kline.min1("600519")` |
 | 今日涨停了吗 / 全市场涨停梯队 | `cli.screener.screen_limit_up("600519")` |
@@ -93,7 +94,6 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 | 公司档案 | `cli.info.profile(sym)` |
 | 全市场代码池（A/港/美全表） | `cli.stocks.list()`（行含 symbol/name/exchange/industry/listed；港/美换 `Client(market=...)`） |
 | 行业目录 / 行业成分 | `cli.stocks.industries(1)`（申万/恒生；美股目录树暂缺）/ `cli.stocks.industry_members("银行")`（中文名或代码 S48） |
-| 全市场/上百只批量取数（绕开 429） | `cli.batch_all("kline.snapshot", codes)`——自动按 500 分批，A 股 5,691 家只发 **12 次请求**（逐票要 5,691 次，免费档 500 次/小时必撞 429）；长任务用 `cli.batch_iter(...)` 逐批落盘 |
 | 少量标的单批（≤500） | `cli.call_batch("kline.snapshot", ["600519", "000001"])` 或任意单标的接口传 list：`cli.kline.last(["600519", "000001"])`；`to_df()` 出每标的一行长表 |
 
 完整 116 个核心接口与全部底层函数：仓库用户看 docs/API.md；pip 用户用

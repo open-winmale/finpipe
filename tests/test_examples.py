@@ -77,12 +77,27 @@ def test_quickstart_base_install_path(capsys):
         def profile(self, *a, **k):
             return {"name": "贵州茅台", "industry": "白酒", "listing_date": "2001-08-27"}
 
+    class Stocks:
+        def list(self, *a, **k):
+            # 3 个代码 → 1 批（验证 quickstart 的批量段落走的是 batch_all 而非逐票）
+            return [{"symbol": c} for c in ("600519", "000001", "300750")]
+
+    from wmshare.client import BatchResult
+
+    def batch_all(name, symbols, **k):
+        return BatchResult(results={s: {"close": 1.0} for s in symbols},
+                           requests=-(-len(symbols) // 500))
+
     cli = SimpleNamespace(kline=Kline(), moneyflow=Moneyflow(), statements=Statements(),
                           indicator=Indicator(), notice=Notice(), dividend=Dividend(),
-                          info=Info(), call=lambda *a, **k: [])
+                          info=Info(), stocks=Stocks(), batch_all=batch_all,
+                          call=lambda *a, **k: [])
     quickstart.main(cli)
     out = capsys.readouterr().out
     assert "ROE(TTM)=33.24%" in out
     assert "DPS 28.02" in out
     assert "测试公告" in out
     assert "DataFrame" not in out
+    # 批量段落：必须展示「家数 → 请求数」对比（新手动线的核心信息，防回退成逐票循环）
+    assert "全市场 3 家：1 次请求" in out
+    assert "逐票需 3 次" in out

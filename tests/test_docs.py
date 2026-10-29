@@ -388,9 +388,11 @@ def test_readme_is_lean():
     已先删「更多」区旧批量 bullet、压缩镜像/生态/示例段落腾出空间。
     2026-10-29 再提至 287：补三接口参数对照表（batch_all/batch_iter/call_batch 的
     用途、请求数、关键参数与默认值），参数语义必须成文——同名不同义是认知陷阱。
+    2026-10-29 提至 289：把批量放进「三行上手」动线（新手必经路径不能只有单票示例，
+    否则学完首页就写 for 循环逐票取数、正好撞 429）。
     """
-    assert len(README.splitlines()) <= 287, \
-        f"README 膨胀到 {len(README.splitlines())} 行（上限 287）；长内容下沉 docs/ 或删除"
+    assert len(README.splitlines()) <= 289, \
+        f"README 膨胀到 {len(README.splitlines())} 行（上限 289）；长内容下沉 docs/ 或删除"
 
 
 def test_readme_no_stale_trial_promises():

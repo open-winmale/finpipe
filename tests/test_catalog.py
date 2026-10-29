@@ -89,6 +89,20 @@ def test_package_version():
     assert wmshare.__version__
 
 
+def test_version_single_source_of_truth():
+    """__version__ 必须与 pyproject.toml 一致——双源漂移曾导致 1.9.0 的 wheel
+    里 import 出来是 1.8.1（bump pyproject 时漏改 __init__，发布前才发现）。"""
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    text = (root / "pyproject.toml").read_text(encoding="utf-8")
+    m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.M)
+    assert m, "pyproject.toml 缺 version"
+    assert wmshare.__version__ == m.group(1), (
+        f"版本双源漂移：__init__={wmshare.__version__} vs pyproject={m.group(1)}")
+
+
 def test_catalog_shipped_inside_package():
     """独立性合同：目录数据必须随包分发（pip 安装后离线可用，不依赖仓库/内部工程）。"""
     import wmshare.catalog as catmod

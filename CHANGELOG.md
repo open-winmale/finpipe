@@ -51,6 +51,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **版本双源漂移**：`src/wmshare/__init__.py` 的 `__version__` 停留在 1.8.1，而
+  `pyproject.toml` 已 bump 到 1.9.0——wheel 元数据正确但 `import wmshare` 报旧版本
+  （发布前隔离安装时才发现）。已修正并新增 `test_version_single_source_of_truth`
+  直接比对 pyproject，防再犯。
 - **按市场默认求值锚点**：无标的参数的函数（如目录类）此前固定 A 股锚点 `600519`，
   hk/us 客户端必报 `MARKET_MISMATCH`；现按市场取 `600519/00700/AAPL`。
 - `call_batch` 超限报错补分批引导（「请分批，如 `codes[i:i+500]`；或直接用 `batch_all()`」），

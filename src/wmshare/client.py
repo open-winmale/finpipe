@@ -12,7 +12,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NoReturn
+from typing import TYPE_CHECKING, Any, Iterator, NoReturn
 
 import requests
 
@@ -50,10 +50,15 @@ def normalize_symbol(symbol: str) -> str:
 
 @dataclass
 class BatchResult:
-    """批量调用结果：成功项与逐标的错误（on_error="skip" 时）。"""
+    """批量调用结果：成功项与错误（票级或批级，视调用入口而定）。
+
+    requests 记录本次共发出多少次 HTTP 请求——批量解决 429 的关键指标
+    （429 按请求次数限流，免费档 500 次/小时、5000 次/日）。
+    """
 
     results: dict[str, Any] = field(default_factory=dict)
     errors: dict[str, str] = field(default_factory=dict)
+    requests: int = 0
 
     def to_df(self) -> Any:
         """转长表 DataFrame：每标的一行（值为 MAP 时字段展平，symbol 列在最前）。
@@ -65,6 +70,12 @@ class BatchResult:
             rows.append({"symbol": sym, **v} if isinstance(v, dict)
                         else {"symbol": sym, "value": v})
         return _to_dataframe(rows)
+
+
+def _chunked(seq: list[Any], size: int) -> Iterator[list[Any]]:
+    """把序列切成 size 大小的连续片（保序）。"""
+    for i in range(0, len(seq), size):
+        yield seq[i:i + size]
 
 
 def _xs_literal(v: Any) -> str:
@@ -514,8 +525,11 @@ class Client:
         if not syms:
             return BatchResult()
         if self.max_limit is not None and len(syms) > self.max_limit:
-            raise LimitError(f"{name}: 批量标的数 {len(syms)} 超过上限 {self.max_limit}",
-                             code="limit")
+            raise LimitError(
+                f"{name}: 批量标的数 {len(syms)} 超过上限 {self.max_limit}"
+                f"（请分批，如 codes[i:i+{self.max_limit}]；"
+                "或直接用 batch_all() 自动分批、batch_iter() 逐批处理）",
+                code="limit")
         if on_error == "skip":
             results: dict[str, Any] = {}
             errors: dict[str, str] = {}
@@ -525,7 +539,8 @@ class Client:
                                            **kwargs, **{sym_param: s})
                 except WmshareError as e:
                     errors[s] = str(e)
-            return BatchResult(results=results, errors=errors)
+            # skip 模式逐票请求：N 个标的 = N 次请求（会快速耗尽限流额度）
+            return BatchResult(results=results, errors=errors, requests=len(syms))
 
         normalizer = fn.get("normalize_with")
         pairs = []
@@ -543,7 +558,95 @@ class Client:
                                         market=self.market)
         if _df:
             result = {k: _to_dataframe(v) for k, v in result.items()}
-        return BatchResult(results=result)
+        # raise 模式把 N 个标的压进一次 eval：1 次请求
+        return BatchResult(results=result, requests=1)
+
+    # ---- 分批执行器（批量绕开 429 的正式入口） ----
+    def _batch_size(self, batch_size: int | None, name: str) -> int:
+        size = int(batch_size) if batch_size is not None else (self.max_limit or 500)
+        if size <= 0:
+            raise UsageError(f"{name}: batch_size 必须为正整数，收到 {size}", code="params")
+        if self.max_limit is not None and size > self.max_limit:
+            raise UsageError(
+                f"{name}: batch_size={size} 超过单批上限 {self.max_limit}"
+                f"（单批最大 {self.max_limit} 个标的；可调 Client(max_limit=...)）",
+                code="params")
+        return size
+
+    def batch_iter(self, name: str, symbols: Any, /, batch_size: int | None = None,
+                   on_error: str = "raise", _raw: bool = False, _df: bool = False,
+                   _units: str = "base", **kwargs: Any) -> Iterator[BatchResult]:
+        """分批执行器（生成器）：把 N 个标的切成 ⌈N/batch_size⌉ 批，每批一次 HTTP。
+
+        解决 429 的正解——服务端按**请求次数**限流（免费档 500 次/小时、
+        5000 次/日），逐票取全市场（A 股 5691 家）必然撞墙；分批后 5691 家
+        只需 12 次请求。逐批 yield 便于边取边落盘、显示进度、随时中断。
+
+        :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``
+        :param on_error: **批级**语义——
+            ``"raise"``（默认）任一批失败即抛；``"skip"`` 跳过失败批继续
+            （失败批记进 ``errors``，键形如 ``batch#3[1000:1500]``）。
+            注意与 ``call_batch(on_error="skip")`` 的**票级**语义不同：后者逐票发
+            请求，会把 12 次请求放大成 N 次、反而加剧限流，批量场景请勿使用。
+        :returns: 逐批 ``BatchResult``（``requests`` = 该批请求数，恒为 1）
+
+        限流（HTTP 429）在任何模式下都会**停止并给出续跑位置**——配额是时间
+        窗口，继续跑只会连续失败。异常消息含已完成标的数与 ``codes[done:]``
+        续跑建议。
+        """
+        if on_error not in ("raise", "skip"):
+            raise UsageError('on_error 只支持 "raise" 或 "skip"', code="params")
+        size = self._batch_size(batch_size, name)
+        syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
+        if not syms:
+            return
+        total = (len(syms) + size - 1) // size
+        for idx, chunk in enumerate(_chunked(syms, size), start=1):
+            start = (idx - 1) * size
+            try:
+                # 批内必须是 raise 模式：整批压进一次请求
+                yield self.call_batch(name, chunk, on_error="raise", _raw=_raw,
+                                      _df=_df, _units=_units, **kwargs)
+            except LimitError as e:
+                if getattr(e, "code", "") == "rate_limited" or getattr(e, "status", None) == 429:
+                    raise LimitError(
+                        f"{name}: 第 {idx}/{total} 批触发限流（已完成 {start} / {len(syms)} 个标的）。"
+                        "服务端按请求次数限流（免费档 500 次/小时、5000 次/日）；"
+                        f"请稍后续跑：batch_all({name!r}, codes[{start}:])；"
+                        "或调大 batch_size 减少请求次数、申请更高档位。"
+                        f"原始错误：{e}", code="rate_limited", status=429) from e
+                raise
+            except WmshareError as e:
+                if on_error == "skip":
+                    key = f"batch#{idx}[{start}:{start + len(chunk)}]"
+                    yield BatchResult(errors={key: str(e)}, requests=1)
+                    continue
+                raise
+
+    def batch_all(self, name: str, symbols: Any, /, batch_size: int | None = None,
+                  on_error: str = "raise", _raw: bool = False, _df: bool = False,
+                  _units: str = "base", **kwargs: Any) -> BatchResult:
+        """一站式分批取数：自动切片并聚合为单个 ``BatchResult``。
+
+        ``cli.batch_all("kline.snapshot", [r["symbol"] for r in cli.stocks.list()])``
+        → A 股 5691 家只花 12 次请求（而非 5691 次），一次跑完不撞限流。
+
+        :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``
+        :param on_error: 批级语义（``"skip"`` 跳过失败批），与 ``batch_iter`` 一致
+        :returns: ``BatchResult``——``results`` 聚合全部批次、``errors`` 含失败批、
+            ``requests`` 为实际请求次数（可直接对比标的数看省了多少次配额）
+
+        内存提示：全市场 5691 条快照约数 MB，可直接聚合；多行历史类数据
+        （``bars``/``history``）建议改用 ``batch_iter`` 边取边落盘。
+        """
+        out = BatchResult()
+        for part in self.batch_iter(name, symbols, batch_size=batch_size,
+                                    on_error=on_error, _raw=_raw, _df=_df,
+                                    _units=_units, **kwargs):
+            out.results.update(part.results)
+            out.errors.update(part.errors)
+            out.requests += part.requests
+        return out
 
     def notice_poller(self, *, group: str, consumer: str, on_events: Any = None,
                       **kw: Any) -> "NoticePoller":

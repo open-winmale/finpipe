@@ -11,7 +11,9 @@
 说明：
   - cli.stocks.list() 一次拿全市场（A≈5.7k / 港≈2.8k / 美≈5.6k 行）；
   - cli.stocks.industry_members() 支持中文名（"银行"）、行业代码（"S48"）、行业键；
-  - 批量：任意单标的接口传 list 即批量（单次 ≤500），to_df() 出带 symbol 列的长表；
+  - 批量绕开 429：服务端按请求次数限流（免费档 500 次/小时），逐票取全市场必撞；
+    batch_all 自动按 500 分批 —— A 股 5691 家只发 12 次请求；
+  - 少量标的单批用 call_batch（≤500），to_df() 出带 symbol 列的长表；
   - 港/美市场用 Client.from_env(market="hk"/"us")，跨市场代码会被服务端拒绝。
 """
 import os
@@ -42,13 +44,25 @@ def main(cli=None) -> None:
         print(f"行业解析失败：{e}")
         return
 
-    # ---- 3) 批量取数：传 list 即批量（≤500），to_df 出长表 ----
-    codes = [r["symbol"] for r in members[: min(500, len(members))]]
-    res = cli.call_batch("kline.snapshot", codes)
+    # ---- 3) 批量取数：全市场分批（A 股 12 次请求，逐票要 5691 次会撞 429） ----
+    all_codes = [r["symbol"] for r in rows]
+    res = cli.batch_all("kline.snapshot", all_codes)
+    naive = len(all_codes)
+    print(f"全市场 {len(res.results)} 家：批量 {res.requests} 次请求"
+          f"（逐票需 {naive} 次，免费档 500 次/小时 → 省 {naive // max(res.requests, 1)} 倍配额）")
     if res.errors:
-        print(f"批量失败 {len(res.errors)} 家：{list(res.errors)[:3]}")
-    df = res.to_df()  # 需要安装 pandas（pip install "wmshare[dataframe]"）
-    print(f"批量快照 {len(df)} 行（长表，symbol 列在前）：")
+        print(f"失败批 {len(res.errors)}：{list(res.errors)[:3]}")
+
+    # ---- 4) 逐批：长任务边取边处理（此处只打印批大小，实际可 to_df().to_parquet） ----
+    for i, part in enumerate(cli.batch_iter("kline.snapshot", all_codes), 1):
+        print(f"  第 {i} 批 {len(part.results)} 家", end="\r" if i % 3 else "\n")
+    print()
+
+    # ---- 5) 行业维度聚合（单批 ≤500 也可直接用 call_batch） ----
+    codes = [r["symbol"] for r in members[: min(500, len(members))]]
+    one = cli.call_batch("kline.snapshot", codes)
+    df = one.to_df()  # 需要 pandas（pip install "wmshare[dataframe]"）
+    print(f"「{hint}」{len(df)} 行快照（symbol 列在前）：")
     print(df.head().to_string(index=False))
 
 

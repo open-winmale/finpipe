@@ -18,7 +18,7 @@
 
 [特性](#特性) · [快速上手](#快速上手) · [能力一览](#能力一览) · [市场覆盖](#市场覆盖) ·
 [单位与数据守护](#单位与数据守护) · [我想做 X → 用哪一行](#我想做-x--用哪一行) ·
-[许可与数据服务](#许可与数据服务) · [更多](#更多)
+[批量取数](#批量取数) · [许可与数据服务](#许可与数据服务) · [更多](#更多)
 
 ## 特性
 
@@ -47,13 +47,8 @@ pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
 python3 -c "import wmshare; print(wmshare.__version__)"   # 验证安装
 ```
 
-国内直连 pypi.org 不稳时用国内镜像（清华等镜像源随 PyPI 自动同步，通常当天可得，阿里云偶有滞后）：
-
-```bash
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare   # 清华源
-```
-
-镜像装不到最新版时回官方源 `pip install -i https://pypi.org/simple wmshare`；开发/贡献者安装见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+国内直连不稳时换清华源（随 PyPI 同步，通常当天可得）：`pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare`；
+镜像无最新版时回官方源；开发/贡献者安装见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ### 配置凭证
 
@@ -202,6 +197,40 @@ print(df)                                # symbol/close/percent/...
 
 以上能力全部在离线目录可查：`cat.search("分位")`、`cat.metrics_in_group("dividend")`。
 
+## 批量取数
+
+服务端按**请求次数**限流（免费档 500 次/小时、5,000 次/日）：逐票取 A 股 5,691 家 = 5,691 次请求必然撞 429，批量只需 **12 次**。
+
+```python
+import wmshare
+cli = wmshare.Client.from_env()
+
+# ① 一站式：自动分批（默认 500/批）聚合为一个结果（A 股全市场 = 12 次请求）
+codes = [r["symbol"] for r in cli.stocks.list()]      # 全市场代码池（港/美换 market）
+res = cli.batch_all("kline.snapshot", codes)
+print(len(res.results), res.requests)                 # 5,691 12
+
+# ② 逐批：可进度、可中断、长任务边取边落盘
+for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
+    print(f"第 {i} 批 {len(part.results)} 家")          # part.to_df() 可自行落盘
+
+# ③ 单批（≤500）：cli.call_batch("kline.snapshot", ["600519", "000001"]).to_df()
+```
+
+**分批策略由你定，SDK 负责切片与执行**：代码池来自 `cli.stocks.list()`（全市场）、
+`cli.stocks.industry_members("银行")`（按行业）或自己的筛选结果，`batch_size=`（默认 500、
+上限 `max_limit`）控制每批大小。单批触发 `CALC_LIMIT_EXCEEDED`（算力超限）时减小
+`batch_size`；限流（429）在任何模式下都会停止并给续跑位置（消息含已完成标的数与
+`codes[done:]` 切片），不会闷头连败。
+
+**容错**：`batch_all(on_error="skip")` 跳过失败的**批**继续（失败批进 `errors`，键如 `batch#3[1000:1500]`）。
+**不要用 `call_batch(on_error="skip")` 做容错**——它逐票发请求，12 批会放大成 5,691 次、正好制造 429。
+
+**返回**：`results`（`{代码: 结果}`，保序去重 + 代码归一）/ `errors` / `requests`（实际请求数，
+可对比标的数看省了多少配额）；`to_df()` 每标的一行（MAP 展平、`symbol` 列在前），多次行结果
+（`bars`/`history`）建议读 `results[代码]` 或走 `batch_iter`。实测（2026-10-29）：500 标的单批
+2–4 秒（cn/hk/us），A 股全市场 5,691 家 12 批约 9 秒一次跑完（0 错误）。
+
 ## 单位与数据守护
 
 全库统一基础单位：**比率 / 涨跌幅 = 小数**（0.01 = 1%，ROE 0.332 = 33.2%）、
@@ -228,23 +257,19 @@ print(df)                                # symbol/close/percent/...
   cp -r "$(python3 -c 'import wmshare; print(wmshare.skill_dir())')" ~/.agents/skills/wmshare
   # 项目级按工具放入 .zcode/skills/ 或 .claude/skills/
   ```
-  skill 源文件：[src/wmshare/skills/wmshare/SKILL.md](src/wmshare/skills/wmshare/SKILL.md)
-  （LLM 可直接读取的结构化用法）。
+  skill 源文件：[src/wmshare/skills/wmshare/SKILL.md](src/wmshare/skills/wmshare/SKILL.md)（LLM 可直接读取的结构化用法）。
 
 - **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**（基于本 SDK 构建的开源工具）：
   **收息佬**——攒股收息驾驶舱（分红日历、A/H 持仓透视、派息稳定性看板）；
-  **波段**——估值买卖点参考：区间设置支持**推荐区间**（四条约束自动搜点，含成交次数）
-  与**自定义区间**两种来源，附安全边界（高位介入回撤统计）与「波段 vs 长持」历史回放。
+  **波段**——估值买卖点参考：区间设置支持**推荐区间**（四条约束自动搜点，含成交次数）与
+  **自定义区间**两种来源，附安全边界（高位介入回撤统计）与「波段 vs 长持」历史回放。
 - [API 参考](docs/API.md)：四大类 116 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
-- **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入
-  Apifox / Postman 等工具）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接
-  打开；Swagger UI 资源来自 CDN，若浏览器限制 `file://` 可在 docs 目录起 `python -m http.server`）
+- **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入 Apifox /
+  Postman）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；UI 资源走 CDN，
+  若限制 `file://` 可在 docs 目录起 `python -m http.server`）
 - 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；单次拉取上限 `Client(max_limit=500)` 可调
-- 批量取数：任意单标的接口**传 list 即批量**（如 `cli.kline.last(["600519", "000001"])`，
-  单次 ≤500 超限显式报错）；显式入口 `cli.call_batch(函数, codes, on_error=...)` 单次 HTTP
-  返回 `{symbol: 结果}`、`to_df()` 出长表，`on_error="skip"` 逐标的隔离错误
-- [示例脚本 examples/](examples/)：quickstart（三行上手）、catalog_tour（离线目录漫游，
-  免凭证）、error_handling（离线错误分类）、dividend_screener、screener、pandas_analysis、stocks_industry_batch
-  （各示例前提见文件 docstring）
+- 批量取数详见上文 [「批量取数」](#批量取数)（分批执行器、限流续跑、批级容错）
+- [示例脚本 examples/](examples/)：quickstart、catalog_tour（离线漫游免凭证）、error_handling、
+  dividend_screener、screener、pandas_analysis、stocks_industry_batch（前提见各文件 docstring）
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
 - 运行测试：`pytest`（不联网）；`WMSHARE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

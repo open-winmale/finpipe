@@ -296,7 +296,21 @@ class ReadmeClient:
     def call_batch(self, name, symbols, **kw):
         from wmshare.client import BatchResult
         return BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
-                                    for s in symbols})
+                                    for s in symbols}, requests=1)
+
+    def batch_all(self, name, symbols, batch_size=None, **kw):
+        from wmshare.client import BatchResult
+        return BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
+                                    for s in symbols},
+                           requests=-(-len(symbols) // 500))
+
+    def batch_iter(self, name, symbols, batch_size=None, **kw):
+        from wmshare.client import BatchResult
+        step = batch_size or 500
+        chunks = [symbols[i:i + step] for i in range(0, len(symbols), step)]
+        for chunk in chunks:
+            yield BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
+                                       for s in chunk}, requests=1)
 
     @classmethod
     def from_env(cls, *a, **k):
@@ -369,9 +383,12 @@ def test_readme_is_lean():
 
     2026-10-28 提至 250：新增均为上手动线必需（凭证两种配置示例、安装验证命令、
     examples 入口），已按「先删后提限」压缩过一轮。
+    2026-10-29 提至 275：批量取数是核心上手动线（429 按请求次数限流，批量是正解），
+    新增「批量取数」专章（分批执行器 batch_all/batch_iter、限流续跑、批级容错）；
+    已先删「更多」区旧批量 bullet、压缩镜像/生态/示例段落腾出空间。
     """
-    assert len(README.splitlines()) <= 250, \
-        f"README 膨胀到 {len(README.splitlines())} 行（上限 250）；长内容下沉 docs/ 或删除"
+    assert len(README.splitlines()) <= 275, \
+        f"README 膨胀到 {len(README.splitlines())} 行（上限 275）；长内容下沉 docs/ 或删除"
 
 
 def test_readme_no_stale_trial_promises():

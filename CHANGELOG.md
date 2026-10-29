@@ -25,12 +25,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   返回 `BatchResult`；`kline.bars/moneyflow.last/dividend.last` 等后处理方法逐标的映射）；
   `BatchResult.to_df()` 出带 symbol 列的长表；`kline.batch_live` 补上限校验（此前缺口）。
   超限 `LimitError` 文案附分批写法引导。
-- 新示例 `examples/stocks_industry_batch.py`（代码池→行业过滤→批量→DataFrame 端到端）。
+- **分批执行器（批量绕开 429 的正式入口）**：`batch_all(name, codes)` 自动切片并聚合
+  （A 股 5,691 家 → **12 次请求**，逐票则 5,691 次；服务端按请求次数限流，免费档
+  500 次/小时、5,000 次/日）；`batch_iter(...)` 逐批产出，供边取边落盘/进度/中断。
+  `on_error` 为**批级**语义（`"skip"` 跳过失败批，失败批记 `batch#3[1000:1500]`）。
+  **429 在任何模式下都停止并给续跑位置**（消息含已完成标的数与 `codes[done:]` 切片）。
+  `BatchResult` 新增 `requests` 字段（实际请求数，可直接对比标的数）。
+- 新示例 `examples/stocks_industry_batch.py`（全市场代码池→分批→请求数对比→行业聚合）。
 
 ### Fixed
 
 - **按市场默认求值锚点**：无标的参数的函数（如目录类）此前固定 A 股锚点 `600519`，
   hk/us 客户端必报 `MARKET_MISMATCH`；现按市场取 `600519/00700/AAPL`。
+- `call_batch` 超限报错补分批引导（「请分批，如 `codes[i:i+500]`；或直接用 `batch_all()`」），
+  与 `kline.batch_live` 文案对齐——此前 SKILL 已写分批提示而实现没有。
+- README 新增「批量取数」专章（限流机制、三种用法、分批策略、批级容错反模式），
+  行数上限 250→275（已先压缩镜像/生态/示例段落并删除旧批量 bullet）。
+  **明确警示**：`call_batch(on_error="skip")` 是逐票请求，12 批会放大成 5,691 次、
+  正好制造 429；容错请用 `batch_all(on_error="skip")`（批级）。
 - README/SKILL/API.md/openapi 同步 17 域、252 函数、116 核心接口计数；目录同步上游
   （新增 stocks 域，`tools/extract_from_scripts.py` 白名单扩容）。
 

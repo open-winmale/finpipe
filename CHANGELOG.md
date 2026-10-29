@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-10-29
+
 ### Fixed
 
 - **跨市场混批会静默返回错误数据**（实测发现）：cn 客户端批量混入 `00700` 时网关不拒

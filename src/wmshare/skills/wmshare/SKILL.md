@@ -21,12 +21,12 @@ python3 -c "import wmshare; print(wmshare.__version__)"   # 探测
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare
 ```
 
-凭证必填（SDK 不再内置体验 AppID）：注册开放平台获取 client_id/api-key，
+凭证必填（SDK 不再内置体验 AppID）：在开放平台获取 client_id/api-key，
 配置其一（构造参数 / WMSHARE_CLIENT_ID+WMSHARE_CLIENT_SECRET 环境变量 /
 ~/.wmshare/credentials.env 凭证文件）即可取数：
 
 
-1. 打开 open.winmale.com，扫码微信登录注册；
+1. 打开 open.winmale.com，登录后在「我的 → 开放平台 → 我的应用」获取凭证；
 2. 右上角「我的」→「开放平台」→ 左侧「我的应用」→「查看应用信息」，
    **两个值都要复制**（缺一不可）：AppId（Client ID）与 API Key（Client Secret）；
 3. 配置其一：`export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...`，

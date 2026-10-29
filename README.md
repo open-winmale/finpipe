@@ -7,11 +7,11 @@
 > screens & server-side market breadth), whole-market symbol lists & industry members,
 > announcements and company profiles. Ships a machine-readable offline catalog, unified base
 > units with per-response data guards, a typed facade, and an AI-agent skill.
-> **Credentials required** (free registration at open.winmale.com; error messages guide you
-> through setup). **Install**: `pip install wmshare`.
+> **Credentials required** — obtain them on the open platform (open.winmale.com); the error
+> messages guide you through setup. **Install**: `pip install wmshare`.
 
 覆盖 **A股、港股、美股** 的 Python 财经数据 SDK——各市场逐能力明细见下方
-[「市场覆盖」](#市场覆盖)矩阵。注册开放平台领取凭证（免费、注册即得）后即可取数，
+[「市场覆盖」](#市场覆盖)矩阵。凭证在开放平台（open.winmale.com）获取后即可取数，
 见下方「配置凭证」。许可与数据服务说明见文末[「许可与数据服务」](#许可与数据服务)与 [LICENSE](LICENSE)。
 
 ## 目录
@@ -29,11 +29,11 @@
 - **数据要准**——财报按最新会计准则归一，跨年跨公司直接比较；全库基础单位
   （比率/涨跌幅=小数、金额=元、量=股）；每次返回做量级守护与不变量校验，
   错误的量级到不了你的代码（见「单位与数据守护」）。
-- **特色数据**——免费且含实时（盘中快照、当日 1 分钟分时不另收费）；
+- **特色数据**——盘中实时快照与当日 1 分钟分时；
   `cli.screener` 涨停/均线筛选一行直出，全市场涨跌全景/分桶/行业分布/涨跌榜走
   服务端预计算索引，毫秒级响应；2,197 个指标码（TTM、3/5/10 年历史分位、
   192 个行业内分位、TTM 股息率/派息率 + 11 个质量筛选器）服务端算好直出。
-- **凭证即用**——注册开放平台免费领取 client_id/api-key，环境变量、凭证文件、构造参数任选其一配置；遇到 401/403/429 错误消息即完整指引。
+- **凭证即用**——开放平台签发 client_id/api-key，环境变量、凭证文件、构造参数任选其一配置；遇到 401/403/429 错误消息即完整指引。
 - **目录随包 + AI 原生**——252 个底层函数、116 个核心接口、2,197 个指标码离线可查；
   附 Agent Skills 格式 skill（`wmshare.skill_dir()`），复制进 AI agent 即可正确使用。
 
@@ -48,13 +48,12 @@ python3 -c "import wmshare; print(wmshare.__version__)"   # 验证安装
 ```
 
 国内直连不稳时换清华源（随 PyPI 同步，通常当天可得）：`pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare`；
-镜像无最新版时回官方源；开发/贡献者安装见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+镜像无最新版时回官方源；升级用 `pip install -U wmshare`（Windows 用 `py -m pip install -U wmshare`）；开发/贡献者安装见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ### 配置凭证
 
-注册 [赢麻了开放平台](https://open.winmale.com)（微信扫码，免费、注册即得），
-在「我的 → 开放平台 → 我的应用」页**复制两个值**（缺一不可）：`AppId（Client ID）` 与
-`API Key（Client Secret）`。配置方式任选其一：
+凭证在 [开放平台](https://open.winmale.com) 的「我的 → 开放平台 → 我的应用」页获取：
+`AppId（Client ID）` 与 `API Key（Client Secret）` 两个值（缺一不可）。配置方式任选其一：
 
 ```bash
 # 方式一：环境变量（<AppId>/<API Key>=页面上复制的两个值）
@@ -261,8 +260,8 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 ## 许可与数据服务
 
 - 代码采用 [BSD-3-Clause](LICENSE)：可自由使用、修改、再分发（**含商业用途**），保留版权声明即可。
-- 云端数据服务需 [开放平台](https://open.winmale.com) 账号与额度，免费额度注册即得；
-  服务条款以开放平台为准。
+- 云端数据服务需 [开放平台](https://open.winmale.com) 账号：免费档为 500 次/小时、5,000 次/日，
+  更高额度与服务条款以开放平台为准。
 - 数据仅供研究参考，不构成任何投资建议。
 
 ## 更多
@@ -275,10 +274,8 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
   ```
   skill 源文件：[src/wmshare/skills/wmshare/SKILL.md](src/wmshare/skills/wmshare/SKILL.md)（LLM 可直接读取的结构化用法）。
 
-- **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**（基于本 SDK 构建的开源工具）：
-  **收息佬**——攒股收息驾驶舱（分红日历、A/H 持仓透视、派息稳定性看板）；
-  **波段**——估值买卖点参考：区间设置支持**推荐区间**（四条约束自动搜点，含成交次数）与
-  **自定义区间**两种来源，附安全边界（高位介入回撤统计）与「波段 vs 长持」历史回放。
+- **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**：基于本 SDK 构建的开源工具
+  （收息与估值区间参考）。
 - [API 参考](docs/API.md)：四大类 116 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入 Apifox /
   Postman）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；UI 资源走 CDN，

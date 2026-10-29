@@ -7,7 +7,7 @@ from __future__ import annotations
 # 401/403/429 的统一引导文案：错误消息里直接给出可执行的申请步骤，
 # 避免用户只看到原始 HTTP 状态而不知道下一步做什么。
 APPID_GUIDANCE = (
-    "申请自己的 AppID（免费、注册即得）：打开 https://open.winmale.com 微信扫码登录 → "
+    "申请自己的 AppID：打开 https://open.winmale.com 登录 → "
     "右上角「我的」→「开放平台」→「我的应用」→「查看应用信息」，复制两个值（缺一不可）：client_id 与 api-key；"
     "然后设置 WMSHARE_CLIENT_ID / WMSHARE_CLIENT_SECRET，"
     "或写入 ~/.wmshare/credentials.env。"

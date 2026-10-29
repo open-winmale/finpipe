@@ -421,6 +421,28 @@ def test_readme_no_stale_trial_promises():
                 raise AssertionError(f"{name}:{i} 残留过期承诺（1.7.0 已凭证必填）：{line.strip()}")
 
 
+def test_docs_no_ad_diversion_cta():
+    """公开文档零导流话术（2026-10-29 Gitee 风控整改）：只讲事实，不写促销 CTA。
+
+    起因：Gitee 镜像仓 README 被判「内容可能含有违规信息」不渲染，风控分类里
+    「纯广告导流」是首要嫌疑——「注册…微信扫码，免费、注册即得」这类模板同时命中
+    扫码 + 领取 + 免费三连。凭证获取改成中性陈述（去哪里取、取哪两个值）后，
+    能力描述与额度事实不变。禁词表按 Gitee 页面分类维护，不含事实性表述
+    （如「免费档 500 次/小时」是额度事实，允许）。
+    """
+    banned = ("微信扫码", "扫码微信", "扫码登录", "注册即得", "免费领取", "不另收费")
+    targets: list[tuple[str, str]] = [
+        ("README.md", README),
+        ("docs/API.md", API_MD),
+        ("skills/wmshare/SKILL.md",
+         (REPO / "src" / "wmshare" / "skills" / "wmshare" / "SKILL.md").read_text(encoding="utf-8")),
+    ]
+    for name, text in targets:
+        for i, line in enumerate(text.splitlines(), 1):
+            hit = [b for b in banned if b in line]
+            assert not hit, f"{name}:{i} 残留导流话术 {hit}（Gitee 风控判定违规）：{line.strip()}"
+
+
 def test_readme_catalog_references_valid():
     """行内 `cat.xxx(...)` 引用必须是 Catalog 真实方法（防止文档凭空写方法名）。"""
     from wmshare.catalog import Catalog

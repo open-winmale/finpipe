@@ -13,8 +13,9 @@ units:
   date: YYYY-MM-DD（listed，档案缺失为空串）
 requires: {path: sys/stocks/init.xs, preloaded: false}
 notes:
-  - '全表单次返回（cn≈5.7k / hk≈2.8k / us≈5.6k 行），排序不保证；SDK 侧可自行排序过滤'
+  - '全表单次返回（cn≈5.7k / hk≈2.8k / us≈5.3k 行），排序不保证；SDK 侧可自行排序过滤'
   - 'cn/hk universe 随上游每日刷新；us universe 为手动 DAG 刷新，新上市/退市有滞后'
+  - '上游 usall 含空 symbol 占位行，域库侧已剔除（us 5560→5337）；返回行数恒等有效标的数'
   - '美股：列表与个股行业码可用；行业目录树上游未灌数（手动灰度），industry_list 恒空、
     industry_members 不可用'
   - 'exchange 为小写交易所简称（sz/sh/bj/hk…），部分档案缺失为空串'

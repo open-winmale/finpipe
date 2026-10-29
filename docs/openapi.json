@@ -1820,7 +1820,7 @@
     "/stocks/list": {
       "post": {
         "operationId": "stocks_list",
-        "summary": "全市场证券列表（当前市场；A≈5.7k / 港≈2.8k / 美≈5.6k 行，排序不保证）。",
+        "summary": "全市场证券列表（当前市场；A≈5.7k / 港≈2.8k / 美≈5.3k 行，排序不保证）。",
         "description": "全表单次返回，无分页；随上游每日刷新（美股 universe 为手动刷新，有滞后）。、底层目录函数 `stocks.query_list`。SDK 调用：`cli.stocks.list(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"

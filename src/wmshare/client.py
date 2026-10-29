@@ -574,30 +574,44 @@ class Client:
         return size
 
     def batch_iter(self, name: str, symbols: Any, /, batch_size: int | None = None,
-                   on_error: str = "raise", _raw: bool = False, _df: bool = False,
+                   on_batch_error: str = "raise", _raw: bool = False,
                    _units: str = "base", **kwargs: Any) -> Iterator[BatchResult]:
-        """分批执行器（生成器）：把 N 个标的切成 ⌈N/batch_size⌉ 批，每批一次 HTTP。
+        """分批执行器（逐批产出）：N 个标的切成 ⌈N/batch_size⌉ 批，每批一次 HTTP。
 
         解决 429 的正解——服务端按**请求次数**限流（免费档 500 次/小时、
-        5000 次/日），逐票取全市场（A 股 5691 家）必然撞墙；分批后 5691 家
-        只需 12 次请求。逐批 yield 便于边取边落盘、显示进度、随时中断。
+        5000 次/日），逐票取全市场（A 股 5691 家）必然撞墙；分批后只需 12 次请求。
+        逐批 yield 便于边取边落盘、显示进度、随时中断（``break`` 即可）。
 
-        :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``
-        :param on_error: **批级**语义——
+        :param name: 目录函数名（如 ``"kline.snapshot"``），**位置参数**
+        :param symbols: 标的代码序列，**位置参数**（如 ``[r["symbol"] for r in cli.stocks.list()]``）
+        :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``；须 ≤ max_limit
+        :param on_batch_error: **批级**容错（与 ``call_batch`` 的票级 ``on_error`` 不同）：
             ``"raise"``（默认）任一批失败即抛；``"skip"`` 跳过失败批继续
             （失败批记进 ``errors``，键形如 ``batch#3[1000:1500]``）。
-            注意与 ``call_batch(on_error="skip")`` 的**票级**语义不同：后者逐票发
-            请求，会把 12 次请求放大成 N 次、反而加剧限流，批量场景请勿使用。
-        :returns: 逐批 ``BatchResult``（``requests`` = 该批请求数，恒为 1）
+        :param _raw: 跳过规范化与单位换算，返回 store 原始行
+        :param _units: ``"base"``（默认，换算基础单位并校验）/ ``"native"``（脚本原值）
+        :returns: 逐批 ``BatchResult``（``requests`` 恒为 1）
 
-        限流（HTTP 429）在任何模式下都会**停止并给出续跑位置**——配额是时间
-        窗口，继续跑只会连续失败。异常消息含已完成标的数与 ``codes[done:]``
-        续跑建议。
+        限流（HTTP 429）在任何模式下都**停止并给出续跑位置**（消息含已完成标的数与
+        ``codes[done:]`` 切片）——配额是时间窗口，继续跑只会连续失败。
+        参数错误在**调用时**立即抛出（不等待首次迭代）。
         """
-        if on_error not in ("raise", "skip"):
-            raise UsageError('on_error 只支持 "raise" 或 "skip"', code="params")
+        if on_batch_error not in ("raise", "skip"):
+            raise UsageError('on_batch_error 只支持 "raise" 或 "skip"', code="params")
+        if "_df" in kwargs:
+            raise UsageError(
+                f"{name}: 批量入口不支持 _df——它会让每标的值变成 DataFrame，"
+                "聚合后 to_df() 长表失真。长表请用 BatchResult.to_df()（每标的一行），"
+                "单标的多行结果读 BatchResult.results[代码]。", code="params")
         size = self._batch_size(batch_size, name)
         syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
+        return self._batch_iter(name, syms, size, on_batch_error,
+                                _raw=_raw, _units=_units, **kwargs)
+
+    def _batch_iter(self, name: str, syms: list[str], size: int,
+                    on_batch_error: str, *, _raw: bool = False,
+                    _units: str = "base", **kwargs: Any) -> Iterator[BatchResult]:
+        """batch_iter 的生成器实体（参数已在外壳校验，错误早暴露）。"""
         if not syms:
             return
         total = (len(syms) + size - 1) // size
@@ -605,8 +619,8 @@ class Client:
             start = (idx - 1) * size
             try:
                 # 批内必须是 raise 模式：整批压进一次请求
-                yield self.call_batch(name, chunk, on_error="raise", _raw=_raw,
-                                      _df=_df, _units=_units, **kwargs)
+                yield self.call_batch(name, chunk, on_error="raise",
+                                      _raw=_raw, _units=_units, **kwargs)
             except LimitError as e:
                 if getattr(e, "code", "") == "rate_limited" or getattr(e, "status", None) == 429:
                     raise LimitError(
@@ -617,31 +631,35 @@ class Client:
                         f"原始错误：{e}", code="rate_limited", status=429) from e
                 raise
             except WmshareError as e:
-                if on_error == "skip":
+                if on_batch_error == "skip":
                     key = f"batch#{idx}[{start}:{start + len(chunk)}]"
                     yield BatchResult(errors={key: str(e)}, requests=1)
                     continue
                 raise
 
     def batch_all(self, name: str, symbols: Any, /, batch_size: int | None = None,
-                  on_error: str = "raise", _raw: bool = False, _df: bool = False,
+                  on_batch_error: str = "raise", _raw: bool = False,
                   _units: str = "base", **kwargs: Any) -> BatchResult:
         """一站式分批取数：自动切片并聚合为单个 ``BatchResult``。
 
         ``cli.batch_all("kline.snapshot", [r["symbol"] for r in cli.stocks.list()])``
         → A 股 5691 家只花 12 次请求（而非 5691 次），一次跑完不撞限流。
 
+        :param name: 目录函数名，**位置参数**
+        :param symbols: 标的代码序列，**位置参数**
         :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``
-        :param on_error: 批级语义（``"skip"`` 跳过失败批），与 ``batch_iter`` 一致
+        :param on_batch_error: **批级**容错（``"skip"`` 跳过失败批），与 ``batch_iter`` 一致
+        :param _raw: 跳过规范化与单位换算
+        :param _units: ``"base"``（默认）/ ``"native"``
         :returns: ``BatchResult``——``results`` 聚合全部批次、``errors`` 含失败批、
             ``requests`` 为实际请求次数（可直接对比标的数看省了多少次配额）
 
-        内存提示：全市场 5691 条快照约数 MB，可直接聚合；多行历史类数据
-        （``bars``/``history``）建议改用 ``batch_iter`` 边取边落盘。
+        长表用 ``.to_df()``（每标的一行）；多行历史类数据（``bars``/``history``）
+        建议改用 ``batch_iter`` 边取边落盘，或读 ``results[代码]``。
         """
         out = BatchResult()
         for part in self.batch_iter(name, symbols, batch_size=batch_size,
-                                    on_error=on_error, _raw=_raw, _df=_df,
+                                    on_batch_error=on_batch_error, _raw=_raw,
                                     _units=_units, **kwargs):
             out.results.update(part.results)
             out.errors.update(part.errors)

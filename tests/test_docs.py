@@ -386,9 +386,11 @@ def test_readme_is_lean():
     2026-10-29 提至 275：批量取数是核心上手动线（429 按请求次数限流，批量是正解），
     新增「批量取数」专章（分批执行器 batch_all/batch_iter、限流续跑、批级容错）；
     已先删「更多」区旧批量 bullet、压缩镜像/生态/示例段落腾出空间。
+    2026-10-29 再提至 287：补三接口参数对照表（batch_all/batch_iter/call_batch 的
+    用途、请求数、关键参数与默认值），参数语义必须成文——同名不同义是认知陷阱。
     """
-    assert len(README.splitlines()) <= 275, \
-        f"README 膨胀到 {len(README.splitlines())} 行（上限 275）；长内容下沉 docs/ 或删除"
+    assert len(README.splitlines()) <= 287, \
+        f"README 膨胀到 {len(README.splitlines())} 行（上限 287）；长内容下沉 docs/ 或删除"
 
 
 def test_readme_no_stale_trial_promises():

@@ -139,7 +139,7 @@ def test_rate_limit_stops_even_in_skip_mode():
     c = make_client(s)
     with pytest.raises(LimitError, match="触发限流"):
         c.batch_all("kline.snapshot", [f"{i:06d}" for i in range(2000)],
-                    on_error="skip")
+                    on_batch_error="skip")
     assert s.eval_calls == 2
 
 
@@ -148,7 +148,7 @@ def test_skip_mode_drops_failed_batch_only():
     s = CountingSession(fail_at=2, fail_code="XS_EVAL", fail_status=500)
     c = make_client(s)
     codes = [f"{i:06d}" for i in range(1500)]       # 3 批，第 2 批失败
-    res = c.batch_all("kline.snapshot", codes, on_error="skip")
+    res = c.batch_all("kline.snapshot", codes, on_batch_error="skip")
     assert len(res.results) == 1000                 # 第 1、3 批
     assert len(res.errors) == 1
     assert "batch#2[500:1000]" in res.errors
@@ -177,7 +177,7 @@ def test_ticket_level_skip_is_much_costlier():
 
     s2 = CountingSession()
     c2 = make_client(s2)
-    c2.batch_all("kline.snapshot", codes, on_error="skip")
+    c2.batch_all("kline.snapshot", codes, on_batch_error="skip")
     batch_level = s2.eval_calls
 
     assert ticket_level == 400, "票级 skip 应逐票发请求"
@@ -193,3 +193,111 @@ def test_call_batch_over_limit_mentions_batch_all():
     c = make_client(max_limit=500)
     with pytest.raises(LimitError, match="batch_all"):
         c.call_batch("kline.snapshot", [f"{i:06d}" for i in range(501)])
+
+
+# ---- 参数与边界空白（2026-10-29 审计补齐） -------------------------------
+
+def test_batch_entries_have_no_df_param():
+    """批量入口不提供 _df：它会让每标的值变成 DataFrame，聚合后 to_df 失真。
+
+    长表请用 BatchResult.to_df()；单标的多行读 .results[代码]。
+    """
+    import inspect
+
+    for fn in (Client.batch_all, Client.batch_iter):
+        params = inspect.signature(fn).parameters
+        assert "_df" not in params, f"{fn.__name__} 不应有 _df 参数"
+        assert "on_batch_error" in params, f"{fn.__name__} 应使用 on_batch_error（批级语义）"
+        assert "on_error" not in params, f"{fn.__name__} 不应有 on_error（那是票级，属 call_batch）"
+    # 签名之外还要挡住经 **kwargs 透传（否则形同虚设，已实测踩过）
+    c = make_client()
+    with pytest.raises(UsageError, match="批量入口不支持 _df"):
+        c.batch_all("kline.snapshot", ["600519"], _df=True)
+    with pytest.raises(UsageError, match="批量入口不支持 _df"):
+        c.batch_iter("kline.snapshot", ["600519"], _df=True)
+
+
+def test_batch_entries_are_positional_only():
+    """name/symbols 是 positional-only——写 batch_all(name=...) 必须报 TypeError。"""
+    import inspect
+
+    for fn in (Client.batch_all, Client.batch_iter):
+        kinds = {n: p.kind for n, p in inspect.signature(fn).parameters.items()}
+        assert kinds["name"] is inspect.Parameter.POSITIONAL_ONLY
+        assert kinds["symbols"] is inspect.Parameter.POSITIONAL_ONLY
+    c = make_client()
+    with pytest.raises(TypeError):
+        c.batch_all(name="kline.snapshot", symbols=["600519"])
+
+
+def test_units_native_and_raw_passthrough():
+    """_units='native' 与 _raw=True 在批量入口透传到每批（不报错、结果完整）。"""
+    c = make_client()
+    r = c.batch_all("kline.snapshot", ["600519", "000001"], _units="native")
+    assert len(r.results) == 2
+    r = c.batch_all("kline.snapshot", ["600519", "000001"], _raw=True)
+    assert len(r.results) == 2
+    with pytest.raises(UsageError, match='_units 只支持'):
+        c.batch_all("kline.snapshot", ["600519"], _units="bogus")
+
+
+def test_max_limit_none_defaults_to_500():
+    """max_limit=None（关闭单次上限）时，batch_size 仍默认 500。"""
+    s = CountingSession()
+    c = make_client(s, max_limit=None)
+    r = c.batch_all("kline.snapshot", [f"{i:06d}" for i in range(1200)])
+    assert r.requests == 3, "1200 / 500 → 3 批"
+
+
+def test_batch_iter_validates_eagerly():
+    """参数错误在调用时报错，不等首次迭代（生成器惰性校验是坑）。"""
+    c = make_client(max_limit=500)
+    with pytest.raises(UsageError, match="超过单批上限"):
+        c.batch_iter("kline.snapshot", ["600519"], batch_size=999)
+    with pytest.raises(UsageError, match='on_batch_error 只支持'):
+        c.batch_iter("kline.snapshot", ["600519"], on_batch_error="ignore")
+
+
+def test_calc_limit_exceeded_is_batch_error_not_rate_limit():
+    """CALC_LIMIT_EXCEEDED（算力超限，400）与 429 限流不同：可跳过、不必停下。
+
+    与 429 的处理区别是刻意的——配额是时间窗口（停），算力是单批过大（调小 batch_size）。
+    """
+    # raise 模式：直接抛（带服务端消息）
+    c1 = make_client(CountingSession(fail_at=2, fail_code="CALC_LIMIT_EXCEEDED",
+                                     fail_status=400))
+    with pytest.raises(Exception, match="CALC_LIMIT_EXCEEDED"):
+        c1.batch_all("kline.snapshot", [f"{i:06d}" for i in range(1500)])
+
+    # skip 模式：跳过该批、继续其余批
+    s2 = CountingSession(fail_at=2, fail_code="CALC_LIMIT_EXCEEDED", fail_status=400)
+    c2 = make_client(s2)
+    res = c2.batch_all("kline.snapshot", [f"{i:06d}" for i in range(1500)],
+                       on_batch_error="skip")
+    assert len(res.results) == 1000
+    assert "batch#2[500:1000]" in res.errors
+    assert s2.eval_calls == 3
+
+
+def test_batch_iter_close_midway():
+    """逐批消费可随时 break/close，无副作用（长任务中断的常见用法）。"""
+    c = make_client()
+    g = c.batch_iter("kline.snapshot", [f"{i:06d}" for i in range(2000)])
+    first = next(g)
+    assert len(first.results) == 500
+    g.close()
+    assert len(list(c.batch_iter("kline.snapshot", ["600519"]))) == 1
+
+
+@pytest.mark.parametrize("n,size,expected", [
+    (1, 500, 1), (500, 500, 1), (501, 500, 2),
+    (1200, 250, 5), (1200, 500, 3), (1200, 1000, 2),
+    (5691, 500, 12),
+])
+def test_request_count_is_conserved(n, size, expected):
+    """请求数守恒：⌈N / batch_size⌉——这是绕开 429 的量化保证。"""
+    s = CountingSession()
+    c = make_client(s, max_limit=1000)
+    r = c.batch_all("kline.snapshot", [f"{i:06d}" for i in range(n)], batch_size=size)
+    assert s.eval_calls == expected
+    assert r.requests == expected

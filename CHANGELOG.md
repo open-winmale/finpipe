@@ -33,6 +33,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `BatchResult` 新增 `requests` 字段（实际请求数，可直接对比标的数）。
 - 新示例 `examples/stocks_industry_batch.py`（全市场代码池→分批→请求数对比→行业聚合）。
 
+### Changed
+
+- **批量入口参数命名与语义校准**（1.9.0 内，随首发定型）：
+  - `batch_all`/`batch_iter` 的 `on_error` → **`on_batch_error`**：与
+    `call_batch(on_error=)` 的**票级**语义彻底区分（同名不同义是认知陷阱；
+    `call_batch` 为已发布 API，名称与语义保持不变）；
+  - 批量入口**不再提供 `_df`**：它会让每标的值变成 DataFrame，聚合后 `to_df()`
+    产出 `{"symbol", "value": <DataFrame>}` 的失真长表；长表统一用 `to_df()`；
+  - `batch_iter` 改为「外壳 + 内部生成器」：**参数校验在调用时立即抛出**，
+    不再延迟到首次迭代（生成器惰性校验会让错误配置静默通过）；
+  - README 补三接口参数对照表（用途/请求数/关键参数与默认值），行数上限 275→287。
+
 ### Fixed
 
 - **按市场默认求值锚点**：无标的参数的函数（如目录类）此前固定 A 股锚点 `600519`，

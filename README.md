@@ -217,6 +217,17 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 # ③ 单批（≤500）：cli.call_batch("kline.snapshot", ["600519", "000001"]).to_df()
 ```
 
+三个入口的参数与语义对照：
+
+| 接口 | 用途 | 请求数（N 个标的） | 关键参数（默认） |
+|---|---|---|---|
+| `batch_all(name, symbols)` | 一站式：自动分批并聚合 | ⌈N/batch_size⌉ | `batch_size=500`（须 ≤`max_limit`）；`on_batch_error="raise"`／`"skip"` 跳失败批 |
+| `batch_iter(name, symbols)` | 逐批流式：可进度／中断／落盘 | ⌈N/batch_size⌉ | 同上；逐批 yield `BatchResult`（`requests` 恒 1） |
+| `call_batch(name, symbols)` | 单批（≤500） | 1（`on_error="raise"`）／N（`"skip"` 逐票） | `on_error` 是**票级**，勿用于容错 |
+
+`name`/`symbols` 都是**位置参数**；`_raw=True`、`_units="native"` 三个入口通用。**`on_batch_error`
+（批级：跳过整批）≠ `on_error`（票级：逐票请求）**。长表用 `to_df()`，批量入口不提供 `_df`。
+
 **分批策略由你定，SDK 负责切片与执行**：代码池来自 `cli.stocks.list()`（全市场）、
 `cli.stocks.industry_members("银行")`（按行业）或自己的筛选结果，`batch_size=`（默认 500、
 上限 `max_limit`）控制每批大小。单批触发 `CALC_LIMIT_EXCEEDED`（算力超限）时减小

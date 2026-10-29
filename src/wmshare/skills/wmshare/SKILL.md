@@ -140,8 +140,9 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
   报错附分批写法与 `batch_all()` 提示）。
 - **限流按请求次数计**（免费档 500 次/小时、5,000 次/日），所以：
   ①大批量一律走 `batch_all`/`batch_iter`（N 家 = ⌈N/500⌉ 次请求），不要自己逐票循环；
-  ②**容错用 `batch_all(on_error="skip")`（批级），绝不能用 `call_batch(on_error="skip")`**
-  ——后者逐票发请求，12 批会放大成 5,691 次，正好制造 429；
+  ②**容错用 `batch_all(on_batch_error="skip")`（批级），绝不能用 `call_batch(on_error="skip")`**
+  ——后者逐票发请求，12 批会放大成 5,691 次，正好制造 429；两个参数名不同是刻意的
+  （`on_batch_error` 跳过整批，`on_error` 逐票请求）；批量入口也无 `_df`，长表用 `to_df()`；
   ③遇 429 会停止并给 `codes[done:]` 续跑位置，按提示稍后续跑，不要无脑重试；
   ④单批撞 `CALC_LIMIT_EXCEEDED`（算力超限）时减小 `batch_size`。
 - **stocks 域新鲜度**：cn/hk 全市场列表随上游每日刷；us universe 为手动刷新

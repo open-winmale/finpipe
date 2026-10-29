@@ -235,7 +235,11 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 `batch_size`；限流（429）在任何模式下都会停止并给续跑位置（消息含已完成标的数与
 `codes[done:]` 切片），不会闷头连败。
 
-**容错**：`batch_all(on_error="skip")` 跳过失败的**批**继续（失败批进 `errors`，键如 `batch#3[1000:1500]`）。
+**市场边界**：一个批次只能是**同一市场**——`Client(market="cn")` 只传 A 股代码，混入港股/美股
+代码会直接报错（网关只校验请求锚点，他市场代码会在本市场引擎里走错数据管线，返回的 close/
+涨跌幅不可信）。跨市场请分别调用：A 股 12 批 + 港股 6 批 + 美股 11 批 = 29 次请求。
+
+**容错**：`batch_all(on_batch_error="skip")` 跳过失败的**批**继续（失败批进 `errors`，键如 `batch#3[1000:1500]`）。
 **不要用 `call_batch(on_error="skip")` 做容错**——它逐票发请求，12 批会放大成 5,691 次、正好制造 429。
 
 **返回**：`results`（`{代码: 结果}`，保序去重 + 代码归一）/ `errors` / `requests`（实际请求数，

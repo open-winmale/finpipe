@@ -88,9 +88,59 @@ def test_dedupe_before_chunking():
 
 
 def test_symbol_normalization_before_chunking():
+    c = make_client()          # market 缺省 = cn
+    res = c.batch_all("kline.snapshot", ["sh.600519.SH", "cn.000001", "sz.300750"])
+    assert list(res.results) == ["600519", "000001", "300750"]
+
+
+# ---- 跨市场边界（2026-10-29 实测：混批会取到错误数据） --------------------
+
+def test_cross_market_batch_is_rejected():
+    """cn 客户端混入港股代码必须报错——实测网关不拒但数据是错的
+    （同一港股标的：close 387.6 vs 377.6、percent +0.62% vs -2.58%）。"""
+    from wmshare.errors import UsageError
+
     c = make_client()
-    res = c.batch_all("kline.snapshot", ["sh.600519.SH", "000001", "aapl"])
-    assert list(res.results) == ["600519", "000001", "AAPL"]
+    with pytest.raises(UsageError, match="不属于当前市场") as ei:
+        c.batch_all("kline.snapshot", ["600519", "00700"])
+    msg = str(ei.value)
+    assert "港股" in msg                      # 指出代码归属
+    assert "跨市场" in msg
+    assert 'Client(market="cn"' in msg        # 给出可执行改法
+    assert "29 次请求" in msg                 # 给出跨市场总量算式
+
+
+def test_cross_market_rejected_in_all_batch_entries():
+    from wmshare.errors import UsageError
+
+    c = make_client()
+    for call in (lambda: c.batch_all("kline.snapshot", ["600519", "00700"]),
+                 lambda: c.batch_iter("kline.snapshot", ["600519", "00700"]),
+                 lambda: c.call_batch("kline.snapshot", ["600519", "00700"]),
+                 lambda: c.kline.batch_live(["600519", "00700"])):
+        with pytest.raises(UsageError, match="不属于当前市场"):
+            call()
+
+
+def test_unknown_codes_are_not_rejected():
+    """代码表里都没有的代码（新股/ETF/指数）放行，不误伤。"""
+    c = make_client()
+    res = c.batch_all("kline.snapshot", ["600519", "999999"])
+    assert "[600519]" in str([list(res.results)]) or set(res.results) == {"600519", "999999"}
+
+
+def test_same_market_batch_still_works():
+    c = make_client()
+    res = c.batch_all("kline.snapshot", ["600519", "000001", "300750"])
+    assert len(res.results) == 3 and res.requests == 1
+
+
+def test_hk_client_rejects_cn_codes():
+    from wmshare.errors import UsageError
+
+    c = make_client(market="hk")
+    with pytest.raises(UsageError, match="A 股"):
+        c.batch_all("kline.snapshot", ["00700", "600519"])
 
 
 def test_empty_symbols_yields_nothing():

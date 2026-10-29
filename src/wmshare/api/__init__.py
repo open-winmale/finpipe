@@ -260,6 +260,10 @@ class KlineApi(_Api):
                 f"kline.batch_live: 批量标的数 {len(symbols)} 超过上限 {self._c.max_limit}"
                 "（请分批，如 symbols[i:i+500]；可在 Client(max_limit=...) 调整）",
                 code="limit")
+        # 跨市场混批会在本市场上下文里取到错值，与 call_batch/batch_all 同一条铁律
+        from wmshare.client import normalize_symbol
+        self._c._assert_same_market("kline.batch_live",
+                                    [normalize_symbol(s) for s in symbols])
         return self._c.call("kline.query_last_live_many", syms=symbols, _raw=_raw)
 
     def min1(self, symbol: str) -> Any:

@@ -145,6 +145,9 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
   （`on_batch_error` 跳过整批，`on_error` 逐票请求）；批量入口也无 `_df`，长表用 `to_df()`；
   ③遇 429 会停止并给 `codes[done:]` 续跑位置，按提示稍后续跑，不要无脑重试；
   ④单批撞 `CALC_LIMIT_EXCEEDED`（算力超限）时减小 `batch_size`。
+- **批量不能跨市场**：一个批次只能是同一市场（`Client(market="cn")` 只传 A 股）——实测
+  网关不拒但数据是错的（cn 上下文里查该港股标的的 close/percent 与 hk 客户端不符，涨跌方向都相反）。
+  SDK 已主动拦截报 `UsageError`；跨市场请分别建 Client：A 股 12 批 + 港股 6 批 + 美股 11 批。
 - **stocks 域新鲜度**：cn/hk 全市场列表随上游每日刷；us universe 为手动刷新
   （新上市/退市有滞后），且美股行业目录树暂缺（`industries()` 恒空、
   `industry_members()` 不可用；列表行的 industry 字段仍有值）。

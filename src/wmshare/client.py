@@ -524,6 +524,7 @@ class Client:
         syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
         if not syms:
             return BatchResult()
+        self._assert_same_market(name, syms)
         if self.max_limit is not None and len(syms) > self.max_limit:
             raise LimitError(
                 f"{name}: 批量标的数 {len(syms)} 超过上限 {self.max_limit}"
@@ -562,6 +563,49 @@ class Client:
         return BatchResult(results=result, requests=1)
 
     # ---- 分批执行器（批量绕开 429 的正式入口） ----
+    def _assert_same_market(self, name: str, syms: list[str]) -> None:
+        """批量代码必须同属客户端市场——跨市场混批会取到错误数据。
+
+        实测（2026-10-29）：cn 客户端批量混入 00700 不报错，但该港股标的的 close/percent
+        与 hk 客户端结果不符（387.6 vs 377.6、+0.62% vs -2.58%，连涨跌方向都相反）——
+        网关只校验请求锚点（xs_eval_target.go 的 checkMarketMatch），xs_lines 内代码
+        不校验，本市场引擎上下文解析他市场符号会走错数据管线。
+
+        仅当代码出现在**其他市场代码表**时报错；代码表里都没有（新股/ETF）放行，
+        不误伤。常规同市场批量只加载本市场代码表（毫秒级、带缓存）。
+        """
+        mk = str(self.market or "cn").lower()
+        if mk not in ("cn", "hk", "us"):
+            return
+        try:
+            own = self.catalog.symbols_set(mk)
+        except CatalogError:
+            return
+        missing = [s for s in syms if s not in own]
+        if not missing:
+            return
+        foreign: list[tuple[str, str]] = []
+        for om in ("cn", "hk", "us"):
+            if om == mk:
+                continue
+            try:
+                other = self.catalog.symbols_set(om)
+            except CatalogError:
+                continue
+            foreign.extend((x, om) for x in missing if x in other)
+        if not foreign:
+            return
+        langs = {"cn": "A 股", "hk": "港股", "us": "美股"}
+        sample = "、".join(f"{c}（{langs[m]}）" for c, m in foreign[:5])
+        extra = f" 等 {len(foreign)} 个" if len(foreign) > 5 else ""
+        raise UsageError(
+            f"{name}: 代码 {sample}{extra} 不属于当前市场（Client market={mk}）。"
+            "批量不支持跨市场混批——网关只校验请求锚点，他市场代码会在本市场引擎上下文"
+            "里走错数据管线，返回的 close/涨跌幅等数值不可信。"
+            f"请按市场分别调用 Client(market=\"cn\"/\"hk\"/\"us\")："
+            "A 股全市场 12 批 + 港股 6 批 + 美股 11 批 = 29 次请求。",
+            code="market")
+
     def _batch_size(self, batch_size: int | None, name: str) -> int:
         size = int(batch_size) if batch_size is not None else (self.max_limit or 500)
         if size <= 0:
@@ -583,7 +627,9 @@ class Client:
         逐批 yield 便于边取边落盘、显示进度、随时中断（``break`` 即可）。
 
         :param name: 目录函数名（如 ``"kline.snapshot"``），**位置参数**
-        :param symbols: 标的代码序列，**位置参数**（如 ``[r["symbol"] for r in cli.stocks.list()]``）
+        :param symbols: 标的代码序列，**位置参数**（如 ``[r["symbol"] for r in cli.stocks.list()]``）。
+            必须同属 ``Client(market=...)`` 的市场——跨市场混批会报 ``UsageError``
+            （他市场代码在本市场引擎上下文里会取到错误数值）；跨市场请分别建 Client。
         :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``；须 ≤ max_limit
         :param on_batch_error: **批级**容错（与 ``call_batch`` 的票级 ``on_error`` 不同）：
             ``"raise"``（默认）任一批失败即抛；``"skip"`` 跳过失败批继续
@@ -605,6 +651,7 @@ class Client:
                 "单标的多行结果读 BatchResult.results[代码]。", code="params")
         size = self._batch_size(batch_size, name)
         syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
+        self._assert_same_market(name, syms)
         return self._batch_iter(name, syms, size, on_batch_error,
                                 _raw=_raw, _units=_units, **kwargs)
 
@@ -646,7 +693,7 @@ class Client:
         → A 股 5691 家只花 12 次请求（而非 5691 次），一次跑完不撞限流。
 
         :param name: 目录函数名，**位置参数**
-        :param symbols: 标的代码序列，**位置参数**
+        :param symbols: 标的代码序列，**位置参数**（须同属客户端市场，跨市场混批报错）
         :param batch_size: 每批标的数，默认 ``Client(max_limit=500)``
         :param on_batch_error: **批级**容错（``"skip"`` 跳过失败批），与 ``batch_iter`` 一致
         :param _raw: 跳过规范化与单位换算

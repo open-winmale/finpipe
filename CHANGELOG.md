@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **跨市场混批会静默返回错误数据**（实测发现）：cn 客户端批量混入 `00700` 时网关不拒
+  （`checkMarketMatch` 只校验请求锚点，不校验 `xs_lines` 内代码），但该港股标的的 close/percent
+  与 hk 客户端结果不符（387.6 vs 377.6、+0.62% vs -2.58%，涨跌方向都相反）——本市场引擎
+  上下文解析他市场符号会走错数据管线。现在 `batch_all`/`batch_iter`/`call_batch`/
+  `kline.batch_live` 发请求前用随包代码表校验，混入他市场代码即 `UsageError`，消息指出
+  归属市场并给出「A 股 12 批 + 港股 6 批 + 美股 11 批 = 29 次请求」的分市场改法；
+  代码表外的代码（新股/ETF）放行不误伤。常规同市场批量只加载本市场代码表（毫秒级、带缓存）。
+- 文档：README 批量章节补「市场边界」段、SKILL 坑位加一条、三个批量入口 docstring 标注。
+
 ## [1.9.0] - 2026-10-29
 
 ### Added

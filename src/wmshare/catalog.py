@@ -297,6 +297,15 @@ class Catalog:
                 ]
         return cache[market]
 
+    def symbols_set(self, market: str) -> set[str]:
+        """某市场代码集合（用于批量前的跨市场校验；带缓存）。"""
+        cache: dict[str, set[str]] = getattr(self, "_symbols_set_cache", None) or {}
+        self._symbols_set_cache = cache
+        key = market.strip().lower()
+        if key not in cache:
+            cache[key] = {row[0] for row in self._symbols_market(key)}
+        return cache[key]
+
     def symbols_count(self, market: str = "cn") -> int:
         """某市场代码表条数（cn/hk/us）。"""
         return len(self._symbols_market(market))

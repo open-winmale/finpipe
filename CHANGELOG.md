@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > 兼容政策：2.0 前 minor 版本可能携带行为变更，均在对应版本段以「行为变更」标注；
 > 升级前请扫一眼 Removed / Changed 段。
 
-## [Unreleased]
+## [1.10.0] - 2026-10-30
 
 ### Added
 - `wmshare.demo_client()`：随包离线演示客户端（罐头快照、零凭证、不联网），调用面与真实
@@ -20,17 +20,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README 首屏演示 GIF（`docs/img/quickstart.gif`，由 `tools/gen_quickstart_gif.py` 用
   Pillow 确定性生成，录的是演示客户端真实输出、数值不随行情漂移）
 - docs/README.md 导航新增「五个高频任务」表：任务 → 可运行示例 → 文档章节三处索引打通
+- 美股代码归一：`normalize_symbol` 按随包代码表把带交易所后缀/分隔符的美股代码消解为
+  注册裸码（`AAPL.O` / `AAPL.N` → `AAPL`，`BRK.B` / `BRK-B` → `BRK_B`；代码表未命中不改写），
+  eval 锚点、目录调用、`call_batch` / `batch_iter`、`kline.batch_live` 五条路径统一
 
 ### Changed
 - README 首屏改为窄定位（给 Python 量化开发者的中文财经数据 SDK：预计算指标 + 批量绕限流），
   快速上手重排为「装 → 演示 → 凭证 → 真数据」四步；英文 TL;DR 压缩到 5 行
 - tests/fake_client.py 收敛为 `wmshare._demo.demo_client()` 的薄封装（单一事实源）；演示
   罐头值与 README 已守护的 probe 样本对齐（TTM 股息率 0.0379→0.0396、PE 十年分位 0.2115→0.42）
+- `call` / `call_batch` / 批量入口对「指标码当函数名」的误用给出可执行指引（一票多码用
+  `indicator.metrics`，全市场指标逐票调用）；README / API.md / GUIDE 同步「指标码不是批量 `name`」
 
 ### Fixed
-- 美股指标引擎 `_LAST` 族缺陷（store.latest 500 / 分位静默返 0）：SDK 在请求前按目录
-  作用域与已知缺陷拦截并抛 `DataError`；README 市场覆盖 us 指标列如实改 ❌
-  （上游恢复复测后移除缺陷项并改回）
+- 美股指标 `_LAST` 族 HTTP 500 / 十年分位静默返回 0：根因是带后缀的美股代码（如 `AAPL.O`）
+  在网关查不到注册项、指标脚本的 symbol 未绑定——并非引擎缺数据（裸代码当日即正常：AAPL
+  PE 39.49、十年分位 0.7858）。经上述代码归一后恢复可用；残余的 undefined variable "symbol"
+  翻译成带「美股用裸代码」指引的 `DataError`。同日曾落地的 `_LAST` 全族拦截与目录市场作用域
+  拦截均已撤回（`$BE_RATE` 等三市场可取数而目录标 cn 专属，作用域拦截会误伤）
+- CI 自 1.9.2 起常红：README 示例块的 `to_df()` 在不装 pandas 的 CI 执行时抛错；测试桩改为
+  pandas-free 批结果替身，新测试文件一律 `importorskip`
 - docs/GUIDE §8 公告轮询示例写了不存在的 `poller.run()`，改为真实 API
   `poll_now()` / `start()` / `stop()`
 - CONTRIBUTING.md 运行示例一节的旧示例文件名（5 处）与泄漏门禁常量名漂移

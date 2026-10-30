@@ -6,7 +6,7 @@ import pytest
 
 from wmshare.catalog import load
 from wmshare.client import Client
-from wmshare.errors import CatalogError, DataError
+from wmshare.errors import CatalogError, DataError, ServerError
 from wmshare.units import apply_units, convert_field, validate_meta
 
 # 与 tests/test_transport.py 同款最小回放会话：eval 恒返回罐头结果。
@@ -225,6 +225,52 @@ def test_indicator_range_violation_in_batch():
     c, _ = make({"$ROE_TTM_LAST": 3324.0})  # ×100 量级
     with pytest.raises(DataError, match="ROE_TTM"):
         c.indicator.metrics("600519", ["$ROE_TTM_LAST"])
+
+
+# ---- IndicatorApi：市场可用性（作用域元数据 + 已知引擎缺陷） ----
+
+def test_indicator_market_scope_rejects_wrong_client():
+    """注册作用域=cn 的码用 hk 客户端调用：请求前报错，不发 HTTP。"""
+    c, s = make(0.42, market="hk")
+    with pytest.raises(DataError, match="只在 cn 市场引擎注册"):
+        c.indicator.get("00700", "$BE_RATE")
+    assert s.calls == []  # 前置拦截，未触网
+
+
+def test_indicator_market_scope_allows_own_market():
+    c, _ = make(3.5, market="us")
+    assert c.indicator.get("AAPL.O", "$ISSUE_PRICE") == 3.5
+
+
+def test_indicator_us_last_family_blocked():
+    """美股 _LAST 族：上游引擎缺陷（500 / 静默 0），SDK 前置拒绝而非放 0 过去。"""
+    c, s = make(0, market="us")
+    with pytest.raises(DataError, match="美股指标引擎"):
+        c.indicator.get("AAPL.O", "$PCT_PE_TTM_10Y_LAST")
+    with pytest.raises(DataError, match="美股指标引擎"):
+        c.indicator.metrics("AAPL.O", ["$PE_TTM_LAST"])
+    assert s.calls == []
+    # cn/hk 不受影响
+    c2, _ = make(20.0)
+    assert c2.indicator.get("600519", "$PE_TTM_LAST") == 20.0
+
+
+def test_indicator_us_last_family_bypass_with_validate_off():
+    """validate=False 是显式逃生口（上游修复后可先关校验验证，再移除缺陷项）。"""
+    c, _ = make(0, market="us", validate=False)
+    assert c.indicator.get("AAPL.O", "$PCT_PE_TTM_10Y_LAST") == 0
+
+
+def test_indicator_engine_error_translated():
+    """上游 store.latest 的 500 被翻译成可归因的 DataError（保留原始错误）。"""
+    c, _ = make(1, market="us")
+    def boom(xs, **kw):
+        raise ServerError('openapi:1: sel.recv: LAST: store.latest: '
+                          'undefined variable "symbol"', status=500)
+    c.eval_result = boom
+    with pytest.raises(DataError, match="指标引擎不可用") as ei:
+        c.indicator.get("AAPL.O", "$ISSUE_PRICE")
+    assert 'undefined variable "symbol"' in str(ei.value)
 
 
 # ---- segments（经营分部）：值已是基础单位，只守护不换算 ----

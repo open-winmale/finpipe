@@ -159,6 +159,49 @@ def finish_metric(value: Any, meta: dict | None, *, code: str,
     return value
 
 
+# 目录 generated/metrics.json 的 markets 字段是「注册作用域」：该码只在列出的
+# 市场引擎里注册（shared 码不带该字段）。用错市场的客户端调用会命中上游 500。
+#
+# 已知引擎缺陷（2026-10-30 实测，见 README「市场覆盖」注记）：美股指标引擎的
+# LAST 横截面原语未注入 symbol——store.latest 族直接 HTTP 500
+# （openapi:1: sel.recv: LAST: store.latest: undefined variable "symbol"），
+# 分位族改从空序列算出 0 且不报错（0 落在声明 range 内，量级守护抓不到）。
+# 移除条件：上游恢复且 live 复测通过。Client(validate=False) 可临时绕过。
+KNOWN_METRIC_DEFECTS: tuple[dict[str, Any], ...] = (
+    {"market": "us", "code_suffix": "_LAST",
+     "reason": "美股指标引擎的 LAST 横截面原语未注入 symbol"
+               "（2026-10-30 实测：store.latest 族 500、分位族静默返回 0）"},
+)
+
+
+def check_metric_market(code: str, entry: dict | None, market: str | None,
+                        *, validate: bool = True) -> None:
+    """调用前拒绝当前市场不可用的指标（作用域不符 / 已知引擎缺陷）。
+
+    0 对分位、增长率、ROE 等指标都是合法值（10 年最低分位就是 0），只看返回值
+    无法区分「真 0」与「引擎缺数据返回 0」；因此在请求前按目录作用域与已实测的
+    引擎缺陷拦截，不用返回值启发式。``Client(validate=False)`` 可绕过（与量级
+    守护同一开关）。
+    """
+    if not validate:
+        return
+    mk = str(market or "cn").lower()
+    scope = (entry or {}).get("markets")
+    if scope and mk not in scope:
+        allowed = "/".join(scope)
+        raise DataError(
+            f"指标 {code} 只在 {allowed} 市场引擎注册，当前客户端 market={mk!r}；"
+            f"请用 Client(market={allowed!r}) 调用（用错市场会命中上游 500）。",
+            code="market")
+    for defect in KNOWN_METRIC_DEFECTS:
+        if mk == defect["market"] and code.endswith(defect["code_suffix"]):
+            raise DataError(
+                f"指标 {code}: {defect['reason']}。美股价量请用 "
+                "cli.kline.snapshot / cli.kline.live，指标请改用 A 股/港股客户端；"
+                "如确认上游已修复，可用 Client(validate=False) 绕过该校验。",
+                code="market")
+
+
 def apply_units(result: Any, meta: dict, *, fname: str, validate: bool = True,
                 market: str = "cn") -> Any:
     """对一次目录调用的结果做单位换算（就地修改并返回）+ 量级/不变量校验。

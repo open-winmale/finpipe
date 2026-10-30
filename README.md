@@ -111,7 +111,7 @@ print(len(res.results), res.requests)                 # 5691 12
 | 数据能力 | A股 cn | 港股 hk | 美股 us |
 |---|---|---|---|
 | 日 K 三种复权 / 1 分钟分时 / 盘中快照 | ✅ 全量 | ✅ | 快照/盘中新鲜；历史日 K 停更（见注记） |
-| 指标库（2,158 码：估值/盈利/成长/分红/分位） | ✅ | ✅ | ✅ |
+| 指标库（2,158 码：估值/盈利/成长/分红/分位） | ✅ | ✅ | ❌ 暂不可用：`_LAST` 族 500/静默 0（见注记） |
 | 分红：历史、TTM 股息率/派息率、质量筛选 | ✅ | ✅ | ✅（窗口口径固定） |
 | 公告与披露信号 | ✅ | ✅ | — |
 | 财报清单与最新披露 | ✅ | ✅ | — |
@@ -126,15 +126,13 @@ print(len(res.results), res.requests)                 # 5691 12
 | 离线代码表 + 检索（`cat.symbols_search`） | ✅ | ✅ | ✅ |
 
 市场切换：`Client(market="cn" / "hk" / "us")`，缺省 cn；代码与市场不匹配会被服务端直接拒绝
-（如 cn 市场查 `00700` 报 market mismatch）。`cli.intl` 的港美股披露同样要用对应市场的
-客户端调用（函数内部再按标的代码路由到港美数据族）。
+（如 cn 市场查 `00700` 报 market mismatch）。`cli.intl` 港美股披露也要用对应市场客户端调用。
 
-如实注记（2026-10-28 实测）：港/美列的 ✅ 均经 live 探针逐族验证；美股日 K 为历史快照、
-停更于 2026-03-13（上游对美股价量走 live-only 策略），美股最新价量用
-`cli.kline.live / snapshot`（实测当日新鲜）；港美 K 线量额单位已随 1.x 修复（cn 手×100
-仅在 cn 生效，港美上游即股直出）；三大报表的**深研宽表**（多期透视/合并对比/树视图）
-暂仅 cn，港美报表科目级数据经指标码可查；hk 十大流通股东与回购上游已有数据管线、
-SDK 接口待路由。
+如实注记（2026-10-30 实测）：港/美列 ✅ 均经 live 探针逐族验证；**美股指标引擎暂不可用**——`_LAST` 族
+（含 10 年分位）上游 500 或静默返回 0（`store.latest` 未注入 symbol），SDK 已前置抛 `DataError`
+（`Client(validate=False)` 可绕过），3 天复测恢复则改回；美股日 K 停更于 2026-03-13（live-only），
+最新价量用 `cli.kline.live / snapshot`；港美 K 线量额单位已随 1.x 修复（cn 手×100 仅 cn 生效）；
+深研宽表暂仅 cn，港美科目级数据经指标码可查；hk 十大流通股东与回购数据管线已有、SDK 接口待路由。
 
 ## 我想做 X → 用哪一行
 
@@ -142,6 +140,7 @@ SDK 接口待路由。
 |---|---|---|
 | 看 TTM 股息率 | `cli.dividend.yield_ttm(sym)` | 拉全部分红史→截 TTM 窗→查市值→相除 |
 | 判断估值贵不贵 | `cli.indicator.get(sym, "$PCT_PE_TTM_10Y_LAST")` | 拉十年估值史自己算百分位 |
+| 看估值历史均值/中位/分位 | `cli.valuation.hist_stats(sym, "pe", "3y")` | 拉 3 年估值序列→自己算统计量 |
 | 看公司在行业里的位置 | `$CUR_IND_ROE_PCT_LAST`（行业内 ROE 分位，1=行业最高） | 拉全行业成分→逐票取 ROE→排序 |
 | 筛高股息且派息可持续 | `cli.dividend.screen_quality(sym)` | 自写股息/派息率质量模型 |
 | 站上 20 日线了吗 | `cli.screener.screen_above_ma20(sym)` | 拉 K 线→算均线→比较 |
@@ -246,8 +245,8 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 
 **返回**：`results`（`{代码: 结果}`，保序去重 + 代码归一）/ `errors` / `requests`（实际请求数，
 可对比标的数看省了多少配额）；`to_df()` 每标的一行（MAP 展平、`symbol` 列在前），多次行结果
-（`bars`/`history`）建议读 `results[代码]` 或走 `batch_iter`。实测（2026-10-29）：500 标的单批
-2–4 秒（cn/hk/us），A 股全市场 5,691 家 12 批约 9 秒一次跑完（0 错误）。
+（`bars`/`history`）建议读 `results[代码]` 或走 `batch_iter`。实测（2026-10-30）：500 标的单批
+0.7–4 秒（随网络波动），A 股全市场 5,691 家 12 批 9–16 秒一次跑完（0 错误）。
 
 ## 单位与数据守护
 
@@ -256,9 +255,8 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 返回前做量级与关系不变量校验，违例抛 `DataError`——错误的量级到不了你的代码。
 需要脚本原始口径时：`_raw=True`（上游原始行）、`_units="native"`（保留上游原单位，如手/百分数）、`Client(validate=False)`（关校验留换算）。
 
-数据深度：个股/ETF 日 K 覆盖**自上市首日以来的全部交易日**（最早 1991 年）；
-单次区间上限 5 年、默认单次 500 根（`Client(max_limit=...)` 可调）。全量深回溯
-（1990 年代不复权老数据）可能触发守护，需整段历史时 `validate=False`。
+数据深度：个股/ETF 日 K 覆盖**自上市首日以来的全部交易日**（最早 1991 年）；单次区间上限 5 年、
+默认单次 500 根（`Client(max_limit=...)` 可调）；深回溯老数据可能触发守护，整段历史时 `validate=False`。
 
 ## 许可与数据服务
 

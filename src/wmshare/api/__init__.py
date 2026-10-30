@@ -25,8 +25,9 @@ import re
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
-from wmshare.errors import CatalogError, LimitError, UsageError, WmshareError
-from wmshare.units import finish_metric
+from wmshare.errors import (
+    CatalogError, DataError, LimitError, ServerError, UsageError, WmshareError)
+from wmshare.units import check_metric_market, finish_metric
 
 # 服务端分桶 label 的排序前缀（如 i_涨停 / h_+5%~10%），单字母+下划线，对用户是噪音
 _BIN_PREFIX = re.compile(r"^[a-z]_")
@@ -833,30 +834,53 @@ class IndicatorApi(_Api):
     单位统一为基础单位：比率类为小数（ROE 0.332 = 33.2%）、金额/市值为元、
     分位为小数（0.42 = 42% 分位）；精选组声明过 range 的指标在返回前做量级守护
     （违例抛 DataError）。非精选代码按脚本原值返回（目录未声明单位的代码不做换算）。
+
+    市场可用性在请求前校验（``check_metric_market``）：目录标了注册市场的码只能用
+    对应市场客户端；已实测的上游引擎缺陷（美股 ``_LAST`` 族）直接抛 DataError，
+    避免把「引擎缺数据返回的 0」当成真实分位。``Client(validate=False)`` 可绕过。
     """
 
     def get(self, symbol: str, code: str) -> Any:
         """取单个指标当前值，如 cli.indicator.get("600519", "$PE_TTM_LAST")。"""
         meta = self._c.catalog.metric_meta(code)
-        if meta is None and self._c.catalog.metric(code) is None:
+        entry = self._c.catalog.metric(code)
+        if meta is None and entry is None:
             raise CatalogError(f"未知指标 {code!r}（防编造：code 必须在指标目录内）",
                                code="metric")
-        value = self._c.eval_result(f"return {code}", symbol=symbol)
+        check_metric_market(code, entry, self._c.market, validate=self._c._validate)
+        value = self._eval_metric(f"return {code}", symbol=symbol, label=code)
         return finish_metric(value, meta, code=code, validate=self._c._validate)
 
     def metrics(self, symbol: str, codes: list[str]) -> dict:
         """批量取多个指标当前值，返回 {code: value}（精选代码带换算与量级守护）。"""
-        missing = [c for c in codes if self._c.catalog.metric(c) is None]
+        entries = {c: self._c.catalog.metric(c) for c in codes}
+        missing = [c for c, e in entries.items() if e is None]
         if missing:
             raise CatalogError(f"未知指标 {missing}（防编造：code 必须在指标目录内）",
                                code="metric")
+        for c, entry in entries.items():
+            check_metric_market(c, entry, self._c.market, validate=self._c._validate)
         body = ", ".join(f'"{c}": {c}' for c in codes)
-        values = self._c.eval_result(f"return {{{body}}}", symbol=symbol) or {}
+        values = self._eval_metric(f"return {{{body}}}", symbol=symbol,
+                                   label=", ".join(codes)) or {}
         if not isinstance(values, dict):  # 上游恒返回 MAP；异常形态原样透传
             return values
         return {c: finish_metric(v, self._c.catalog.metric_meta(c), code=c,
                                  validate=self._c._validate)
                 for c, v in values.items()}
+
+    def _eval_metric(self, xs: str, *, symbol: str, label: str) -> Any:
+        """执行指标求值；把已知的上游引擎缺陷翻译成可归因的 DataError。"""
+        try:
+            return self._c.eval_result(xs, symbol=symbol)
+        except ServerError as e:
+            if 'undefined variable "symbol"' in str(e):
+                raise DataError(
+                    f"指标 {label} 在当前市场（{self._c.market}）的指标引擎不可用：上游 "
+                    'store.latest 未注入 symbol（服务端引擎缺陷，非 SDK 问题）。'
+                    "美股价量请用 cli.kline.snapshot / cli.kline.live，"
+                    f"指标请改用 A 股/港股客户端。原始错误：{e}", code="market") from e
+            raise
 
 
 # ---------------------------------------------------------------- 披露 disclosure

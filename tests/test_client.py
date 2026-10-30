@@ -118,6 +118,15 @@ def test_param_validation(client):
         client.call("kline.no_such_fn", sym="600519")
 
 
+def test_batch_name_must_be_catalog_function(client):
+    """指标码不是批量入口的 name：报错里给出一票多码的正确路径。"""
+    with pytest.raises(WmshareError, match="指标码不是函数名") as ei:
+        client.call_batch("indicator.get", ["600519"])
+    assert "cli.indicator.metrics" in str(ei.value)
+    with pytest.raises(WmshareError, match="指标码不是函数名"):
+        client.call("indicator.get", sym="600519")
+
+
 def test_max_limit_caps_limit_params(client):
     with pytest.raises(WmshareError, match="超过单次请求上限 500"):
         client.call("kline.query_bars", sym="600519", limit=501)

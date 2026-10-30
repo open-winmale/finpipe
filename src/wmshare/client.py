@@ -395,6 +395,18 @@ class Client:
         return data.get("result")
 
     # ---- 目录驱动的调用门面 ----
+    def _resolve_function(self, name: str) -> dict:
+        """目录函数查找；把「指标码当函数名」误用补成可执行的指引。"""
+        try:
+            return self.catalog.function(name)
+        except CatalogError as e:
+            if name.split(".", 1)[0] == "indicator":
+                raise CatalogError(
+                    f"{e}\n提示：调用入口只接受目录函数名（cat.functions_by_domain() 可查）；"
+                    "指标码不是函数名——一票多码用 cli.indicator.metrics(sym, codes)，"
+                    "全市场指标请逐票调用。", code="function") from e
+            raise
+
     def _require_lines(self, name: str) -> list[str]:
         """函数命名空间不在 sys/init 预载链时，自动补 xs.require（幂等）。"""
         ns = name.split(".", 1)[0]
@@ -467,7 +479,7 @@ class Client:
         if _units not in ("base", "native"):
             raise UsageError('_units 只支持 "base"（默认，换算基础单位）或 "native"（脚本原值）',
                              code="units")
-        fn = self.catalog.function(name)
+        fn = self._resolve_function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
         # 传列表即批量：标的参数收到 list/tuple 自动转 call_batch
         # （≤500，超限 LimitError；语义与显式 call_batch 一致）。
@@ -511,7 +523,7 @@ class Client:
         if _units not in ("base", "native"):
             raise UsageError('_units 只支持 "base"（默认，换算基础单位）或 "native"（脚本原值）',
                              code="units")
-        fn = self.catalog.function(name)
+        fn = self._resolve_function(name)
         params = fn.get("params") or self.catalog.inventory_params(name)
         sym_param = next((p["name"] for p in params
                           if p.get("type") == "string" and p["name"] in self.BATCH_SYMBOL_PARAMS), None)

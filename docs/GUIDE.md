@@ -206,7 +206,8 @@ len(res.results), res.requests    # (5691, 12)——逐票要 5,691 次，批量
 res.to_df()                       # 每标的一行长表（symbol 列在前；需 pandas）
 ```
 
-实测（2026-10-29，免费档）：500 标的单批 2–4 秒，A 股全市场 12 批约 9 秒一次跑完，0 错误。
+实测（2026-10-30，免费档）：500 标的单批 0.7–4 秒（随网络波动），A 股全市场 12 批 9–16 秒
+一次跑完，0 错误；20 只银行股单批 0.06 秒 1 次请求。
 历史类多行结果（`kline.bars`/`dividend.history`）建议改用 `batch_iter` 边取边落盘。
 
 ### 5.3 容错与续跑
@@ -219,6 +220,9 @@ res.to_df()                       # 每标的一行长表（symbol 列在前；�
 - **算力超限**：单批触发 `CALC_LIMIT_EXCEEDED` 时减小 `batch_size`。
 - 三个入口的 `name`/`symbols` 都是位置参数；`_raw=True`/`_units="native"` 通用；
   批量入口不提供 `_df`（长表用 `to_df()`）。
+- **`name` 必须是目录函数名**（252 个，`cat.functions_by_domain()` 可查）；指标码不是
+  函数名——一票多码用 `cli.indicator.metrics(sym, codes)`，全市场指标码只能逐票调用
+  （传 `"indicator.get"` 会报 `CatalogError`）。
 
 ### 5.4 市场边界：一个批次只能一个市场
 

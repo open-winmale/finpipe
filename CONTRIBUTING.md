@@ -30,7 +30,7 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
    （包括对标措辞、数据来源点名、商标）。描述数据来源使用中性词（"交易所披露"、
    "平台数据源"等）。新增禁用词在 `tools/check_leak.py` 的 `THIRDPARTY_RE` 维护。
    **公开文档零竞品名**：README 由测试断言禁止出现任何竞品名（差异化卖点一律自证式
-   表述，防回潮）；CHANGELOG 允许保留历史对比记录（`THIRDPARTY_ALLOWED_BY_FILE`）；
+   表述，防回潮）；CHANGELOG 允许保留历史对比记录（豁免面见 `tools/check_leak.py` 的 `THIRDPARTY_SKIP` / `THIRDPARTY_SKIP_PREFIXES`）；
    其余名称、其余位置一律禁止。
 2. **禁止内部信息**：内网域名、基础设施路径、开发者机器路径、凭证字面量。
 3. **文档白名单**：对外文档只允许 README / LICENSE / CONTRIBUTING / docs/API.md / examples。
@@ -61,12 +61,10 @@ CI（`.github/workflows/ci.yml`）在每次 push/PR 上跑同样的门禁。
 
 ```bash
 pip install -e ".[dev,dataframe]"
-python examples/quickstart.py          # 需要已配置的凭证
-python examples/catalog_tour.py        # 离线可跑：无需凭证、不联网
-python examples/error_handling.py      # 离线：错误分类体系演示
-python examples/dividend_screener.py   # 高股息筛选（需凭证）
-python examples/screener.py             # 单票筛选器演示（需凭证）
-python examples/pandas_analysis.py     # DataFrame 分析（需凭证 + pandas）
+python examples/01_quickstart.py       # 需要已配置的凭证；--demo 零凭证试跑
+python examples/02_catalog_tour.py     # 离线示例（02/03/09 无需凭证）
+python examples/08_pandas_analysis.py  # DataFrame 分析（需凭证 + pandas）
+# 全部 11 个示例与课程表：examples/README.md
 ```
 
 ## 许可政策

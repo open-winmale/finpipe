@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > 兼容政策：2.0 前 minor 版本可能携带行为变更，均在对应版本段以「行为变更」标注；
 > 升级前请扫一眼 Removed / Changed 段。
 
+## [Unreleased]
+
+### Added
+- `wmshare.demo_client()`：随包离线演示客户端（罐头快照、零凭证、不联网），调用面与真实
+  `Client` 一致（门面命名空间 + 批量入口 + 公告轮询器桩）；README 新增「不配凭证，先看输出」
+  首跑块，干净环境实测装完到看到输出 0.5 秒内
+- examples 新增 `10_notice_monitor.py`（公告轮询器：poll_now / ack / seek_oldest）与
+  `11_statements_tour.py`（三大报表 + 合并 vs 母公司 + 审计意见）；凭证示例全部支持
+  `--demo` 旗标零凭证试跑（演示分支打印「非真实行情」提示）
+- README 首屏演示 GIF（`docs/img/quickstart.gif`，由 `tools/gen_quickstart_gif.py` 用
+  Pillow 确定性生成，录的是演示客户端真实输出、数值不随行情漂移）
+- docs/README.md 导航新增「五个高频任务」表：任务 → 可运行示例 → 文档章节三处索引打通
+
+### Changed
+- README 首屏改为窄定位（给 Python 量化开发者的中文财经数据 SDK：预计算指标 + 批量绕限流），
+  快速上手重排为「装 → 演示 → 凭证 → 真数据」四步；英文 TL;DR 压缩到 5 行
+- tests/fake_client.py 收敛为 `wmshare._demo.demo_client()` 的薄封装（单一事实源）；演示
+  罐头值与 README 已守护的 probe 样本对齐（TTM 股息率 0.0379→0.0396、PE 十年分位 0.2115→0.42）
+
+### Fixed
+- 美股指标引擎 `_LAST` 族缺陷（store.latest 500 / 分位静默返 0）：SDK 在请求前按目录
+  作用域与已知缺陷拦截并抛 `DataError`；README 市场覆盖 us 指标列如实改 ❌
+  （上游恢复复测后移除缺陷项并改回）
+- docs/GUIDE §8 公告轮询示例写了不存在的 `poller.run()`，改为真实 API
+  `poll_now()` / `start()` / `stop()`
+- CONTRIBUTING.md 运行示例一节的旧示例文件名（5 处）与泄漏门禁常量名漂移
+
 ## [1.9.2] - 2026-10-30
 
 ### Added

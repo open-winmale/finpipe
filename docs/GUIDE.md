@@ -6,8 +6,9 @@
 AI 用法看 [AI.md](AI.md)。
 
 > 代码块里的输出注释都是**真实运行结果**（2026-10-29，cn 市场，免费档凭证），
-> 数值会随行情变化，口径与量级不会。README/SKILL 里的示例值取自更早日期的实测快照，
-> 同一指标不同日数值不同（如 TTM 股息率 0.0396→0.0379），属正常漂移。
+> 数值会随行情变化，口径与量级不会。README、SKILL 与演示客户端（`demo_client()`）
+> 里的示例值取自更早日期的实测快照，同一指标不同日数值不同（如 TTM 股息率
+> 0.0396→0.0379），属正常漂移。
 
 ## 1. 安装与凭证
 
@@ -16,6 +17,10 @@ pip install wmshare                  # 基础安装
 pip install "wmshare[dataframe]"     # 可选：pandas 支持（_df=True）
 python3 -c "import wmshare; print(wmshare.__version__)"   # 验证安装
 ```
+
+不配凭证先试：`cli = wmshare.demo_client()`——随包离线演示客户端（罐头快照，
+**非真实行情**），调用面与真实客户端一致；examples/ 的凭证示例都支持
+`--demo` 旗标零凭证试跑。看真实数据按下节配凭证。
 
 凭证在开放平台（`https://open.winmale.com`）控制台的「我的 → 开放平台 → 我的应用」页获取，
 `AppId（Client ID）` 与 `API Key（Client Secret）` **两个值缺一不可**。配置任选其一：
@@ -88,7 +93,8 @@ cat.functions_by_domain()             # 按域列全部函数名（cli.call 的�
 
 ## 3. 单票菜谱
 
-可运行版本：`examples/01_quickstart.py`、`04_screener.py`、`05_dividend_screener.py`、`06_indicator_tour.py`。
+可运行版本：`examples/01_quickstart.py`、`04_screener.py`、`05_dividend_screener.py`、
+`06_indicator_tour.py`、`11_statements_tour.py`；公告订阅见 `10_notice_monitor.py`。
 
 ```python
 import wmshare
@@ -113,6 +119,7 @@ cli.moneyflow.last("600519")            # net_mf = 821186700（8.2 亿元）
 cli.statements.income("600519", years=1)    # 25 行科目
 cli.statements.balance("600519", years=3)
 cli.statements.compare("600519")            # 合并 vs 母公司
+# 完整可运行版：examples/11_statements_tour.py（含审计意见、diffp 小数读法）
 
 # 指标码取数（码先查目录；分位 0=最低 1=最高）
 cli.indicator.get("600519", "$PCT_PE_TTM_10Y_LAST")   # 0.2115（近 10 年 21% 分位）
@@ -134,6 +141,7 @@ cli.dividend.screen_quality("600519", min_yield=0.02, payout_max=1.5)  # True
 # 公告与披露信号
 cli.notice.list("600519", window="3m", limit=3)
 cli.notice.has_buyback("600519", "6m")  # True
+# 公告变更「订阅」轮询是另一套：§8 / examples/10_notice_monitor.py
 
 # 股东治理：十大股东 / 质押 / 解禁
 cli.equity.query_holder10("600519")
@@ -272,11 +280,13 @@ snap.sort_values("percent", ascending=False).head()     # 全市场今日涨幅�
 ```python
 poller = cli.notice_poller(group="my-app", consumer="worker-1",
                            on_events=lambda events: print(len(events)))
-poller.run()   # 本地定时轮询探针；有新公告才拉取、回调、确认
+events = poller.poll_now()   # 手动一轮：探针 → 逐市场拉新 → 回调 → ack；返回本轮交付事件
+poller.start()               # 或切后台：daemon 线程定时轮询；退出前 poller.stop()
 ```
 
 消费进度按 `(group, consumer)` 存服务端，ack 前崩溃会重投（at-least-once）；
 进度超保留期抛 `StreamResetError`，按消息用 `seek_oldest()` 重置。
+完整可运行版：`examples/10_notice_monitor.py`（`--demo` 零凭证演示 ack 语义）。
 
 ## 9. 故障排查
 

@@ -51,6 +51,8 @@ cp -r "$(python3 -c 'import wmshare; print(wmshare.skill_dir())')" ~/.agents/ski
 
 ## 路径 C：报错驱动（零配置兜底）
 
+没有凭证、只想验证 AI 写的调用语法？用 `wmshare.demo_client()`——随包离线演示客户端（罐头快照，非真实行情），调用面与真实客户端一致：让 AI 先在演示客户端上跑通代码形态，再接真实凭证取数。
+
 错误消息本身就是为了"贴给 AI 能直接修"设计的：
 
 | 看到的报错 | 消息里已包含 | AI 能直接做的事 |

@@ -1,15 +1,22 @@
 """快速上手：四类数据一次过，全市场批量只花 12 次请求。
 
-前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）；`--demo` 用随包演示数据零凭证试跑
 运行：python examples/01_quickstart.py
 学到：行情/财务/披露/参考四类取数；批量绕开 429；错误消息自带申请步骤
 文档：docs/GUIDE.md（安装与凭证、单票菜谱、批量取数）
 """
+import sys
 import wmshare
 
 
-def main(cli=None) -> None:
-    cli = cli or wmshare.Client.from_env()
+def main(cli=None, demo: bool = False) -> None:
+    if cli is None:
+        if demo:
+            cli = wmshare.demo_client()
+            print("(演示模式：随包罐头数据，非真实行情)")
+            print()
+        else:
+            cli = wmshare.Client.from_env()
     SYMBOL = "600519"
 
     # ---- 市场行情 ----
@@ -61,7 +68,7 @@ def main(cli=None) -> None:
 
 if __name__ == "__main__":
     try:
-        main()
+        main(demo="--demo" in sys.argv)
     except wmshare.WmshareError as e:
         # 401/403/429 等会在这里直接显示 AppID 申请步骤，而不是裸 traceback。
         print(f"取数失败：{e}")

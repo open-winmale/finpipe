@@ -1,4 +1,4 @@
-"""示例冒烟（9/9 全覆盖）：离线示例真实执行；凭证示例用共享 FakeClient 端到端跑。
+"""示例冒烟（11/11 全覆盖）：离线示例真实执行；凭证示例用共享 FakeClient 端到端跑。
 
 签名正确性由 test_docs 的 AST 门禁全量把关；本文件保证每个示例在罐头数据上
 真的跑得完、关键输出（含单位口径注释）不回退。
@@ -57,7 +57,7 @@ def test_01_quickstart(capsys):
     out = capsys.readouterr().out
     assert "ROE(TTM)=33.24%" in out          # 0.3324 小数 → 33.24%
     assert "DPS 28.02" in out
-    assert "测试公告" in out
+    assert "回购股份的公告" in out
     assert "DataFrame" not in out
     # 批量段落：必须展示「家数 → 请求数」对比（新手动线，防回退成逐票循环）
     assert "全市场 3 家：1 次请求" in out
@@ -76,8 +76,8 @@ def test_04_screener(capsys):
 def test_05_dividend_screener(capsys):
     _load("05_dividend_screener.py").main(fake_client())
     out = capsys.readouterr().out
-    assert "TTM股息率=0.0379" in out
-    assert "3.79%" in out                        # call_batch 批量结果同为小数口径
+    assert "TTM股息率=0.0396" in out
+    assert "3.96%" in out                        # call_batch 批量结果同为小数口径
     assert "筛选表达式" in out
 
 
@@ -85,8 +85,8 @@ def test_06_indicator_tour(capsys):
     _load("06_indicator_tour.py").main(fake_client())
     out = capsys.readouterr().out
     assert "指标组 11 个" in out                  # cat.metric_groups() 真目录
-    assert "TTM 股息率 = 0.0379（3.79%）" in out
-    assert "（21%）" in out                       # 分位小数 → 百分比展示
+    assert "TTM 股息率 = 0.0396（3.96%）" in out
+    assert "（42%）" in out                       # 分位小数 → 百分比展示
     assert "位置=54%" in out
 
 
@@ -110,10 +110,28 @@ def test_08_pandas_analysis(capsys):
     assert "近 10 次分红" in out
 
 
+def test_10_notice_monitor(capsys):
+    _load("10_notice_monitor.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "[cn] 600519 贵州茅台｜关于回购股份的公告（2026-10-28）" in out
+    assert "本轮交付 1 条" in out
+    assert "本轮交付 0 条" in out                # ack 后不重投（at-least-once 语义）
+    assert "seek_oldest('cn')" in out
+
+
+def test_11_statements_tour(capsys):
+    _load("11_statements_tour.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "利润表可用年报：['2025', '2024']" in out   # 年份降序
+    assert "资产总计" in out                            # 资产负债表科目行（中文名）
+    assert "差额占比 2.00%" in out                     # diffp 小数 → 百分比展示
+    assert "2024 年审计意见：标准无保留意见" in out
+
+
 def test_examples_index_covers_dir():
     """examples/README.md 课程表必须覆盖目录里每个脚本（防孤儿示例）。"""
     index = (EXAMPLES / "README.md").read_text(encoding="utf-8")
     scripts = sorted(p.name for p in EXAMPLES.glob("*.py"))
-    assert len(scripts) == 9, f"示例应恰为 9 个（编号课程），实际 {len(scripts)}：{scripts}"
+    assert len(scripts) == 11, f"示例应恰为 11 个（编号课程），实际 {len(scripts)}：{scripts}"
     for name in scripts:
         assert f"`{name}`" in index, f"examples/README.md 缺 {name} 的索引行"

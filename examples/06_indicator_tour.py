@@ -1,15 +1,22 @@
 """指标码体系漫游：先查目录、再取数、率与分位一律读小数。
 
-前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）；`--demo` 用随包演示数据零凭证试跑
 运行：python examples/06_indicator_tour.py
 学到：cat.search 检索、指标组浏览、indicator.get 分位、valuation.hist_stats 历史统计
 文档：docs/GUIDE.md（核心概念、故障排查）；docs/AI.md（目录先行纪律）
 """
+import sys
 import wmshare
 
 
-def main(cli=None) -> None:
-    cli = cli or wmshare.Client.from_env()
+def main(cli=None, demo: bool = False) -> None:
+    if cli is None:
+        if demo:
+            cli = wmshare.demo_client()
+            print("(演示模式：随包罐头数据，非真实行情)")
+            print()
+        else:
+            cli = wmshare.Client.from_env()
     cat = wmshare.load()
     SYM = "600519"
 
@@ -48,7 +55,7 @@ def main(cli=None) -> None:
 
 if __name__ == "__main__":
     try:
-        main()
+        main(demo="--demo" in sys.argv)
     except wmshare.WmshareError as e:
         # 错误消息自带修复步骤（凭证/限流/参数合同），打印原文即可定位
         print(f"取数失败：{e}")

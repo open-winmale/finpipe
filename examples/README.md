@@ -2,7 +2,7 @@
 
 **编号即学习路径**：每个脚本独立可跑；输出里的数值都带单位注释——读输出就能学会
 「率/分位=小数（0.0396 = 3.96%）、金额=元、量=股」的基础口径。
-3 个离线示例在 CI 里以子进程真实执行，6 个凭证示例注入假客户端（`main(cli=None)`）
+3 个离线示例在 CI 里以子进程真实执行，8 个凭证示例注入演示客户端（`main(cli=None)`）
 端到端跑过——可放心照抄。
 
 ## 运行
@@ -13,6 +13,8 @@ export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...   # 凭证获取见仓库
 python examples/01_quickstart.py
 ```
 
+- **零凭证试跑**：凭证示例都支持 `--demo` 旗标，用随包演示客户端离线过一遍调用面（罐头快照、非真实行情）：
+  `python examples/05_dividend_screener.py --demo`
 - **零凭证可跑**（不联网）：`02_catalog_tour`、`03_error_handling`、`09_ai_skill_setup`
 - **可选依赖**：`pip install "wmshare[dataframe]"`（pandas，`08_pandas_analysis` 需要）
 
@@ -29,10 +31,13 @@ python examples/01_quickstart.py
 | 07 | `07_stocks_industry_batch.py` | 生产 | 凭证 | 全市场列表→行业成分→batch_all/batch_iter/call_batch 三入口分工 | GUIDE·批量取数 |
 | 08 | `08_pandas_analysis.py` | 生产 | 凭证+pandas | `_df=True` 转 DataFrame：MA20/动量/资金流/分红表 | GUIDE·pandas |
 | 09 | `09_ai_skill_setup.py` | AI | **离线** | skill 自检与装入 agent；AI 正确行为的验证标准 | AI.md（全文） |
+| 10 | `10_notice_monitor.py` | 进阶 | 凭证 | 公告轮询器：poll_now 手动一轮、ack/at-least-once、seek_oldest 重置 | GUIDE·公告变更订阅 |
+| 11 | `11_statements_tour.py` | 进阶 | 凭证 | 三大报表科目行结构、合并 vs 母公司（diffp 小数）、审计意见 | GUIDE·单票菜谱 |
 
 ## 约定（新增示例请遵守）
 
 - 文件名 `NN_主题.py`（两位编号，接在现有最大编号后）；
 - docstring 固定四行元信息：**前提 / 运行 / 学到 / 文档**；
 - 骨架 `def main(cli=None)` + `__main__` 捕获 `WmshareError` 打印原文（消息自带修复步骤）；
+- 凭证示例带 `--demo` 旗标（`main(cli=None, demo=False)`，演示分支打印「非真实行情」提示）；
 - 打印值带单位注释；新增后同步本表，并在 `tests/test_examples.py` 加对应测试（CI 会拦截漏网的示例）。

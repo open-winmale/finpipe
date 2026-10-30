@@ -261,9 +261,9 @@ class ReadmeClient:
                                                    "down_pct": 16.4, "flat_pct": 3.2,
                                                    "median_pct": 0.015363},
             index_breadth_bins=lambda *a, **k: [
-                {"label": "i_涨停", "count": 109, "pct_of_total": 1.9},
-                {"label": "h_+5%~10%", "count": 464, "pct_of_total": 8.2},
-                {"label": "g_+3%~5%", "count": 829, "pct_of_total": 14.6},
+                {"label": "涨停", "count": 109, "pct_of_total": 1.9},
+                {"label": "+5%~10%", "count": 464, "pct_of_total": 8.2},
+                {"label": "+3%~5%", "count": 829, "pct_of_total": 14.6},
             ],
             index_top_movers=lambda *a, **k: [
                 {"symbol": "600519", "name": "贵州茅台", "percent": 0.0052},

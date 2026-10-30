@@ -42,7 +42,7 @@ functions:
   # ---- 机构 ----
   - {name: equity.query_institution_detail, cn: 机构持股明细, layer: L0, normalize_with: equity.fmt_institution_detail, units: {total_shares_ratio: percent, free_shares_ratio: percent}, ranges: {total_shares_ratio: [0, 1], free_shares_ratio: [0, 1]}}
   - {name: equity.query_institution_summary, cn: 机构持仓占比, layer: L0, normalize_with: equity.fmt_institution_summary, units: {all_shares_ratio: percent}, ranges: {all_shares_ratio: [0, 1], total_shares_ratio: [0, 1], change_ratio: [-1, 1]}}
-  - {name: equity.query_hgt, cn: 沪港通持股, layer: L0, normalize_with: equity.fmt_hgt, units: {add_shares_pct: percent}, ranges: {add_shares_pct: [0, 1], free_shares_ratio: [0, 1], total_shares_ratio: [0, 1]}}
+  - {name: equity.query_hgt, cn: 沪港通持股, layer: L0, normalize_with: equity.fmt_hgt, units: {add_shares_pct: percent}, ranges: {add_shares_pct: [-1, 50], free_shares_ratio: [0, 20], total_shares_ratio: [0, 20]}}  # 实测（2026-10-30，600519）：add_shares_pct -0.85~+10.34（变动比例，减持为负、增持可超 100%）；free/total_shares_ratio 0~2.07（上游股本基数口径偏小，占比可 >100%）——原 [0,1]/[0,1] 误拦正常数据，上界仍可拦 ×100 未换算
   - {name: equity.query_national_team, cn: 国家队持股, layer: L0, normalize_with: equity.fmt_national_team, units: {shares_ratio: percent, shares_ratio_change: percent}, ranges: {shares_ratio: [0, 1], shares_ratio_change: [-1, 1]}}
   # ---- 治理事件 ----
   - {name: equity.query_release, cn: 限售解禁日程, layer: L0, normalize_with: equity.fmt_release, units: {total_shares_ratio: percent, unlimited_ratio: percent}, ranges: {total_shares_ratio: [0, 1], unlimited_ratio: [0, 1]}}

@@ -41,9 +41,9 @@ export WMSHARE_CLIENT_ID=<AppId> WMSHARE_CLIENT_SECRET=<API Key>
   （如 `cli.dividend.index_where_high_yield_5()`）；目录之外的名字显式报错——
   门面不遮蔽目录函数，252 个都能直达。
 
-两层的名字对不上是常态：目录按上游域组织（`bonus`、`rptdom`、`indices`…），门面按使用
-视角命名（`dividend`、`statements`、`index`…），17 个域挂 20 个门面。不必背映射——
-`cat.search("分红")` 一查即得；`cli.call` 的域与函数名以 `cat.functions_by_domain()` 为准。
+两层的名字对不上是常态：目录按上游域组织，门面按使用视角命名（如目录 `bonus` 对应
+门面 `dividend`），17 个域挂 20 个门面。不必背映射——`cat.search("分红")` 一查即得；
+`cli.call` 的域与函数名以 `cat.functions_by_domain()` 为准。
 
 ### 2.2 目录先行（防臆造）
 

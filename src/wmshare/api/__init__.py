@@ -21,11 +21,23 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
 from wmshare.errors import CatalogError, LimitError, UsageError, WmshareError
 from wmshare.units import finish_metric
+
+# 服务端分桶 label 的排序前缀（如 i_涨停 / h_+5%~10%），单字母+下划线，对用户是噪音
+_BIN_PREFIX = re.compile(r"^[a-z]_")
+
+
+def _strip_bin_prefixes(rows: Any, key: str) -> Any:
+    if isinstance(rows, list):
+        for r in rows:
+            if isinstance(r, dict) and isinstance(r.get(key), str):
+                r[key] = _BIN_PREFIX.sub("", r[key])
+    return rows
 
 if TYPE_CHECKING:  # pragma: no cover
     from wmshare.client import Client
@@ -564,11 +576,14 @@ class ScreenerApi(_Api):
     # ---- 全市场宽度（服务端索引直出，免本地计算）----
     # idx 不传时由服务端解析最新 A 股查询索引（LatestIndexKey，动态 cache_key，
     # 无稳定字面量——不要臆造 "index.cn.all" 之类的键，实测 500）。
-    def _breadth(self, fn: str, idx: str | None, _df: bool) -> Any:
+    def _breadth(self, fn: str, idx: str | None, _df: bool,
+                 label_key: str | None = None) -> Any:
         if idx is None:
             rows = self._c.eval_result(f"return {fn}(LatestIndexKey())")
         else:
             rows = self._c.call(fn, idx=idx)
+        if label_key is not None:
+            rows = _strip_bin_prefixes(rows, label_key)
         return _to_df(rows) if _df else rows
 
     def index_breadth_summary(self, idx: str | None = None) -> dict:
@@ -581,17 +596,20 @@ class ScreenerApi(_Api):
     def index_breadth_bins(self, idx: str | None = None, _df: bool = False) -> Any:
         """涨跌幅 9 档分桶（涨停/±5%/±3%/平盘/…/跌停），行含 label/count/pct_of_total。
 
+        label 已剥服务端排序前缀（上游 `i_涨停` → `涨停`）。
+
         :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
         """
-        return self._breadth("kline.index_breadth_bins", idx, _df)
+        return self._breadth("kline.index_breadth_bins", idx, _df, label_key="label")
 
     def index_breadth_bin_industries(self, idx: str | None = None,
                                      _df: bool = False) -> Any:
-        """涨跌幅分桶 × 一级行业分布（行含 bin/industry/count）。
+        """涨跌幅分桶 × 一级行业分布（行含 bin/industry/count；bin 同样剥前缀）。
 
         :param idx: 服务端索引键（高级；默认不传 = A 股最新查询索引）
         """
-        return self._breadth("kline.index_breadth_bin_industries", idx, _df)
+        return self._breadth("kline.index_breadth_bin_industries", idx, _df,
+                             label_key="bin")
 
     def index_top_movers(self, limit: int = 20, desc: bool = True,
                          idx: str | None = None, _df: bool = False) -> Any:

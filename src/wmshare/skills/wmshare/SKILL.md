@@ -151,6 +151,10 @@ print(cli.dividend.window_stats("600519", "3y"))   # {'dps': ..., 'total': ..., 
 - **stocks 域新鲜度**：cn/hk 全市场列表随上游每日刷；us universe 为手动刷新
   （新上市/退市有滞后），且美股行业目录树暂缺（`industries()` 恒空、
   `industry_members()` 不可用；列表行的 industry 字段仍有值）。
+- **indicator.metrics 批内任一码失效会整批 500**：目录里存在个别上游未注册依赖的码
+  （如 `$AMOUNT_LIVE` 这类原始 LIVE 码，单码也 500），混进 `cli.indicator.metrics`
+  批量会中止整批；错误消息会点名未定义变量——把该码剔除后重试即可，其余码是好码。
+  单码取值 `cli.indicator.get` 不受影响。
 - **盘中语义**：休市时 `live`/`min1` 返回最近收盘快照 / 上一交易日；事件筛选
   （涨停等）以「当日有成交」为前置，停牌恒 `False`。
 - **403「策略拒绝」（POLICY_DENIED）≠ 额度不足**：是 AppID 的接口权限范围限制

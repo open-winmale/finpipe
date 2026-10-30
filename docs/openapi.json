@@ -1112,7 +1112,7 @@
       "post": {
         "operationId": "screener_index_breadth_bins",
         "summary": "涨跌幅 9 档分桶（涨停/±5%/±3%/平盘/…/跌停），行含 label/count/pct_of_total。",
-        "description": "底层目录函数 `kline.index_breadth_bins`。SDK 调用：`cli.screener.index_breadth_bins(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "label 已剥服务端排序前缀（上游 `i_涨停` → `涨停`）。、底层目录函数 `kline.index_breadth_bins`。SDK 调用：`cli.screener.index_breadth_bins(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -1151,7 +1151,7 @@
     "/screener/index_breadth_bin_industries": {
       "post": {
         "operationId": "screener_index_breadth_bin_industries",
-        "summary": "涨跌幅分桶 × 一级行业分布（行含 bin/industry/count）。",
+        "summary": "涨跌幅分桶 × 一级行业分布（行含 bin/industry/count；bin 同样剥前缀）。",
         "description": "底层目录函数 `kline.index_breadth_bin_industries`。SDK 调用：`cli.screener.index_breadth_bin_industries(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"

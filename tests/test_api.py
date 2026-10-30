@@ -266,3 +266,20 @@ def test_screener_breadth_supports_df(cli):
     df = cli.screener.index_breadth_bins(_df=True)
     assert isinstance(df, pd.DataFrame)
     assert list(df.columns) == ["label", "count", "pct_of_total"]
+    assert df.iloc[0]["label"] == "涨停"   # 服务端排序前缀在展示层剥除
+
+
+def test_screener_bins_label_prefix_stripped(cli):
+    """分桶 label/bin 的服务端排序前缀（i_/h_/g_）对用户是噪音，友好层剥除（2026-10-30 实测）。"""
+    cli.session.eval_result = [
+        {"label": "i_涨停", "count": 32, "pct_of_total": 0.6},
+        {"label": "h_+5%~10%", "count": 113, "pct_of_total": 2.0},
+    ]
+    rows = cli.screener.index_breadth_bins()
+    assert [r["label"] for r in rows] == ["涨停", "+5%~10%"]
+    cli.session.eval_result = [{"bin": "g_+3%~5%", "industry": "银行", "count": 4}]
+    rows = cli.screener.index_breadth_bin_industries()
+    assert rows[0]["bin"] == "+3%~5%"
+    # 非 dict/非字符串行原样透传，不误伤
+    cli.session.eval_result = [{"label": "涨停"}, {"x": 1}, "raw"]
+    assert cli.screener.index_breadth_bins() == [{"label": "涨停"}, {"x": 1}, "raw"]

@@ -316,6 +316,22 @@ def test_batch_result_to_df_long_table(client):
     assert {"symbol", "close", "percent"} <= set(df.columns)
 
 
+def test_us_symbol_suffix_canonicalized_everywhere():
+    """美股交易所后缀/类别股写法在 eval 锚点、目录调用、批量三处都归一。"""
+    s = FakeSession()
+    c = Client(base_url="https://t", client_id="i", client_secret="s",
+               catalog=load(), session=s, market="us")
+    c.eval_result("return $PE_TTM_LAST", symbol="AAPL.O")
+    assert last_eval(c)["json"]["symbol"] == "AAPL"
+    c.call("kline.query_bars", sym="BRK.B", limit=1)
+    ev = last_eval(c)
+    assert ev["json"]["symbol"] == "BRK_B"
+    assert any('kline.query_bars("BRK_B", 1)' in ln for ln in ev["json"]["xs_lines"])
+    c.call_batch("kline.snapshot", ["AAPL.O", "BRK-B"])
+    xs = "\n".join(last_eval(c)["json"]["xs_lines"])
+    assert '"AAPL"' in xs and '"BRK_B"' in xs and "AAPL.O" not in xs and "BRK-B" not in xs
+
+
 def test_eval_default_anchor_follows_market():
     s = FakeSession()
     c = Client(base_url="https://t", client_id="i", client_secret="s",

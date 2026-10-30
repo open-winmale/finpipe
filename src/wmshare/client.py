@@ -35,17 +35,54 @@ DEFAULT_SYMBOLS = {"cn": "600519", "hk": "00700", "us": "AAPL"}
 
 _SYM_PREFIX = re.compile(r"^(?:cn|sh|sz|bj)\.", re.IGNORECASE)
 _SYM_SUFFIX = re.compile(r"\.(?:SH|SZ|BJ)$", re.IGNORECASE)
+# 美股：交易所后缀（AAPL.O=纳斯达克、BRK.N=纽交所 …）与类别股分隔符。
+# 上游 symbol 注册表只有裸代码（AAPL、BRK_B）：带后缀的代码会被网关当作宏观序列
+# （SYMBOL_TYPE_MACRO），跳过 SETCURSOR，指标脚本里的 symbol 变量因此未绑定——
+# _LAST 族 500、分位族静默返 0（2026-10-30 实测 AAPL.O；AAPL 正常）。
+_US_EXCH_SUFFIX = re.compile(r"^(?P<base>[A-Z][A-Z0-9]*)[.\-](?:O|N|A|K|P|OQ|NQ|US)$")
+_US_CLASS_SEP = re.compile(r"^(?P<base>[A-Z][A-Z0-9]*)[.\-](?P<cls>[A-Z])$")
 
 
-def normalize_symbol(symbol: str) -> str:
+def _normalize_us(s: str, catalog: "Catalog | None") -> str:
+    """美股代码归一：仅在离线代码表能确认时改写，避免误伤真实代码（如 ``O``）。"""
+    if not s or catalog is None:
+        return s
+    try:
+        universe = catalog.symbols_set("us")
+    except Exception:  # 代码表缺失/损坏时不改写，交由上游报错
+        return s
+    if not universe or s in universe:
+        return s
+    # 类别股优先：BRK.B / BRK-B → BRK_B（注册表用下划线分类别）
+    m = _US_CLASS_SEP.match(s)
+    if m:
+        candidate = f"{m.group('base')}_{m.group('cls')}"
+        if candidate in universe:
+            return candidate
+    # 交易所后缀：AAPL.O / AAPL.N → AAPL
+    m = _US_EXCH_SUFFIX.match(s)
+    if m and m.group("base") in universe:
+        return m.group("base")
+    return s
+
+
+def normalize_symbol(symbol: str, *, market: str | None = None,
+                     catalog: "Catalog | None" = None) -> str:
     """标的代码归一：去 cn./sh./sz./bj. 前缀与 .SH/.SZ/.BJ 后缀，字母转大写。
+
+    传 ``market="us"`` + ``catalog`` 时，再按随包美股代码表消解交易所后缀与类别股
+    写法：``AAPL.O`` → ``AAPL``、``BRK.B``／``BRK-B`` → ``BRK_B``。改名仅在代码表
+    命中时发生（未命中保持原样，不猜）。
 
     例：``sh.600519.SH`` → ``600519``；``cn.000001`` → ``000001``；``aapl`` → ``AAPL``。
     """
     s = str(symbol).strip()
     s = _SYM_PREFIX.sub("", s)
     s = _SYM_SUFFIX.sub("", s)
-    return s.upper()
+    s = s.upper()
+    if str(market or "").lower() == "us":
+        s = _normalize_us(s, catalog)
+    return s
 
 
 @dataclass
@@ -353,8 +390,8 @@ class Client:
         """
         lines = xs if isinstance(xs, list) else [ln for ln in xs.splitlines() if ln.strip()]
         mk = str(market or self.market or "cn").lower()
-        anchor = normalize_symbol(symbol) if symbol is not None \
-            else DEFAULT_SYMBOLS.get(mk, "600519")
+        anchor = normalize_symbol(symbol, market=mk, catalog=self.catalog) \
+            if symbol is not None else DEFAULT_SYMBOLS.get(mk, "600519")
         body: dict[str, Any] = {
             "symbol": anchor,
             "xs_lines": lines,
@@ -395,6 +432,10 @@ class Client:
         return data.get("result")
 
     # ---- 目录驱动的调用门面 ----
+    def _canon_symbol(self, symbol: str) -> str:
+        """标的代码归一：按客户端市场消解美股交易所后缀与类别股写法（见 normalize_symbol）。"""
+        return normalize_symbol(symbol, market=self.market, catalog=self.catalog)
+
     def _resolve_function(self, name: str) -> dict:
         """目录函数查找；把「指标码当函数名」误用补成可执行的指引。"""
         try:
@@ -450,11 +491,11 @@ class Client:
         args = []
         for i, p in enumerate(params):
             if sym_override is not None and p["name"] == sym_param:
-                args.append(_xs_literal(normalize_symbol(sym_override)))
+                args.append(_xs_literal(self._canon_symbol(sym_override)))
             elif p["name"] in kwargs:
                 v = kwargs[p["name"]]
                 if p.get("type") == "string" and p["name"] in self.SYMBOL_PARAMS:
-                    v = normalize_symbol(v)
+                    v = self._canon_symbol(v)
                 args.append(_xs_literal(v))
             elif "default" in p:
                 args.append(_xs_literal(p["default"]))
@@ -500,7 +541,7 @@ class Client:
         symbol = DEFAULT_SYMBOLS.get(str(self.market or "cn").lower(), "600519")
         for p in params:
             if p["name"] in kwargs and p["type"] == "string" and p["name"] in self.SYMBOL_PARAMS:
-                symbol = normalize_symbol(str(kwargs[p["name"]]))
+                symbol = self._canon_symbol(str(kwargs[p["name"]]))
                 break
         result = self.eval_result(xs, symbol=symbol)
         if not _raw and _units == "base":
@@ -533,7 +574,7 @@ class Client:
         if sym_param in kwargs:
             raise UsageError(f"{name}: 批量调用请用 symbols 指定标的，不要在 kwargs 传 {sym_param}",
                              code="params")
-        syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
+        syms = list(dict.fromkeys(self._canon_symbol(s) for s in symbols))
         if not syms:
             return BatchResult()
         self._assert_same_market(name, syms)
@@ -662,7 +703,7 @@ class Client:
                 "聚合后 to_df() 长表失真。长表请用 BatchResult.to_df()（每标的一行），"
                 "单标的多行结果读 BatchResult.results[代码]。", code="params")
         size = self._batch_size(batch_size, name)
-        syms = list(dict.fromkeys(normalize_symbol(s) for s in symbols))
+        syms = list(dict.fromkeys(self._canon_symbol(s) for s in symbols))
         self._assert_same_market(name, syms)
         return self._batch_iter(name, syms, size, on_batch_error,
                                 _raw=_raw, _units=_units, **kwargs)

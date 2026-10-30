@@ -227,49 +227,29 @@ def test_indicator_range_violation_in_batch():
         c.indicator.metrics("600519", ["$ROE_TTM_LAST"])
 
 
-# ---- IndicatorApi：市场可用性（作用域元数据 + 已知引擎缺陷） ----
+# ---- IndicatorApi：市场可用性（美股代码归一 + symbol 未绑定翻译） ----
 
-def test_indicator_market_scope_rejects_wrong_client():
-    """注册作用域=cn 的码用 hk 客户端调用：请求前报错，不发 HTTP。"""
-    c, s = make(0.42, market="hk")
-    with pytest.raises(DataError, match="只在 cn 市场引擎注册"):
-        c.indicator.get("00700", "$BE_RATE")
-    assert s.calls == []  # 前置拦截，未触网
+def test_indicator_us_last_family_works_with_bare_symbol():
+    """美股 _LAST 族本身可用：裸代码走公司路径（symbol 已绑定），值正常返回。
 
-
-def test_indicator_market_scope_allows_own_market():
-    c, _ = make(3.5, market="us")
-    assert c.indicator.get("AAPL.O", "$ISSUE_PRICE") == 3.5
-
-
-def test_indicator_us_last_family_blocked():
-    """美股 _LAST 族：上游引擎缺陷（500 / 静默 0），SDK 前置拒绝而非放 0 过去。"""
-    c, s = make(0, market="us")
-    with pytest.raises(DataError, match="美股指标引擎"):
-        c.indicator.get("AAPL.O", "$PCT_PE_TTM_10Y_LAST")
-    with pytest.raises(DataError, match="美股指标引擎"):
-        c.indicator.metrics("AAPL.O", ["$PE_TTM_LAST"])
-    assert s.calls == []
-    # cn/hk 不受影响
-    c2, _ = make(20.0)
-    assert c2.indicator.get("600519", "$PE_TTM_LAST") == 20.0
-
-
-def test_indicator_us_last_family_bypass_with_validate_off():
-    """validate=False 是显式逃生口（上游修复后可先关校验验证，再移除缺陷项）。"""
-    c, _ = make(0, market="us", validate=False)
-    assert c.indicator.get("AAPL.O", "$PCT_PE_TTM_10Y_LAST") == 0
+    实测 2026-10-30：AAPL $PE_TTM_LAST=39.49、$PCT_PE_TTM_10Y_LAST=0.7858；
+    带交易所后缀（AAPL.O）才会被上游当宏观序列——归一在 normalize_symbol 层完成。
+    """
+    c, _ = make(0.7858, market="us")
+    assert c.indicator.get("AAPL", "$PCT_PE_TTM_10Y_LAST") == 0.7858
+    c2, _ = make({"$PE_TTM_LAST": 39.49}, market="us")
+    assert c2.indicator.metrics("AAPL", ["$PE_TTM_LAST"])["$PE_TTM_LAST"] == 39.49
 
 
 def test_indicator_engine_error_translated():
-    """上游 store.latest 的 500 被翻译成可归因的 DataError（保留原始错误）。"""
+    """上游没有绑定 symbol 时，翻译成带「裸代码」指引的 DataError（保留原始错误）。"""
     c, _ = make(1, market="us")
     def boom(xs, **kw):
         raise ServerError('openapi:1: sel.recv: LAST: store.latest: '
                           'undefined variable "symbol"', status=500)
     c.eval_result = boom
-    with pytest.raises(DataError, match="指标引擎不可用") as ei:
-        c.indicator.get("AAPL.O", "$ISSUE_PRICE")
+    with pytest.raises(DataError, match="裸代码") as ei:
+        c.indicator.get("AAPL", "$PE_TTM_LAST")
     assert 'undefined variable "symbol"' in str(ei.value)
 
 

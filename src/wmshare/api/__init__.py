@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 
 from wmshare.errors import (
     CatalogError, DataError, LimitError, ServerError, UsageError, WmshareError)
-from wmshare.units import check_metric_market, finish_metric
+from wmshare.units import finish_metric
 
 # 服务端分桶 label 的排序前缀（如 i_涨停 / h_+5%~10%），单字母+下划线，对用户是噪音
 _BIN_PREFIX = re.compile(r"^[a-z]_")
@@ -274,9 +274,8 @@ class KlineApi(_Api):
                 "（请分批，如 symbols[i:i+500]；可在 Client(max_limit=...) 调整）",
                 code="limit")
         # 跨市场混批会在本市场上下文里取到错值，与 call_batch/batch_all 同一条铁律
-        from wmshare.client import normalize_symbol
         self._c._assert_same_market("kline.batch_live",
-                                    [normalize_symbol(s) for s in symbols])
+                                    [self._c._canon_symbol(s) for s in symbols])
         return self._c.call("kline.query_last_live_many", syms=symbols, _raw=_raw)
 
     def min1(self, symbol: str) -> Any:
@@ -835,31 +834,26 @@ class IndicatorApi(_Api):
     分位为小数（0.42 = 42% 分位）；精选组声明过 range 的指标在返回前做量级守护
     （违例抛 DataError）。非精选代码按脚本原值返回（目录未声明单位的代码不做换算）。
 
-    市场可用性在请求前校验（``check_metric_market``）：目录标了注册市场的码只能用
-    对应市场客户端；已实测的上游引擎缺陷（美股 ``_LAST`` 族）直接抛 DataError，
-    避免把「引擎缺数据返回的 0」当成真实分位。``Client(validate=False)`` 可绕过。
+    美股标的按随包代码表归一，``AAPL.O``/``BRK.B`` 与裸码 ``AAPL``/``BRK_B`` 等价
+    （见 ``normalize_symbol``）；上游仍报 ``symbol`` 未绑定时翻译成带代码写法指引的
+    DataError，而不是把引擎返回的 0 静默放行。
     """
 
     def get(self, symbol: str, code: str) -> Any:
         """取单个指标当前值，如 cli.indicator.get("600519", "$PE_TTM_LAST")。"""
         meta = self._c.catalog.metric_meta(code)
-        entry = self._c.catalog.metric(code)
-        if meta is None and entry is None:
+        if meta is None and self._c.catalog.metric(code) is None:
             raise CatalogError(f"未知指标 {code!r}（防编造：code 必须在指标目录内）",
                                code="metric")
-        check_metric_market(code, entry, self._c.market, validate=self._c._validate)
         value = self._eval_metric(f"return {code}", symbol=symbol, label=code)
         return finish_metric(value, meta, code=code, validate=self._c._validate)
 
     def metrics(self, symbol: str, codes: list[str]) -> dict:
         """批量取多个指标当前值，返回 {code: value}（精选代码带换算与量级守护）。"""
-        entries = {c: self._c.catalog.metric(c) for c in codes}
-        missing = [c for c, e in entries.items() if e is None]
+        missing = [c for c in codes if self._c.catalog.metric(c) is None]
         if missing:
             raise CatalogError(f"未知指标 {missing}（防编造：code 必须在指标目录内）",
                                code="metric")
-        for c, entry in entries.items():
-            check_metric_market(c, entry, self._c.market, validate=self._c._validate)
         body = ", ".join(f'"{c}": {c}' for c in codes)
         values = self._eval_metric(f"return {{{body}}}", symbol=symbol,
                                    label=", ".join(codes)) or {}
@@ -870,16 +864,19 @@ class IndicatorApi(_Api):
                 for c, v in values.items()}
 
     def _eval_metric(self, xs: str, *, symbol: str, label: str) -> Any:
-        """执行指标求值；把已知的上游引擎缺陷翻译成可归因的 DataError。"""
+        """执行指标求值；把「标的没被识别成公司代码」的上游错误翻译成可执行的提示。"""
         try:
             return self._c.eval_result(xs, symbol=symbol)
         except ServerError as e:
             if 'undefined variable "symbol"' in str(e):
+                mk = str(self._c.market or "cn").lower()
+                hint = ("美股代码用裸代码（AAPL / BRK_B）：带交易所后缀（AAPL.O / BRK.N）"
+                        "会被上游当成宏观序列，指标脚本里的 symbol 变量未绑定。"
+                        if mk == "us" else
+                        f"请确认代码与 market={mk!r} 匹配（代码表：cat.symbols_search）。")
                 raise DataError(
-                    f"指标 {label} 在当前市场（{self._c.market}）的指标引擎不可用：上游 "
-                    'store.latest 未注入 symbol（服务端引擎缺陷，非 SDK 问题）。'
-                    "美股价量请用 cli.kline.snapshot / cli.kline.live，"
-                    f"指标请改用 A 股/港股客户端。原始错误：{e}", code="market") from e
+                    f"指标 {label} 在当前市场（{mk}）求值失败：上游没有把标的绑定成公司"
+                    f"代码（symbol 变量未设置）。{hint} 原始错误：{e}", code="symbol") from e
             raise
 
 

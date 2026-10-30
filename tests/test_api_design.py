@@ -68,6 +68,33 @@ def test_normalize_symbol(raw, expected):
     assert normalize_symbol(raw) == expected
 
 
+@pytest.mark.parametrize(("raw", "expected"), [
+    # 美股裸代码（上游注册表形态）：原样
+    ("AAPL", "AAPL"),
+    ("aapl", "AAPL"),
+    ("BRK_B", "BRK_B"),
+    # 交易所后缀 → 裸代码（否则上游按宏观序列处理，symbol 未绑定）
+    ("AAPL.O", "AAPL"),
+    ("aapl.n", "AAPL"),
+    ("AAPL.N", "AAPL"),
+    # 类别股分隔符 → 注册表下划线写法
+    ("BRK.B", "BRK_B"),
+    ("BRK-B", "BRK_B"),
+    ("BRK.A", "BRK_A"),
+    # 代码表未命中：不改写（不猜）
+    ("ZZZZ.O", "ZZZZ.O"),
+    # 裸代码 "O"（Realty Income）不受后缀规则影响
+    ("O", "O"),
+])
+def test_normalize_symbol_us(raw, expected):
+    assert normalize_symbol(raw, market="us", catalog=load()) == expected
+
+
+def test_normalize_symbol_non_us_keeps_suffix():
+    """非 us 市场不套用美股规则（港股/ A 股后缀由各自链路处理）。"""
+    assert normalize_symbol("AAPL.O", market="hk", catalog=load()) == "AAPL.O"
+
+
 def test_call_normalizes_symbol_everywhere(cli):
     cli.call("kline.query_bars", sym="sh.600519.SH", limit=1)
     ev = last_ev(cli)

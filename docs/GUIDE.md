@@ -91,6 +91,10 @@ cat.functions_by_domain()             # 按域列全部函数名（cli.call 的�
 `Client(market="cn" | "hk" | "us")`，缺省 cn。代码与市场不匹配服务端直接拒绝
 （cn 查 `00700` 报 market mismatch）。批次不能跨市场（第 5.4 节）。
 
+美股用**裸代码**（`AAPL`、`BRK_B`）：带交易所后缀的 `AAPL.O`/`BRK.N` 上游会当成宏观序列，
+指标脚本里的 `symbol` 变量不绑定（`_LAST` 族 500、分位静默返 0）。SDK 已按随包代码表
+自动归一（`AAPL.O`→`AAPL`、`BRK.B`/`BRK-B`→`BRK_B`），归一无命中时才原样上送。
+
 ## 3. 单票菜谱
 
 可运行版本：`examples/01_quickstart.py`、`04_screener.py`、`05_dividend_screener.py`、

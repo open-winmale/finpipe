@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import sys
 
-import pandas as pd
 import pytest
 
 import wmshare
@@ -87,6 +86,7 @@ def test_df_needs_pandas(monkeypatch):
 
 
 def test_df_returns_dataframe(cli):
+    pd = pytest.importorskip("pandas")  # CI 故意不装可选依赖
     df = cli.kline.bars("600519", n=3, _df=True)
     assert isinstance(df, pd.DataFrame) and len(df) == 3
 

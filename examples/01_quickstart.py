@@ -1,11 +1,9 @@
-"""快速上手：5 分钟看懂 wmshare 的四类数据。
+"""快速上手：四类数据一次过，全市场批量只花 12 次请求。
 
-凭证必填：注册开放平台获取 client_id/api-key（免费、注册即得）：
-    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
-    python examples/quickstart.py
-
-遇到 401/403/429 时，错误消息会直接给出申请 AppID 的步骤。
-批量取数（全市场/上百只）务必走 batch_all / batch_iter，不要写逐票循环——见文件末尾。
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+运行：python examples/01_quickstart.py
+学到：行情/财务/披露/参考四类取数；批量绕开 429；错误消息自带申请步骤
+文档：docs/GUIDE.md（安装与凭证、单票菜谱、批量取数）
 """
 import wmshare
 

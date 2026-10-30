@@ -1,16 +1,17 @@
-"""选股与全景：cli.screener 单票筛选器 + 全市场涨跌宽度（服务端索引直出）。
+"""选股与全景：单票筛选器一行布尔 + 全市场涨跌宽度（服务端索引直出）。
 
-需要凭证：注册开放平台获取（免费、注册即得），见错误消息指引。
-    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
-    python examples/screener.py
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+运行：python examples/04_screener.py
+学到：涨停/均线/放量单票筛选；全景/分桶/涨跌榜；*_pct 百分数例外口径
+文档：docs/GUIDE.md（单票菜谱）
 """
 from wmshare import Client, WmshareError
 
 WATCHLIST = ["600519", "000858", "601088", "600900", "601318"]  # 自选股，换成你的
 
 
-def main() -> None:
-    cli = Client.from_env()
+def main(cli=None) -> None:
+    cli = cli or Client.from_env()
 
     # ---- 单票一行布尔：涨停 / 站上 MA20 / 放量（停牌恒 False）----
     print("--- 单票筛选器（阈值均为小数：0.10 = 10%）---")

@@ -17,12 +17,15 @@ from pathlib import Path
 
 import pytest
 
-from wmshare.api import FRIENDLY_INDEX, FRIENDLY_NAMESPACES, GENERATED_NAMESPACES
+from wmshare.api import (FRIENDLY_INDEX, FRIENDLY_NAMESPACES, GENERATED_NAMESPACES,
+                         _FRIENDLY_NS_TO_CATALOG)
 from wmshare.catalog import load
 
 REPO = Path(__file__).resolve().parents[1]
 API_MD = (REPO / "docs" / "API.md").read_text(encoding="utf-8")
 README = (REPO / "README.md").read_text(encoding="utf-8")
+GUIDE_MD = (REPO / "docs" / "GUIDE.md").read_text(encoding="utf-8")
+AI_MD = (REPO / "docs" / "AI.md").read_text(encoding="utf-8")
 CAT = load()
 
 CORE_ROW = re.compile(
@@ -428,14 +431,21 @@ def test_docs_no_ad_diversion_cta():
     「纯广告导流」是首要嫌疑——「注册…微信扫码，免费、注册即得」这类模板同时命中
     扫码 + 领取 + 免费三连。凭证获取改成中性陈述（去哪里取、取哪两个值）后，
     能力描述与额度事实不变。禁词表按 Gitee 页面分类维护，不含事实性表述
-    （如「免费档 500 次/小时」是额度事实，允许）。
+    （如「免费档 500 次/小时」是额度事实，允许）。目标面 = 全部公开文档：
+    README、docs/*.md、SKILL、examples/README、AGENTS、llms.txt。
     """
     banned = ("微信扫码", "扫码微信", "扫码登录", "注册即得", "免费领取", "不另收费")
     targets: list[tuple[str, str]] = [
         ("README.md", README),
         ("docs/API.md", API_MD),
+        ("docs/GUIDE.md", GUIDE_MD),
+        ("docs/AI.md", AI_MD),
+        ("docs/README.md", (REPO / "docs" / "README.md").read_text(encoding="utf-8")),
         ("skills/wmshare/SKILL.md",
          (REPO / "src" / "wmshare" / "skills" / "wmshare" / "SKILL.md").read_text(encoding="utf-8")),
+        ("examples/README.md", (REPO / "examples" / "README.md").read_text(encoding="utf-8")),
+        ("AGENTS.md", (REPO / "AGENTS.md").read_text(encoding="utf-8")),
+        ("llms.txt", (REPO / "llms.txt").read_text(encoding="utf-8")),
     ]
     for name, text in targets:
         for i, line in enumerate(text.splitlines(), 1):
@@ -451,29 +461,47 @@ def test_readme_catalog_references_valid():
             f"README 引用了不存在的目录方法 cat.{meth}()"
 
 
-def test_quickstart_calls_are_valid():
-    src = (REPO / "examples" / "quickstart.py").read_text(encoding="utf-8")
-    tree = ast.parse(src)
-    checked = 0
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call):
-            continue
-        f = node.func
-        if not (isinstance(f, ast.Attribute) and isinstance(f.value, ast.Attribute)
-                and isinstance(f.value.value, ast.Name) and f.value.value.id == "cli"):
-            continue
-        if f.value.attr == "call":  # cli.call("ns.fn", ...) 走目录级校验
-            assert node.args and isinstance(node.args[0], ast.Constant)
-            CAT.function(node.args[0].value)
-        else:
-            cls = FRIENDLY_NAMESPACES.get(f.value.attr) or GENERATED_NAMESPACES.get(f.value.attr)
-            assert cls is not None, f"quickstart 引用了不存在的命名空间 {f.value.attr}"
-            assert hasattr(cls, f.attr), f"quickstart 引用了不存在的方法 {f.value.attr}.{f.attr}"
-            sig = inspect.signature(getattr(cls, f.attr))
-            kwargs = {kw.arg: None for kw in node.keywords if kw.arg}
-            sig.bind(None, *[None] * len(node.args), **kwargs)
-        checked += 1
-    assert checked >= 8, f"quickstart 仅识别到 {checked} 个调用，解析可能失效"
+def test_example_calls_are_valid():
+    """全部 examples/*.py 的 cli.* 调用、$指标码、cat.* 方法必须真实存在（防示例腐烂）。"""
+    files = sorted((REPO / "examples").glob("*.py"))
+    assert len(files) >= 9, f"示例应不少于 9 个（编号课程），实际 {len(files)}"
+    metrics = {m["code"] for m in CAT.metrics["metrics"]}
+    total = 0
+    for path in files:
+        src = path.read_text(encoding="utf-8")
+        # 03 故意演示「未知指标在发请求前被拦下」，是唯一允许出现假指标码的示例
+        if path.name != "03_error_handling.py":
+            codes = set(re.findall(r"\$[A-Za-z_][A-Za-z0-9_]*", src))
+            assert codes <= metrics, f"{path.name} 引用了不存在的指标代码：{codes - metrics}"
+        for meth in set(re.findall(r"cat\.(\w+)\(", src)):
+            assert callable(getattr(CAT, meth, None)), \
+                f"{path.name} 引用了不存在的目录方法 cat.{meth}()"
+        tree = ast.parse(src)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            f = node.func
+            if not (isinstance(f, ast.Attribute) and isinstance(f.value, ast.Attribute)
+                    and isinstance(f.value.value, ast.Name) and f.value.value.id == "cli"):
+                continue
+            if f.value.attr == "call":  # cli.call("ns.fn", ...) 走目录级校验
+                assert node.args and isinstance(node.args[0], ast.Constant)
+                CAT.function(node.args[0].value)
+            else:
+                cls = FRIENDLY_NAMESPACES.get(f.value.attr) or GENERATED_NAMESPACES.get(f.value.attr)
+                assert cls is not None, \
+                    f"{path.name} 引用了不存在的命名空间 {f.value.attr}"
+                if not hasattr(cls, f.attr):
+                    # 与 _Api.__getattr__ 同语义：目录委托函数（如 screener.screen_up_today）
+                    catalog_ns = _FRIENDLY_NS_TO_CATALOG.get(f.value.attr, "")
+                    assert CAT.function(f"{catalog_ns}.{f.attr}"), \
+                        f"{path.name} 引用了不存在的方法 {f.value.attr}.{f.attr}"
+                    continue
+                sig = inspect.signature(getattr(cls, f.attr))
+                kwargs = {kw.arg: None for kw in node.keywords if kw.arg}
+                sig.bind(None, *[None] * len(node.args), **kwargs)
+            total += 1
+    assert total >= 25, f"示例共识别到 {total} 个 cli.* 调用，解析可能失效"
 
 
 # ---------------------------------------------------------------- 表述与口径
@@ -506,21 +534,38 @@ def test_unit_wording_matches_catalog():
     assert not problems, problems
 
 
-def test_readme_references_are_valid(cli):
-    # 指标代码必须存在于指标目录
-    codes = set(re.findall(r"\$[A-Za-z_][A-Za-z0-9_]*", README))
+def _assert_doc_references(text: str, label: str, cli) -> None:
+    """文档引用三件套校验：$指标码 / cli.ns.method / cat.* / 域 id 全部真实存在。"""
+    codes = set(re.findall(r"\$[A-Za-z_][A-Za-z0-9_]*", text))
     metrics = {m["code"] for m in CAT.metrics["metrics"]}
-    assert codes <= metrics, f"README 引用了不存在的指标代码：{codes - metrics}"
+    assert codes <= metrics, f"{label} 引用了不存在的指标代码：{codes - metrics}"
     # cli.ns.method 必须运行时可触达：显式方法或目录动态委托（与真实语义一致）
-    for ns, method in set(re.findall(r"cli\.(\w+)\.(\w+)\(", README)):
+    for ns, method in set(re.findall(r"cli\.(\w+)\.(\w+)\(", text)):
         try:
             getattr(getattr(cli, ns), method)
         except AttributeError:
-            raise AssertionError(f"README 引用了不存在的接口 {ns}.{method}") from None
+            raise AssertionError(f"{label} 引用了不存在的接口 {ns}.{method}") from None
+    for meth in set(re.findall(r"cat\.(\w+)\(", text)):
+        assert meth == "load" or callable(getattr(type(CAT), meth, None)), \
+            f"{label} 引用了不存在的目录方法 cat.{meth}()"
     # 反引号里的域 id 必须存在
-    for dom in re.findall(r"`([a-z]+\.[a-z_]+)`", README):
+    for dom in re.findall(r"`([a-z]+\.[a-z_]+)`", text):
         if dom.split(".")[0] in {d.split(".")[0] for d in CAT.domains}:
-            assert dom in CAT.domains, f"README 引用了不存在的域 {dom}"
+            assert dom in CAT.domains, f"{label} 引用了不存在的域 {dom}"
+
+
+def test_readme_references_are_valid(cli):
+    _assert_doc_references(README, "README", cli)
+
+
+def test_guide_references_are_valid(cli):
+    """GUIDE 是 how-to 主文档：菜谱里的每个调用与指标码必须真实存在。"""
+    _assert_doc_references(GUIDE_MD, "docs/GUIDE.md", cli)
+
+
+def test_ai_references_are_valid(cli):
+    """AI.md 的提示词模板与示例命令同样受引用门禁（AI 照抄即正确）。"""
+    _assert_doc_references(AI_MD, "docs/AI.md", cli)
 
 
 def test_openapi_matches_signatures_and_returns():

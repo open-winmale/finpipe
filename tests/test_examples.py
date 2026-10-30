@@ -1,11 +1,19 @@
-"""示例冒烟：离线示例真实执行；quickstart 用 FakeClient 防止可选依赖/403 回归。"""
+"""示例冒烟（9/9 全覆盖）：离线示例真实执行；凭证示例用共享 FakeClient 端到端跑。
+
+签名正确性由 test_docs 的 AST 门禁全量把关；本文件保证每个示例在罐头数据上
+真的跑得完、关键输出（含单位口径注释）不回退。
+"""
 from __future__ import annotations
 
+import importlib.util
 import os
 import subprocess
 import sys
 from pathlib import Path
-from types import SimpleNamespace
+
+import pytest
+
+from fake_client import fake_client
 
 REPO = Path(__file__).resolve().parents[1]
 SRC = REPO / "src"
@@ -18,86 +26,94 @@ def _run_example(name: str) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, env=env, timeout=60)
 
 
-def test_catalog_tour_runs_offline():
-    result = _run_example("catalog_tour.py")
-    assert result.returncode == 0, result.stderr
-    assert "数据域：17" in result.stdout
-
-
-def test_error_handling_runs_offline_and_shows_appid_guidance():
-    result = _run_example("error_handling.py")
-    assert result.returncode == 0, result.stderr
-    assert "[auth]" in result.stdout and "[limit]" in result.stdout
-    assert "open.winmale.com" in result.stdout
-    assert "WMSHARE_CLIENT_ID" in result.stdout
-
-
-def test_quickstart_base_install_path(capsys):
-    """quickstart 不依赖 pandas、不调用已知 403 接口，normalized 字段可直接读取。"""
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("wmshare_quickstart_example",
-                                                  EXAMPLES / "quickstart.py")
+def _load(name: str):
+    spec = importlib.util.spec_from_file_location(f"wmshare_example_{name[:-3]}",
+                                                  EXAMPLES / name)
     assert spec and spec.loader
-    quickstart = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(quickstart)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
-    bars = [{"date": f"2026-10-{d:02d}", "close": 1300.0 + d, "percent": 0.01}
-            for d in range(1, 6)]
-    notice = [{"date": "2026-10-01", "title": "测试公告"}]
 
-    class Kline:
-        def bars(self, *a, **k):
-            return bars
+# ---- 离线示例：子进程真实执行（不联网、零凭证） ----
 
-        def snapshot(self, *a, **k):
-            return {"close": 1309.69, "chg_20d": 0.0123}
+@pytest.mark.parametrize("name,needles", [
+    ("02_catalog_tour.py", ["数据域：17", "指标代码：精选 75 / 目录全量 2197"]),
+    ("03_error_handling.py", ["[auth]", "[limit]", "open.winmale.com",
+                              "WMSHARE_CLIENT_ID"]),
+    ("09_ai_skill_setup.py", ["skill 位置", "skill 自检", "cat.search"]),
+])
+def test_offline_example_runs(name, needles):
+    result = _run_example(name)
+    assert result.returncode == 0, result.stderr
+    for needle in needles:
+        assert needle in result.stdout, f"{name} 缺输出 {needle!r}"
 
-    class Moneyflow:
-        def last(self, *a, **k):
-            return {"net_mf": -100.0}
 
-    class Statements:
-        def income(self, *a, **k):
-            return [{"k": "x", "cn": "收入", "vals": {}}] * 3
+# ---- 凭证示例：注入共享 FakeClient，端到端跑 main() ----
 
-    class Indicator:
-        def get(self, symbol, code):
-            return 20.0 if code == "$PE_TTM_LAST" else 0.3324
-
-    class Notice:
-        def list(self, *a, **k):
-            return notice
-
-    class Dividend:
-        def last(self, *a, **k):
-            return {"ex_div": "2026-06-26", "dps": 28.02, "total": 3.5e10}
-
-    class Info:
-        def profile(self, *a, **k):
-            return {"name": "贵州茅台", "industry": "白酒", "listing_date": "2001-08-27"}
-
-    class Stocks:
-        def list(self, *a, **k):
-            # 3 个代码 → 1 批（验证 quickstart 的批量段落走的是 batch_all 而非逐票）
-            return [{"symbol": c} for c in ("600519", "000001", "300750")]
-
-    from wmshare.client import BatchResult
-
-    def batch_all(name, symbols, **k):
-        return BatchResult(results={s: {"close": 1.0} for s in symbols},
-                           requests=-(-len(symbols) // 500))
-
-    cli = SimpleNamespace(kline=Kline(), moneyflow=Moneyflow(), statements=Statements(),
-                          indicator=Indicator(), notice=Notice(), dividend=Dividend(),
-                          info=Info(), stocks=Stocks(), batch_all=batch_all,
-                          call=lambda *a, **k: [])
-    quickstart.main(cli)
+def test_01_quickstart(capsys):
+    _load("01_quickstart.py").main(fake_client())
     out = capsys.readouterr().out
-    assert "ROE(TTM)=33.24%" in out
+    assert "ROE(TTM)=33.24%" in out          # 0.3324 小数 → 33.24%
     assert "DPS 28.02" in out
     assert "测试公告" in out
     assert "DataFrame" not in out
-    # 批量段落：必须展示「家数 → 请求数」对比（新手动线的核心信息，防回退成逐票循环）
+    # 批量段落：必须展示「家数 → 请求数」对比（新手动线，防回退成逐票循环）
     assert "全市场 3 家：1 次请求" in out
     assert "逐票需 3 次" in out
+
+
+def test_04_screener(capsys):
+    _load("04_screener.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "站上MA20=True" in out
+    assert "总数=5685  涨=4567(80.3%)" in out   # *_pct 百分数数值
+    assert "涨幅榜 Top5 / 跌幅榜 Top3" in out
+    assert "+5.21%" in out                       # percent 小数格式化
+
+
+def test_05_dividend_screener(capsys):
+    _load("05_dividend_screener.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "TTM股息率=0.0379" in out
+    assert "3.79%" in out                        # call_batch 批量结果同为小数口径
+    assert "筛选表达式" in out
+
+
+def test_06_indicator_tour(capsys):
+    _load("06_indicator_tour.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "指标组 11 个" in out                  # cat.metric_groups() 真目录
+    assert "TTM 股息率 = 0.0379（3.79%）" in out
+    assert "（21%）" in out                       # 分位小数 → 百分比展示
+    assert "位置=54%" in out
+
+
+def test_07_stocks_industry_batch(capsys):
+    pytest.importorskip("pandas")  # call_batch(...).to_df() 需要可选依赖
+    _load("07_stocks_industry_batch.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "全市场共 3 家" in out
+    assert "批量 1 次请求" in out
+    assert "省 3 倍配额" in out
+    assert "第 1 批 3 家" in out
+    assert "「银行」5 行快照" in out
+
+
+def test_08_pandas_analysis(capsys):
+    pytest.importorskip("pandas")
+    _load("08_pandas_analysis.py").main(fake_client())
+    out = capsys.readouterr().out
+    assert "站上 MA20：True" in out
+    assert "近 20 日主力净流入合计：2,000 元" in out
+    assert "近 10 次分红" in out
+
+
+def test_examples_index_covers_dir():
+    """examples/README.md 课程表必须覆盖目录里每个脚本（防孤儿示例）。"""
+    index = (EXAMPLES / "README.md").read_text(encoding="utf-8")
+    scripts = sorted(p.name for p in EXAMPLES.glob("*.py"))
+    assert len(scripts) == 9, f"示例应恰为 9 个（编号课程），实际 {len(scripts)}：{scripts}"
+    for name in scripts:
+        assert f"`{name}`" in index, f"examples/README.md 缺 {name} 的索引行"

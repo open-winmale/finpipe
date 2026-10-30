@@ -1,0 +1,54 @@
+# wmshare
+
+> 覆盖 A 股、港股、美股的 Python 财经数据 SDK：17 个数据域、252 个底层函数、2197 个指标码、116 个核心接口。BSD-3-Clause 开源；取数需开放平台凭证（环境变量 WMSHARE_CLIENT_ID / WMSHARE_CLIENT_SECRET，见 README）。
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/open-winmale/wmshare/main/README.md)：安装、凭证配置、三行上手、能力与市场覆盖矩阵
+- [使用指南 GUIDE](https://raw.githubusercontent.com/open-winmale/wmshare/main/docs/GUIDE.md)：单票菜谱、批量取数、多市场、pandas、故障排查
+- [AI 用法](https://raw.githubusercontent.com/open-winmale/wmshare/main/docs/AI.md)：让 AI 正确使用 SDK 的三条路径、提示词模板、安全红线
+- [API 参考](https://raw.githubusercontent.com/open-winmale/wmshare/main/docs/API.md)：116 个核心接口的参数 / 返回 / 单位口径
+- [Agent Skill](https://raw.githubusercontent.com/open-winmale/wmshare/main/src/wmshare/skills/wmshare/SKILL.md)：随包分发的 agent 用法合同（目录先行、单位铁律、决策树、坑位）
+- [可运行示例](https://raw.githubusercontent.com/open-winmale/wmshare/main/examples/README.md)：9 个编号示例（3 个离线可跑），CI 端到端覆盖
+- [CHANGELOG](https://raw.githubusercontent.com/open-winmale/wmshare/main/CHANGELOG.md)：版本历史
+
+## Key Concepts
+
+- **单位铁律**：比率/涨跌幅/分位一律小数（0.0396 = 3.96%、0.42 = 42% 分位），金额=元、量=股；唯一例外是 cli.screener 宽度接口的 `*_pct`（百分数数值）
+- **目录先行**：`wmshare.load()` 后 `cat.search("中文")` 检索函数与指标码、`cat.function(name)["params"]` 查合同；禁止编造指标码（未知名在发请求前即报错）
+- **批量绕 429**：服务端按请求次数限流（免费档 500 次/小时、5,000 次/日）；`cli.batch_all(name, codes)` 把 A 股 5,691 家压成 12 次请求；容错用批级 `on_batch_error="skip"`，勿用票级逐票放大；一个批次只能同一个市场
+- **多市场**：`Client(market="cn"/"hk"/"us")` 缺省 cn；港美专项（CCASS/沽空/评级）挂在对应市场客户端的 cli.intl 上
+- **数据守护**：每次返回做量级与不变量校验，违例抛 DataError（数据在报警，勿吞）
+
+## Data Domains
+
+- `corp.equity`（股东与股本）（cli.equity）：股东治理与股本全景——十大股东、股东户数、股权质押（明细+比例+市场/行业/ 机构分布）、限售解禁、机构持股（明细/占比/沪港通/国家队）、高…
+- `disc.bonus`（分红）（cli.dividend）：分红历史明细（预案/实施）、每股股利、窗口合计
+- `disc.events`（业绩披露事件）：业绩预告（yjyg：净利/扣非/营收区间+同比+修正轨迹）、业绩快报（yjkb）、 财报预约披露日历（disclosure）
+- `disc.filings`（定期报告清单）（cli.filings）：年报/半年报/季报清单（报告期、标题、PDF 链接）
+- `disc.notice`（公告）（cli.notice）：公告检索（单票/日期/类别/区间）与公告信号（回购/减持/增持/股权激励证据行）
+- `disc.workout`（契约套利）（cli.workout）：契约套利条款事件——要约收购/换股吸收合并/现金选择权等（披露原文提取）， 提供进行中看板与单票条款查询
+- `fund.estimates`（盈利预测与研报）（cli.estimates）：卖方研究数据——机构盈利预测（逐年 EPS/PE，A=实际 E=预测）、预测明细 （机构/研究员/归母净利/评级）、评级统计（综合评级与买卖家…
+- `fund.indicators`（指标层）：平台公式计算的派生指标——数值不存在于任何披露文件中，由平台以行情/报表/股本/ 分红等原始数据计算得出
+- `fund.segments`（经营分部）：主营构成的多维分解——分产品 / 分业务 / 分区域（境内外）/ 主营标签占比， 外加合并快照与披露覆盖度
+- `fund.statements`（财务报表）：三大报表科目原值（资产负债 / 利润 / 现金流）多期透视、合并 vs 母公司比较、 报表目录树与审计意见
+- `market.cbond`（可转债）（cli.cbond）：可转债合约快照、条款事件（下修/回售/赎回等）、正股关联、强赎触发计数、 独立日 K 与盘中 1 分钟
+- `market.index`（指数）：指数维度数据——指数键列表、成分股（含市值/估值中枢，可按 mv/pe/pb/roe/ps 排序）、权重股（披露权重降序）、宽基估值时序（整体…
+- `market.intl`（港美股披露）（cli.intl）：港美股公司披露维度——港股 CCASS 经纪持仓、主要股东/董事权益、机构评级、 盈利预测（中文键披露原文），港美沽空 interest，美股…
+- `market.kline`（行情K线）（cli.kline / cli.screener）：个股日 K（不复权 / 前复权 / 后复权）、最新一根、盘中最新快照、分钟分时、 单股快照与均线类筛选、全市场涨跌宽度
+- `market.margin`（融资融券）（cli.margin）：个股融资融券日频——融资买入/偿还/余额，融券卖出/偿还/余量
+- `market.moneyflow`（资金流向）（cli.moneyflow）：个股日频资金流向（主力 / 超大单 / 大单 / 中单 / 小单净流入）、最新一行、 盘中外部源短 TTL 快照
+- `market.stocks`（证券与行业基础）（cli.stocks）：证券基础库——全市场证券列表（代码/名称/交易所/三级行业/上市日期/ST）、 行业目录（申万 sw2021、恒生 hsi）、行业成分股（支持…
+
+## When NOT to use
+
+- 不是回测框架（没有撮合/仓位管理），不是数据库（数据经云端 API 运行时获取）
+- 基金净值 / 期货 / 期权 / 债券（可转债除外）未覆盖
+- 美股历史日 K 为停更快照；最新价量用 `cli.kline.live / snapshot`
+- 港股十大流通股东与回购上游有管线、SDK 接口待路由（见 CHANGELOG/ROADMAP）
+
+## Optional
+
+- [openapi.json](https://raw.githubusercontent.com/open-winmale/wmshare/main/docs/openapi.json)：OpenAPI 3.1 机器可读合同
+- [llms-full.txt](https://raw.githubusercontent.com/open-winmale/wmshare/main/llms-full.txt)：本页所列文档的全文拼接（大上下文 agent 直读）
+- [CONTRIBUTING](https://raw.githubusercontent.com/open-winmale/wmshare/main/CONTRIBUTING.md)：贡献门禁与内容规范

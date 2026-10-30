@@ -1,17 +1,9 @@
-"""错误处理：401/403/429 的 AppID 引导与错误分类（离线演示，不联网）。
+"""错误处理：WmshareError 家族分类与 401/403/429 自带修复引导（假传输，零真实请求）。
 
-wmshare 的所有网络/认证错误都继承 WmshareError，带 `code` 与 HTTP `status`：
-    AuthError      凭证无效 / 过期 / 被拒（OAuth 400/401/403 或 eval 401/403）
-    LimitError     限流（429）、额度或区间超限
-    UsageError     参数用法错误
-    CatalogError   目录合同错误（未知函数/指标）
-    ServerError    服务端 5xx
-    TransportError 网络层错误
-
-遇到 401/403/429 时，异常消息已经包含申请自己的 AppID 的完整步骤；
-本示例用假 Session 演示如何捕获并展示这些提示，不会发出真实请求。
-
-    python examples/error_handling.py
+前提：离线可跑（FakeSession 模拟 401/429，不联网、零凭证）
+运行：python examples/03_error_handling.py
+学到：按异常类型分支、记录 code/status 便于程序化处理；错误消息即修复指引
+文档：docs/GUIDE.md（故障排查）；docs/AI.md（报错驱动接入）
 """
 from __future__ import annotations
 

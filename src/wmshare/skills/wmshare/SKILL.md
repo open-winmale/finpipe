@@ -96,8 +96,8 @@ cat.metrics_in_group("dividend")                         # 指标组内全部精
 | 行业目录 / 行业成分 | `cli.stocks.industries(1)`（申万/恒生；美股目录树暂缺）/ `cli.stocks.industry_members("银行")`（中文名或代码 S48） |
 | 少量标的单批（≤500） | `cli.call_batch("kline.snapshot", ["600519", "000001"])` 或任意单标的接口传 list：`cli.kline.last(["600519", "000001"])`；`to_df()` 出每标的一行长表 |
 
-完整 116 个核心接口与全部底层函数：仓库用户看 docs/API.md；pip 用户用
-`cat.search(...)` / `cat.function(...)` 查（同一份合同）。
+完整 116 个核心接口与全部底层函数：仓库用户看 docs/GUIDE.md（上手）与
+docs/API.md（参考）；pip 用户用 `cat.search(...)` / `cat.function(...)` 查（同一份合同）。
 
 ## 5. 工作流示例（返回长这样，从这些字段读）
 

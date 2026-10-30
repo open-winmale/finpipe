@@ -115,6 +115,9 @@ ALLOWED_PATHS = {
     "CODE_OF_CONDUCT.md",
     "LICENSE",
     "NOTICE",
+    "AGENTS.md",
+    "llms.txt",
+    "llms-full.txt",
     "pyproject.toml",
     ".gitignore",
 }

@@ -1,9 +1,9 @@
-"""目录巡礼：离线可跑，无需凭证、不联网。
+"""目录巡礼：252 个函数、2197 个指标码离线可查——先查目录、再写代码。
 
-随包目录是 SDK 的核心卖点之一——252 个底层函数、2197 个指标代码
-随 wheel 分发，断网也能查全部接口合同。
-
-    python examples/catalog_tour.py
+前提：离线可跑（不联网、零凭证）
+运行：python examples/02_catalog_tour.py
+学到：cat.search 关键字检索、cat.function 参数合同、指标组浏览、按域列函数
+文档：docs/GUIDE.md（核心概念·目录先行）；docs/AI.md（防臆造纪律）
 """
 from wmshare import load
 

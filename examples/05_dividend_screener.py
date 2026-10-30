@@ -1,16 +1,17 @@
-"""高股息筛选器：wmshare 的杀手锏能力，跨自选股批量筛选。
+"""分红质量：高股息且派息可持续的单票筛选，call_batch 批量 TTM 股息率。
 
-需要凭证：注册开放平台获取（免费、注册即得），见错误消息指引。
-    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
-    python examples/dividend_screener.py
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+运行：python examples/05_dividend_screener.py
+学到：screen_quality 窗口语义；call_batch 票级批量；底层函数属性直达
+文档：docs/GUIDE.md（单票菜谱、批量取数）
 """
 from wmshare import Client, WmshareError
 
 WATCHLIST = ["600519", "000858", "601088", "600900", "601318"]  # 自选股，换成你的
 
 
-def main() -> None:
-    cli = Client.from_env()
+def main(cli=None) -> None:
+    cli = cli or Client.from_env()
 
     # ---- 单票质量筛选：分红质量优（高股息 + 派息可持续）----
     print("--- 分红质量筛选（质量优 = 通过）---")
@@ -30,7 +31,7 @@ def main() -> None:
     if batch.errors:
         print(f"  错误隔离：{len(batch.errors)} 个失败 → {dict(list(batch.errors.items())[:3])}")
 
-    # ---- 底层选股函数经属性直达（__getattr__ 兜底，164 函数零遮蔽）----
+    # ---- 底层选股函数经属性直达（__getattr__ 兜底，252 函数零遮蔽）----
     # 注意：index_where_* 返回的是服务端查询引擎的筛选表达式（非本地可执行的票池）
     print("\n--- 底层函数直达：cli.dividend.index_where_high_yield_5() ---")
     try:

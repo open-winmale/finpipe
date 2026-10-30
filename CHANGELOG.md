@@ -10,6 +10,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **文档四层体系**（Diátaxis：教程 / 怎么做 / 参考 / 解释）：`docs/README.md` 导航页、
+  `docs/GUIDE.md` 使用指南（单票菜谱、全市场与行业、批量取数、多市场、pandas、
+  公告订阅、故障排查、FAQ，菜谱输出全部活体验证）、`docs/AI.md`（用 AI 学会并用好 SDK：
+  三条接入路径、提示词模板、AI 常见错误对照表、凭证安全红线）、`AGENTS.md`
+  （AI 编码代理的仓库约定，对齐 agents.md 惯例）。
+- `llms.txt` / `llms-full.txt`（`tools/gen_llms.py` 生成，落地 ROADMAP M4.1）：AI 友好文档索引
+  与全文拼接，含按域单行锚点与「何时不要用」负向节；`--check` 进 CI 与 pytest 漂移门禁。
+- **examples 重构为 9 个编号课程**（`NN_主题.py`，编号即学习路径）：新增
+  `06_indicator_tour`（指标码体系漫游）与 `09_ai_skill_setup`（skill 装入 agent，离线），
+  3 个示例零凭证可跑；新增 `examples/README.md` 索引页（三阶课程表 + 新增示例约定）。
+- 测试基建：共享 `tests/fake_client.py`（按接口派发罐头数据），9/9 示例 CI 端到端覆盖；
+  示例 AST 校验全量推广（`cli.*`/`$码`/`cat.*` 全查，曾据此发现 `screener.screen_up_today`
+  误用）；文档引用校验扩到 GUIDE/AI；`test_examples_index_covers_dir` 防孤儿示例。
+
+### Changed
+
+- README：标题下加徽章行（PyPI/Python/CI/License）、「更多」区改文档中心 + 示例课程入口；
+  示例 docstring 统一四行元信息（前提/运行/学到/文档）。
+- 门禁面扩大：CTA 禁词扫描覆盖全部新增公开文档（含 AGENTS.md 与 llms.txt）；
+  CI wheel 冒烟随示例改名更新。
+
 ## [1.9.1] - 2026-10-29
 
 ### Fixed

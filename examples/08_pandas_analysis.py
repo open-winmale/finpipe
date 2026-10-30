@@ -1,14 +1,15 @@
-"""pandas 分析：`_df=True` 直接拿 DataFrame 做研究。
+"""pandas 分析：`_df=True` 直接拿 DataFrame 做研究计算。
 
-需要凭证 + 可选依赖（在仓库根目录安装）：pip install ".[dataframe]"
-    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
-    python examples/pandas_analysis.py
+前提：凭证必填 + 可选依赖 pandas（pip install "wmshare[dataframe]"）
+运行：python examples/08_pandas_analysis.py
+学到：_df=True 转 DataFrame；MA20/动量/资金流合计/分红历史表
+文档：docs/GUIDE.md（pandas）
 """
 from wmshare import Client
 
 
-def main() -> None:
-    cli = Client.from_env()
+def main(cli=None) -> None:
+    cli = cli or Client.from_env()
     SYMBOL = "600519"
 
     # ---- 日 K → DataFrame：算 20 日均线与动量 ----

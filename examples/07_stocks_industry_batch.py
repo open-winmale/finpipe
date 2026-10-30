@@ -1,20 +1,13 @@
-"""全市场代码池 → 行业过滤 → 批量取数：一表流的完整链路。
+"""全市场代码池 → 行业成分 → 批量取数：绕开 429 的一条龙完整链路。
 
-凭证必填：注册开放平台获取 client_id/api-key（免费、注册即得）：
-    export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...
-    python examples/stocks_industry_batch.py
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+运行：python examples/07_stocks_industry_batch.py
+学到：stocks.list/industries/industry_members；batch_all/batch_iter/call_batch 三入口分工
+文档：docs/GUIDE.md（全市场与行业、批量取数）
 
 可选环境变量：
     WMSHARE_MARKET=cn|hk|us   # 缺省 cn（港/美同样出全表；美股行业目录树暂缺）
     BANK_HINT=银行            # 行业名或行业代码（如 S48 / industry.S48）
-
-说明：
-  - cli.stocks.list() 一次拿全市场（A≈5.7k / 港≈2.8k / 美≈5.6k 行）；
-  - cli.stocks.industry_members() 支持中文名（"银行"）、行业代码（"S48"）、行业键；
-  - 批量绕开 429：服务端按请求次数限流（免费档 500 次/小时），逐票取全市场必撞；
-    batch_all 自动按 500 分批 —— A 股 5691 家只发 12 次请求；
-  - 少量标的单批用 call_batch（≤500），to_df() 出带 symbol 列的长表；
-  - 港/美市场用 Client.from_env(market="hk"/"us")，跨市场代码会被服务端拒绝。
 """
 import os
 

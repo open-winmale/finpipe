@@ -1,5 +1,7 @@
 # wmshare
 
+[![PyPI](https://img.shields.io/pypi/v/wmshare)](https://pypi.org/project/wmshare/) [![Python](https://img.shields.io/pypi/pyversions/wmshare)](https://pypi.org/project/wmshare/) [![CI](https://github.com/open-winmale/wmshare/actions/workflows/ci.yml/badge.svg)](https://github.com/open-winmale/wmshare/actions/workflows/ci.yml) [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
+
 > **English TL;DR** — `wmshare` is a BSD-3-Clause open-source Python SDK covering China A-share,
 > Hong Kong and US markets (per-capability matrix in「市场覆盖」): k-line (3 adjustment modes),
 > intraday snapshots, money flow, the three financial statements, 2,197 metric codes (TTM,
@@ -276,13 +278,13 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 
 - **生态工具 [big-winner](https://github.com/open-winmale/big-winner)**：基于本 SDK 构建的开源工具
   （收息与估值区间参考）。
+- **文档中心 [docs/](docs/README.md)**：使用指南 GUIDE（单票菜谱/批量/多市场/故障排查）· AI 用法 · llms.txt 索引 · API 参考
+- **示例课程 [examples/](examples/README.md)**：9 个编号示例（入门→进阶→生产→AI），3 个离线可跑，CI 端到端覆盖
 - [API 参考](docs/API.md)：四大类 116 个核心接口（参数 / 返回字段 / 单位口径 / 示例）+ 指标组
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入 Apifox /
   Postman）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；UI 资源走 CDN，
   若限制 `file://` 可在 docs 目录起 `python -m http.server`）
 - 类型化门面：全部目录命名空间带类型签名与 docstring（`py.typed`），IDE 直接补全；单次拉取上限 `Client(max_limit=500)` 可调
 - 批量取数详见上文 [「批量取数」](#批量取数)（分批执行器、限流续跑、批级容错）
-- [示例脚本 examples/](examples/)：quickstart、catalog_tour（离线漫游免凭证）、error_handling、
-  dividend_screener、screener、pandas_analysis、stocks_industry_batch（前提见各文件 docstring）
 - [贡献指南](CONTRIBUTING.md)：提交门禁、内容规范、许可政策
 - 运行测试：`pytest`（不联网）；`WMSHARE_LIVE=1 pytest tests/test_live.py`（真实冒烟）

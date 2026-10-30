@@ -1,6 +1,6 @@
 {
  "schema_version": 2,
- "upstream_rev": "a48a9c70",
+ "upstream_rev": "fbee9c83",
  "count": 2158,
  "metrics": [
   {
@@ -20,7 +20,10 @@
   },
   {
    "code": "$AEEX",
-   "cn": "行政开支"
+   "cn": "行政开支",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$ALPHA_HS300",
@@ -126,15 +129,24 @@
   },
   {
    "code": "$BENCH_DEFAULT_SYMS",
-   "cn": "默认分析集合(行业/组合)"
+   "cn": "默认分析集合(行业/组合)",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$BENCH_PRIMARY",
-   "cn": "主对比基准指数"
+   "cn": "主对比基准指数",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$BENCH_SECONDARY",
-   "cn": "次对比基准指数"
+   "cn": "次对比基准指数",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$BETA",
@@ -146,7 +158,10 @@
   },
   {
    "code": "$BE_RATE",
-   "cn": "股息分配比例(%)"
+   "cn": "股息分配比例(%)",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$BIZE",
@@ -2570,7 +2585,10 @@
   },
   {
    "code": "$DPPR",
-   "cn": "扣非归母净利润"
+   "cn": "扣非归母净利润",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$DPPR_10Y_MIN",
@@ -2738,7 +2756,10 @@
   },
   {
    "code": "$DPSS",
-   "cn": "每股股息(D)"
+   "cn": "每股股息(D)",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$DPS_TTM",
@@ -2754,7 +2775,10 @@
   },
   {
    "code": "$DR",
-   "cn": "预收款项"
+   "cn": "预收款项",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$DR_DAYS",
@@ -2988,7 +3012,10 @@
   },
   {
    "code": "$EPMR",
-   "cn": "已赚保费"
+   "cn": "已赚保费",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$EPS_DPPR",
@@ -3080,7 +3107,10 @@
   },
   {
    "code": "$EQUITY_FREE_SHARES",
-   "cn": "自由流通股(亿)"
+   "cn": "自由流通股(亿)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$EQUITY_FREE_SHARES_LAST",
@@ -3092,11 +3122,17 @@
   },
   {
    "code": "$EQUITY_LISTED_A_SHARES",
-   "cn": "上市A股(亿)"
+   "cn": "上市A股(亿)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$EQUITY_NON_FREE_SHARES",
-   "cn": "非自由流通股(亿)"
+   "cn": "非自由流通股(亿)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$EQUITY_NUM_DAY",
@@ -3104,7 +3140,10 @@
   },
   {
    "code": "$EQUITY_TOTAL_SHARES",
-   "cn": "总股本ADS(亿)"
+   "cn": "总股本ADS(亿)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$EQUITY_TOTAL_SHARES_LAST",
@@ -3385,7 +3424,10 @@
   },
   {
    "code": "$FE",
-   "cn": "财务费用"
+   "cn": "财务费用",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$FE_RATE",
@@ -6299,43 +6341,73 @@
   },
   {
    "code": "$ISSUE",
-   "cn": "上市发行信息(美股)"
+   "cn": "上市发行信息(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_CONVERT_RATIO",
-   "cn": "转换比率(美股)"
+   "cn": "转换比率(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_ISIN_CODE",
-   "cn": "ISIN代码(美股)"
+   "cn": "ISIN代码(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_LISTING_DATE",
-   "cn": "上市日期(美股)"
+   "cn": "上市日期(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_NUM",
-   "cn": "发行数量(美股)"
+   "cn": "发行数量(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_PAR_VALUE",
-   "cn": "面值(美股)"
+   "cn": "面值(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_PRICE",
-   "cn": "发行价格(美股)"
+   "cn": "发行价格(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_SECUCODE",
-   "cn": "证券代码(美股)"
+   "cn": "证券代码(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_SECURITY_TYPE",
-   "cn": "证券类型(美股)"
+   "cn": "证券类型(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$ISSUE_TRADE_MARKET",
-   "cn": "交易市场(美股)"
+   "cn": "交易市场(美股)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$IS_BANK",
@@ -6439,7 +6511,10 @@
   },
   {
    "code": "$LEIT",
-   "cn": "长期股权投资"
+   "cn": "长期股权投资",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$LERR",
@@ -6692,7 +6767,10 @@
   },
   {
    "code": "$MLTD",
-   "cn": "中长期存款"
+   "cn": "中长期存款",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$MV",
@@ -6886,7 +6964,10 @@
   },
   {
    "code": "$NDG",
-   "cn": "无形类资产"
+   "cn": "无形类资产",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$NES",
@@ -7383,7 +7464,10 @@
   },
   {
    "code": "$NRAR_WEIGHTED",
-   "cn": "/ 2"
+   "cn": "/ 2",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$NROE",
@@ -7399,7 +7483,10 @@
   },
   {
    "code": "$NTGD",
-   "cn": "无形类资产"
+   "cn": "无形类资产",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$NT_B2",
@@ -7412,7 +7499,10 @@
   },
   {
    "code": "$OBIH",
-   "cn": "其他业务收入"
+   "cn": "其他业务收入",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$OC_TTM",
@@ -7427,7 +7517,10 @@
   },
   {
    "code": "$OEIR",
-   "cn": "其他权益工具"
+   "cn": "其他权益工具",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$OFI_NET",
@@ -7890,7 +7983,10 @@
   },
   {
    "code": "$OTOI",
-   "cn": "营业总收入其他项目"
+   "cn": "营业总收入其他项目",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$O_DAYS",
@@ -8215,7 +8311,10 @@
   },
   {
    "code": "$PPE_ALL_WEIGHTED",
-   "cn": "/ 2"
+   "cn": "/ 2",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$PPE_DAYS",
@@ -9148,7 +9247,10 @@
   },
   {
    "code": "$STD",
-   "cn": "短期存款"
+   "cn": "短期存款",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$STM",
@@ -9324,7 +9426,10 @@
   },
   {
    "code": "$TAXR",
-   "cn": "税率"
+   "cn": "税率",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$TAX_RATE",
@@ -9381,7 +9486,10 @@
   },
   {
    "code": "$TCL_WEIGHTED",
-   "cn": "/ 2"
+   "cn": "/ 2",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$TETL",
@@ -9404,15 +9512,24 @@
   },
   {
    "code": "$TFAS",
-   "cn": "交易性金融资产"
+   "cn": "交易性金融资产",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$TFAS_C",
-   "cn": "交易性金融资产(流动)"
+   "cn": "交易性金融资产(流动)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$TFAS_N",
-   "cn": "交易性金融资产(非流动)"
+   "cn": "交易性金融资产(非流动)",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$TIP",
@@ -9492,7 +9609,10 @@
   },
   {
    "code": "$TP",
-   "cn": "利润总额"
+   "cn": "利润总额",
+   "markets": [
+    "us"
+   ]
   },
   {
    "code": "$TRA",
@@ -9673,7 +9793,10 @@
   },
   {
    "code": "$TTAX",
-   "cn": "综合税"
+   "cn": "综合税",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$TTS_COMMON_B2",
@@ -9692,7 +9815,10 @@
   },
   {
    "code": "$URA",
-   "cn": "使用权资产"
+   "cn": "使用权资产",
+   "markets": [
+    "hk"
+   ]
   },
   {
    "code": "$VIOLATION_CURRENCY",
@@ -9756,7 +9882,10 @@
   },
   {
    "code": "$VST",
-   "cn": "*(1 + $BE_RATE / $PE_TTM) - 1"
+   "cn": "*(1 + $BE_RATE / $PE_TTM) - 1",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$WACC",
@@ -9797,7 +9926,10 @@
   },
   {
    "code": "$dROE_TTM",
-   "cn": "扣非ROE(TTM)(%)"
+   "cn": "扣非ROE(TTM)(%)",
+   "markets": [
+    "cn"
+   ]
   },
   {
    "code": "$dTT",

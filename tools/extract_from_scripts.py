@@ -239,8 +239,11 @@ def extract_metrics(sr: Path) -> dict:
         if _only_commented(sr, src, code):
             continue
         row = {"code": code, "cn": sanitize(str((v or {}).get("desc") or ""))}
-        # 市场/模式作用域元数据：从定义路径如实推导（shared=全市场，不写字段）
-        markets = _source_markets(src)
+        # 市场/模式作用域元数据：从定义路径或 __midx 门控如实推导（shared=全市场，
+        # 不写字段）。loader 文件（sys/metric/us.xs）与 IF(__midx==3, METRIC(…)) 门控
+        # 里的码属于对应市场引擎，用错市场客户端探测必 500。
+        markets = _source_markets(src) or _midx_gate_market(sr, src,
+                                                            (v or {}).get("line"))
         if markets:
             row["markets"] = markets
         gate = METRIC_GATES.get(src)
@@ -278,8 +281,35 @@ def _only_commented(sr: Path, src: str, code: str) -> bool:
 
 
 def _source_markets(src: str) -> list[str]:
-    m = re.match(r"^sys/metric/(cn|hk|us)/", src or "")
+    # 目录路径（sys/metric/us/…）与市场装载文件（sys/metric/us.xs）都唯一属于
+    # 一个市场引擎
+    m = re.match(r"^sys/metric/(cn|hk|us)(?:/|\.xs$)", src or "")
     return [m.group(1)] if m else []
+
+
+_MIDX_MARKET = {1: "cn", 2: "hk", 3: "us"}
+_MIDX_GATE = re.compile(r"IF\(__midx\s*==\s*([123])")
+
+
+def _midx_gate_market(sr: Path, src: str, line: object) -> list[str]:
+    """注册行带 IF(__midx == N, METRIC(…)) 门控 → 该码只在那一个市场引擎注册。"""
+    if not src or not isinstance(line, int):
+        return []
+    p = sr / src
+    if not p.is_file():
+        return []
+    key = str(p)
+    if key not in _FILE_TEXT_CACHE:
+        try:
+            _FILE_TEXT_CACHE[key] = p.read_text(encoding="utf-8",
+                                                errors="replace").splitlines()
+        except OSError:
+            _FILE_TEXT_CACHE[key] = []
+    lines = _FILE_TEXT_CACHE[key]
+    if not (1 <= line <= len(lines)):
+        return []
+    m = _MIDX_GATE.search(lines[line - 1])
+    return [_MIDX_MARKET[int(m.group(1))]] if m else []
 
 
 def build(sr: Path) -> tuple[dict, dict]:

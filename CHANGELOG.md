@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > 兼容政策：2.0 前 minor 版本可能携带行为变更，均在对应版本段以「行为变更」标注；
 > 升级前请扫一眼 Removed / Changed 段。
 
-## [Unreleased]
+## [1.9.2] - 2026-10-30
 
 ### Added
 
@@ -22,16 +22,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **examples 重构为 9 个编号课程**（`NN_主题.py`，编号即学习路径）：新增
   `06_indicator_tour`（指标码体系漫游）与 `09_ai_skill_setup`（skill 装入 agent，离线），
   3 个示例零凭证可跑；新增 `examples/README.md` 索引页（三阶课程表 + 新增示例约定）。
+- **API.md 新增「Client 方法（批量取数）」章**：`call/call_batch/batch_iter/batch_all`
+  签名表（随源码实时生成）+ 请求次数守恒三原则 + 可离线执行示例。
 - 测试基建：共享 `tests/fake_client.py`（按接口派发罐头数据），9/9 示例 CI 端到端覆盖；
   示例 AST 校验全量推广（`cli.*`/`$码`/`cat.*` 全查，曾据此发现 `screener.screen_up_today`
   误用）；文档引用校验扩到 GUIDE/AI；`test_examples_index_covers_dir` 防孤儿示例。
 
 ### Changed
 
+- **目录对齐上游并带作用域元数据**（「SDK 以 script 为基准」）：指标目录 2197→**2158**
+  （剔除 39 个收割幽灵：ops drop-stub 的 `$*_LIVE`、注释残留、tests/strategy 注册），
+  精选常用指标 75→**74**（`$PB_LAST` 为幽灵）；指标条目新增 `markets`（us 23/hk 16）与
+  `gated`（dev 19）作用域标注；extractor 忠实度规则（注释幽灵文件级复核、loader 文件
+  形态、`__midx` 门检测）。
 - README：标题下加徽章行（PyPI/Python/CI/License）、「更多」区改文档中心 + 示例课程入口；
-  示例 docstring 统一四行元信息（前提/运行/学到/文档）。
+  示例 docstring 统一四行元信息（前提/运行/学到/文档）；公开文档去导流话术（Gitee 风控
+  判定「纯广告导流」致 README 不渲染）+ 新手可懂性整改（三行上手不依赖可选依赖等）。
 - 门禁面扩大：CTA 禁词扫描覆盖全部新增公开文档（含 AGENTS.md 与 llms.txt）；
   CI wheel 冒烟随示例改名更新。
+
+### Fixed
+
+- **`cli.screener.index_breadth_bins/bin_industries` 的 label/bin 带服务端排序前缀**
+  （`i_涨停`/`h_+5%~10%` 直接透给用户）→ 友好层剥除。
+- **`equity.query_hgt` 目录 range `[0,1]` 误拦正常数据**：实测沪港通持股变动比例
+  -0.85~+10.34、占比到 2.07 → 修正 `[-1,50]/[0,20]/[0,20]`，调用不再 `DataError`。
+- **examples/08 与 GUIDE pandas 菜谱**：`bars` 按日期降序返回、`_df=True` 保持该顺序，
+  直接 `iloc[-1]` 算 MA20 落在最老一段——先 `sort_values("date")` 再算。
 
 ## [1.9.1] - 2026-10-29
 

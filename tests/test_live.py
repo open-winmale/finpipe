@@ -181,8 +181,9 @@ def test_statements_compare_tree_years(cli):
 def test_indicator_get_and_metrics(cli):
     pe = cli.indicator.get(MAIN, "$PE_TTM_LAST")
     assert _is_num(pe) and pe > 0
-    batch = cli.indicator.metrics(MAIN, ["$PE_TTM_LAST", "$ROE_TTM_LAST", "$PB_LAST"])
-    assert set(batch) == {"$PE_TTM_LAST", "$ROE_TTM_LAST", "$PB_LAST"}
+    # $PB_LAST 已随目录对齐上游剔除（script 仅注释残留），改用 $PB_TTM_LAST
+    batch = cli.indicator.metrics(MAIN, ["$PE_TTM_LAST", "$ROE_TTM_LAST", "$PB_TTM_LAST"])
+    assert set(batch) == {"$PE_TTM_LAST", "$ROE_TTM_LAST", "$PB_TTM_LAST"}
     assert _is_num(batch["$PE_TTM_LAST"]) and batch["$PE_TTM_LAST"] > 0
     # 指标层比率是小数（0.332 = 33.2%），不是 0.332 个百分点
     assert _is_num(batch["$ROE_TTM_LAST"]) and 0 < batch["$ROE_TTM_LAST"] < 2

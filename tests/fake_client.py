@@ -17,9 +17,11 @@ WATCHLIST = ("600519", "000858", "601088", "600900", "601318")
 
 
 def _bars(n: int, start: float = 1300.0) -> list[dict]:
-    return [{"date": f"2026-{3 + i // 28:02d}-{1 + i % 28:02d}", "close": start + i,
+    # 与真实 API 同构：按日期降序（最新在前）——示例必须自己升序后再算指标
+    rows = [{"date": f"2026-{3 + i // 28:02d}-{1 + i % 28:02d}", "close": start + i,
              "percent": 0.01, "volume": 3_000_000.0, "amount": 4.5e9}
             for i in range(n)]
+    return rows[::-1]
 
 
 def _maybe_df(rows: list[dict], _df: bool):

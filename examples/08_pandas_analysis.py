@@ -12,8 +12,10 @@ def main(cli=None) -> None:
     cli = cli or Client.from_env()
     SYMBOL = "600519"
 
-    # ---- 日 K → DataFrame：算 20 日均线与动量 ----
-    df = cli.kline.bars(SYMBOL, n=120, _df=True)
+    # ---- 日 K → DataFrame：先升序再算指标 ----
+    # bars 按日期降序返回（最新在前），直接 iloc[-1] 拿到的是最老一根——
+    # pandas 惯例是升序，先排序是必做的一步（实测踩过的坑，勿删）。
+    df = cli.kline.bars(SYMBOL, n=120, _df=True).sort_values("date", ignore_index=True)
     df["ma20"] = df["close"].rolling(20).mean()
     df["mom_20d"] = df["close"].pct_change(20)
     last = df.iloc[-1]

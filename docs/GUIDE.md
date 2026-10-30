@@ -247,7 +247,8 @@ us.intl.query_sellshort("AAPL")       # 美股沽空
 可运行版本：`examples/08_pandas_analysis.py`。需要 `pip install "wmshare[dataframe]"`。
 
 ```python
-df = cli.kline.bars("600519", n=120, _df=True)   # 返回列表的方法都支持 _df=True
+df = cli.kline.bars("600519", n=120, _df=True).sort_values("date")
+# bars 按日期降序返回（最新在前），先升序再算指标——直接 rolling 会算在最老一段上
 df["ma20"] = df["close"].rolling(20).mean()
 
 snap = cli.batch_all("kline.snapshot", codes).to_df()   # BatchResult 长表

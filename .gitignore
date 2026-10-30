@@ -14,3 +14,5 @@ dist/
 htmlcov/
 .mypy_cache/
 .internal/audit-cache/
+.virtual_documents/
+.ipynb_checkpoints/

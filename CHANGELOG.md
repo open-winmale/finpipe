@@ -11,11 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- README 首屏演示从动画 GIF 换成静态图 `docs/img/quickstart.png`：图里同时给「源码 + 输出」——
-  上半是「高股息 + 低估值」选股脚本的代码（生成器从 README 代码块就地抽取，两处不会漂移），
-  下半是这段代码 2026-10-30 的真实实跑结果（全市场 5,691 家 → 12 次批量请求 → 60 只候选 →
-  命中 20，按 PE 十年分位取前 8）；生成器改为 `tools/gen_quickstart_png.py`（Pillow 单帧），
-  旧 GIF 与旧生成器移除，新增 tests/test_quickstart_image.py 守同源与表形状
+- README 首屏演示从动画 GIF 换成**真实 JupyterLab 实拍截图** `docs/img/quickstart.png`：
+  本地起真 Jupyter 打开 `docs/notebooks/quickstart.ipynb`（选股实战：批量拿全市场股息率
+  12 次请求 → 逐票取 PE/十年分位 → 筛出「高股息 + 低估值」前 8），PROD 真跑后截图；
+  notebook 随包入库（含真实输出、页脚标实测日期 2026-10-30），README「更多」挂链接，
+  读者可下载复跑或上传云端 Notebook。旧 GIF（580KB）与 Pillow 生成器（gen_quickstart_gif /
+  gen_quickstart_png）移除；新增 tests/test_quickstart_notebook.py 守 notebook 有效性与同源性
 
 ## [1.10.0] - 2026-10-30
 

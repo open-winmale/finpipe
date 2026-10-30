@@ -19,7 +19,7 @@
 [市场覆盖](#市场覆盖) · [我想做 X → 用哪一行](#我想做-x--用哪一行) · [批量取数](#批量取数) ·
 [单位与数据守护](#单位与数据守护) · [许可与数据服务](#许可与数据服务) · [更多](#更多)
 
-![源码 + 输出：10 行从全市场筛出高股息 + PE 十年低位的股票（2026-10-30 真实数据）](docs/img/quickstart.png)
+![notebook 实战：Jupyter 里 10 行代码筛出高股息 + PE 十年低位的股票（2026-10-30 真实数据）](docs/img/quickstart.png)
 
 ## 特性
 
@@ -280,6 +280,7 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 - 生态工具 [big-winner](https://github.com/open-winmale/big-winner)：基于本 SDK 构建的开源工具（收息与估值区间参考）。
 - **文档中心 [docs/](docs/README.md)**：使用指南 GUIDE（单票菜谱/批量/多市场/故障排查）· AI 用法 · llms.txt 索引 · [API 参考](docs/API.md)（四大类 116 个核心接口 + 指标组）
 - **示例课程 [examples/](examples/README.md)**：11 个编号示例（入门→进阶→生产→AI），全部支持演示客户端离线试跑，CI 端到端覆盖
+- **Notebook 实战 [docs/notebooks/quickstart.ipynb](docs/notebooks/quickstart.ipynb)**：首屏选股实战的可执行 notebook（含真实运行输出），配好凭证按序执行即可复跑，也可上传到任意云端 Notebook 环境
 - **OpenAPI / Swagger**：[docs/openapi.json](docs/openapi.json)（OpenAPI 3.1，可导入 Apifox /
   Postman）；[docs/swagger.html](docs/swagger.html)（已内联 spec，浏览器直接打开；UI 资源走 CDN，
   若限制 `file://` 可在 docs 目录起 `python -m http.server`）

@@ -27,7 +27,7 @@
 [市场覆盖](#市场覆盖) · [我想做 X → 用哪一行](#我想做-x--用哪一行) · [批量取数](#批量取数) ·
 [单位与数据守护](#单位与数据守护) · [许可与数据服务](#许可与数据服务) · [更多](#更多)
 
-![选股实战：10 行从全市场筛出高股息 + PE 十年低位的股票（2026-10-30 真实数据）](docs/img/quickstart.png)
+![源码 + 输出：10 行从全市场筛出高股息 + PE 十年低位的股票（2026-10-30 真实数据）](docs/img/quickstart.png)
 
 ## 特性
 
@@ -86,7 +86,7 @@ for s, v in cand:
     if pe and 0 < pe < 40 and pct is not None and pct <= 0.5:
         rows.append((s, meta[s]["name"], v, pe, pct))
 rows.sort(key=lambda r: r[4])
-for s, n, v, pe, pct in rows[:8]:                            # 输出见首屏图
+for s, n, v, pe, pct in rows[:8]:                            # 取前 8 行打印
     print(f"{s}  {n}  股息率 {v:.2%}  PE {pe:.1f}  十年分位 {pct:.1%}")
 ```
 

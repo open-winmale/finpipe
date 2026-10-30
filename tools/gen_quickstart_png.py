@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """生成 README 首屏静态图：docs/img/quickstart.png（生成物不手改，重跑本脚本再生成）。
 
-画面是「高股息 + 低估值」选股脚本的真实实跑结果（2026-10-30，PROD 数据，
-全市场 5,691 家 → 12 次批量请求 → 60 只候选 → 命中 20，按 PE 十年分位取前 8）。
-纯 Pillow 渲染终端画面，无外部录制工具依赖：ASCII 用等宽字体，中文回落系统黑体。
+画面 = 源码 + 输出：上半是 README「选股实战」代码块里的代码（就地抽取，图与文字永远同源），
+下半是这段代码 2026-10-30 的真实实跑结果（PROD 数据：全市场 5,691 家 → 12 次批量请求 →
+60 只候选 → 命中 20，按 PE 十年分位取前 8）。纯 Pillow 渲染，无浏览器/无录制工具依赖：
+ASCII 用等宽字体，中文回落系统黑体。
 
-数值来自一次真实运行；行情变化后重跑脚本再替换下面 ROWS 与 SUMMARY，保持图与
-README 代码块同源。重新生成：
+行情变化后重跑真实脚本，替换下面的 ROWS / SUMMARY，再执行：
 
     python tools/gen_quickstart_png.py
 """
 from __future__ import annotations
 
 import re
+import textwrap
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -20,20 +21,19 @@ from PIL import Image, ImageDraw, ImageFont
 REPO = Path(__file__).resolve().parents[1]
 OUT = REPO / "docs" / "img" / "quickstart.png"
 
-W, H = 1640, 960
+W = 1640
 BG = (13, 17, 23)          # GitHub Dark
 BAR = (32, 38, 46)
 FG = (201, 209, 217)
 DIM = (139, 148, 158)
-PROMPT = (63, 185, 80)     # 绿：提示符
 VALUE = (227, 181, 90)     # 暖黄：结果值
-COMMENT = (110, 122, 136)  # 灰：说明
+COMMENT = (110, 122, 136)  # 灰：注释
 RULE = (48, 54, 61)
 
 TITLE = "wmshare · 选股实战"
-CMD = "python3 screen.py"
-CONDITION = "筛选：全市场股息率 3%–10% 且非 ST ｜ PE 0–40 ｜ PE 十年分位 ≤ 50%"
+CHIP = "screen.py"
 HEADER = ("代码", "名称", "股息率", "PE", "十年分位")
+# 2026-10-30 真实实跑（scripts：全市场 → 12 次请求 → 60 只候选 → 命中 20 → 前 8）
 ROWS = [
     ("920022", "世昌股份", "7.57%", "14.2", "0.0%"),
     ("300910", "瑞丰新材", "7.18%", "12.0", "0.3%"),
@@ -47,9 +47,9 @@ ROWS = [
 SUMMARY = "全市场 5,691 家 → 12 次请求 → 60 只候选 → 命中 20，按分位取前 8"
 FOOT = "实测 2026-10-30 · 真实数据（Client.from_env()）· 代码见 README「选股实战」· 数值随行情变动"
 
-# 列左边界（代码/名称为左对齐，其余右对齐到 COL_RIGHT）
-COL_X = (60, 300, 800, 1060, 1290)
-COL_RIGHT = (None, None, 990, 1210, 1480)
+# 列（代码/名称为左对齐，其余右对齐到 COL_RIGHT）
+COL_X = (60, 320, 820, 1080, 1320)
+COL_RIGHT = (None, None, 1010, 1230, 1500)
 
 MONO_CANDIDATES = [
     "/System/Library/Fonts/Menlo.ttc",
@@ -62,6 +62,15 @@ CJK_CANDIDATES = [
     "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
 ]
 _SEG = re.compile(r"[\x00-\x7f]+|[^ \x00-\x7f]+")  # ASCII 段 / 非 ASCII 段
+
+
+def read_source() -> list[str]:
+    """从 README 的「选股实战」代码块抽取源码，保证图与文字同源（不各写一份）。"""
+    text = (REPO / "README.md").read_text(encoding="utf-8")
+    for block in re.findall(r"```python\n(.*?)```", text, re.S):
+        if 'bonus.snapshot_yield_ttm' in block and "rows[:8]" in block:
+            return textwrap.dedent(block).strip("\n").splitlines()
+    raise SystemExit("README 中找不到「选股实战」代码块（标记：bonus.snapshot_yield_ttm / rows[:8]）")
 
 
 def _font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont:
@@ -90,12 +99,40 @@ def _mixed_len(d: ImageDraw.ImageDraw, text: str, mono, cjk) -> float:
     return x
 
 
+def _code_fonts(d: ImageDraw.ImageDraw, code: list[str]) -> tuple[ImageFont.FreeTypeFont, ...]:
+    """挑最大的字号让最长一行放得下（24px 时 99 字符的最长行仍可排版）。"""
+    for size in (30, 28, 26, 24, 22):
+        mono, cjk = _font(MONO_CANDIDATES, size), _font(CJK_CANDIDATES, size - 2)
+        if max(_mixed_len(d, ln, mono, cjk) for ln in code) <= W - 120:
+            return mono, cjk, size
+    raise SystemExit("代码行过长，无法排版")
+
+
 def _render() -> Image.Image:
+    code = read_source()
+    probe = ImageDraw.Draw(Image.new("RGB", (W, 100)))
+    c_mono, c_cjk, c_size = _code_fonts(probe, code)
+    code_lh = int(c_size * 1.55)
+
+    chip_y, chip_h = 84, 38
+    code_y = chip_y + chip_h + 30
+    code_h = len(code) * code_lh
+    rule1_y = code_y + code_h + 12
+    label_y = rule1_y + 18
+    table_y = label_y + 52
+    table_lh = 54
+    table_h = table_lh + 20 + len(ROWS) * table_lh
+    rule2_y = table_y + table_h + 14
+    summary_y = rule2_y + 26
+    footer_y = summary_y + 74
+    H = footer_y + 52
+
     img = Image.new("RGB", (W, H), BG)
     d = ImageDraw.Draw(img)
     mono, cjk = _font(MONO_CANDIDATES, 32), _font(CJK_CANDIDATES, 30)
-    title_f, foot_f = _font(CJK_CANDIDATES, 24), _font(CJK_CANDIDATES, 23)
-    small = _font(MONO_CANDIDATES, 24)
+    title_f = _font(CJK_CANDIDATES, 24)
+    foot_f = _font(CJK_CANDIDATES, 23)
+    chip_f = _font(MONO_CANDIDATES, 22)
 
     # 终端标题栏
     d.rectangle([0, 0, W, 58], fill=BAR)
@@ -104,26 +141,37 @@ def _render() -> Image.Image:
     tw = d.textlength(TITLE, font=title_f)
     d.text(((W - tw) / 2, 16), TITLE, font=title_f, fill=DIM)
 
-    y = 104
-    # 命令行
-    d.text((60, y), "$ ", font=mono, fill=PROMPT)
-    d.text((60 + d.textlength("$ ", font=mono), y), CMD, font=mono, fill=FG)
-    y += 74
-    # 筛选条件（脚本第一行输出，作说明色）
-    _draw_mixed(d, (60, y), CONDITION, mono, cjk, COMMENT)
-    y += 66
-    # 表头 + 分隔线
+    # 文件名标签
+    d.rounded_rectangle([60, chip_y, 60 + 158, chip_y + chip_h], radius=8, fill=BAR)
+    d.text((76, chip_y + 8), CHIP, font=chip_f, fill=DIM)
+
+    # 源码（注释灰、代码白）；保留原行内空格，注释列与 README 同位置
+    y = code_y
+    for line in code:
+        body, sep, note = line.partition("#")
+        if not sep:
+            _draw_mixed(d, (66, y), line, c_mono, c_cjk, FG)
+        else:
+            _draw_mixed(d, (66, y), body, c_mono, c_cjk, FG)
+            nx = 66 + _mixed_len(d, body, c_mono, c_cjk)
+            _draw_mixed(d, (int(nx), y), "#" + note, c_mono, c_cjk, COMMENT)
+        y += code_lh
+
+    # 分隔 + 「输出」
+    d.line([(60, rule1_y), (W - 60, rule1_y)], fill=RULE, width=2)
+    d.text((60, label_y), "输出", font=title_f, fill=DIM)
+
+    # 结果表
+    y = table_y
     for i, cell in enumerate(HEADER):
-        color = DIM
         if COL_RIGHT[i] is None:
-            _draw_mixed(d, (COL_X[i], y), cell, mono, cjk, color)
+            _draw_mixed(d, (COL_X[i], y), cell, mono, cjk, DIM)
         else:
             _draw_mixed(d, (int(COL_RIGHT[i] - _mixed_len(d, cell, mono, cjk)), y),
-                        cell, mono, cjk, color)
-    y += 52
+                        cell, mono, cjk, DIM)
+    y += table_lh
     d.line([(60, y), (W - 60, y)], fill=RULE, width=2)
-    y += 18
-    # 数据行
+    y += 20
     for row in ROWS:
         for i, cell in enumerate(row):
             color = VALUE if i >= 2 else FG
@@ -132,20 +180,18 @@ def _render() -> Image.Image:
             else:
                 _draw_mixed(d, (int(COL_RIGHT[i] - _mixed_len(d, cell, mono, cjk)), y),
                             cell, mono, cjk, color)
-        y += 56
-    # 汇总
-    y += 18
-    d.line([(60, y), (W - 60, y)], fill=RULE, width=2)
-    y += 24
-    _draw_mixed(d, (60, y), SUMMARY, mono, cjk, FG)
-    # 页脚：来源与复跑口径
-    d.text((60, H - 62), FOOT, font=foot_f, fill=DIM)
+        y += table_lh
+
+    # 汇总 + 页脚
+    d.line([(60, rule2_y), (W - 60, rule2_y)], fill=RULE, width=2)
+    _draw_mixed(d, (60, summary_y), SUMMARY, mono, cjk, FG)
+    d.text((60, footer_y), FOOT, font=foot_f, fill=DIM)
     return img
 
 
 def main() -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    _render().save(OUT, optimize=True)
+    _render().save(OUT, optimize=True, compress_level=9)
     print(f"已生成 {OUT}（{OUT.stat().st_size / 1024:.0f} KB）")
 
 

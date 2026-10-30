@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- README 首屏演示从动画 GIF 换成静态图 `docs/img/quickstart.png`：画面是「高股息 + 低估值」
-  选股脚本的真实实跑结果（2026-10-30：全市场 5,691 家 → 12 次批量请求 → 60 只候选 →
-  命中 20，按 PE 十年分位取前 8），配 README「选股实战」同源 10 行代码；生成器改为
-  `tools/gen_quickstart_png.py`（Pillow 单帧），旧 GIF 与旧生成器移除
+- README 首屏演示从动画 GIF 换成静态图 `docs/img/quickstart.png`：图里同时给「源码 + 输出」——
+  上半是「高股息 + 低估值」选股脚本的代码（生成器从 README 代码块就地抽取，两处不会漂移），
+  下半是这段代码 2026-10-30 的真实实跑结果（全市场 5,691 家 → 12 次批量请求 → 60 只候选 →
+  命中 20，按 PE 十年分位取前 8）；生成器改为 `tools/gen_quickstart_png.py`（Pillow 单帧），
+  旧 GIF 与旧生成器移除，新增 tests/test_quickstart_image.py 守同源与表形状
 
 ## [1.10.0] - 2026-10-30
 

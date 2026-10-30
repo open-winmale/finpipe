@@ -151,8 +151,7 @@ def build() -> dict:
             "version": wmshare.__version__,
             "description": (
                 "覆盖 A 股、港股、美股的财经数据核心接口（Python SDK，`pip install wmshare`；`import wmshare`）。"
-                "凭证必填：免费注册开放平台账号（open.winmale.com）"
-                "即领取 client_id/api-key；"
+                "凭证必填：在开放平台（open.winmale.com）获取 client_id/api-key；"
                 "遇到 401/403/429 错误消息即完整的申请与配置指引。"
                 "覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表"
                 "（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、"

@@ -634,7 +634,7 @@ class Client:
         :param on_batch_error: **批级**容错（与 ``call_batch`` 的票级 ``on_error`` 不同）：
             ``"raise"``（默认）任一批失败即抛；``"skip"`` 跳过失败批继续
             （失败批记进 ``errors``，键形如 ``batch#3[1000:1500]``）。
-        :param _raw: 跳过规范化与单位换算，返回 store 原始行
+        :param _raw: 跳过规范化与单位换算，返回上游原始行
         :param _units: ``"base"``（默认，换算基础单位并校验）/ ``"native"``（脚本原值）
         :returns: 逐批 ``BatchResult``（``requests`` 恒为 1）
 

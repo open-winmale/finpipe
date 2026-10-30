@@ -61,7 +61,7 @@ class DataError(WmshareError):
 
     换算声明与实际数据不符、上游口径变化都会在这里暴露，而不是把错误量级的
     数据静默交给用户。消息包含字段/实际值/期望范围与逃生口：
-    ``_raw=True``（store 原始行）、``_units="native"``（保留脚本输出单位）、
+    ``_raw=True``（上游原始行）、``_units="native"``（保留上游原单位）、
     ``Client(validate=False)``（关闭校验、保留换算）。
     """
 

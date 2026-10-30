@@ -24,15 +24,19 @@ def main(cli=None) -> None:
             print(f"  {sym}  跳过：code={e.code} {e}")
 
     # ---- 批量调用：call_batch 单次 HTTP 返回 {symbol: 结果} ----
+    # 注意目录名是 bonus.*（门面叫 dividend）——命名不必背，cat.search("股息") 一查即得
     print("\n--- call_batch：一次请求取全部自选股 TTM 股息率 ---")
+    # on_error="skip" 是票级隔离：少量标的合适；全市场批量容错必须用
+    # batch_all(on_batch_error="skip")（批级）——票级 skip 会把 12 批放大成 5,691 次请求
     batch = cli.call_batch("bonus.snapshot_yield_ttm", WATCHLIST, on_error="skip")
     for sym, val in sorted(batch.results.items(), key=lambda kv: -(kv[1] or 0)):
         print(f"  {sym}  {val:.2%}" if val is not None else f"  {sym}  —")
     if batch.errors:
         print(f"  错误隔离：{len(batch.errors)} 个失败 → {dict(list(batch.errors.items())[:3])}")
 
-    # ---- 底层选股函数经属性直达（__getattr__ 兜底，252 函数零遮蔽）----
-    # 注意：index_where_* 返回的是服务端查询引擎的筛选表达式（非本地可执行的票池）
+    # ---- 底层选股函数经属性直达（__getattr__ 兜底，252 个目录函数都能直达）----
+    # 注意：index_where_* 返回的是服务端查询引擎的筛选条件表达式（非本地可执行的票池），
+    # 供下游工具消费（如 big-winner）；SDK 不内置执行入口。
     print("\n--- 底层函数直达：cli.dividend.index_where_high_yield_5() ---")
     try:
         expr = cli.dividend.index_where_high_yield_5()  # 「连续 5 年高股息」筛选条件表达式

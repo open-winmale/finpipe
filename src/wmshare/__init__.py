@@ -11,7 +11,7 @@
 
     cli = wmshare.Client.from_env()                  # 读 WMSHARE_CLIENT_ID/SECRET（或凭证文件）
     bars = cli.call("kline.query_bars", sym="600519", limit=30)
-    # _units="native" 保留脚本输出单位；_raw=True 返回 store 原始行；
+    # _units="native" 保留上游原单位；_raw=True 返回上游原始行；
     # Client(validate=False) 关闭校验（换算仍执行）
 """
 from wmshare.catalog import Catalog, load

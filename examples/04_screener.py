@@ -52,7 +52,7 @@ def main(cli=None) -> None:
     except WmshareError as e:
         print(f"  跳过：code={e.code} {e}")
 
-    # ---- 其余目录筛选函数经属性直达（零遮蔽）----
+    # ---- 底层函数直达：门面不遮蔽目录函数，252 个都能经属性调用 ----
     print("\n--- 底层函数直达：cli.screener.screen_up_today(sym) ---")
     for sym in WATCHLIST[:2]:
         try:

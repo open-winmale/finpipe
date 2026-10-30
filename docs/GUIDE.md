@@ -6,7 +6,8 @@
 AI 用法看 [AI.md](AI.md)。
 
 > 代码块里的输出注释都是**真实运行结果**（2026-10-29，cn 市场，免费档凭证），
-> 数值会随行情变化，口径与量级不会。
+> 数值会随行情变化，口径与量级不会。README/SKILL 里的示例值取自更早日期的实测快照，
+> 同一指标不同日数值不同（如 TTM 股息率 0.0396→0.0379），属正常漂移。
 
 ## 1. 安装与凭证
 
@@ -37,7 +38,12 @@ export WMSHARE_CLIENT_ID=<AppId> WMSHARE_CLIENT_SECRET=<API Key>
   （`kline.bars`、`dividend.yield_ttm`、`screener.screen_limit_up`）。
 - **目录层** `cli.call("<域>.<函数名>", ...)`：252 个底层函数按目录合同直调，
   参数名以 `cat.function(name)["params"]` 为准。门面未包装的函数经属性直达
-  （如 `cli.dividend.index_where_high_yield_5()`），目录之外的名字显式报错，零遮蔽。
+  （如 `cli.dividend.index_where_high_yield_5()`）；目录之外的名字显式报错——
+  门面不遮蔽目录函数，252 个都能直达。
+
+两层的名字对不上是常态：目录按上游域组织（`bonus`、`rptdom`、`indices`…），门面按使用
+视角命名（`dividend`、`statements`、`index`…），17 个域挂 20 个门面。不必背映射——
+`cat.search("分红")` 一查即得；`cli.call` 的域与函数名以 `cat.functions_by_domain()` 为准。
 
 ### 2.2 目录先行（防臆造）
 
@@ -52,6 +58,7 @@ cat.function("bonus.snapshot_yield_ttm")["params"]   # 任意函数的参数/返
 cat.metric("$PE_TTM_LAST")            # 指标条目（精选码带单位与守护声明）
 cat.metrics_in_group("dividend")      # 指标组内全部精选码
 cat.symbols_search("茅台")            # 代码/名称/全拼/拼音首字母搜标的
+cat.functions_by_domain()             # 按域列全部函数名（cli.call 的域名以此为准）
 ```
 
 ### 2.3 单位铁律与数据守护
@@ -65,8 +72,8 @@ cat.symbols_search("茅台")            # 代码/名称/全拼/拼音首字母�
 唯一例外：`cli.screener` 宽度接口的 `up_pct`/`down_pct`/`pct_of_total` 是**百分数数值**
 （80.3 = 80.3%），同返回的 `median_pct` 与涨跌幅仍是小数。
 每次返回前 SDK 做量级与关系不变量校验，违例抛 `DataError`——**数据在报警，不要吞掉**。
-逃生口：`_raw=True`（store 原始行）、`_units="native"`（脚本输出单位）、
-`Client(validate=False)`（关校验留换算）。
+逃生口：`_raw=True`（返回上游原始行，字段名与规范化后不同）、`_units="native"`
+（保留上游原单位，如 volume=手、百分数不折算）、`Client(validate=False)`（关校验留换算）。
 
 ### 2.4 限流模型：按请求次数计
 
@@ -152,6 +159,7 @@ cli.screener.screen_volume_spike("600519")  # 放量？
 # 全市场宽度（服务端索引直出；*_pct 是百分数数值、median_pct 是小数）
 cli.screener.index_breadth_summary()
 # {'total': 5685, 'up': 540, 'down': 5002, 'up_pct': 9.5, 'median_pct': -0.0154, ...}
+# total = 当日参与涨跌统计的家数（全市场列表是 5,691，含停牌等不参与统计的）
 cli.screener.index_top_movers(limit=10)     # 涨幅榜（desc=False 跌幅榜）
 
 # 公司档案
@@ -279,6 +287,7 @@ poller.run()   # 本地定时轮询探针；有新公告才拉取、回调、确
 | `UsageError` | 参数不合法/跨市场混批 | 按消息修正；参数合同查 `cat.function()["params"]` |
 | `DataError` | 量级守护/不变量违例 | **数据在报警**：核实口径，勿 try/except 吞掉 |
 | `CatalogError` | 目录查无此函数/指标 | `cat.search()` 找正确名字，禁止臆造 |
+| `StreamResetError` | 订阅进度超出服务端事件保留期 | `seek_oldest()` 重置（第 8 章）；保持不落后需缩短轮询间隔 |
 | `TransportError` / `ServerError` | 网络 / 服务端 5xx | 可重试；持续失败再排查网络 |
 
 ### 9.2 按症状查

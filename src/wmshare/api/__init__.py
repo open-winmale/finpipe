@@ -241,7 +241,7 @@ class KlineApi(_Api):
         """最新一根日 K（date/open/high/low/close/volume/amount/percent），无数据返回 None。
 
         经规范化序列取最新一行，字段与 ``bars()`` 一致；``_raw=True`` 时跳过规范化，
-        返回 store 原始行（字段名不同，含 CreatedAt/sampling 等）。
+        返回上游原始行（字段名不同，含 CreatedAt/sampling 等）。
         """
         rows = self._c.call("kline.query_bars", sym=symbol, limit=1, _raw=_raw)
         return _per_symbol(rows, lambda r: r[0] if r else None)
@@ -1033,7 +1033,7 @@ class DividendApi(_Api):
         """最近一次分红（announce/ex_date/pay/dps/total/content/sas/payout_ratio），无数据返回 None。
 
         复用规范化历史序列取最新一行，字段与 ``history(limit=1)[0]`` 一致；
-        ``_raw=True`` 时返回 store 原始行。
+        ``_raw=True`` 时返回上游原始行。
         """
         rows = self._c.call("bonus.query_list", sym=symbol, limit=1, _raw=_raw)
         return _per_symbol(rows, lambda r: r[0] if r else None)

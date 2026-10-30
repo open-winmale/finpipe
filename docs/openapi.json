@@ -3,7 +3,7 @@
   "info": {
     "title": "wmshare 数据 API",
     "version": "1.9.1",
-    "description": "覆盖 A 股、港股、美股的财经数据核心接口（Python SDK，`pip install wmshare`；`import wmshare`）。凭证必填：免费注册开放平台账号（open.winmale.com）即领取 client_id/api-key；遇到 401/403/429 错误消息即完整的申请与配置指引。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
+    "description": "覆盖 A 股、港股、美股的财经数据核心接口（Python SDK，`pip install wmshare`；`import wmshare`）。凭证必填：在开放平台（open.winmale.com）获取 client_id/api-key；遇到 401/403/429 错误消息即完整的申请与配置指引。覆盖行情 K 线（不复权/前复权/后复权、盘中、分时、ETF、指数）、三大报表（多期、合并 vs 母公司、树视图、新旧会计准则归一）、分红（历史/DPS/窗口/TTM 率）、公告与业绩披露、资金流与指标层。平台指标经 /indicator/get、/indicator/metrics 按指标代码寻址，全量 2197 个指标代码随包内置目录分发（分组清单见 docs/API.md）。",
     "license": {
       "name": "BSD-3-Clause",
       "url": "https://github.com/open-winmale/wmshare/blob/main/LICENSE"
@@ -149,7 +149,7 @@
       "post": {
         "operationId": "kline_last",
         "summary": "最新一根日 K（date/open/high/low/close/volume/amount/percent），无数据返回 None。",
-        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致；``_raw=True`` 时跳过规范化，、返回 store 原始行（字段名不同，含 CreatedAt/sampling 等）。、底层目录函数 `kline.query_bars`。SDK 调用：`cli.kline.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "经规范化序列取最新一行，字段与 ``bars()`` 一致；``_raw=True`` 时跳过规范化，、返回上游原始行（字段名不同，含 CreatedAt/sampling 等）。、底层目录函数 `kline.query_bars`。SDK 调用：`cli.kline.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "市场行情"
         ],
@@ -4324,7 +4324,7 @@
       "post": {
         "operationId": "dividend_last",
         "summary": "最近一次分红（announce/ex_date/pay/dps/total/content/sas/payout_ratio），无数据返回 None。",
-        "description": "复用规范化历史序列取最新一行，字段与 ``history(limit=1)[0]`` 一致；、``_raw=True`` 时返回 store 原始行。、底层目录函数 `bonus.query_list`。SDK 调用：`cli.dividend.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
+        "description": "复用规范化历史序列取最新一行，字段与 ``history(limit=1)[0]`` 一致；、``_raw=True`` 时返回上游原始行。、底层目录函数 `bonus.query_list`。SDK 调用：`cli.dividend.last(...)`；实际经网关 POST /v1/analysis/xs/eval 执行。",
         "tags": [
           "信息披露"
         ],

@@ -10,7 +10,7 @@ wmshare 是覆盖 A 股、港股、美股的 Python 财经数据 SDK（BSD-3-Cla
 用对：先装好、先查目录、按单位铁律读数、按决策树选接口。
 
 **它不是**：回测框架（没有撮合/仓位管理）；数据库（数据经云端 API 运行时获取，
-不随包分发）；全品类数据超市（16 个数据域，覆盖 A 股个股常用研究数据，
+不随包分发）；全品类数据超市（17 个数据域，覆盖 A 股个股常用研究数据，
 基金净值/期货/期权/债券未覆盖）。
 
 ## 1. 环境前置
@@ -48,7 +48,7 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare
 
 每次返回前 SDK 做量级守护与关系不变量校验，违例抛 `DataError`（含字段/实际值/
 期望范围）——**这是数据在报警，不要 try/except 吞掉**。逃生口：`_raw=True`
-（store 原始行）、`_units="native"`（脚本输出单位）、`Client(validate=False)`
+（上游原始行）、`_units="native"`（保留上游原单位）、`Client(validate=False)`
 （关校验留换算）。
 
 ## 3. 目录先行（防臆造，AI 最重要的纪律）

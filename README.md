@@ -26,7 +26,7 @@
 
 - **数据要全**——17 个数据域、116 个核心接口一站取全：K 线（三种复权、1 分钟分时、
   盘中快照、ETF/指数）、分红、三大报表、资金流、公告、业绩预告、股东治理（十大股东/
-  质押五族/限售解禁/机构持仓/沪港通/国家队/高管增减持/股本结构）、回购、并购重组、
+  质押（明细/比例/分布）/限售解禁/机构持仓/沪港通/国家队/高管增减持/股本结构）、回购、并购重组、
   融资融券、可转债、盈利预测、指数成分与估值、全市场列表、港美股披露。
 - **数据要准**——财报按最新会计准则归一，跨年跨公司直接比较；全库基础单位
   （比率/涨跌幅=小数、金额=元、量=股）；每次返回做量级守护与不变量校验，
@@ -72,7 +72,8 @@ import wmshare
 cli = wmshare.Client.from_env()                   # 读上面配置的凭证
 print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小数）
 codes = [r["symbol"] for r in cli.stocks.list()]      # 全市场代码池（A 股 5,691 家）
-df = cli.batch_all("kline.snapshot", codes).to_df()   # 12 次请求，不是 5,691 次
+res = cli.batch_all("kline.snapshot", codes)          # 12 次请求，不是 5,691 次
+print(len(res.results), res.requests)                 # 5691 12
 ```
 
 更多调用见下方「我想做 X → 用哪一行」。遇到 401/403/429：错误消息里附有申请与配置凭证的完整步骤。
@@ -85,12 +86,12 @@ df = cli.batch_all("kline.snapshot", codes).to_df()   # 12 次请求，不是 5,
 | 门面 | 核心能力 | 单位口径 |
 |---|---|---|
 | `cli.kline` | 日 K 三种复权（自上市首日起全覆盖，最早 1991 年）、最新/盘中快照、1 分钟分时、ETF/指数 | 价格=元、量=股、涨跌幅=小数 |
-| `cli.screener` | 单票筛选器（涨停/均线/动量/回撤/放量）+ 全市场涨跌全景/分桶/行业分布/涨跌榜 | 阈值=小数；宽度 `*_pct`=百分数数值 |
+| `cli.screener` | 单票筛选器（涨停/均线/动量/回撤/放量）+ 全市场涨跌全景/分桶/行业分布/涨跌榜 | 阈值=小数；涨跌家数统计的 `*_pct`=百分数数值 |
 | `cli.moneyflow` | 主力/超大单/大单/中单/小单净流入（日频+盘中） | 金额=元 |
 | `cli.statements` | 三大报表多期、合并 vs 母公司、目录树、审计意见 | 报表原币元 |
 | `cli.segments` | 经营分部：分产品/业务/区域收入构成 | 元；比率=小数 |
 | `cli.indicator` | 按指标码取数：估值/盈利/成长/现金流/杜邦 | 比率=小数 |
-| `cli.valuation` | PE/PB/PS/市赚率的历史统计与分位（窗口上限 3 年） | 分位=小数 |
+| `cli.valuation` | PE/PB/PS/市赚率(PR)的历史统计与分位（窗口上限 3 年） | 分位=小数 |
 | `cli.notice` | 公告检索、回购/减持信号 | — |
 | `cli.filings` | 定期报告清单与最新 | — |
 | `cli.forecast` | 业绩预告/快报、财报披露日历 | 同比=小数 |
@@ -102,7 +103,7 @@ df = cli.batch_all("kline.snapshot", codes).to_df()   # 12 次请求，不是 5,
 | `cli.workout` | 契约套利条款（要约收购/换股/现金选择权）看板与单票查询 | 价格=元 |
 | `cli.index` | 指数键列表、成分股（市值/估值中枢）、权重股、宽基估值时序 | 市值=元、比率=小数、权重=小数 |
 | `cli.stocks` | 全市场证券列表（代码/名称/交易所/三级行业/上市日/ST）、行业目录（申万/恒生）、行业成分股（中文名直达） | listed=YYYY-MM-DD、is_st=布尔 |
-| `cli.intl` | 港股 CCASS/主要股东/机构评级/盈利预测，港美沽空，美股发行信息 | 量=股、占比=小数、价格=披露币种 |
+| `cli.intl` | 港股 CCASS（中央结算持仓）/主要股东/机构评级/盈利预测，港美沽空，美股发行信息 | 量=股、占比=小数、价格=披露币种 |
 | `cli.info` | 公司档案（名称/行业/组织类型/上市日期） | — |
 
 ## 市场覆盖
@@ -121,7 +122,7 @@ df = cli.batch_all("kline.snapshot", codes).to_df()   # 12 次请求，不是 5,
 | 港美专项：沽空（`cli.intl.query_sellshort`） | — | ✅ | ✅ |
 | 港美专项：发行信息（`cli.intl.issue_info`） | — | — | ✅ |
 | 资金流 / 两融 / 可转债 / 业绩预告 / 盈利预测研报 / 经营分部 / 契约套利 | ✅ | — | — |
-| 全市场列表 / 行业目录 / 行业成分（`cli.stocks`） | ✅ | ✅ | 列表 ✅（universe 手动刷新有滞后）；行业目录树暂缺 |
+| 全市场列表 / 行业目录 / 行业成分（`cli.stocks`） | ✅ | ✅ | 列表 ✅（美股代码表手动刷新有滞后）；行业目录树暂缺 |
 | 离线代码表 + 检索（`cat.symbols_search`） | ✅ | ✅ | ✅ |
 
 市场切换：`Client(market="cn" / "hk" / "us")`，缺省 cn；代码与市场不匹配会被服务端直接拒绝
@@ -133,7 +134,7 @@ df = cli.batch_all("kline.snapshot", codes).to_df()   # 12 次请求，不是 5,
 `cli.kline.live / snapshot`（实测当日新鲜）；港美 K 线量额单位已随 1.x 修复（cn 手×100
 仅在 cn 生效，港美上游即股直出）；三大报表的**深研宽表**（多期透视/合并对比/树视图）
 暂仅 cn，港美报表科目级数据经指标码可查；hk 十大流通股东与回购上游已有数据管线、
-SDK 接口待路由（见 ROADMAP）。
+SDK 接口待路由。
 
 ## 我想做 X → 用哪一行
 
@@ -193,11 +194,11 @@ rows = cli.stocks.list()
 # 行业成分：中文名直达（也可传行业代码 "S48"），字段同上
 banks = cli.stocks.industry_members("银行")
 # 批量：任意单标的接口传 list 即批量（单次 ≤500）；to_df 出带 symbol 列的长表
-df = cli.call_batch("kline.snapshot", ["600519", "000001"]).to_df()
+df = cli.call_batch("kline.snapshot", ["600519", "000001"]).to_df()   # to_df 需 pandas（pip install "wmshare[dataframe]"）
 print(df)                                # symbol/close/percent/...
 ```
 
-以上能力全部在离线目录可查：`cat.search("分位")`、`cat.metrics_in_group("dividend")`。
+以上能力全部在离线目录可查（`cat = wmshare.load()` 后）：`cat.search("分位")`、`cat.metrics_in_group("dividend")`。
 
 ## 批量取数
 
@@ -237,8 +238,8 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 `codes[done:]` 切片），不会闷头连败。
 
 **市场边界**：一个批次只能是**同一市场**——`Client(market="cn")` 只传 A 股代码，混入港股/美股
-代码会直接报错（网关只校验请求锚点，他市场代码会在本市场引擎里走错数据管线，返回的 close/
-涨跌幅不可信）。跨市场请分别调用：A 股 12 批 + 港股 6 批 + 美股 11 批 = 29 次请求。
+代码会直接报错（网关只校验请求参数里的代码，不逐个校验批内；他市场代码会在本市场
+引擎里走错数据管线，返回的 close/涨跌幅不可信）。跨市场请分别调用：A 股 12 批 + 港股 6 批 + 美股 11 批 = 29 次请求。
 
 **容错**：`batch_all(on_batch_error="skip")` 跳过失败的**批**继续（失败批进 `errors`，键如 `batch#3[1000:1500]`）。
 **不要用 `call_batch(on_error="skip")` 做容错**——它逐票发请求，12 批会放大成 5,691 次、正好制造 429。
@@ -253,7 +254,7 @@ for i, part in enumerate(cli.batch_iter("dividend.history", codes), 1):
 全库统一基础单位：**比率 / 涨跌幅 = 小数**（0.01 = 1%，ROE 0.332 = 33.2%）、
 **金额 / 价格 / 市值 = 元**（报表原币）、**成交量 = 股**；各接口单位口径见「能力一览」表。
 返回前做量级与关系不变量校验，违例抛 `DataError`——错误的量级到不了你的代码。
-需要脚本原始口径时：`_raw=True`、`_units="native"`、`Client(validate=False)` 关闭校验。
+需要脚本原始口径时：`_raw=True`（上游原始行）、`_units="native"`（保留上游原单位，如手/百分数）、`Client(validate=False)`（关校验留换算）。
 
 数据深度：个股/ETF 日 K 覆盖**自上市首日以来的全部交易日**（最早 1991 年）；
 单次区间上限 5 年、默认单次 500 根（`Client(max_limit=...)` 可调）。全量深回溯

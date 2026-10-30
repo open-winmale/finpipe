@@ -339,8 +339,8 @@ def build() -> str:
         "（`py.typed`），IDE 直接补全。",
         "- **单位统一 + 数据守护**：返回值统一基础单位（比率/涨跌幅=小数、金额/市值=元、"
         "A 股成交量=股）；每次返回前按目录声明做量级守护与关系不变量校验，违例抛 "
-        "`DataError` 而非交给你错误量级的数据。取原始口径：`_raw=True`（store 原始行）、"
-        "`_units=\"native\"`（脚本输出单位）、`Client(validate=False)`（关校验留换算）。",
+        "`DataError` 而非交给你错误量级的数据。取原始口径：`_raw=True`（上游原始行）、"
+        "`_units=\"native\"`（保留上游原单位）、`Client(validate=False)`（关校验留换算）。",
         "",
     ]
     out += overview_table(docs)

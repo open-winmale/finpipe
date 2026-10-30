@@ -1,6 +1,7 @@
 """全市场代码池 → 行业成分 → 批量取数：绕开 429 的一条龙完整链路。
 
-前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）
+前提：凭证必填（export WMSHARE_CLIENT_ID=... WMSHARE_CLIENT_SECRET=...）；
+      本示例对全市场遍历两遍（batch_all + batch_iter），约消耗 25 次请求、十几秒
 运行：python examples/07_stocks_industry_batch.py
 学到：stocks.list/industries/industry_members；batch_all/batch_iter/call_batch 三入口分工
 文档：docs/GUIDE.md（全市场与行业、批量取数）

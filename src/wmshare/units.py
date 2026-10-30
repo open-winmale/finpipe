@@ -30,7 +30,7 @@ CONVERSIONS: dict[str, float] = {
     "lot": 100.0,      # 手 → 股（A 股 1 手 = 100 股）
 }
 
-ESCAPE_HINT = ('如需原始口径：_raw=True（store 原始行）或 _units="native"（保留脚本输出单位）；'
+ESCAPE_HINT = ('如需原始口径：_raw=True（上游原始行）或 _units="native"（保留上游原单位）；'
                '或 Client(validate=False) 关闭校验。')
 
 

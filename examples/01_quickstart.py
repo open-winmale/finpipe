@@ -55,7 +55,7 @@ def main(cli=None) -> None:
           f"（逐票需 {len(codes)} 次；免费档限额 500 次/小时）")
     # 逐批处理（长任务边取边落盘）：for part in cli.batch_iter("kline.snapshot", codes): ...
 
-    # 进阶：DataFrame 见 examples/pandas_analysis.py；底层函数通用入口：
+    # 进阶：DataFrame 见 examples/08_pandas_analysis.py；底层函数通用入口：
     cli.call("kline.query_bars", sym=SYMBOL, limit=5)
 
 

@@ -232,6 +232,21 @@ def test_api_md_examples_execute(cli):
         eval(example, {"cli": cli})  # noqa: S307 - 文档内生成的示例，受仓库控制
 
 
+class _FakeBatch:
+    """pandas-free 批结果替身：CI 不装可选依赖，README 块只需验证调用形态不回退。
+
+    真 BatchResult.to_df() 需要 pandas（wmshare[dataframe]）；CI 环境故意不装，
+    曾把 test_readme_python_blocks_execute 打红（1.9.2 起 main 常红）。
+    """
+
+    def __init__(self, results: dict, requests: int):
+        self.results, self.errors, self.requests = results, {}, requests
+
+    def to_df(self):
+        return [{"symbol": k, **(v if isinstance(v, dict) else {"value": v})}
+                for k, v in self.results.items()]
+
+
 class ReadmeClient:
     """README 示例执行用的罐头客户端：返回值与示例注释里的预期输出同量级。
 
@@ -297,23 +312,20 @@ class ReadmeClient:
         )
 
     def call_batch(self, name, symbols, **kw):
-        from wmshare.client import BatchResult
-        return BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
-                                    for s in symbols}, requests=1)
+        return _FakeBatch({s: {"close": 1331.88, "percent": 0.0052}
+                           for s in symbols}, requests=1)
 
     def batch_all(self, name, symbols, batch_size=None, **kw):
-        from wmshare.client import BatchResult
-        return BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
-                                    for s in symbols},
-                           requests=-(-len(symbols) // 500))
+        return _FakeBatch({s: {"close": 1331.88, "percent": 0.0052}
+                           for s in symbols},
+                          requests=-(-len(symbols) // 500))
 
     def batch_iter(self, name, symbols, batch_size=None, **kw):
-        from wmshare.client import BatchResult
         step = batch_size or 500
         chunks = [symbols[i:i + step] for i in range(0, len(symbols), step)]
         for chunk in chunks:
-            yield BatchResult(results={s: {"close": 1331.88, "percent": 0.0052}
-                                       for s in chunk}, requests=1)
+            yield _FakeBatch({s: {"close": 1331.88, "percent": 0.0052}
+                              for s in chunk}, requests=1)
 
     @classmethod
     def from_env(cls, *a, **k):

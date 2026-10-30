@@ -60,9 +60,11 @@ if _internal_map.is_file():
     _map = _json.loads(_internal_map.read_text(encoding="utf-8"))
     SANITIZE_TEXT: dict[str, str] = _map.get("sanitize_text", {})
     METRIC_SOURCE_EXCLUDE: tuple[str, ...] = tuple(_map.get("metric_source_exclude", ()))
+    METRIC_GATES: dict[str, str] = _map.get("metric_gates", {})
 else:
     SANITIZE_TEXT = {}
     METRIC_SOURCE_EXCLUDE = ()
+    METRIC_GATES = {}
 
 
 def sanitize(text: str) -> str:
@@ -231,9 +233,53 @@ def extract_metrics(sr: Path) -> dict:
         src = (v or {}).get("source") or ""
         if src.startswith(METRIC_SOURCE_EXCLUDE):
             continue
-        rows.append({"code": code, "cn": sanitize(str((v or {}).get("desc") or ""))})
+        # 忠实度复核（SDK 以 script 为基准，但收割器连注释一起抓）：码的全部出现
+        # 都在注释行 = script 未定义该码，剔除（如 $POPULATION_TOTAL 废弃后注释残留）。
+        # 注意不能用收割 line 单点判断——上游 line 常指向分节横幅注释而非注册行。
+        if _only_commented(sr, src, code):
+            continue
+        row = {"code": code, "cn": sanitize(str((v or {}).get("desc") or ""))}
+        # 市场/模式作用域元数据：从定义路径如实推导（shared=全市场，不写字段）
+        markets = _source_markets(src)
+        if markets:
+            row["markets"] = markets
+        gate = METRIC_GATES.get(src)
+        if gate:
+            row["gated"] = gate
+        rows.append(row)
     rows.sort(key=lambda r: r["code"])
     return {"count": len(rows), "metrics": rows}
+
+
+_FILE_TEXT_CACHE: dict[str, list[str]] = {}
+
+
+def _only_commented(sr: Path, src: str, code: str) -> bool:
+    """码在该 source 文件里出现过、且每一处出现都在注释行 → 收割幽灵。"""
+    if not src:
+        return False
+    p = sr / src
+    if not p.is_file():
+        return False
+    key = str(p)
+    if key not in _FILE_TEXT_CACHE:
+        try:
+            _FILE_TEXT_CACHE[key] = p.read_text(encoding="utf-8",
+                                                errors="replace").splitlines()
+        except OSError:
+            _FILE_TEXT_CACHE[key] = []
+    found = False
+    for ln in _FILE_TEXT_CACHE[key]:
+        if code in ln:
+            found = True
+            if not ln.lstrip().startswith("#"):
+                return False
+    return found
+
+
+def _source_markets(src: str) -> list[str]:
+    m = re.match(r"^sys/metric/(cn|hk|us)/", src or "")
+    return [m.group(1)] if m else []
 
 
 def build(sr: Path) -> tuple[dict, dict]:

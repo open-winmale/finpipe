@@ -142,7 +142,7 @@ class Catalog:
                 f"未知函数 {name!r}；目录共 {len(self._functions)} 条", code="function") from None
 
     def metric(self, code: str) -> dict | None:
-        """按代码取指标（O(1) 索引，2197 条不逐项扫描）。精选组条目带 unit/range 声明。"""
+        """按代码取指标（O(1) 索引，不逐项扫描）。精选组条目带 unit/range 声明。"""
         base = self._metric_by_code.get(code)
         meta = self._metric_meta.get(code)
         if meta and base:

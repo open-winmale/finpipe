@@ -28,7 +28,6 @@ metric_groups:
     metrics:
       - {code: '$PE_TTM_LAST', cn: PE(TTM)}
       - {code: '$PE_TTM_DPPR_LAST', cn: 扣非市盈率TTM}
-      - {code: '$PB_LAST', cn: PB}
       - {code: '$PB_NOGW_LAST', cn: 最新不含商誉市净率}
       - {code: '$PS_TTM_LAST', cn: 滚动市销率TTM}
       - {code: '$PCF_TTM_LAST', cn: 滚动市现率TTM}

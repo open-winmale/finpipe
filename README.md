@@ -4,7 +4,7 @@
 
 > **English TL;DR** — `wmshare` is a BSD-3-Clause open-source Python SDK covering China A-share,
 > Hong Kong and US markets (per-capability matrix in「市场覆盖」): k-line (3 adjustment modes),
-> intraday snapshots, money flow, the three financial statements, 2,197 metric codes (TTM,
+> intraday snapshots, money flow, the three financial statements, 2,158 metric codes (TTM,
 > historical & industry percentiles, dividend analytics), a screener facade (single-stock
 > screens & server-side market breadth), whole-market symbol lists & industry members,
 > announcements and company profiles. Ships a machine-readable offline catalog, unified base
@@ -33,10 +33,10 @@
   错误的量级到不了你的代码（见「单位与数据守护」）。
 - **特色数据**——盘中实时快照与当日 1 分钟分时；
   `cli.screener` 涨停/均线筛选一行直出，全市场涨跌全景/分桶/行业分布/涨跌榜走
-  服务端预计算索引，毫秒级响应；2,197 个指标码（TTM、3/5/10 年历史分位、
+  服务端预计算索引，毫秒级响应；2,158 个指标码（TTM、3/5/10 年历史分位、
   192 个行业内分位、TTM 股息率/派息率 + 11 个质量筛选器）服务端算好直出。
 - **凭证即用**——开放平台签发 client_id/api-key，环境变量、凭证文件、构造参数任选其一配置；遇到 401/403/429 错误消息即完整指引。
-- **目录随包 + AI 原生**——252 个底层函数、116 个核心接口、2,197 个指标码离线可查；
+- **目录随包 + AI 原生**——252 个底层函数、116 个核心接口、2,158 个指标码离线可查；
   附 Agent Skills 格式 skill（`wmshare.skill_dir()`），复制进 AI agent 即可正确使用。
 
 ## 快速上手
@@ -80,8 +80,8 @@ print(len(res.results), res.requests)                 # 5691 12
 
 ## 能力一览
 
-随包离线目录：**17 个数据域 · 252 个底层函数 · 2197 个指标代码**；友好层 **116 个核心接口**，
-按使用视角组织为（11 个指标组、75 个精选常用指标代码，`cat.search("中文")` 可编程检索）：
+随包离线目录：**17 个数据域 · 252 个底层函数 · 2158 个指标代码**；友好层 **116 个核心接口**，
+按使用视角组织为（11 个指标组、74 个精选常用指标代码，`cat.search("中文")` 可编程检索）：
 
 | 门面 | 核心能力 | 单位口径 |
 |---|---|---|
@@ -111,7 +111,7 @@ print(len(res.results), res.requests)                 # 5691 12
 | 数据能力 | A股 cn | 港股 hk | 美股 us |
 |---|---|---|---|
 | 日 K 三种复权 / 1 分钟分时 / 盘中快照 | ✅ 全量 | ✅ | 快照/盘中新鲜；历史日 K 停更（见注记） |
-| 指标库（2,197 码：估值/盈利/成长/分红/分位） | ✅ | ✅ | ✅ |
+| 指标库（2,158 码：估值/盈利/成长/分红/分位） | ✅ | ✅ | ✅ |
 | 分红：历史、TTM 股息率/派息率、质量筛选 | ✅ | ✅ | ✅（窗口口径固定） |
 | 公告与披露信号 | ✅ | ✅ | — |
 | 财报清单与最新披露 | ✅ | ✅ | — |

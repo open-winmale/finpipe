@@ -19,7 +19,7 @@
 [市场覆盖](#市场覆盖) · [我想做 X → 用哪一行](#我想做-x--用哪一行) · [批量取数](#批量取数) ·
 [单位与数据守护](#单位与数据守护) · [许可与数据服务](#许可与数据服务) · [更多](#更多)
 
-![零凭证首跑演示：演示客户端 → 股息率 → 估值分位 → 批量](docs/img/quickstart.gif)
+![选股实战：10 行从全市场筛出高股息 + PE 十年低位的股票（2026-10-30 真实数据）](docs/img/quickstart.png)
 
 ## 特性
 
@@ -48,21 +48,6 @@ python3 -c "import wmshare; print(wmshare.__version__)"   # 验证安装
 
 国内直连不稳时换清华源：`pip install -i https://pypi.tuna.tsinghua.edu.cn/simple wmshare`（镜像滞后时回官方源）；升级 `pip install -U wmshare`（Windows 用 `py -m pip install -U wmshare`）；开发者安装见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-### 不配凭证，先看输出（离线演示数据）
-
-```python
-import wmshare
-
-cli = wmshare.demo_client()                        # 随包演示客户端：零凭证、不联网
-print(cli.dividend.yield_ttm("600519"))            # 0.0396（TTM 股息率，小数；演示快照）
-print(cli.indicator.get("600519", "$PCT_PE_TTM_10Y_LAST"))   # 0.42（PE 近10年分位）
-res = cli.batch_all("kline.snapshot", [r["symbol"] for r in cli.stocks.list()])
-print(len(res.results), res.requests)              # 3 1（演示池 3 家；真实全市场 = 12 次）
-```
-
-演示数据是随包固定快照（**非真实行情**），调用面与真实客户端完全一致。看完输出，按下一节配好
-凭证后把 `demo_client()` 换成 `Client.from_env()`，同一段代码即接真实数据。
-
 ### 配置凭证
 
 凭证在 [开放平台](https://open.winmale.com)「我的 → 开放平台 → 我的应用」页获取 `AppId（Client ID）` 与 `API Key（Client Secret）` 两个值（缺一不可），配置方式任选其一：
@@ -73,19 +58,31 @@ export WMSHARE_CLIENT_ID=<AppId> WMSHARE_CLIENT_SECRET=<API Key>   # 方式一�
 # 方式三：构造参数 cli = wmshare.Client(client_id="...", client_secret="...")
 ```
 
-### 三行上手
+### 选股实战：10 行筛出「高股息 + PE 十年低位」
+
+逐票请求全市场会撞限流（5,691 家 = 5,691 次请求），所以先用一次批量拿到股息率（12 次请求），只对候选逐票查 PE 与十年分位：
 
 ```python
 import wmshare
-
-cli = wmshare.Client.from_env()                   # 读上面配置的凭证
-print(cli.dividend.yield_ttm("600519"))           # 0.0396（TTM 股息率，小数）
-codes = [r["symbol"] for r in cli.stocks.list()]      # 全市场代码池（A 股 5,691 家）
-res = cli.batch_all("kline.snapshot", codes)          # 12 次请求，不是 5,691 次
-print(len(res.results), res.requests)                 # 5691 12
+cli = wmshare.Client.from_env()
+pool = cli.stocks.list()                                     # 全市场 5,691 家
+meta = {r["symbol"]: r for r in pool}
+yld = cli.batch_all("bonus.snapshot_yield_ttm", list(meta))   # 12 次请求，不是 5,691 次
+top = sorted(((s, v) for s, v in yld.results.items() if isinstance(v, (int, float))),
+             key=lambda kv: -kv[1])
+cand = [(s, v) for s, v in top if 0.03 <= v <= 0.10 and not meta[s].get("is_st")][:60]
+rows = []
+for s, v in cand:
+    m = cli.indicator.metrics(s, ["$PE_TTM_LAST", "$PCT_PE_TTM_10Y_LAST"])
+    pe, pct = m["$PE_TTM_LAST"], m["$PCT_PE_TTM_10Y_LAST"]
+    if pe and 0 < pe < 40 and pct is not None and pct <= 0.5:
+        rows.append((s, meta[s]["name"], v, pe, pct))
+rows.sort(key=lambda r: r[4])
+for s, n, v, pe, pct in rows[:8]:                            # 输出见首屏图
+    print(f"{s}  {n}  股息率 {v:.2%}  PE {pe:.1f}  十年分位 {pct:.1%}")
 ```
 
-更多调用见下方「我想做 X → 用哪一行」。遇到 401/403/429：错误消息里附有申请与配置凭证的完整步骤。
+没配凭证也能先看调用面：`cli = wmshare.demo_client()`（同签名、随包快照、不联网），换成 `Client.from_env()` 即接真实数据。
 
 ## 能力一览
 

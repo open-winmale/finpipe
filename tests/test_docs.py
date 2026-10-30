@@ -291,6 +291,7 @@ class ReadmeClient:
         )
         self.indicator = types.SimpleNamespace(
             get=lambda sym, code: self.INDICATORS.get(code, 0.5),
+            metrics=lambda sym, codes: {c: self.INDICATORS.get(c) for c in codes},
         )
         self.notice = types.SimpleNamespace(
             list=lambda *a, **k: [],
@@ -311,13 +312,17 @@ class ReadmeClient:
                 {"symbol": "600519", "name": "贵州茅台", "listed": "2001-08-27"}],
         )
 
+    def _payload(self, name, symbols):
+        # 首屏「选股实战」块：批量股息率返回小数，走筛选分支；其余保持行情行形状
+        if name == "bonus.snapshot_yield_ttm":
+            return {s: 0.045 for s in symbols}
+        return {s: {"close": 1331.88, "percent": 0.0052} for s in symbols}
+
     def call_batch(self, name, symbols, **kw):
-        return _FakeBatch({s: {"close": 1331.88, "percent": 0.0052}
-                           for s in symbols}, requests=1)
+        return _FakeBatch(self._payload(name, symbols), requests=1)
 
     def batch_all(self, name, symbols, batch_size=None, **kw):
-        return _FakeBatch({s: {"close": 1331.88, "percent": 0.0052}
-                           for s in symbols},
+        return _FakeBatch(self._payload(name, symbols),
                           requests=-(-len(symbols) // 500))
 
     def batch_iter(self, name, symbols, batch_size=None, **kw):
@@ -354,6 +359,16 @@ def test_readme_python_blocks_execute(readme_cli):
                  {"__name__": "__readme__"})
     finally:
         wmshare.Client = original
+
+
+def test_readme_images_exist():
+    """README 引用的图片必须真实存在且非空——首屏静态图不进生成物漂移门禁，单独守。"""
+    refs = re.findall(r"!\[[^\]]*\]\((docs/img/[^)\s]+)\)", README)
+    assert refs, "README 首屏缺少示意图"
+    for rel in refs:
+        path = REPO / rel
+        assert path.is_file(), f"README 引用的图片不存在：{rel}"
+        assert path.stat().st_size > 0, f"README 引用的图片为空：{rel}"
 
 
 def test_readme_example_outputs_documented():

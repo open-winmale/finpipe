@@ -6,7 +6,7 @@ wmshare 的文档按「教程 / 怎么做 / 参考 / 解释」四层组织
 
 | 我想… | 去哪 | 说明 |
 |---|---|---|
-| 5 分钟装好并跑通第一行 | [README](../README.md) | 店面：特性、安装、零凭证演示、凭证、三行上手 |
+| 5 分钟装好并跑通第一行 | [README](../README.md) | 店面：特性、安装、选股实战（真实数据）、凭证、离线演示 |
 | 系统学一遍（可运行课程） | [examples/](../examples/README.md) | 11 个编号示例：离线优先、CI 全覆盖、输出带单位注释 |
 | 完成某个具体任务 | [GUIDE.md](GUIDE.md) | 单票菜谱、全市场与行业、批量绕 429、多市场、pandas、公告订阅 |
 | 查某个接口的参数与返回 | [API.md](API.md) | 116 个核心接口参考（生成物，随目录合同更新）；机器可读 [openapi.json](openapi.json) / [swagger.html](swagger.html) |
@@ -27,7 +27,7 @@ wmshare 的文档按「教程 / 怎么做 / 参考 / 解释」四层组织
 
 ## 阅读路径建议
 
-- **数据分析新手**：README 三行上手 → `examples/01→04→05` → GUIDE 单票菜谱 → GUIDE 故障排查
+- **数据分析新手**：README 选股实战 → `examples/01→04→05` → GUIDE 单票菜谱 → GUIDE 故障排查
 - **全市场/工程化用户**：GUIDE 第 5 章（批量）→ `examples/07、08` → GUIDE 配额实测
 - **AI agent 开发者**：AI.md → `examples/09` → 把 skill 装进你的 agent → GUIDE 当参考
 

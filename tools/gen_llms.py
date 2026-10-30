@@ -61,7 +61,7 @@ def build_llms_txt() -> str:
         "",
         "## Docs",
         "",
-        f"- [README]({RAW}/README.md)：安装、凭证配置、三行上手、能力与市场覆盖矩阵",
+        f"- [README]({RAW}/README.md)：安装、凭证配置、选股实战（10 行全市场筛选）、能力与市场覆盖矩阵",
         f"- [使用指南 GUIDE]({RAW}/docs/GUIDE.md)：单票菜谱、批量取数、多市场、pandas、故障排查",
         f"- [AI 用法]({RAW}/docs/AI.md)：让 AI 正确使用 SDK 的三条路径、提示词模板、安全红线",
         f"- [API 参考]({RAW}/docs/API.md)：116 个核心接口的参数 / 返回 / 单位口径",
